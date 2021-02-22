@@ -3,8 +3,7 @@
 Index your strapi Collections into a MeiliSearch instance. The plugin listens to modifications made on your collections and update MeiliSearch accordingly.
 
 <p align="center">
-  <!-- <a href="https://www.npmjs.com/package/meilisearch"><img src="https://img.shields.io/npm/v/meilisearch.svg" alt="npm version"></a> -->
-  <!-- <a href="https://github.com/meilisearch/meilisearch-js/actions"><img src="https://github.com/meilisearch/meilisearch-js/workflows/Tests/badge.svg" alt="Tests"></a> -->
+
   <a href="https://github.com/prettier/prettier"><img src="https://img.shields.io/badge/styled_with-prettier-ff69b4.svg" alt="Prettier"></a>
   <a href="https://github.com/meilisearch/meilisearch-js/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-informational" alt="License"></a>
   <a href="https://app.bors.tech/repositories/28762"><img src="https://bors.tech/images/badge_small.svg" alt="Bors enabled"></a>
@@ -88,8 +87,29 @@ yarn develop
 
 You can now use the plugin on your strapi project.
 
+## 🖐 Requirements
 
-## Our goal
+Complete installation requirements are exact same as for Strapi itself and can be found in the documentation under <a href="https://strapi.io/documentation/v3.x/installation/cli.html#step-1-make-sure-requirements-are-met">Installation Requirements</a>.
+
+**Supported Strapi versions**:
+
+- Strapi v3.4.x
+
+(This plugin may work with the older Strapi versions, but these are not tested nor officially supported at this time.)
+
+**Node / NPM versions**:
+
+- NodeJS >= 12.10 <= 14
+- NPM >= 6.x
+
+**We recommend always using the latest version of Strapi to start your new projects**.
+
+## 🌎 Community support
+
+- For general help using Strapi, please refer to [the official Strapi documentation](https://strapi.io/documentation/).
+- Strapi Slack [channel](https://slack.strapi.io/)
+
+## Plugin's goal
 
 We want to create a Plugin that provides automatic actions and an interface on the strapi dashboard that helps the user start with MeiliSearch. The User should be able to create or remove new collections from MeiliSearch.
 
