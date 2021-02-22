@@ -1,0 +1,29 @@
+{
+  "name": "strapi-plugin-meilisearch",
+  "version": "0.0.0",
+  "description": "This is the description of the plugin.",
+  "strapi": {
+    "name": "meilisearch",
+    "icon": "plug",
+    "description": "Description of meilisearch plugin."
+  },
+  "dependencies": {
+    "meilisearch": "^0.18.1"
+  },
+  "author": {
+    "name": "Charlotte Vermandel",
+    "email": "charlotte@meilisearch.com"
+  },
+  "maintainers": [
+    {
+      "name": "Charlotte Vermandel",
+      "email": "charlotte@meilisearch.com"
+    }
+  ],
+  "engines": {
+    "node": ">=10.16.0 <=14.x.x",
+    "npm": ">=6.0.0"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/meilisearch/strapi-plugin-meilisearch#readme"
+}
