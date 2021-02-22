@@ -13,7 +13,7 @@ Index your strapi Collections into a MeiliSearch instance. The plugin listens to
 [MeiliSearch](https://github.com/meilisearch/meilisearch) is a open-source and easy to use search engine.
 [Strapi](https://strapi.io/) is a backend CMS that makes creating and managing content easy.
 
-## Usage during development
+## Usage during WIP
 
 Until this package is released on `NPM`, you can use it the following way"
 
@@ -44,8 +44,13 @@ Instead of adding the plugin to an existing project, you can try it out using th
 yarn develop
 ```
 
-
-
+Or if you want to use `npm`, by going inside the directory:
+```
+# with npm
+cd playground
+npm install
+npm run develop
+```
 
 Install Strapi with this **Quickstart** command to create a Strapi project instantly:
 
@@ -65,52 +70,31 @@ npx create-strapi-app my-project --quickstart
 _This command generates a brand new project with the default features (authentication, permissions, content management, content type builder & file upload). The **Quickstart** command installs Strapi using a **SQLite** database which is used for prototyping in development._
 
 
-#### Clone and add plugin
+Once your strapi project has been created, to link the plugin to this project you have to create a symbolic link inside a plugin folder at the root of the strapi project.
 
-Clone this project
+1. Create plugin folder
+```
+mkdir plugins
+```
+2. Create symbolic link
+```
+cd plugins
+ln -s [PATH_TO_PLUGIN] meilisearch
+```
+3. Develop
+```
+yarn develop
+```
 
-
-
-
-
-
-## What is Strapi ?
-
-Strapi is a backend CMS. Meaning it does not provide any front-end implementations.
-
-It provides an API end point the same way meilisearch does. To generate the API endpoints strapi needs you to configure your needs in their dashboard.
-
-## API
-
-The API is created based on the `collections` you created in your strapi Dashboard.
-A collection is like a table in SQL, it also requires you to describe each field ( `name: string, required, etc..`).
-
-
-## Dashboard
-
-The collections are created using the dashboard of stripe.
-Collections customisations looks a lot like the ones in SQL. You can create relations between collections but in a way more intuitive way.
-
-
-## Plugins
-
-Strapi provides two sort of plugins.
-
-- [Plugins](https://strapi.io/documentation/developer-docs/latest/plugin-development/quick-start.html#development-environment-setup). Lets call them `official plugins`.
-   They are provided by Strapi and only 8 exists.
-- [Local plugins](https://strapi.io/documentation/developer-docs/latest/plugin-development/quick-start.html#development-environment-setup)
-    Local plugins lets you create your own plugins to create business logic for you API (i.e create additional routes or modify information before it is returned)
-
-
-Local plugins and official plugins seems to work exactly the same way with the exception that one is downloadable in the marketplace (the official ones).
+You can now use the plugin on your strapi project.
 
 
 ## Our goal
 
-We want to create a Plugin that provides automatic actions and interface on the strapi dashboard that lets the user create its need. The User should be able to create or remove new collections from MeiliSearch and to add settings to the indexes.
+We want to create a Plugin that provides automatic actions and an interface on the strapi dashboard that helps the user start with MeiliSearch. The User should be able to create or remove new collections from MeiliSearch.
 
 In the background, the plugin should re-index the documents that have been changed in the collections.
-For exemple, If I change the name of the restaurant Tonio with Tony in my strapi interface, an update should automaticly done to update it aswell on MeiliSearch.
+For exemple, If I change the name of the restaurant `Tonio` with `Tony` in a strapi collection, an update should automaticly be done to update it aswell on MeiliSearch.
 
 No additional routes should be created on strapi for the front end users as they will be using the MeiliSearch API to search and not Strapi (unless we want to make this possible?).
 
