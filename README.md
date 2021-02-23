@@ -14,7 +14,7 @@ Index your Strapi collections into a MeiliSearch instance. The plugin listens to
 
 ## Usage during WIP
 
-Until this package is released on `NPM`, you can use it the following way"
+Until this package is released on `npm`, you can use it the following way:
 
 ### ⏳ Installation
 
@@ -26,29 +26,29 @@ $ cd strapi-plugin-meilisearch
 ```
 
 Install all required dependencies:
-```
+```bash
 # with yarn
-yarn install
+$ yarn install
 
 # with yarn
-npm install
+$ npm install
 ```
 
 ### Using playground
 
 Instead of adding the plugin to an existing project, you can try it out using the playground.
 
-```
+```bash
 # with yarn
-yarn develop
+$ yarn develop
 ```
 
 Or if you want to use `npm`, by going inside the directory:
-```
+```bash
 # with npm
-cd playground
-npm install
-npm run develop
+$ cd playground
+$ npm install
+$ npm run develop
 ```
 
 Install Strapi with this **Quickstart** command to create a Strapi project instantly:
@@ -56,20 +56,20 @@ Install Strapi with this **Quickstart** command to create a Strapi project insta
 
 #### Create strapi project
 
-- (Use **yarn** to install the Strapi project (recommended). [Install yarn with these docs](https://yarnpkg.com/lang/en/docs/install/).)
+- Use **yarn** to install the Strapi project (recommended). [Install yarn with these docs](https://yarnpkg.com/lang/en/docs/install/).)
 
 ```bash
 # with yarn
-yarn create strapi-app my-project --quickstart
+$ yarn create strapi-app my-project --quickstart
 
 # with npm/npx
-npx create-strapi-app my-project --quickstart
+$ npx create-strapi-app my-project --quickstart
 ```
 
 _This command generates a brand new project with the default features (authentication, permissions, content management, content type builder & file upload). The **Quickstart** command installs Strapi using a **SQLite** database which is used for prototyping in development._
 
 
-Once your strapi project has been created, to link the plugin to this project you have to create a symbolic link inside a plugin folder at the root of the strapi project.
+Once your Strapi project has been created, to link the plugin to this project you have to create a symbolic link inside a plugin folder at the root of the Strapi project.
 
 1. Create plugin folder
 ```
@@ -85,7 +85,7 @@ ln -s [PATH_TO_PLUGIN] meilisearch
 yarn develop
 ```
 
-You can now use the plugin on your strapi project.
+You can now use the plugin on your Strapi project.
 
 ## 🖐 Requirements
 
@@ -113,8 +113,8 @@ Complete installation requirements are exact same as for Strapi itself and can b
 
 We want to create a Plugin that provides automatic actions and an interface on the strapi dashboard that helps the user start with MeiliSearch. The User should be able to create or remove new collections from MeiliSearch.
 
-In the background, the plugin should re-index the documents that have been changed in the collections.
-For exemple, If I change the name of the restaurant `Tonio` with `Tony` in a strapi collection, an update should automaticly be done to update it aswell on MeiliSearch.
+In the background, the plugin should re-index the documents that have been changed in the collections.<br>
+For example, If I change the name of the restaurant `Tonio` with `Tony` in a Strapi collection, an update should automatically be done to update it as well on MeiliSearch.
 
 No additional routes should be created on strapi for the front end users as they will be using the MeiliSearch API to search and not Strapi (unless we want to make this possible?).
 
