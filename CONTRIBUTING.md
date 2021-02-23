@@ -6,7 +6,6 @@ First of all, thank you for contributing to MeiliSearch! The goal of this docume
 - [How to Contribute](#how-to-contribute)
 - [Development Workflow](#development-workflow)
 - [Git Guidelines](#git-guidelines)
-- [Release Process (for internal team only)](#release-process-for-internal-team-only)
 
 ## Assumptions
 
@@ -86,6 +85,10 @@ Some notes on GitHub PRs:
 - All PRs must be reviewed and approved by at least one maintainer.
 - The PR title should be accurate and descriptive of the changes. The title of the PR will be indeed automatically added to the next [release changelogs](https://github.com/meilisearch/strapi-plugin-meilisearch/releases/).
 
+### Automation to Rebase and Merge the PRs <!-- omit in toc -->
+
+This project integrates a bot that helps us manage pull requests merging.<br>
+_[Read more about this](https://github.com/meilisearch/integration-guides/blob/main/guides/bors.md)._
 
 <hr>
 
