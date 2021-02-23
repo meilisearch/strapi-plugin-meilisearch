@@ -1,13 +1,5 @@
 # Contributing <!-- omit in toc -->
 
----
-
-COMMENT TO REMOVE
-
-Be aware of XXX in sentences and links: they need to be replaced by the name of the actual repository.
-
----
-
 First of all, thank you for contributing to MeiliSearch! The goal of this document is to provide everything you need to know in order to contribute to MeiliSearch and its different integrations.
 
 - [Assumptions](#assumptions)
@@ -67,6 +59,20 @@ $ docker run -p 7700:7700 getmeili/meilisearch:latest ./meilisearch --master-key
 
 # Tests the project
 $ yarn develop
+# Linter
+$ yarn lint
+# Linter with fixing
+$ yarn lint:fix
+```
+
+### Playgrounds
+
+To test directly your changes on the plugin in Strapi, you can run the Strapi playground:
+
+```
+$ cd playground
+$ yarn
+$ yarn develop
 ```
 
 ## Git Guidelines
@@ -96,33 +102,6 @@ Some notes on GitHub PRs:
 - All PRs must be reviewed and approved by at least one maintainer.
 - The PR title should be accurate and descriptive of the changes. The title of the PR will be indeed automatically added to the next [release changelogs](https://github.com/meilisearch/strapi-plugin-meilisearch/releases/).
 
-## Release Process (for internal team only)
-
-MeiliSearch tools follow the [Semantic Versioning Convention](https://semver.org/).
-
-### Automation to Rebase and Merge the PRs <!-- omit in toc -->
-
-This project integrates a bot that helps us manage pull requests merging.<br>
-_[Read more about this](https://github.com/meilisearch/integration-guides/blob/main/guides/bors.md)._
-
-### Automated Changelogs <!-- omit in toc -->
-
-This project integrates a tool to create automated changelogs.<br>
-_[Read more about this](https://github.com/meilisearch/integration-guides/blob/main/guides/release-drafter.md)._
-
-### How to Publish the Release <!-- omit in toc -->
-
-⚠️ Before doing anything, make sure you got through the guide about [Releasing an Integration Tool](https://github.com/meilisearch/integration-guides/blob/main/guides/integration-tool-release.md).
-
-Make a PR modifying the file `[<Add file name here>]`(\<Add relative path to the file here\>) with the right version.
-
-```<Add the language here>
-<Add the line to change, e.g.: "version": X.X.X>
-```
-
-Once the changes are merged on `main`, you can publish the current draft release via the [GitHub interface](https://github.com/meilisearch/strapi-plugin-meilisearch/releases).
-
-A GitHub Action will be triggered and push the package to [\<Add the platform name here, e.g. npm>](\<Add URL to the platform here\>).
 
 <hr>
 
