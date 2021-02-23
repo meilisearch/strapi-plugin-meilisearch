@@ -73,24 +73,27 @@ _This command generates a brand new project with the default features (authentic
 Once your Strapi project has been created, to link the plugin to this project you have to create a symbolic link inside a plugin folder at the root of the Strapi project.
 
 1. Create plugin folder
-```
-mkdir plugins
+
+```bash
+$ mkdir plugins
 ```
 2. Create symbolic link
-```
-cd plugins
-ln -s [PATH_TO_PLUGIN] meilisearch
+
+```bash
+$ cd plugins
+$ ln -s [PATH_TO_PLUGIN] meilisearch
 ```
 3. Develop
-```
-yarn develop
+
+```bash
+$ yarn develop
 ```
 
 You can now use the plugin on your Strapi project.
 
 ## 🖐 Requirements
 
-Complete installation requirements are exact same as for Strapi itself and can be found in the documentation under <a href="https://strapi.io/documentation/v3.x/installation/cli.html#step-1-make-sure-requirements-are-met">Installation Requirements</a>.
+Complete installation requirements are exact same as for Strapi itself and can be found in the documentation under [Installation Requirements](https://strapi.io/documentation/v3.x/installation/cli.html#step-1-make-sure-requirements-are-met).
 
 **Supported Strapi versions**:
 
@@ -128,7 +131,3 @@ No additional routes should be created on strapi for the front end users as they
     - Ability to chose which collections should be indexed in MeiliSearch
     - Every time a collection is updated, the updated element should be updated in MeiliSearch as well (listener to add, edit and delete)
     - Possibility to remove a collection from MeiliSearch
-
-### Bonus
-
-- Possibility for the user to click `add to meilisearch` on Collection creation
