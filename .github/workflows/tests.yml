@@ -1,0 +1,43 @@
+name: Tests
+
+on:
+  pull_request:
+  push:
+    # trying and staging branches are for BORS config
+    branches:
+      - trying
+      - staging
+      - main
+
+jobs:
+  playground_build_tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [ '10', '12', '14' ]
+    name: playground-build (Node.js ${{ matrix.node }})
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup node
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Build Strapi playground
+        run: yarn playground:build
+
+  linter_check:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [ '10', '12', '14' ]
+    name: style-check (Node.js ${{ matrix.node }})
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup node
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Install dependencies
+        run: yarn --dev
+      - name: Run style check
+        run: yarn style
