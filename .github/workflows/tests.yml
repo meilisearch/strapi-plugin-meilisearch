@@ -27,16 +27,11 @@ jobs:
 
   linter_check:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node: [ '10', '12', '14' ]
-    name: style-check (Node.js ${{ matrix.node }})
+    name: style-check
     steps:
       - uses: actions/checkout@v2
       - name: Setup node
         uses: actions/setup-node@v1
-        with:
-          node-version: ${{ matrix.node }}
       - name: Install dependencies
         run: yarn --dev
       - name: Run style check
