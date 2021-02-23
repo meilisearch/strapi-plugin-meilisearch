@@ -2,6 +2,13 @@
   "name": "strapi-plugin-meilisearch",
   "version": "0.0.0",
   "description": "This is the description of the plugin.",
+  "scripts": {
+    "style": "eslint --ext .js .",
+    "style:fix": "eslint --ext .js . --fix",
+    "playground:build": "yarn --cwd ./playground && yarn --cwd ./playground build",
+    "playground:dev": "yarn --cwd ./playground && yarn --cwd ./playground develop"
+
+  },
   "strapi": {
     "name": "meilisearch",
     "icon": "plug",

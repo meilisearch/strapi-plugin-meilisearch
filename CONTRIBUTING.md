@@ -70,9 +70,7 @@ $ yarn lint:fix
 To test directly your changes on the plugin in Strapi, you can run the Strapi playground:
 
 ```
-$ cd playground
-$ yarn
-$ yarn develop
+$ yarn playground:dev
 ```
 
 ## Git Guidelines
