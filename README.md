@@ -9,7 +9,8 @@ Index your Strapi collections into a MeiliSearch instance. The plugin listens to
   <a href="https://app.bors.tech/repositories/28762"><img src="https://bors.tech/images/badge_small.svg" alt="Bors enabled"></a>
 </p>
 
-[MeiliSearch](https://github.com/meilisearch/meilisearch) is a open-source and easy to use search engine.
+MeiliSearch is an open-source search engine. [Discover what MeiliSearch  is!](https://github.com/meilisearch/meilisearch)
+
 [Strapi](https://strapi.io/) is a backend CMS that makes creating and managing content easy.
 
 ## Usage during WIP
