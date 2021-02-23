@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 /**
  * meilisearch.js controller
@@ -20,6 +20,6 @@ module.exports = {
     // Send 200 `ok`
     ctx.send({
       message: 'ok'
-    });
+    })
   }
-};
+}

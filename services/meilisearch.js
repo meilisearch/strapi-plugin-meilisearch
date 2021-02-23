@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 /**
  * meilisearch.js service
@@ -8,5 +8,4 @@
 
 module.exports = {
 
-};
-
+}

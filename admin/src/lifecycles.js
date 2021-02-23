@@ -1,3 +1,3 @@
-function lifecycles() {}
+function lifecycles () {}
 
-export default lifecycles;
+export default lifecycles
