@@ -1,6 +1,6 @@
 # MeiliSearch in Strapi Plugin 🔎
 
-Index your strapi Collections into a MeiliSearch instance. The plugin listens to modifications made on your collections and update MeiliSearch accordingly.
+Index your Strapi collections into a MeiliSearch instance. The plugin listens to modifications made on your collections and update MeiliSearch accordingly.
 
 <p align="center">
 
