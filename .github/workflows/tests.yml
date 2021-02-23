@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         node: [ '10', '12', '14' ]
-    name: playground build test on (Node.js ${{ matrix.node }})
+    name: playground-build (Node.js ${{ matrix.node }})
     steps:
       - uses: actions/checkout@v2
       - name: Setup node
@@ -30,7 +30,7 @@ jobs:
     strategy:
       matrix:
         node: [ '10', '12', '14' ]
-    name: linter-check on (Node.js ${{ matrix.node }})
+    name: style-check (Node.js ${{ matrix.node }})
     steps:
       - uses: actions/checkout@v2
       - name: Setup node
