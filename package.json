@@ -1,0 +1,44 @@
+{
+  "name": "strapi-plugin-meilisearch",
+  "version": "0.0.0",
+  "description": "This is the description of the plugin.",
+  "scripts": {
+    "style": "eslint --ext .js .",
+    "style:fix": "eslint --ext .js . --fix",
+    "playground:build": "yarn --cwd ./playground && yarn --cwd ./playground build",
+    "playground:dev": "yarn --cwd ./playground && yarn --cwd ./playground develop"
+
+  },
+  "strapi": {
+    "name": "meilisearch",
+    "icon": "plug",
+    "description": "Description of meilisearch plugin."
+  },
+  "dependencies": {
+    "meilisearch": "^0.18.1"
+  },
+  "author": {
+    "name": "Charlotte Vermandel",
+    "email": "charlotte@meilisearch.com"
+  },
+  "maintainers": [
+    {
+      "name": "Charlotte Vermandel",
+      "email": "charlotte@meilisearch.com"
+    }
+  ],
+  "engines": {
+    "node": ">=10.16.0 <=14.x.x",
+    "npm": ">=6.0.0"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/meilisearch/strapi-plugin-meilisearch#readme",
+  "devDependencies": {
+    "eslint": "^7.20.0",
+    "eslint-config-standard": "^16.0.2",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.3.1",
+    "eslint-plugin-react": "^7.22.0"
+  }
+}

@@ -1,141 +1,127 @@
-# Strapi intégration
+# MeiliSearch in Strapi Plugin 🔎
 
-Strapi is a backend CMS. Meaning it does not provide any front-end implementations.
+Index your Strapi collections into a MeiliSearch instance. The plugin listens to modifications made on your collections and update MeiliSearch accordingly.
 
-It provides an API end point the same way meilisearch does. To generate the API endpoints strapi needs you to configure your needs in their dashboard.
+<p align="center">
 
-## API
+  <a href="https://github.com/prettier/prettier"><img src="https://img.shields.io/badge/styled_with-prettier-ff69b4.svg" alt="Prettier"></a>
+  <a href="https://github.com/meilisearch/meilisearch-js/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-informational" alt="License"></a>
+  <a href="https://app.bors.tech/repositories/28762"><img src="https://bors.tech/images/badge_small.svg" alt="Bors enabled"></a>
+</p>
 
-The API is created based on the `collections` you created in your strapi Dashboard. 
-A collection is like a table in SQL, it also requires you to describe each field ( `name: string, required, etc..`).
+MeiliSearch is an open-source search engine. [Discover what MeiliSearch  is!](https://github.com/meilisearch/meilisearch)
+
+[Strapi](https://strapi.io/) is a backend CMS that makes creating and managing content easy.
+
+## Usage during WIP
+
+Until this package is released on `npm`, you can use it the following way:
+
+### ⏳ Installation
+
+To use this project you will need to clone it:
+
+```
+$ git clone git@github.com:meilisearch/strapi-plugin-meilisearch.git
+$ cd strapi-plugin-meilisearch
+```
+
+Install all required dependencies:
+```bash
+# with yarn
+$ yarn install
+
+# with yarn
+$ npm install
+```
+
+### Using playground
+
+Instead of adding the plugin to an existing project, you can try it out using the playground.
+
+```bash
+# with yarn
+$ yarn develop
+```
+
+Or if you want to use `npm`, by going inside the directory:
+```bash
+# with npm
+$ cd playground
+$ npm install
+$ npm run develop
+```
+
+Install Strapi with this **Quickstart** command to create a Strapi project instantly:
 
 
-## Dashboard
+#### Create strapi project
 
-The collections are created using the dashboard of stripe.
-Collections customisations looks a lot like the ones in SQL. You can create relations between collections but in a way more intuitive way. 
+- Use **yarn** to install the Strapi project (recommended). [Install yarn with these docs](https://yarnpkg.com/lang/en/docs/install/).)
 
+```bash
+# with yarn
+$ yarn create strapi-app my-project --quickstart
 
-## Plugins
+# with npm/npx
+$ npx create-strapi-app my-project --quickstart
+```
 
-Strapi provides two sort of plugins.
-
-- [Plugins](https://strapi.io/documentation/developer-docs/latest/plugin-development/quick-start.html#development-environment-setup). Lets call them `official plugins`.
-   They are provided by Strapi and only 8 exists.
-- [Local plugins](https://strapi.io/documentation/developer-docs/latest/plugin-development/quick-start.html#development-environment-setup)
-    Local plugins lets you create your own plugins to create business logic for you API (i.e create additional routes or modify information before it is returned)
-    
-
-Local plugins and official plugins seems to work exactly the same way with the exception that one is downloadable in the marketplace (the official ones).
+_This command generates a brand new project with the default features (authentication, permissions, content management, content type builder & file upload). The **Quickstart** command installs Strapi using a **SQLite** database which is used for prototyping in development._
 
 
-## Our goal
+Once your Strapi project has been created, to link the plugin to this project you have to create a symbolic link inside a plugin folder at the root of the Strapi project.
 
-We want to create a Plugin that provides automatic actions and interface on the strapi dashboard that lets the user create its need. The User should be able to create or remove new collections from MeiliSearch and to add settings to the indexes.
+1. Create plugin folder
 
-In the background, the plugin should re-index the documents that have been changed in the collections. 
-For exemple, If I change the name of the restaurant Tonio with Tony in my strapi interface, an update should automaticly done to update it aswell on MeiliSearch.
+```bash
+$ mkdir plugins
+```
+2. Create symbolic link
+
+```bash
+$ cd plugins
+$ ln -s [PATH_TO_PLUGIN] meilisearch
+```
+3. Develop
+
+```bash
+$ yarn develop
+```
+
+You can now use the plugin on your Strapi project.
+
+## 🖐 Requirements
+
+Complete installation requirements are exact same as for Strapi itself and can be found in the documentation under [Installation Requirements](https://strapi.io/documentation/v3.x/installation/cli.html#step-1-make-sure-requirements-are-met).
+
+**Supported Strapi versions**:
+
+- Strapi v3.4.x
+
+(This plugin may work with the older Strapi versions, but these are not tested nor officially supported at this time.)
+
+**Node / NPM versions**:
+
+- NodeJS >= 12.10 <= 14
+- NPM >= 6.x
+
+**We recommend always using the latest version of Strapi to start your new projects**.
+
+## 🌎 Community support
+
+- For general help using Strapi, please refer to [the official Strapi documentation](https://strapi.io/documentation/).
+- Strapi Slack [channel](https://slack.strapi.io/)
+
+## Plugin's goal
+
+We want to create a plugin that provides automatic actions and an interface on the Strapi dashboard that helps the user start with MeiliSearch. The User should be able to create or remove new collections from MeiliSearch.
+
+In the background, the plugin should re-index the documents that have been changed in the collections.<br>
+For example, If I change the name of the restaurant `Tonio` with `Tony` in a Strapi collection, an update should automatically be done to update it as well on MeiliSearch.
 
 No additional routes should be created on strapi for the front end users as they will be using the MeiliSearch API to search and not Strapi (unless we want to make this possible?).
 
 ## MVP
 
-### MVP of MVP
-- Downloadable plugin
-- Communication with a running MeiliSearch
-- Interface with the following: 
-    - Add host and keys
-    - Ability to chose which collections should be indexed in MeiliSearch
-    - Every time a collection is updated, the updated element should be updated in MeiliSearch as well (listener to add, edit and delete)
-    - Possibility to remove a collection from MeiliSearch
-
-### MVP ++ 
-
-Same as Above with two small differences: 
-- Add settings (json file) 
-- Settings are added through a nicer interface
-- Possibility to add relations between Collections. Exemple: Given 2 collections, `restaurants` and `users`, facet
-
-### Bonus 
-
-- Possibility for the user to click `add to meilisearch` on Collection creation
-
-## STEPS PAR PHASE
-
-### Architecture 
-- Playground -> app strapi
-- src -> contain plugin
-- tests
-
-### PRE A
-- [ ] Petit README 
-- [ ] Linter
-- [ ] Contributing
-- [ ] How do you add plugin to Strapi
-
-### A
-
-- [ ] Create local plugin
-- [ ] Create back-end communication with MeiliSearch (Connection, index creation, doc addition)
-- [ ] Create UI for HOST and KEY on dashboard
-- [ ] Create UI for index name on dashboard
-- [ ] Create UI for document addition (in STEP A you have to provide a json string)
-
--> This Creates a working version of MeiliSearch on Strapi but does not communicate with strapi yet
-
-
-### B
-
-- [ ] Determine HOW to tests: e2e, integration
-    - [ ] framework the test 
-- [ ] CI 
-- [ ] Documents comes from chosen collection and not JSON string
-    - [ ] User choses a collection amongst all its displayed collections
-        - [ ] Communication between MeiliSearch and Strapi to fetch collection names + collection items
-        - [ ] Create UI where all collections are shown
-    - [ ] Plugin creates an index with this name
-    - [ ] Plugin adds all items from the collection to the index
-
--> This create the interraction between strapi and MeiliSearch
-
-### C
-
-- [ ] Possibility to add more than one collection (hear multiple indexes)
-- [ ] Add a listener on changes on all collections (ex if a restaurant is deleted it should be deleted from meilisearch as well)
-
--> This create all basic needs of a user with MeiliSearch
-
-### E (BONUS or open for debate)
-
-- [ ] Add customizable collections Relations.
-    Exemple: Two collections: Restaurants and Category. Category has a many to many relation with Restaurant. Automatic array creation should be created when indexing both. Example a Restaurant with its relation to Category
-```js
-{
-    id: '1'
-    name: 'La belle frite',
-    Category: ['Gras', 'Belge', 'Gastronomique']
-}
-
-```
-And without
-```js
-{
-    id: '1'
-    name: 'La belle frite'
-}
-
-```
-## Consideration
-
-- [ ] adding a preview searchbar in the plugin page
-
-## TODO
-- [ ] Steps on issues and notions
-- [ ] How do they handle testing ? 
-
-
-### Not in MVP
-
-- [ ] Settings on each index in a JSON string
-- [ ] Warning on re-indexation when changing Settings ? (find a way)
-- [ ] more friendly settings UI (still ugly but not a json string) attached to each index. 
+[You can follow allong the progression of this project here](https://github.com/meilisearch/strapi-plugin-meilisearch/issues).
