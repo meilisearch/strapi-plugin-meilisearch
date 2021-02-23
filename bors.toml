@@ -2,7 +2,7 @@ status = [
   'linter-check',
   'playground-build (Node.js 10)',
   'playground-build (Node.js 12)',
-  'playground-build (Node.js 14)'
+  'playground-build (Node.js 14)',
   'style-check (Node.js 10)',
   'style-check (Node.js 12)',
   'style-check (Node.js 14)'
