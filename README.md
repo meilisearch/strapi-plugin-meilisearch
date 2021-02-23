@@ -115,7 +115,7 @@ Complete installation requirements are exact same as for Strapi itself and can b
 
 ## Plugin's goal
 
-We want to create a Plugin that provides automatic actions and an interface on the strapi dashboard that helps the user start with MeiliSearch. The User should be able to create or remove new collections from MeiliSearch.
+We want to create a plugin that provides automatic actions and an interface on the Strapi dashboard that helps the user start with MeiliSearch. The User should be able to create or remove new collections from MeiliSearch.
 
 In the background, the plugin should re-index the documents that have been changed in the collections.<br>
 For example, If I change the name of the restaurant `Tonio` with `Tony` in a Strapi collection, an update should automatically be done to update it as well on MeiliSearch.
