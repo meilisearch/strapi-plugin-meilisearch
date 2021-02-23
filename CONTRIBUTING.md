@@ -26,20 +26,6 @@ First of all, thank you for contributing to MeiliSearch! The goal of this docume
 
 ## Development Workflow
 
----
-
-COMMENT TO REMOVE
-
-This section should be filled according to the repository and should contain:
-- A "Setup" section (if needed) with the command to install the dependencies for the contributor (e.g.: `yarn --dev`).
-- A "Tests and Linter" section with the command to run the tests, the linter and the linter-autofix (if possible).
-- A "Release Process" section that describes the process before publishing a new release.
-- Other useful tips/steps for the contributor (e.g.: how to build, how to debug).
-
-/!\ The following lines are just a template example and should be completed with right names and right commands
-
----
-
 ### Setup <!-- omit in toc -->
 
 We suggest using `yarn` as the lock file is in yarn and thus we ensure a working dev environment.
