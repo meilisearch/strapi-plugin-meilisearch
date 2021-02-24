@@ -5,9 +5,9 @@ module.exports = {
     es2020: true,
     node: true
   },
-  globals: [
-    'strapi'
-  ],
+  globals: {
+    strapi: true
+  },
   extends: [
     'plugin:react/recommended',
     'standard'

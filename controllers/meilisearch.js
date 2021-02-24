@@ -6,7 +6,6 @@
  * @description: A set of functions called "actions" of the `meilisearch` plugin.
  */
 
-
 module.exports = {
 
   /**
@@ -28,12 +27,12 @@ module.exports = {
    * @return {Object}
    */
   getOrCreateIndex: async (ctx) => {
-    const meiliSearchService = strapi.plugins['meilisearch'].services.meilisearch
+    const meiliSearchService = strapi.plugins.meilisearch.services.meilisearch
     console.log(meiliSearchService)
     console.log(ctx.request.body)
     const { uid } = ctx.request.body
     const index = await meiliSearchService.getOrCreateIndex(uid)
-    ctx.send(index);
+    ctx.send(index)
   },
 
   /**
@@ -42,7 +41,7 @@ module.exports = {
    * @return {Object}
    */
   deleteIndex: async (ctx) => {
-    const meiliSearchService = strapi.plugins['meilisearch'].services.meilisearch
+    const meiliSearchService = strapi.plugins.meilisearch.services.meilisearch
     const { indexUid } = ctx.params
     await meiliSearchService.deleteIndex(indexUid)
     ctx.send({ removed: true })
@@ -54,7 +53,7 @@ module.exports = {
    * @return {Object}
    */
   addDocuments: async (ctx) => {
-    const meiliSearchService = strapi.plugins['meilisearch'].services.meilisearch
+    const meiliSearchService = strapi.plugins.meilisearch.services.meilisearch
     const { indexUid } = ctx.params
     const { data } = ctx.request.body
     const updateId = await meiliSearchService.addDocuments(indexUid, data)
@@ -67,11 +66,11 @@ module.exports = {
    * @return {Object}
    */
   deleteDocuments: async (ctx) => {
-    const meiliSearchService = strapi.plugins['meilisearch'].services.meilisearch
+    const meiliSearchService = strapi.plugins.meilisearch.services.meilisearch
     const { indexUid } = ctx.params
     const { data } = ctx.request.body
     await meiliSearchService.addDocuments(indexUid, data)
-    ctx.send({ message: "ok" })
+    ctx.send({ message: 'ok' })
   }
 
 }

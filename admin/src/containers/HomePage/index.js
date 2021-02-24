@@ -4,18 +4,18 @@
  *
  */
 
-import React, { memo, useEffect, useState } from 'react'
+import React, { memo, useState } from 'react'
 import { request, useGlobalContext } from 'strapi-helper-plugin'
 // import PropTypes from 'prop-types';
-import styled from 'styled-components';
+import styled from 'styled-components'
 import pluginId from '../../pluginId'
-import { Button, InputText, Label } from "@buffetjs/core";
-import { Header } from '@buffetjs/custom';
+import { Button, InputText, Label } from '@buffetjs/core'
+import { Header } from '@buffetjs/custom'
 
-const getTrad = (id) => `${pluginId}.${id}`;
+const getTrad = (id) => `${pluginId}.${id}`
 const Wrapper = styled.div`
   margin-bottom: 30px;
-`;
+`
 
 // [
 //   {
@@ -28,22 +28,20 @@ const Wrapper = styled.div`
 //   }
 // ]
 
-
-
 const HomePage = () => {
-  const [indexUid, setIndexUid] = useState('');
-  const [documents, setDocuments] = useState('');
-  const { formatMessage } = useGlobalContext();
+  const [indexUid, setIndexUid] = useState('')
+  const [documents, setDocuments] = useState('')
+  const { formatMessage } = useGlobalContext()
 
   const addDocuments = async () => {
-    strapi.lockApp();
+    strapi.lockApp()
     await request(`/${pluginId}/index/${indexUid}/documents`, {
-      method: "POST",
+      method: 'POST',
       body: {
         data: JSON.parse(documents)
       }
-    });
-    strapi.unlockApp();
+    })
+    strapi.unlockApp()
   }
 
   return (
@@ -51,15 +49,15 @@ const HomePage = () => {
       <Header
         actions={[
           {
-            label: "test",
-            onClick: () => hello(),
+            label: 'test',
+            onClick: () => console.log('test'),
             color: 'primary',
             type: 'button',
-            icon: true,
-          },
+            icon: true
+          }
         ]}
         title={{
-          label: formatMessage({ id: getTrad('plugin.name') }),
+          label: formatMessage({ id: getTrad('plugin.name') })
         }}
         content={formatMessage({ id: getTrad('header.description') })}
       />
@@ -68,7 +66,7 @@ const HomePage = () => {
         <InputText
           name="input"
           onChange={({ target: { value } }) => {
-            setIndexUid(value);
+            setIndexUid(value)
           }}
           placeholder="Indexname"
           type="text"
@@ -79,7 +77,7 @@ const HomePage = () => {
         <InputText
           name="input"
           onChange={({ target: { value } }) => {
-            setDocuments(value);
+            setDocuments(value)
           }}
           placeholder="documents"
           type="text"
