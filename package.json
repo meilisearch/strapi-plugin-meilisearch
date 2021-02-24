@@ -7,14 +7,14 @@
     "style:fix": "eslint --ext .js . --fix",
     "playground:build": "yarn --cwd ./playground && yarn --cwd ./playground build",
     "playground:dev": "yarn --cwd ./playground && yarn --cwd ./playground develop"
-
   },
   "strapi": {
     "name": "meilisearch",
     "icon": "plug",
-    "description": "Description of meilisearch plugin."
+    "description": "Descript on of meilisearch plugin."
   },
   "dependencies": {
+    "@buffetjs/core": "^3.3.4",
     "meilisearch": "^0.18.1"
   },
   "author": {
