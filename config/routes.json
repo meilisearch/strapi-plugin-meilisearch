@@ -2,35 +2,28 @@
   "routes": [
     {
       "method": "POST",
-      "path": "/index/",
-      "handler": "meilisearch.getOrCreateIndex",
-      "config": {
-        "policies": []
-      }
-    },
-    {
-      "method": "DELETE",
-      "path": "/index/:indexUid",
-      "handler": "meilisearch.deleteIndex",
-      "config": {
-        "policies": []
-      }
-    },
-    {
-      "method": "POST",
       "path": "/index/:indexUid/documents",
-      "handler": "meilisearch.deleteDocuments",
-      "config": {
-        "policies": []
-      }
-    },
-    {
-      "method": "POST",
-      "path": "/index/:indexUid/documents/delete-batch",
       "handler": "meilisearch.addDocuments",
       "config": {
         "policies": []
       }
+    },
+    {
+      "method": "GET",
+      "path": "/credentials",
+      "handler": "meilisearch.getMeiliSearchCredentials",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/credentials",
+      "handler": "meilisearch.addMeiliSearchCredentials",
+      "config": {
+        "policies": []
+      }
     }
+
   ]
 }
