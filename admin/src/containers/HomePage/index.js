@@ -27,7 +27,6 @@ const HomePage = () => {
     strapi.lockApp()
     async function autoFillMsCredentials () {
       const { apiKey } = await getMeiliSearchCredentials()
-      console.log(apiKey)
       if (apiKey) setApiKey('*******')
     }
     autoFillMsCredentials()
@@ -57,13 +56,11 @@ const HomePage = () => {
     const { apiKey, host } = await request(`/${pluginId}/credentials/`, {
       method: 'GET'
     })
-    console.log({ apiKey, host })
     setHost(host)
     return { apiKey, host }
   }
 
   const addMeilisearchCredentials = async () => {
-    console.log({ msHost, msApiKey })
     const { apiKey, host } = await request(`/${pluginId}/credentials/`, {
       method: 'POST',
       body: {
