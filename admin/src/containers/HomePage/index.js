@@ -23,11 +23,15 @@ const HomePage = () => {
   const [msHost, setHost] = useState('')
   const [documents, setDocuments] = useState('')
   const { formatMessage } = useGlobalContext()
+
   useEffect(() => {
     strapi.lockApp()
     async function autoFillMsCredentials () {
-      const { apiKey } = await getMeiliSearchCredentials()
-      if (apiKey) setApiKey('*******')
+      const { apiKey, host } = await request(`/${pluginId}/credentials/`, {
+        method: 'GET'
+      })
+      setApiKey(apiKey)
+      setHost(host)
     }
     autoFillMsCredentials()
     strapi.unlockApp()
@@ -49,15 +53,14 @@ const HomePage = () => {
         ...(res.link ? { link: { url: res.link, label: 'more information' } } : {}),
         timeout: 4000
       })
+    } else {
+      strapi.notification.toggle({
+        type: 'success',
+        message: 'Documents added!',
+        timeout: 4000
+      })
     }
     strapi.unlockApp()
-  }
-  const getMeiliSearchCredentials = async () => {
-    const { apiKey, host } = await request(`/${pluginId}/credentials/`, {
-      method: 'GET'
-    })
-    setHost(host)
-    return { apiKey, host }
   }
 
   const addMeilisearchCredentials = async () => {
@@ -68,21 +71,26 @@ const HomePage = () => {
         apiKey: msApiKey
       }
     })
-    if (apiKey) setApiKey('*******')
+    strapi.notification.toggle({
+      type: 'success',
+      message: 'MeiliSearch Credentials Updated!',
+      timeout: 4000
+    })
+    setApiKey(apiKey)
     setHost(host)
   }
 
   return (
-    <div className="container-fluid" style={{ padding: '18px 30px 66px 30px' }}>
-      <Header
+      <div className="container-fluid" style={{ padding: '18px 30px 66px 30px' }}>
+          <Header
         title={{
           label: formatMessage({ id: getTrad('plugin.name') })
         }}
         content={formatMessage({ id: getTrad('header.description') })}
       />
-      <Wrapper>
-        <Label htmlFor="MSHost" message="MeiliSearch Host" />
-        <InputText
+          <Wrapper>
+              <Label htmlFor="MSHost" message="MeiliSearch Host" />
+              <InputText
           name="MSHost"
           onChange={({ target: { value } }) => {
             setHost(value)
@@ -92,8 +100,8 @@ const HomePage = () => {
           value={msHost}
         />
 
-        <Label htmlFor="MSApiKey" message="MeiliSearch Api Key" />
-        <InputText
+              <Label htmlFor="MSApiKey" message="MeiliSearch Api Key" />
+              <InputText
           name="MSApiKey"
           onChange={({ target: { value } }) => {
             setApiKey(value)
@@ -102,16 +110,15 @@ const HomePage = () => {
           type="text"
           value={msApiKey}
         />
-     </Wrapper>
-      <Button onClick={getMeiliSearchCredentials}>
-        store
-      </Button>
-      <Button onClick={addMeilisearchCredentials}>
-        Add
-      </Button>
-      <Wrapper>
-        <Label htmlFor="indexName" message="Index name" />
-        <InputText
+          </Wrapper>
+          <Wrapper>
+              <Button onClick={addMeilisearchCredentials}>
+                  Add
+              </Button>
+          </Wrapper>
+          <Wrapper>
+              <Label htmlFor="indexName" message="Index name" />
+              <InputText
           name="indexName"
           onChange={({ target: { value } }) => {
             setIndexUid(value)
@@ -121,8 +128,8 @@ const HomePage = () => {
           value={indexUid}
         />
 
-        <Label htmlFor="documents" message="Documents in JSON string" />
-        <InputText
+              <Label htmlFor="documents" message="Documents in JSON string" />
+              <InputText
           name="documents"
           onChange={({ target: { value } }) => {
             setDocuments(value)
@@ -131,11 +138,11 @@ const HomePage = () => {
           type="text"
           value={documents}
         />
-      </Wrapper>
-      <Button onClick={addDocuments}>
-        Save
-      </Button>
-    </div>
+          </Wrapper>
+          <Button onClick={addDocuments}>
+              Save
+          </Button>
+      </div>
   )
 }
 
