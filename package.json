@@ -11,7 +11,7 @@
   "strapi": {
     "name": "meilisearch",
     "icon": "plug",
-    "description": "Descript on of meilisearch plugin."
+    "description": "Strapi plugin for MeiliSearch"
   },
   "dependencies": {
     "@buffetjs/core": "^3.3.4",
