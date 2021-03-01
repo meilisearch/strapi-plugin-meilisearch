@@ -34,7 +34,7 @@
   "license": "MIT",
   "homepage": "https://github.com/meilisearch/strapi-plugin-meilisearch#readme",
   "devDependencies": {
-    "eslint": "^7.20.0",
+    "eslint": "^7.21.0",
     "eslint-config-standard": "^16.0.2",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-node": "^11.1.0",
