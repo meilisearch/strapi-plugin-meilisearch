@@ -15,6 +15,7 @@ module.exports = {
     },
     ecmaVersion: 11
   },
+  ignorePatterns: ['playground'],
   plugins: [
     'react'
   ],
