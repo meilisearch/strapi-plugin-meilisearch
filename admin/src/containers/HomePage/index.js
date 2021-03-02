@@ -26,14 +26,14 @@ const HomePage = () => {
 
   useEffect(() => {
     strapi.lockApp()
-    async function autoFillMsCredentials () {
+    async function fillMeilisearchCredentials () {
       const { apiKey, host } = await request(`/${pluginId}/credentials/`, {
         method: 'GET'
       })
       setApiKey(apiKey)
       setHost(host)
     }
-    autoFillMsCredentials()
+    fillMeilisearchCredentials()
     strapi.unlockApp()
   }, [])
 
