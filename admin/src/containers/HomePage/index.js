@@ -63,7 +63,7 @@ const HomePage = () => {
     strapi.unlockApp()
   }
 
-  const addMeilisearchCredentials = async () => {
+  const addMeiliSearchCredentials = async () => {
     const { apiKey, host } = await request(`/${pluginId}/credentials/`, {
       method: 'POST',
       body: {
@@ -112,7 +112,7 @@ const HomePage = () => {
         />
           </Wrapper>
           <Wrapper>
-              <Button onClick={addMeilisearchCredentials}>
+              <Button onClick={addMeiliSearchCredentials}>
                   Add
               </Button>
           </Wrapper>
