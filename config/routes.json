@@ -23,6 +23,14 @@
       "config": {
         "policies": []
       }
+    },
+    {
+      "method": "GET",
+      "path": "/collections",
+      "handler": "meilisearch.getCollections",
+      "config": {
+        "policies": []
+      }
     }
 
   ]

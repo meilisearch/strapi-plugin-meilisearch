@@ -41,6 +41,12 @@ module.exports = {
       host
     })
   },
+  getCollections: async (ctx) => {
+    console.log(strapi.services)
+    console.log({strapi})
+    const services = Object.keys(strapi.services)
+    ctx.send(services)
+  },
   addMeiliSearchCredentials: async (ctx) => {
     const { host: msHost, apiKey: msApiKey } = ctx.request.body
     await credentialsService().setStoreKey({
