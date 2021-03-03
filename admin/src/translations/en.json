@@ -1,1 +1,4 @@
-{}
+{
+  "plugin.name": "MeiliSearch Client",
+  "header.description": "Add your data to MeiliSearch and start searching"
+}

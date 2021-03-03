@@ -5,6 +5,9 @@ module.exports = {
     es2020: true,
     node: true
   },
+  globals: {
+    strapi: true
+  },
   extends: [
     'plugin:react/recommended',
     'standard'
@@ -25,5 +28,6 @@ module.exports = {
     }
   },
   rules: {
+    'react/jsx-indent': 'error'
   }
 }

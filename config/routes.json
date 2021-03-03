@@ -1,12 +1,29 @@
 {
   "routes": [
     {
+      "method": "POST",
+      "path": "/index/:indexUid/documents",
+      "handler": "meilisearch.addDocuments",
+      "config": {
+        "policies": []
+      }
+    },
+    {
       "method": "GET",
-      "path": "/",
-      "handler": "meilisearch.index",
+      "path": "/credentials",
+      "handler": "meilisearch.getMeiliSearchCredentials",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/credentials",
+      "handler": "meilisearch.addMeiliSearchCredentials",
       "config": {
         "policies": []
       }
     }
+
   ]
 }
