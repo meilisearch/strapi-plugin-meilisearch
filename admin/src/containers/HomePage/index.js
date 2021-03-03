@@ -4,7 +4,7 @@
  *
  */
 
-import React, { memo, useState } from 'react'
+import React, { memo, useState, useEffect } from 'react'
 import { request, useGlobalContext } from 'strapi-helper-plugin'
 // import PropTypes from 'prop-types';
 import styled from 'styled-components'
