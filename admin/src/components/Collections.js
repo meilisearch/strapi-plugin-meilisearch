@@ -6,45 +6,89 @@
 import React, { memo, useState, useEffect } from 'react'
 import { request } from 'strapi-helper-plugin'
 import pluginId from '../pluginId'
-// import PropTypes from 'prop-types'
-import styled from 'styled-components'
 import { Table } from '@buffetjs/core'
+import { errorNotifications, successNotification } from '../utils/notifications'
+import { Wrapper } from '../components/Wrapper'
 
-const Wrapper = styled.div`
-  margin-bottom: 35px;
-  background: #ffffff;
-  padding: 22px 28px 18px;
-  border-radius: 2px;
-  box-shadow: 0 2px 4px #e3e9f3;
-  -webkit-font-smoothing: antialiased;
-`
 const headers = [
   {
     name: 'Name',
     value: 'name'
+  },
+  {
+    name: 'Status',
+    value: 'status'
   }
 ]
 
 const Collections = () => {
   const [collectionsList, setCollectionsList] = useState([])
+  const [infoUpdated, setInfoUpdated] = useState(false)
+
+  const updateStatus = async ({ indexUid, updateId }) => {
+    await request(`/${pluginId}/indexes/${indexUid}/update/${updateId}`, {
+      method: 'GET'
+    }).then((response) => {
+      const { error } = response
+      if (error) errorNotifications(error)
+      else successNotification({ message: `${indexUid} has all its documents indexed` })
+      setInfoUpdated(false)
+    })
+  }
+
+  const addCollectionToMeiliSearch = async ({ name: indexUid }) => {
+    const update = await request(`/${pluginId}/collections/`, {
+      method: 'POST',
+      body: {
+        indexUid
+      }
+    })
+    if (update.error) {
+      errorNotifications(update)
+    } else {
+      successNotification({ message: `${indexUid} is created!` })
+      setCollectionsList(prev => prev.map(col => {
+        if (col.name === indexUid) col.status = 'enqueued'
+        return col
+      }))
+      await updateStatus({ indexUid, updateId: update.updateId })
+    }
+  }
+
+  const deleteIndex = async ({ name: indexUid }) => {
+    const res = await request(`/${pluginId}/indexes/${indexUid}/`, {
+      method: 'DELETE'
+    })
+    if (res.error) errorNotifications(res)
+    else successNotification({ message: `${indexUid} collection is removed from MeiliSearch` })
+  }
+
+  const addOrRemoveCollection = async (row) => {
+    if (row._isChecked) await deleteIndex(row)
+    else await addCollectionToMeiliSearch(row)
+    setInfoUpdated(false)
+  }
+
+  const fetchCollections = async () => {
+    const { collections, error, ...res } = await request(`/${pluginId}/collections/`, {
+      method: 'GET'
+    })
+    if (error) errorNotifications(res)
+    else {
+      const colStatus = collections.map(col => (
+        {
+          ...col,
+          _isChecked: col.indexed
+        }
+      ))
+      setCollectionsList(colStatus)
+      setInfoUpdated(true)
+    }
+  }
 
   useEffect(() => {
-    strapi.lockApp()
-    async function fetchCollections () {
-      const fetchedCollections = await request(`/${pluginId}/collections/`, {
-        method: 'GET'
-      })
-
-      setCollectionsList(fetchedCollections.map((col, index) => ({
-        name: col,
-        key: index,
-        _isChecked: true
-      })))
-      console.log(collectionsList)
-    }
-    fetchCollections()
-    strapi.unlockApp()
-  }, [])
+    if (!infoUpdated) fetchCollections()
+  }, [infoUpdated])
 
   return (
       <div className="col-md-12">
@@ -52,9 +96,9 @@ const Collections = () => {
               <Table
                 headers={headers}
                 rows={collectionsList}
-                onClickRow={(e, data) => {
-                  console.log(data)
-                  alert('You have just clicked')
+                withBulkAction
+                onSelect={(row) => {
+                  addOrRemoveCollection(row)
                 }}
             />
           </Wrapper>

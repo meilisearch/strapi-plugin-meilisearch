@@ -6,19 +6,9 @@
 import React, { memo, useState, useEffect } from 'react'
 import { request } from 'strapi-helper-plugin'
 import pluginId from '../pluginId'
-// import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { Button, InputText, Label } from '@buffetjs/core'
-import { useStrapi } from 'strapi-helper-plugin';
-
-const Wrapper = styled.div`
-  margin-bottom: 35px;
-  background: #ffffff;
-  padding: 22px 28px 18px;
-  border-radius: 2px;
-  box-shadow: 0 2px 4px #e3e9f3;
-  -webkit-font-smoothing: antialiased;
-`
+import { Wrapper } from '../components/Wrapper'
 
 const ButtonWrapper = styled.div`
   margin-top: 20px
@@ -27,7 +17,7 @@ const ButtonWrapper = styled.div`
 const Credentials = () => {
   const [msApiKey, setApiKey] = useState('')
   const [msHost, setHost] = useState('')
-  console.log({ strapi })
+
   useEffect(() => {
     strapi.lockApp()
     async function fillMeilisearchCredentials () {
@@ -40,6 +30,7 @@ const Credentials = () => {
     fillMeilisearchCredentials()
     strapi.unlockApp()
   }, [])
+
   const addMeilisearchCredentials = async () => {
     const { apiKey, host } = await request(`/${pluginId}/credentials/`, {
       method: 'POST',
@@ -56,6 +47,7 @@ const Credentials = () => {
     setApiKey(apiKey)
     setHost(host)
   }
+
   return (
       <div className="col-md-12">
           <Wrapper>

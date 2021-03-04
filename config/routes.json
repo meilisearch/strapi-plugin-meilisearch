@@ -1,8 +1,24 @@
 {
   "routes": [
     {
+      "method": "DELETE",
+      "path": "/indexes",
+      "handler": "meilisearch.deleteAllIndexes",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "DELETE",
+      "path": "/indexes/:indexUid",
+      "handler": "meilisearch.deleteIndex",
+      "config": {
+        "policies": []
+      }
+    },
+    {
       "method": "POST",
-      "path": "/index/:indexUid/documents",
+      "path": "/indexes/:indexUid/documents",
       "handler": "meilisearch.addDocuments",
       "config": {
         "policies": []
@@ -10,8 +26,16 @@
     },
     {
       "method": "GET",
+      "path": "/indexes/:indexUid/update/:updateId",
+      "handler": "meilisearch.waitForDocumentsToBeIndexed",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "GET",
       "path": "/credentials",
-      "handler": "meilisearch.getMeiliSearchCredentials",
+      "handler": "meilisearch.getCredentials",
       "config": {
         "policies": []
       }
@@ -19,7 +43,7 @@
     {
       "method": "POST",
       "path": "/credentials",
-      "handler": "meilisearch.addMeiliSearchCredentials",
+      "handler": "meilisearch.addCredentials",
       "config": {
         "policies": []
       }
@@ -32,6 +56,14 @@
         "policies": []
       }
     }
-
+    ,
+    {
+      "method": "POST",
+      "path": "/collections",
+      "handler": "meilisearch.addCollection",
+      "config": {
+        "policies": []
+      }
+    }
   ]
 }
