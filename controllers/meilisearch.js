@@ -89,7 +89,7 @@ async function addCollection (ctx) {
   if (!Object.keys(strapi.services).includes(indexUid)) {
     return { error: true, message: 'Collection not found' }
   }
-  const rows = await strapi.services.restaurant.find()
+  const rows = await strapi.services[indexUid].find()
   ctx.params.indexUid = indexUid
   ctx.request.body = { data: rows }
   return addDocuments(ctx)
