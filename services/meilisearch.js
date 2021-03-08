@@ -17,7 +17,6 @@ async function addDocuments ({ config, indexUid, data }) {
 
 async function getIndexes ({ config }) {
   const client = getClient(config)
-  console.log('ICI')
   return client.listIndexes()
 }
 
