@@ -26,7 +26,7 @@ const Collections = () => {
   const [infoUpdated, setInfoUpdated] = useState(false)
 
   const updateStatus = async ({ indexUid, updateId }) => {
-    await request(`/${pluginId}/indexes/${indexUid}/update/${updateId}`, {
+    request(`/${pluginId}/indexes/${indexUid}/update/${updateId}`, {
       method: 'GET'
     }).then((response) => {
       const { error } = response
@@ -87,7 +87,9 @@ const Collections = () => {
   }
 
   useEffect(() => {
-    if (!infoUpdated) fetchCollections()
+    if (!infoUpdated) {
+      fetchCollections()
+    }
   }, [infoUpdated])
 
   return (

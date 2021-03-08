@@ -6,7 +6,6 @@
 
 import React, { memo } from 'react'
 import { useGlobalContext } from 'strapi-helper-plugin'
-
 import { Header } from '@buffetjs/custom'
 import getTrad from '../../utils/getTrad'
 import Credentials from '../../components/Credentials'
@@ -21,7 +20,7 @@ const HomePage = () => {
               label: formatMessage({ id: getTrad('plugin.name') })
             }}
             content={formatMessage({ id: getTrad('header.description') })}
-          />
+        />
           <Credentials />
           <Collections />
       </div>
