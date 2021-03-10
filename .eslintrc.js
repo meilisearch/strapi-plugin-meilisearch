@@ -32,6 +32,7 @@ module.exports = {
     'react/jsx-indent': 'error',
     'react/jsx-indent-props': [2, 2],
     'cypress/no-unnecessary-waiting': 'off',
-    'react/prop-types': 'off'
+    'react/prop-types': 'off',
+    'react/jsx-closing-bracket-location': [2, 'tag-aligned']
   }
 }

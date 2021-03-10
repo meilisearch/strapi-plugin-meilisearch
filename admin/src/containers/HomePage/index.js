@@ -22,7 +22,7 @@ const HomePage = () => {
               label: formatMessage({ id: getTrad('plugin.name') })
             }}
             content={formatMessage({ id: getTrad('header.description') })}
-        />
+          />
           <Credentials setUpdatedCredentials={setUpdatedCredentials} />
           <Collections updateCredentials={updateCredentials} />
       </div>

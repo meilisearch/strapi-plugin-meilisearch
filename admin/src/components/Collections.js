@@ -104,7 +104,7 @@ const Collections = ({ updateCredentials }) => {
                 onSelect={(row) => {
                   addOrRemoveCollection(row)
                 }}
-            />
+              />
           </Wrapper>
       </div>
   )
