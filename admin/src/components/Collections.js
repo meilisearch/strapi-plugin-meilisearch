@@ -26,14 +26,13 @@ const Collections = () => {
   const [infoUpdated, setInfoUpdated] = useState(false)
 
   const updateStatus = async ({ indexUid, updateId }) => {
-    request(`/${pluginId}/indexes/${indexUid}/update/${updateId}`, {
+    const response = await request(`/${pluginId}/indexes/${indexUid}/update/${updateId}`, {
       method: 'GET'
-    }).then((response) => {
-      const { error } = response
-      if (error) errorNotifications(error)
-      else successNotification({ message: `${indexUid} has all its documents indexed` })
-      setInfoUpdated(false)
     })
+    const { error } = response
+    if (error) errorNotifications(error)
+    else successNotification({ message: `${indexUid} has all its documents indexed` })
+    setInfoUpdated(false)
   }
 
   const addCollectionToMeiliSearch = async ({ name: indexUid }) => {
@@ -51,7 +50,7 @@ const Collections = () => {
         if (col.name === indexUid) col.status = 'enqueued'
         return col
       }))
-      await updateStatus({ indexUid, updateId: update.updateId })
+      updateStatus({ indexUid, updateId: update.updateId })
     }
   }
 
