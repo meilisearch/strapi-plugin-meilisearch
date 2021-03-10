@@ -6,13 +6,8 @@
 import React, { memo, useState, useEffect } from 'react'
 import { request } from 'strapi-helper-plugin'
 import pluginId from '../pluginId'
-import styled from 'styled-components'
 import { Button, InputText, Label } from '@buffetjs/core'
 import { Wrapper } from '../components/Wrapper'
-
-const ButtonWrapper = styled.div`
-  margin-top: 20px
-`
 
 const Credentials = () => {
   const [msApiKey, setApiKey] = useState('')
@@ -71,11 +66,9 @@ const Credentials = () => {
                 type="text"
                 value={msApiKey}
               />
-              <ButtonWrapper>
-                  <Button onClick={addMeilisearchCredentials}>
-                      Add
-                  </Button>
-              </ButtonWrapper>
+              <Button onClick={addMeilisearchCredentials} style={{ marginTop: '20px' }}>
+                  Add
+              </Button>
           </Wrapper>
       </div>
   )
