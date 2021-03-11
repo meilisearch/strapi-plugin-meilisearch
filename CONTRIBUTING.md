@@ -45,11 +45,19 @@ docker pull getmeili/meilisearch:latest # Fetch the latest version of MeiliSearc
 docker run -p 7700:7700 getmeili/meilisearch:latest ./meilisearch --master-key=masterKey --no-analytics=true
 
 # Tests the project
-yarn develop
+yarn test
+# Tests the project in watch/open mode
+yarn test:watch
 # Linter
-yarn lint
+yarn style
 # Linter with fixing
-yarn lint:fix
+yarn style:fix
+```
+
+If you already have a running Strapi app in local, testing is possible with the following command:
+
+```bash
+yarn cy:open
 ```
 
 ### Playgrounds
@@ -57,6 +65,7 @@ yarn lint:fix
 To test directly your changes on the plugin in Strapi, you can run the Strapi playground:
 
 ```bash
+## Start playground
 yarn playground:dev
 ```
 
