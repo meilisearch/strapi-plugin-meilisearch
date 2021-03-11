@@ -21,9 +21,9 @@ const headers = [
   }
 ]
 
-const Collections = () => {
+const Collections = ({ updateCredentials }) => {
   const [collectionsList, setCollectionsList] = useState([])
-  const [infoUpdated, setInfoUpdated] = useState(false)
+  const [updatedCollections, setUpdatedCollections] = useState(false)
 
   const updateStatus = async ({ indexUid, updateId }) => {
     const response = await request(`/${pluginId}/indexes/${indexUid}/update/${updateId}`, {
@@ -32,7 +32,7 @@ const Collections = () => {
     const { error } = response
     if (error) errorNotifications(error)
     else successNotification({ message: `${indexUid} has all its documents indexed` })
-    setInfoUpdated(false)
+    setUpdatedCollections(false)
   }
 
   const addCollectionToMeiliSearch = async ({ name: indexUid }) => {
@@ -65,7 +65,7 @@ const Collections = () => {
   const addOrRemoveCollection = async (row) => {
     if (row._isChecked) await deleteIndex(row)
     else await addCollectionToMeiliSearch(row)
-    setInfoUpdated(false)
+    setUpdatedCollections(false)
   }
 
   const fetchCollections = async () => {
@@ -81,20 +81,23 @@ const Collections = () => {
         }
       ))
       setCollectionsList(colStatus)
-      setInfoUpdated(true)
+      setUpdatedCollections(true)
     }
   }
 
   useEffect(() => {
-    if (!infoUpdated) {
-      fetchCollections()
-    }
-  }, [infoUpdated])
+    setUpdatedCollections(false)
+  }, [updateCredentials])
+
+  useEffect(() => {
+    if (!updatedCollections) fetchCollections()
+  }, [updatedCollections, updateCredentials])
 
   return (
       <div className="col-md-12">
           <Wrapper>
               <Table
+                className='collections'
                 headers={headers}
                 rows={collectionsList}
                 withBulkAction

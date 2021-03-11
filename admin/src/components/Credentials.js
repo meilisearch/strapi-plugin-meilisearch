@@ -9,7 +9,7 @@ import pluginId from '../pluginId'
 import { Button, InputText, Label } from '@buffetjs/core'
 import { Wrapper } from '../components/Wrapper'
 
-const Credentials = () => {
+const Credentials = ({ setUpdatedCredentials }) => {
   const [msApiKey, setApiKey] = useState('')
   const [msHost, setHost] = useState('')
 
@@ -41,6 +41,7 @@ const Credentials = () => {
     })
     setApiKey(apiKey)
     setHost(host)
+    setUpdatedCredentials(prev => !prev)
   }
 
   return (
@@ -66,7 +67,7 @@ const Credentials = () => {
                 type="text"
                 value={msApiKey}
               />
-              <Button onClick={addMeilisearchCredentials} style={{ marginTop: '20px' }}>
+              <Button className="credentials_button" onClick={addMeilisearchCredentials} style={{ marginTop: '20px' }}>
                   Add
               </Button>
           </Wrapper>
