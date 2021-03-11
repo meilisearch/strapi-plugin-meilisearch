@@ -32,7 +32,7 @@ First of all, thank you for contributing to MeiliSearch! The goal of this docume
 We suggest using `yarn` as the lock file is in yarn and thus we ensure a working dev environment.
 
 ```bash
-$ yarn
+yarn
 ```
 
 ### Tests and Linter <!-- omit in toc -->
@@ -41,15 +41,15 @@ Each PR should pass the tests and the linter to be accepted.
 
 ```bash
 # Run a MeiliSearch instance
-$ docker pull getmeili/meilisearch:latest # Fetch the latest version of MeiliSearch image from Docker Hub
-$ docker run -p 7700:7700 getmeili/meilisearch:latest ./meilisearch --master-key=masterKey --no-analytics=true
+docker pull getmeili/meilisearch:latest # Fetch the latest version of MeiliSearch image from Docker Hub
+docker run -p 7700:7700 getmeili/meilisearch:latest ./meilisearch --master-key=masterKey --no-analytics=true
 
 # Tests the project
-$ yarn develop
+yarn develop
 # Linter
-$ yarn lint
+yarn lint
 # Linter with fixing
-$ yarn lint:fix
+yarn lint:fix
 ```
 
 ### Playgrounds
@@ -57,7 +57,7 @@ $ yarn lint:fix
 To test directly your changes on the plugin in Strapi, you can run the Strapi playground:
 
 ```bash
-$ yarn playground:dev
+yarn playground:dev
 ```
 
 ## Git Guidelines
