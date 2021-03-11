@@ -10,7 +10,8 @@ module.exports = {
   },
   extends: [
     'plugin:react/recommended',
-    'standard'
+    'standard',
+    'plugin:cypress/recommended'
   ],
   parserOptions: {
     ecmaFeatures: {
@@ -29,6 +30,8 @@ module.exports = {
   },
   rules: {
     'react/jsx-indent': 'error',
-    'react/jsx-indent-props': [2, 2]
+    'react/jsx-indent-props': [2, 2],
+    'cypress/no-unnecessary-waiting': 'off',
+    'react/prop-types': 'off'
   }
 }

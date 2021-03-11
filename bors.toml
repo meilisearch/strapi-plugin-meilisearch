@@ -3,6 +3,7 @@ status = [
   'playground-build (Node.js 12)',
   'playground-build (Node.js 14)',
   'style-check',
+  'cypress-run'
 ]
 # 1 hour timeout
 timeout-sec = 3600

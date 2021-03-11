@@ -5,8 +5,15 @@
   "scripts": {
     "style": "eslint --ext .js .",
     "style:fix": "eslint --ext .js . --fix",
-    "playground:build": "yarn --cwd ./playground && yarn --cwd ./playground build",
-    "playground:dev": "yarn --cwd ./playground && yarn --cwd ./playground develop"
+    "playground:dev": "yarn --cwd ./playground && yarn --cwd ./playground develop",
+    "playground:build": "yarn --cwd ./playground build",
+    "playground:start": "yarn --cwd ./playground start",
+    "cy:install": "node ./node_modules/cypress/bin/cypress install",
+    "cy:open": "cypress open --env env=watch",
+    "cy:run": "cypress run --env env=watch",
+    "test:watch": "start-server-and-test playground:dev http://localhost:8000 'cypress open --env env=watch'",
+    "pretest": "yarn playground:build",
+    "test": "start-server-and-test playground:start http://localhost:1337 'cypress run --env env=test'"
   },
   "strapi": {
     "name": "meilisearch",
@@ -31,14 +38,22 @@
     "node": ">=10.16.0 <=14.x.x",
     "npm": ">=6.0.0"
   },
+  "keywords": [
+    "strapi",
+    "plugin",
+    "meilisearch"
+  ],
   "license": "MIT",
   "homepage": "https://github.com/meilisearch/strapi-plugin-meilisearch#readme",
   "devDependencies": {
+    "cypress": "^6.6.0",
     "eslint": "^7.21.0",
     "eslint-config-standard": "^16.0.2",
+    "eslint-plugin-cypress": "^2.11.2",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.3.1",
-    "eslint-plugin-react": "^7.22.0"
+    "eslint-plugin-react": "^7.22.0",
+    "start-server-and-test": "^1.12.0"
   }
 }
