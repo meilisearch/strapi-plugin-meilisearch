@@ -65,7 +65,6 @@ yarn cy:open
 To test directly your changes on the plugin in Strapi, you can run the Strapi playground:
 
 ```bash
-## Start playground
 yarn playground:dev
 ```
 
