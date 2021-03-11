@@ -22,17 +22,17 @@ Until this package is released on `npm`, you can use it the following way:
 To use this project you will need to clone it:
 
 ```
-$ git clone git@github.com:meilisearch/strapi-plugin-meilisearch.git
-$ cd strapi-plugin-meilisearch
+git clone git@github.com:meilisearch/strapi-plugin-meilisearch.git
+cd strapi-plugin-meilisearch
 ```
 
 Install all required dependencies:
 ```bash
 # with yarn
-$ yarn install
+yarn install
 
 # with yarn
-$ npm install
+npm install
 ```
 
 ### Using playground
@@ -41,15 +41,15 @@ Instead of adding the plugin to an existing project, you can try it out using th
 
 ```bash
 # with yarn
-$ yarn develop
+yarn develop
 ```
 
 Or if you want to use `npm`, by going inside the directory:
 ```bash
 # with npm
-$ cd playground
-$ npm install
-$ npm run develop
+cd playground
+npm install
+npm run develop
 ```
 
 Install Strapi with this **Quickstart** command to create a Strapi project instantly:
@@ -61,10 +61,10 @@ Install Strapi with this **Quickstart** command to create a Strapi project insta
 
 ```bash
 # with yarn
-$ yarn create strapi-app my-project --quickstart
+yarn create strapi-app my-project --quickstart
 
 # with npm/npx
-$ npx create-strapi-app my-project --quickstart
+npx create-strapi-app my-project --quickstart
 ```
 
 _This command generates a brand new project with the default features (authentication, permissions, content management, content type builder & file upload). The **Quickstart** command installs Strapi using a **SQLite** database which is used for prototyping in development._
@@ -75,18 +75,18 @@ Once your Strapi project has been created, to link the plugin to this project yo
 1. Create plugin folder
 
 ```bash
-$ mkdir plugins
+mkdir plugins
 ```
 2. Create symbolic link
 
 ```bash
-$ cd plugins
-$ ln -s [PATH_TO_PLUGIN] meilisearch
+cd plugins
+ln -s [PATH_TO_PLUGIN] meilisearch
 ```
 3. Develop
 
 ```bash
-$ yarn develop
+yarn develop
 ```
 
 You can now use the plugin on your Strapi project.
