@@ -6,66 +6,64 @@
  * @description: A set of functions called "actions" of the `meilisearch` plugin.
  */
 
-const credentialsService = () => strapi.plugins.meilisearch.services.credentials_store
-const meiliSearchService = () => strapi.plugins.meilisearch.services.meilisearch
+const meilisearch = {
+  http: () => strapi.plugins.meilisearch.services.meilisearch_http,
+  client: (credentials) => strapi.plugins.meilisearch.services.meilisearch_client(credentials),
+  store: () => strapi.plugins.meilisearch.services.plugin_store('meilisearchCredentials')
+}
 
-async function errorHandler (f) {
-  return async function () {
-    try {
-      return await f.apply(this, arguments)
-    } catch (e) {
-      console.error(e)
-      return {
-        error: true,
-        message: `${e.type}: \n${e.message || e.code}`,
-        ...(e.errorLink ? { link: e.errorLink } : {})
-      }
+async function sendCtx (ctx, fct) {
+  try {
+    const body = await fct(ctx)
+    ctx.send(body)
+  } catch (e) {
+    console.error(e)
+    return {
+      error: true,
+      message: `${e.type}: \n${e.message || e.code}`,
+      ...(e.errorLink ? { link: e.errorLink } : {})
     }
   }
 }
 
-async function sendCtx (ctx, fct) {
-  const wrapped = await errorHandler(fct)
-  const body = await wrapped(ctx)
-  ctx.send(body)
-}
-
 async function getCredentials () {
-  return credentialsService().getMeiliSearchCredentials()
+  const apiKey = await meilisearch.store().getStoreKey('meilisearchApiKey')
+  const host = await meilisearch.store().getStoreKey('meilisearchHost')
+  return { apiKey, host }
 }
 
 async function deleteAllIndexes () {
-  const config = await getCredentials()
-  await meiliSearchService().deleteIndexes({
-    config
+  const credentials = await getCredentials()
+  await meilisearch.http().deleteIndexes({
+    client: meilisearch.client(credentials)
   })
   return { message: 'ok' }
 }
 
 async function deleteIndex (ctx) {
   const { indexUid } = ctx.params
-  const config = await getCredentials()
-  await meiliSearchService().deleteIndex({
-    config, indexUid
+  const credentials = await getCredentials()
+  await meilisearch.http().deleteIndex({
+    client: meilisearch.client(credentials), indexUid
   })
   return { message: 'ok' }
 }
 
 async function waitForDocumentsToBeIndexed (ctx) {
   const { updateId, indexUid } = ctx.params
-  const config = await getCredentials()
-  return meiliSearchService().waitForPendingUpdate({
-    config, updateId, indexUid
+  const credentials = await getCredentials()
+  return meilisearch.http().waitForPendingUpdate({
+    client: meilisearch.client(credentials), updateId, indexUid
   })
 }
 
 async function addCredentials (ctx) {
   const { host: msHost, apiKey: msApiKey } = ctx.request.body
-  await credentialsService().setStoreKey({
+  await meilisearch.store().setStoreKey({
     key: 'meilisearchApiKey',
     value: msApiKey
   })
-  await credentialsService().setStoreKey({
+  await meilisearch.store().setStoreKey({
     key: 'meilisearchHost',
     value: msHost
   })
@@ -75,10 +73,10 @@ async function addCredentials (ctx) {
 async function addDocuments (ctx) {
   const { indexUid } = ctx.params
   const { data } = ctx.request.body
-  const config = await getCredentials()
+  const credentials = await getCredentials()
 
-  return meiliSearchService().addDocuments({
-    config,
+  return meilisearch.http().addDocuments({
+    client: meilisearch.client(credentials),
     indexUid,
     data
   })
@@ -89,25 +87,31 @@ async function addCollection (ctx) {
   if (!Object.keys(strapi.services).includes(indexUid)) {
     return { error: true, message: 'Collection not found' }
   }
-  const rows = await strapi.services[indexUid].find()
+  const rows = await strapi.services[indexUid].find({ _publicationState: 'preview' })
   ctx.params.indexUid = indexUid
   ctx.request.body = { data: rows }
   return addDocuments(ctx)
 }
 
 async function getIndexes () {
-  const config = await getCredentials()
-  return meiliSearchService().getIndexes({ config })
+  try {
+    const credentials = await getCredentials()
+    return await meilisearch.http().getIndexes({
+      client: meilisearch.client(credentials)
+    })
+  } catch (e) {
+    return []
+  }
 }
 
 async function getCollections () {
   const indexes = await getIndexes()
   const collections = Object.keys(strapi.services).map(service => {
-    const existInMeiliSearch = !!(indexes.find(index => index.name === service))
+    const existInMeilisearch = !!(indexes.find(index => index.name === service))
     return {
       name: service,
-      status: (existInMeiliSearch) ? 'processed' : 'Not in MeiliSearch',
-      indexed: existInMeiliSearch
+      status: (existInMeilisearch) ? 'processed' : 'Not in Meilisearch',
+      indexed: existInMeilisearch
     }
   })
   return { collections }

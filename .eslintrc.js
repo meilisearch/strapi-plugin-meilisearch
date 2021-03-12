@@ -19,7 +19,7 @@ module.exports = {
     },
     ecmaVersion: 11
   },
-  ignorePatterns: ['playground'],
+  ignorePatterns: ['playground/plugins'],
   plugins: [
     'react'
   ],
