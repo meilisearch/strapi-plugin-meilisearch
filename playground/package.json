@@ -20,7 +20,7 @@
     "strapi-plugin-content-type-builder": "^3.5.2",
     "strapi-plugin-email": "^3.5.2",
     "strapi-plugin-oembed": "^0.4.0",
-    "strapi-plugin-upload": "^3.5.2",
+    "strapi-plugin-upload": "^3.5.3",
     "strapi-plugin-users-permissions": "^3.5.2",
     "strapi-utils": "3.5.1"
   },
