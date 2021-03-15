@@ -3189,10 +3189,10 @@ dashdash@^1.12.0:
   dependencies:
     assert-plus "^1.0.0"
 
-date-fns@^2.8.1:
-  version "2.17.0"
-  resolved "https://registry.yarnpkg.com/date-fns/-/date-fns-2.17.0.tgz#afa55daea539239db0a64e236ce716ef3d681ba1"
-  integrity sha512-ZEhqxUtEZeGgg9eHNSOAJ8O9xqSgiJdrL0lzSSfMF54x6KXWJiOH/xntSJ9YomJPrYH/p08t6gWjGWq1SDJlSA==
+date-fns@^2.19.0, date-fns@^2.8.1:
+  version "2.19.0"
+  resolved "https://registry.yarnpkg.com/date-fns/-/date-fns-2.19.0.tgz#65193348635a28d5d916c43ec7ce6fbd145059e1"
+  integrity sha512-X3bf2iTPgCAQp9wvjOQytnf5vO5rESYRXlPIVcgSbtT5OTScPcsf9eZU+B/YIkKAtYr5WeCii58BgATrNitlWg==
 
 debug@*, debug@4, debug@4.3.1, debug@^4.1.0, debug@^4.1.1:
   version "4.3.1"
@@ -9193,19 +9193,19 @@ strapi-admin@^3.5.2:
     webpackbar "^4.0.0"
     yup "^0.27.0"
 
-strapi-connector-bookshelf@^3.5.2:
-  version "3.5.2"
-  resolved "https://registry.yarnpkg.com/strapi-connector-bookshelf/-/strapi-connector-bookshelf-3.5.2.tgz#95692907b73c457f5a8c91d05d624009cf166710"
-  integrity sha512-qZXBEDwQgBWvD7PKMgd8HdxH6MHXKncdu3J0dDw5CoFPJWeXbTm+KLXyQUpxW26H6lU7vlqaEcmKdG/xc62HQw==
+strapi-connector-bookshelf@^3.5.3:
+  version "3.5.3"
+  resolved "https://registry.yarnpkg.com/strapi-connector-bookshelf/-/strapi-connector-bookshelf-3.5.3.tgz#2144a659a6deee3f32d57b4fdf564fd11a149db4"
+  integrity sha512-Dl1ezbxVjfc++7if3Za8Hnal7M7ZtDBdDuIZdVxTxGB72Nu+hd2Bf5/tsrE3n31mZcEnVUDVdqKQqBvjfZ5E1A==
   dependencies:
     bookshelf "^1.0.1"
-    date-fns "^2.8.1"
+    date-fns "^2.19.0"
     inquirer "^6.3.1"
     lodash "4.17.20"
     p-map "4.0.0"
     pluralize "^8.0.0"
     rimraf "3.0.2"
-    strapi-utils "3.5.2"
+    strapi-utils "3.5.3"
 
 strapi-database@3.5.2:
   version "3.5.2"
@@ -9551,6 +9551,18 @@ strapi-utils@3.5.2:
   dependencies:
     "@sindresorhus/slugify" "1.1.0"
     date-fns "^2.8.1"
+    lodash "4.17.20"
+    pino "^4.7.1"
+    pluralize "^8.0.0"
+    yup "0.29.3"
+
+strapi-utils@3.5.3:
+  version "3.5.3"
+  resolved "https://registry.yarnpkg.com/strapi-utils/-/strapi-utils-3.5.3.tgz#e2b3974b42fdc98cdc595dba213e05dac1e2f72d"
+  integrity sha512-lxcMIPPKS8ndbJSfJbpioLtRWlq+qr8wGDHPnSOyDpBGgMF4pXyIN3LAG+jXgHn01FDuH/P0qg40JEAP79hN/g==
+  dependencies:
+    "@sindresorhus/slugify" "1.1.0"
+    date-fns "^2.19.0"
     lodash "4.17.20"
     pino "^4.7.1"
     pluralize "^8.0.0"
