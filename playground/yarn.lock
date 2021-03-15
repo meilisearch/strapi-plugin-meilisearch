@@ -5692,10 +5692,10 @@ klona@^2.0.3:
   resolved "https://registry.yarnpkg.com/klona/-/klona-2.0.4.tgz#7bb1e3affb0cb8624547ef7e8f6708ea2e39dfc0"
   integrity sha512-ZRbnvdg/NxqzC7L9Uyqzf4psi1OM4Cuc+sJAkQPjO6XkQIJTNbfK2Rsmbw8fx1p2mkZdp2FZYo2+LwXYY/uwIA==
 
-knex@^0.95.1:
-  version "0.95.1"
-  resolved "https://registry.yarnpkg.com/knex/-/knex-0.95.1.tgz#6a99dfebe992829b417144c68d1532ee2b47e90e"
-  integrity sha512-8vAmH4M6ks0qXHqaIacUOTtGAVc1PPFuF8W/W9bzuUHcQur4809mtufw1LY6n/tNRTLwMFBSXWkUnfFQFqFvNQ==
+knex@^0.95.2:
+  version "0.95.2"
+  resolved "https://registry.yarnpkg.com/knex/-/knex-0.95.2.tgz#ebc258b23c9b936c7c3c3f73bbada58b4e138059"
+  integrity sha512-USnukuNnoVAfeV6OXrkHPLcUQRsRbTl3Tk5E3x0hmKs4uEu5vGfZHxD4luyrndIysyDrKXBWfASQ1wFpJWDDFg==
   dependencies:
     colorette "1.2.1"
     commander "^7.1.0"
