@@ -7,11 +7,24 @@
  */
 
 async function addDocuments ({ indexUid, data }) {
+  data.map(document => {
+    delete document.updated_by
+    delete document.created_by
+    return document
+  })
   return this.client.index(indexUid).addDocuments(data)
+}
+
+async function deleteDocuments ({ indexUid, documentIds }) {
+  return this.client.index(indexUid).deleteDocuments(documentIds)
 }
 
 async function getIndexes () {
   return this.client.listIndexes()
+}
+
+async function getRawIndex ({ indexUid }) {
+  return this.client.index(indexUid).getRawInfo()
 }
 
 async function waitForPendingUpdate ({ updateId, indexUid }) {
@@ -35,6 +48,8 @@ module.exports = (client) => (
     getIndexes,
     waitForPendingUpdate,
     deleteIndexes,
-    deleteIndex
+    deleteIndex,
+    deleteDocuments,
+    getRawIndex
   }
 )

@@ -9,7 +9,7 @@
 const meilisearch = {
   http: (client) => strapi.plugins.meilisearch.services.meilisearch_http(client),
   client: (credentials) => strapi.plugins.meilisearch.services.meilisearch_client(credentials),
-  store: () => strapi.plugins.meilisearch.services.plugin_store('meilisearchCredentials')
+  store: async () => strapi.plugins.meilisearch.services.plugin_store('meilisearchCredentials')
 }
 
 async function sendCtx (ctx, fct) {
@@ -27,8 +27,8 @@ async function sendCtx (ctx, fct) {
 }
 
 async function getCredentials () {
-  const apiKey = await meilisearch.store().getStoreKey('meilisearchApiKey')
-  const host = await meilisearch.store().getStoreKey('meilisearchHost')
+  const apiKey = await (await meilisearch.store()).getStoreKey('meilisearchApiKey')
+  const host = await (await meilisearch.store()).getStoreKey('meilisearchHost')
   return { apiKey, host }
 }
 
@@ -72,13 +72,6 @@ async function addDocuments (ctx) {
   const { indexUid } = ctx.params
   const { data } = ctx.request.body
   const credentials = await getCredentials()
-  //
-  data.map(document => {
-    delete document.updated_by
-    delete document.created_by
-    return document
-  })
-
   return meilisearch.http(meilisearch.client(credentials)).addDocuments({
     indexUid,
     data
