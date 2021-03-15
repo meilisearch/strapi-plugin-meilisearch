@@ -7,7 +7,7 @@
  */
 
 const meilisearch = {
-  http: () => strapi.plugins.meilisearch.services.meilisearch_http,
+  http: (client) => strapi.plugins.meilisearch.services.meilisearch_http(client),
   client: (credentials) => strapi.plugins.meilisearch.services.meilisearch_client(credentials),
   store: () => strapi.plugins.meilisearch.services.plugin_store('meilisearchCredentials')
 }
@@ -34,17 +34,15 @@ async function getCredentials () {
 
 async function deleteAllIndexes () {
   const credentials = await getCredentials()
-  await meilisearch.http().deleteIndexes({
-    client: meilisearch.client(credentials)
-  })
+  await meilisearch.http(meilisearch.client(credentials)).deleteIndexes()
   return { message: 'ok' }
 }
 
 async function deleteIndex (ctx) {
   const { indexUid } = ctx.params
   const credentials = await getCredentials()
-  await meilisearch.http().deleteIndex({
-    client: meilisearch.client(credentials), indexUid
+  await meilisearch.http(meilisearch.client(credentials)).deleteIndex({
+    indexUid
   })
   return { message: 'ok' }
 }
@@ -52,8 +50,8 @@ async function deleteIndex (ctx) {
 async function waitForDocumentsToBeIndexed (ctx) {
   const { updateId, indexUid } = ctx.params
   const credentials = await getCredentials()
-  return meilisearch.http().waitForPendingUpdate({
-    client: meilisearch.client(credentials), updateId, indexUid
+  return meilisearch.http(meilisearch.client(credentials)).waitForPendingUpdate({
+    updateId, indexUid
   })
 }
 
@@ -74,9 +72,14 @@ async function addDocuments (ctx) {
   const { indexUid } = ctx.params
   const { data } = ctx.request.body
   const credentials = await getCredentials()
+  //
+  data.map(document => {
+    delete document.updated_by
+    delete document.created_by
+    return document
+  })
 
-  return meilisearch.http().addDocuments({
-    client: meilisearch.client(credentials),
+  return meilisearch.http(meilisearch.client(credentials)).addDocuments({
     indexUid,
     data
   })
@@ -96,9 +99,7 @@ async function addCollection (ctx) {
 async function getIndexes () {
   try {
     const credentials = await getCredentials()
-    return await meilisearch.http().getIndexes({
-      client: meilisearch.client(credentials)
-    })
+    return await meilisearch.http(meilisearch.client(credentials)).getIndexes()
   } catch (e) {
     return []
   }
