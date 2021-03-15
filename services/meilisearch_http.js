@@ -6,32 +6,35 @@
  * @description: A set of functions similar to controller's actions to avoid code duplication.
  */
 
-async function addDocuments ({ client, indexUid, data }) {
-  return client.index(indexUid).addDocuments(data)
+async function addDocuments ({ indexUid, data }) {
+  return this.client.index(indexUid).addDocuments(data)
 }
 
-async function getIndexes ({ client }) {
-  return client.listIndexes()
+async function getIndexes () {
+  return this.client.listIndexes()
 }
 
-async function waitForPendingUpdate ({ client, updateId, indexUid }) {
-  return client.index(indexUid).waitForPendingUpdate(updateId)
+async function waitForPendingUpdate ({ updateId, indexUid }) {
+  return this.client.index(indexUid).waitForPendingUpdate(updateId)
 }
 
-async function deleteIndex ({ client, indexUid }) {
-  return client.deleteIndex(indexUid)
+async function deleteIndex ({ indexUid }) {
+  return this.client.deleteIndex(indexUid)
 }
 
-async function deleteIndexes ({ client }) {
-  const indexes = await getIndexes({ client })
-  const deletePromise = indexes.map(index => deleteIndex({ client, indexUid: index.uid }))
+async function deleteIndexes () {
+  const indexes = await getIndexes()
+  const deletePromise = indexes.map(index => deleteIndex({ indexUid: index.uid }))
   return Promise.all(deletePromise)
 }
 
-module.exports = {
-  addDocuments,
-  getIndexes,
-  waitForPendingUpdate,
-  deleteIndexes,
-  deleteIndex
-}
+module.exports = (client) => (
+  {
+    client,
+    addDocuments,
+    getIndexes,
+    waitForPendingUpdate,
+    deleteIndexes,
+    deleteIndex
+  }
+)
