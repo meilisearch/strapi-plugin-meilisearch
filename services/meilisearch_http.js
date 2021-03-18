@@ -19,7 +19,6 @@ function removeDateLogs (document) {
 
 async function addDocuments ({ indexUid, data }) {
   const noDateLogDocuments = data.map(document => removeDateLogs(document))
-  console.log(noDateLogDocuments)
   return this.client.index(indexUid).addDocuments(noDateLogDocuments)
 }
 
@@ -41,6 +40,14 @@ async function waitForPendingUpdate ({ updateId, indexUid }) {
 
 async function deleteIndex ({ indexUid }) {
   return this.client.deleteIndex(indexUid)
+}
+
+async function indexExist ({ indexUid }) {
+  try {
+    return !!(await this.client.getRawIndex({ indexUid }))
+  } catch (e) {
+    return false
+  }
 }
 
 async function deleteIndexes () {
