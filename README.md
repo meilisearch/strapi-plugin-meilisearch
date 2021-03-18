@@ -35,7 +35,18 @@ yarn install
 npm install
 ```
 
-### Using playground
+### Setup
+
+If you don't have a running Strapi project yet, please follow the [guidelines below](#launch-strapi).
+
+Now that you have installed the plugin, it should appear on your admin dashboard.
+
+
+
+
+## Launch Strapi
+
+### Playground
 
 Instead of adding the plugin to an existing project, you can try it out using the playground.
 
@@ -55,7 +66,7 @@ npm run develop
 Install Strapi with this **Quickstart** command to create a Strapi project instantly:
 
 
-#### Create strapi project
+### Create Strapi project
 
 - Use **yarn** to install the Strapi project (recommended). [Install yarn with these docs](https://yarnpkg.com/lang/en/docs/install/).)
 
