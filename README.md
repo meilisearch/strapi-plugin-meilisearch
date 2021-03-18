@@ -13,13 +13,10 @@ MeiliSearch is an open-source search engine. [Discover what MeiliSearch  is!](ht
 
 [Strapi](https://strapi.io/) is a backend CMS that makes creating and managing content easy.
 
-## Usage during WIP
 
-Until this package is released on `npm`, you can use it the following way:
+## ⏳ Installation
 
-### ⏳ Installation
-
-To use this project you will need to clone it:
+To use this project you will need to clone it _(until this package is added to npm)_:
 
 ```
 git clone git@github.com:meilisearch/strapi-plugin-meilisearch.git
@@ -35,38 +32,68 @@ yarn install
 npm install
 ```
 
-### Setup
+## Setup
 
-If you don't have a running Strapi project yet, please follow the [guidelines below](#launch-strapi).
+To use MeiliSearch and Strapi there are two requirements:
 
-Now that you have installed the plugin, it should appear on your admin dashboard.
+### 🏃‍♀️ Run MeiliSearch
 
+There are many easy ways to [download and run a MeiliSearch instance](https://docs.meilisearch.com/reference/features/installation.html#download-and-launch).
 
-
-
-## Launch Strapi
-
-### Playground
-
-Instead of adding the plugin to an existing project, you can try it out using the playground.
+For example, if you use Docker:
 
 ```bash
-# with yarn
-yarn develop
+docker pull getmeili/meilisearch:latest # Fetch the latest version of MeiliSearch image from Docker Hub
+docker run -it --rm -p 7700:7700 getmeili/meilisearch:latest ./meilisearch --master-key=masterKey
 ```
 
-Or if you want to use `npm`, by going inside the directory:
+
+### 🏃‍♂️ Run Strapi
+
+If you don't have a running Strapi project yet, you can either launch the [playground present in this project](#playground) or [create a Strapi Project](#create-strapi-project).
+
+## Quick Start
+
+Now that you have installed the plugin, a running meiliSearch instance and, a running Strapi app, lets go on your admin panel.
+
+On the left-navbar MeiliSearch appears under the `PLUGINS` category.
+
+![](/assets/left_navbar.png)
+
+Clicking on the plugin will bring you to the MeiliSearch dashboard.
+
+### Add Credentials
+
+First, add your MeiliSearch credentials on the upper box of the MeiliSearch plugin page. For example, using the above credentials it looks like this:
+
+![](/assets/credentials.png)
+
+Once completed, click on the `add` button.
+
+
+### Add your collections to MeiliSearch
+
+If you don't have any collection yet in your Strapi Plugin, please follow [Strapi quickstart](https://strapi.io/documentation/developer-docs/latest/getting-started/quick-start.html). If you used the playground, two collections are present `restaurant` and `category`.
+
+![](/assets/collections.png)
+
+By clicking on the left checkbox, the collection will automatically indexed in MeiliSearch. For example, if you click on the `restaurant` checkbox, all your restaurants are now available in MeiliSearch.
+
+### Run Playground
+
+Instead of adding the plugin to an existing project, you can try it out using the playground in this project.
+
 ```bash
-# with npm
-cd playground
-npm install
-npm run develop
+# Root of repository
+yarn playground:dev
 ```
 
-Install Strapi with this **Quickstart** command to create a Strapi project instantly:
+This command will install required dependencies and launch the app in development mode. You should be able to reach it on the [port 8000 of your localhost](http://localhost:8000/admin/).
 
 
 ### Create Strapi project
+
+Install Strapi with this **Quickstart** command to create a Strapi project instantly:
 
 - Use **yarn** to install the Strapi project (recommended). [Install yarn with these docs](https://yarnpkg.com/lang/en/docs/install/).)
 

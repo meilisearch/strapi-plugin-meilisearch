@@ -6,13 +6,21 @@
  * @description: A set of functions similar to controller's actions to avoid code duplication.
  */
 
+function removeDateLogs (document) {
+  const {
+    updated_at: omitUpdatedAt,
+    created_at: omitCreatedAt,
+    created_by: omitCreatedBy,
+    updated_by: omitUpdatedBy,
+    ...noDateLogDocument
+  } = document
+  return noDateLogDocument
+}
+
 async function addDocuments ({ indexUid, data }) {
-  data.map(document => {
-    delete document.updated_by
-    delete document.created_by
-    return document
-  })
-  return this.client.index(indexUid).addDocuments(data)
+  const noDateLogDocuments = data.map(document => removeDateLogs(document))
+  console.log(noDateLogDocuments)
+  return this.client.index(indexUid).addDocuments(noDateLogDocuments)
 }
 
 async function deleteDocuments ({ indexUid, documentIds }) {
