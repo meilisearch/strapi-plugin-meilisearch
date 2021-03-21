@@ -83,7 +83,11 @@ mkdir plugins
 cd plugins
 ln -s [PATH_TO_PLUGIN] meilisearch
 ```
-3. Develop
+3. Build
+```bash
+yarn build
+```
+4. Develop
 
 ```bash
 yarn develop
