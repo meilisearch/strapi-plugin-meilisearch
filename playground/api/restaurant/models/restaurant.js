@@ -45,6 +45,3 @@ module.exports = {
     }
   }
 }
-// warning doffice au moment ou delete
-// collonne hooks
-// creer script ?

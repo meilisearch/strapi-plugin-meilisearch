@@ -26,6 +26,10 @@ async function deleteDocuments ({ indexUid, documentIds }) {
   return this.client.index(indexUid).deleteDocuments(documentIds)
 }
 
+async function deleteAllDocuments ({ indexUid }) {
+  return this.client.index(indexUid).deleteAllDocuments()
+}
+
 async function getIndexes () {
   return this.client.listIndexes()
 }
@@ -40,14 +44,6 @@ async function waitForPendingUpdate ({ updateId, indexUid }) {
 
 async function deleteIndex ({ indexUid }) {
   return this.client.deleteIndex(indexUid)
-}
-
-async function indexExist ({ indexUid }) {
-  try {
-    return !!(await this.client.getRawIndex({ indexUid }))
-  } catch (e) {
-    return false
-  }
 }
 
 async function deleteIndexes () {
@@ -65,6 +61,7 @@ module.exports = (client) => (
     deleteIndexes,
     deleteIndex,
     deleteDocuments,
-    getRawIndex
+    getRawIndex,
+    deleteAllDocuments
   }
 )

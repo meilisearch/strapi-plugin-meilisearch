@@ -6,10 +6,15 @@
 import React, { memo, useState, useEffect } from 'react'
 import { request } from 'strapi-helper-plugin'
 import pluginId from '../pluginId'
-import { Table } from '@buffetjs/core'
+import { Table, Button } from '@buffetjs/core'
 import { errorNotifications, successNotification } from '../utils/notifications'
 import { Wrapper } from '../components/Wrapper'
+import styled from 'styled-components'
 
+export const UpdateButton = styled(Button)`
+  display: flex;
+  align-items: center;
+`
 const headers = [
   {
     name: 'Name',
@@ -25,45 +30,62 @@ const Collections = ({ updateCredentials }) => {
   const [collectionsList, setCollectionsList] = useState([])
   const [updatedCollections, setUpdatedCollections] = useState(false)
 
-  const updateStatus = async ({ indexUid, updateId }) => {
-    const response = await request(`/${pluginId}/indexes/${indexUid}/update/${updateId}`, {
+  const updateStatus = async ({ collection, updateId }) => {
+    const response = await request(`/${pluginId}/indexes/${collection}/update/${updateId}`, {
       method: 'GET'
     })
     const { error } = response
     if (error) errorNotifications(error)
-    else successNotification({ message: `${indexUid} has all its documents indexed` })
+    else successNotification({ message: `${collection} has all its documents indexed` })
     setUpdatedCollections(false)
   }
 
-  const addCollectionToMeiliSearch = async ({ name: indexUid }) => {
-    const update = await request(`/${pluginId}/collections/`, {
-      method: 'POST',
-      body: {
-        indexUid
-      }
+  const addCollectionToMeiliSearch = async ({ name: collection }) => {
+    const update = await request(`/${pluginId}/collections/${collection}/`, {
+      method: 'POST'
     })
     if (update.error) {
       errorNotifications(update)
     } else {
-      successNotification({ message: `${indexUid} is created!` })
+      successNotification({ message: `${collection} is created! Don't forget to add hooks`, duration: 4000, link: '#' })
       setCollectionsList(prev => prev.map(col => {
-        if (col.name === indexUid) col.status = 'enqueued'
+        if (col.name === collection) col.status = 'enqueued'
         return col
       }))
-      updateStatus({ indexUid, updateId: update.updateId })
+      updateStatus({ collection, updateId: update.updateId })
     }
   }
 
-  const deleteIndex = async ({ name: indexUid }) => {
-    const res = await request(`/${pluginId}/indexes/${indexUid}/`, {
+  const updateCollectionsInMeiliSearch = async ({ collection }) => {
+    try {
+      const update = await request(`/${pluginId}/collections/${collection}/`, {
+        method: 'PUT'
+      })
+      if (update.error) {
+        errorNotifications(update)
+      } else {
+        successNotification({ message: `${collection} updated!` })
+        setCollectionsList(prev => prev.map(col => {
+          if (col.name === collection) col.status = 'enqueued'
+          return col
+        }))
+        updateStatus({ collection, updateId: update.updateId })
+      }
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  const removeCollection = async ({ name: collection }) => {
+    const res = await request(`/${pluginId}/indexes/${collection}/`, {
       method: 'DELETE'
     })
     if (res.error) errorNotifications(res)
-    else successNotification({ message: `${indexUid} collection is removed from MeiliSearch` })
+    else successNotification({ message: `${collection} collection is removed from MeiliSearch! \n Don't forget to remove your hooks`, link: '#', duration: 4000 })
   }
 
   const addOrRemoveCollection = async (row) => {
-    if (row._isChecked) await deleteIndex(row)
+    if (row._isChecked) await removeCollection(row)
     else await addCollectionToMeiliSearch(row)
     setUpdatedCollections(false)
   }
@@ -104,6 +126,14 @@ const Collections = ({ updateCredentials }) => {
                 onSelect={(row) => {
                   addOrRemoveCollection(row)
                 }}
+                rowLinks={[
+                  {
+                    icon: <UpdateButton forwardedAs='span'>Update</UpdateButton>,
+                    onClick: data => {
+                      updateCollectionsInMeiliSearch({ collection: data.name })
+                    }
+                  }
+                ]}
               />
           </Wrapper>
       </div>
