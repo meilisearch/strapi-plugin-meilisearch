@@ -46,7 +46,7 @@
   "license": "MIT",
   "homepage": "https://github.com/meilisearch/strapi-plugin-meilisearch#readme",
   "devDependencies": {
-    "cypress": "^6.6.0",
+    "cypress": "^6.8.0",
     "eslint": "^7.21.0",
     "eslint-config-standard": "^16.0.2",
     "eslint-plugin-cypress": "^2.11.2",
