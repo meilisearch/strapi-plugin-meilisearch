@@ -9,7 +9,8 @@
 const meilisearch = {
   http: (client) => strapi.plugins.meilisearch.services.meilisearch_http(client),
   client: (credentials) => strapi.plugins.meilisearch.services.meilisearch_client(credentials),
-  store: async () => strapi.plugins.meilisearch.services.plugin_store('meilisearchCredentials')
+  store: async () => strapi.plugins.meilisearch.services.plugin_store('meilisearchCredentials'),
+  lifecycle: () => strapi.plugins.meilisearch.services.lifecyles_files
 }
 
 async function sendCtx (ctx, fct) {
@@ -68,25 +69,44 @@ async function addCredentials (ctx) {
   return getCredentials()
 }
 
-async function addDocuments (ctx) {
-  const { indexUid } = ctx.params
+async function UpdateCollections (ctx) {
+  const { collection: indexUid } = ctx.params
+  const credentials = await getCredentials()
+  const { updateId } = await meilisearch.http(meilisearch.client(credentials)).deleteAllDocuments({
+    indexUid
+  })
+  await meilisearch.http(meilisearch.client(credentials)).waitForPendingUpdate({
+    updateId, indexUid
+  })
+  return addCollection(ctx)
+}
+
+async function addCollectionRows (ctx) {
+  console.log(ctx.params)
+  const { collection } = ctx.params
   const { data } = ctx.request.body
   const credentials = await getCredentials()
   return meilisearch.http(meilisearch.client(credentials)).addDocuments({
-    indexUid,
+    indexUid: collection,
     data
   })
 }
 
-async function addCollection (ctx) {
-  const { indexUid } = ctx.request.body
-  if (!Object.keys(strapi.services).includes(indexUid)) {
+async function fetchCollection (ctx) {
+  console.log('FETCH', ctx.params)
+  const { collection } = ctx.params
+
+  if (!Object.keys(strapi.services).includes(collection)) {
     return { error: true, message: 'Collection not found' }
   }
-  const rows = await strapi.services[indexUid].find({ _publicationState: 'preview' })
-  ctx.params.indexUid = indexUid
+  const rows = await strapi.services[collection].find({ _publicationState: 'preview' })
   ctx.request.body = { data: rows }
-  return addDocuments(ctx)
+  return ctx
+}
+
+async function addCollection (ctx) {
+  console.log('ADD COL', ctx.params)
+  return addCollectionRows(await fetchCollection(ctx))
 }
 
 async function getIndexes () {
@@ -102,6 +122,7 @@ async function getCollections () {
   const indexes = await getIndexes()
   const collections = Object.keys(strapi.services).map(service => {
     const existInMeilisearch = !!(indexes.find(index => index.name === service))
+    if (existInMeilisearch) meilisearch.lifecycle(service)
     return {
       name: service,
       status: (existInMeilisearch) ? 'processed' : 'Not in Meilisearch',
@@ -113,12 +134,13 @@ async function getCollections () {
 
 module.exports = {
   getCredentials: async (ctx) => sendCtx(ctx, getCredentials),
-  addDocuments: async (ctx) => sendCtx(ctx, addDocuments),
+  addCollectionRows: async (ctx) => sendCtx(ctx, addCollectionRows),
   waitForDocumentsToBeIndexed: async (ctx) => sendCtx(ctx, waitForDocumentsToBeIndexed),
   getIndexes: async (ctx) => sendCtx(ctx, getIndexes),
   getCollections: async (ctx) => sendCtx(ctx, getCollections),
   addCollection: async (ctx) => sendCtx(ctx, addCollection),
   addCredentials: async (ctx) => sendCtx(ctx, addCredentials),
   deleteAllIndexes: async (ctx) => sendCtx(ctx, deleteAllIndexes),
-  deleteIndex: async (ctx) => sendCtx(ctx, deleteIndex)
+  deleteIndex: async (ctx) => sendCtx(ctx, deleteIndex),
+  UpdateCollections: async (ctx) => sendCtx(ctx, UpdateCollections)
 }

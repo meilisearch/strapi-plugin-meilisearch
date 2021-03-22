@@ -17,14 +17,6 @@
       }
     },
     {
-      "method": "POST",
-      "path": "/indexes/:indexUid/documents",
-      "handler": "meilisearch.addDocuments",
-      "config": {
-        "policies": []
-      }
-    },
-    {
       "method": "GET",
       "path": "/indexes/:indexUid/update/:updateId",
       "handler": "meilisearch.waitForDocumentsToBeIndexed",
@@ -55,12 +47,19 @@
       "config": {
         "policies": []
       }
-    }
-    ,
+    },
     {
       "method": "POST",
-      "path": "/collections",
+      "path": "/collections/:collection",
       "handler": "meilisearch.addCollection",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "PUT",
+      "path": "/collections/:collection",
+      "handler": "meilisearch.UpdateCollections",
       "config": {
         "policies": []
       }
