@@ -10,7 +10,7 @@ const meilisearch = {
   http: (client) => strapi.plugins.meilisearch.services.meilisearch_http(client),
   client: (credentials) => strapi.plugins.meilisearch.services.meilisearch_client(credentials),
   store: async () => strapi.plugins.meilisearch.services.plugin_store('meilisearchCredentials'),
-  lifecycle: () => strapi.plugins.meilisearch.services.lifecyles_files
+  lifecycle: () => strapi.plugins.meilisearch.services.meilisearch_lifecyles
 }
 
 async function sendCtx (ctx, fct) {
@@ -86,10 +86,15 @@ async function addCollectionRows (ctx) {
   const { collection } = ctx.params
   const { data } = ctx.request.body
   const credentials = await getCredentials()
-  return meilisearch.http(meilisearch.client(credentials)).addDocuments({
+  const updateId = meilisearch.http(meilisearch.client(credentials)).addDocuments({
     indexUid: collection,
     data
   })
+  const hooksAdded = meilisearch.lifecycle().add(collection)
+  return {
+    ...updateId,
+    hooks: hooksAdded
+  }
 }
 
 async function fetchCollection (ctx) {
@@ -105,7 +110,6 @@ async function fetchCollection (ctx) {
 }
 
 async function addCollection (ctx) {
-  console.log('ADD COL', ctx.params)
   return addCollectionRows(await fetchCollection(ctx))
 }
 
@@ -122,7 +126,6 @@ async function getCollections () {
   const indexes = await getIndexes()
   const collections = Object.keys(strapi.services).map(service => {
     const existInMeilisearch = !!(indexes.find(index => index.name === service))
-    if (existInMeilisearch) meilisearch.lifecycle(service)
     return {
       name: service,
       status: (existInMeilisearch) ? 'processed' : 'Not in Meilisearch',

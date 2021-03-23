@@ -44,6 +44,7 @@ const Collections = ({ updateCredentials }) => {
     const update = await request(`/${pluginId}/collections/${collection}/`, {
       method: 'POST'
     })
+    console.log({ update })
     if (update.error) {
       errorNotifications(update)
     } else {

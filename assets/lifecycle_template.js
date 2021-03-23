@@ -11,7 +11,7 @@ const COLLECTION = path.basename(__filename, '.js')
 module.exports = {
   lifecycles: {
     async meilisearchService (uid) {
-      return await strapi.plugins.meilisearch.services.meilisearch_hooks_utils(uid)
+      return await strapi.plugins.meilisearch.services.meilisearch_lifecycles_template_utils(uid)
     },
     async afterCreate (result) {
       try {
