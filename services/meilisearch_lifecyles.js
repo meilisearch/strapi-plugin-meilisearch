@@ -36,6 +36,7 @@ function defaultLifecycleTemplate (modelPath) {
 
 function add (collection) {
   const modelPath = getModelPath(collection)
+  console.log('ADD LIFECYLE')
   // If the lifecyle file exist
   if (fileExist(modelPath) || defaultEmptyTemplate(modelPath)) {
     return copyTemplate(modelPath, LIFECYCLE_TEMPLATE_PATH)
