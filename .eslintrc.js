@@ -34,6 +34,7 @@ module.exports = {
     'cypress/no-unnecessary-waiting': 'off',
     'react/prop-types': 'off',
     'react/jsx-closing-bracket-location': [2, 'tag-aligned'],
-    'no-unused-vars': ['error', { varsIgnorePattern: '^omit.*$' }]
+    'no-unused-vars': ['error', { varsIgnorePattern: '^omit.*$' }],
+    'array-callback-return': 'off'
   }
 }

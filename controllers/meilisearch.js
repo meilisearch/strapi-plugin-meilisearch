@@ -7,10 +7,10 @@
  */
 
 const meilisearch = {
-  http: (client) => strapi.plugins.meilisearch.services.meilisearch_http(client),
-  client: (credentials) => strapi.plugins.meilisearch.services.meilisearch_client(credentials),
-  store: async () => strapi.plugins.meilisearch.services.plugin_store('meilisearchCredentials'),
-  lifecycle: () => strapi.plugins.meilisearch.services.meilisearch_lifecyles
+  http: (client) => strapi.plugins.meilisearch.services.http(client),
+  client: (credentials) => strapi.plugins.meilisearch.services.client(credentials),
+  store: () => strapi.plugins.meilisearch.services.store,
+  lifecycles: () => strapi.plugins.meilisearch.services.lifecycles
 }
 
 async function sendCtx (ctx, fct) {
@@ -27,9 +27,15 @@ async function sendCtx (ctx, fct) {
   }
 }
 
+async function getHookedCollections () {
+  const store = await meilisearch.store()
+  return await store.getStoreKey('meilisearch_hooked')
+}
+
 async function getCredentials () {
-  const apiKey = await (await meilisearch.store()).getStoreKey('meilisearchApiKey')
-  const host = await (await meilisearch.store()).getStoreKey('meilisearchHost')
+  const store = await meilisearch.store()
+  const apiKey = await store.getStoreKey('meilisearch_api_key')
+  const host = await store.getStoreKey('meilisearch_host')
   return { apiKey, host }
 }
 
@@ -58,12 +64,13 @@ async function waitForDocumentsToBeIndexed (ctx) {
 
 async function addCredentials (ctx) {
   const { host: msHost, apiKey: msApiKey } = ctx.request.body
-  await meilisearch.store().setStoreKey({
-    key: 'meilisearchApiKey',
+  const store = await meilisearch.store()
+  await store.setStoreKey({
+    key: 'meilisearch_api_key',
     value: msApiKey
   })
-  await meilisearch.store().setStoreKey({
-    key: 'meilisearchHost',
+  await store.setStoreKey({
+    key: 'meilisearch_host',
     value: msHost
   })
   return getCredentials()
@@ -82,28 +89,22 @@ async function UpdateCollections (ctx) {
 }
 
 async function addCollectionRows (ctx) {
-  console.log(ctx.params)
   const { collection } = ctx.params
   const { data } = ctx.request.body
   const credentials = await getCredentials()
-  const updateId = meilisearch.http(meilisearch.client(credentials)).addDocuments({
+  return meilisearch.http(meilisearch.client(credentials)).addDocuments({
     indexUid: collection,
     data
   })
-  const hooksAdded = meilisearch.lifecycle().add(collection)
-  return {
-    ...updateId,
-    hooks: hooksAdded
-  }
 }
 
 async function fetchCollection (ctx) {
-  console.log('FETCH', ctx.params)
   const { collection } = ctx.params
 
   if (!Object.keys(strapi.services).includes(collection)) {
     return { error: true, message: 'Collection not found' }
   }
+
   const rows = await strapi.services[collection].find({ _publicationState: 'preview' })
   ctx.request.body = { data: rows }
   return ctx
@@ -124,15 +125,23 @@ async function getIndexes () {
 
 async function getCollections () {
   const indexes = await getIndexes()
-  const collections = Object.keys(strapi.services).map(service => {
-    const existInMeilisearch = !!(indexes.find(index => index.name === service))
+  const hookedCollections = await getHookedCollections()
+  const collections = Object.keys(strapi.services).map(collection => {
+    const existInMeilisearch = !!(indexes.find(index => index.name === collection))
     return {
-      name: service,
-      status: (existInMeilisearch) ? 'processed' : 'Not in Meilisearch',
-      indexed: existInMeilisearch
+      name: collection,
+      indexed: existInMeilisearch,
+      hooked: hookedCollections.includes(collection)
     }
   })
   return { collections }
+}
+
+async function reload (ctx) {
+  ctx.send('ok')
+  strapi.reload.isWatching = false
+  strapi.reload()
+  return { message: 'ok' }
 }
 
 module.exports = {
@@ -145,5 +154,6 @@ module.exports = {
   addCredentials: async (ctx) => sendCtx(ctx, addCredentials),
   deleteAllIndexes: async (ctx) => sendCtx(ctx, deleteAllIndexes),
   deleteIndex: async (ctx) => sendCtx(ctx, deleteIndex),
-  UpdateCollections: async (ctx) => sendCtx(ctx, UpdateCollections)
+  UpdateCollections: async (ctx) => sendCtx(ctx, UpdateCollections),
+  reload: async (ctx) => sendCtx(ctx, reload)
 }

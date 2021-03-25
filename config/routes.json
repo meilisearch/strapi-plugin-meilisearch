@@ -1,6 +1,14 @@
 {
   "routes": [
     {
+      "method": "GET",
+      "path": "/reload",
+      "handler": "meilisearch.reload",
+      "config": {
+        "policies": []
+      }
+    },
+    {
       "method": "DELETE",
       "path": "/indexes",
       "handler": "meilisearch.deleteAllIndexes",

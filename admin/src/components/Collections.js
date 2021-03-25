@@ -15,6 +15,13 @@ export const UpdateButton = styled(Button)`
   display: flex;
   align-items: center;
 `
+
+export const ReloadButton = styled(Button)`
+  display: flex;
+  align-items: center;
+  color: delete;
+`
+
 const headers = [
   {
     name: 'Name',
@@ -23,12 +30,17 @@ const headers = [
   {
     name: 'Status',
     value: 'status'
+  },
+  {
+    name: 'Listener',
+    value: 'hooked'
   }
 ]
 
 const Collections = ({ updateCredentials }) => {
   const [collectionsList, setCollectionsList] = useState([])
   const [updatedCollections, setUpdatedCollections] = useState(false)
+  const [needReload, setNeedReload] = useState(false)
 
   const updateStatus = async ({ collection, updateId }) => {
     const response = await request(`/${pluginId}/indexes/${collection}/update/${updateId}`, {
@@ -44,11 +56,10 @@ const Collections = ({ updateCredentials }) => {
     const update = await request(`/${pluginId}/collections/${collection}/`, {
       method: 'POST'
     })
-    console.log({ update })
     if (update.error) {
       errorNotifications(update)
     } else {
-      successNotification({ message: `${collection} is created! Don't forget to add hooks`, duration: 4000, link: '#' })
+      successNotification({ message: `${collection} is created!`, duration: 4000, link: '#' })
       setCollectionsList(prev => prev.map(col => {
         if (col.name === collection) col.status = 'enqueued'
         return col
@@ -82,7 +93,7 @@ const Collections = ({ updateCredentials }) => {
       method: 'DELETE'
     })
     if (res.error) errorNotifications(res)
-    else successNotification({ message: `${collection} collection is removed from MeiliSearch! \n Don't forget to remove your hooks`, link: '#', duration: 4000 })
+    else successNotification({ message: `${collection} collection is removed from MeiliSearch!`, link: '#', duration: 4000 })
   }
 
   const addOrRemoveCollection = async (row) => {
@@ -97,14 +108,45 @@ const Collections = ({ updateCredentials }) => {
     })
     if (error) errorNotifications(res)
     else {
+      const reloadNeeded = (indexed, hooked) => {
+        if ((indexed && !hooked) || (!indexed && hooked)) {
+          return 'Reload needed'
+        } else if (indexed && hooked) {
+          return 'Active'
+        } else {
+          return ''
+        }
+      }
+
       const colStatus = collections.map(col => (
         {
           ...col,
+          status: (col.indexed) ? 'Indexed In MeiliSearch' : 'Not in Meilisearch',
+          hooked: reloadNeeded(col.indexed, col.hooked),
           _isChecked: col.indexed
         }
       ))
+      const reloading = colStatus.find(col => col.hooked === 'Reload needed')
+      setNeedReload(reloading)
       setCollectionsList(colStatus)
       setUpdatedCollections(true)
+    }
+  }
+
+  const reload = async () => {
+    try {
+      strapi.lockApp()
+      const { error, ...res } = await request(`/${pluginId}/reload`, {
+        method: 'GET'
+      })
+      if (error) errorNotifications(res)
+      if (res) {
+        // Reload the app
+        window.location.reload()
+      }
+    } catch (err) {
+      strapi.unlockApp()
+      errorNotifications({ message: 'Could not reload the server' })
     }
   }
 
@@ -136,6 +178,18 @@ const Collections = ({ updateCredentials }) => {
                   }
                 ]}
               />
+              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  {
+                  needReload && <Button
+                    color="delete"
+                    className="credentials_button"
+                    onClick={() => { reload() }}
+                    style={{ marginTop: '20px' }}
+                                >
+                      Reload Server
+                  </Button>
+                }
+              </div>
           </Wrapper>
       </div>
   )
