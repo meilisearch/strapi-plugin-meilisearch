@@ -96,11 +96,6 @@ async function addCollectionRows (ctx) {
     indexUid: collection,
     data
   })
-  const hooksAdded = meilisearch.lifecycle().add(collection)
-  return {
-    ...updateId,
-    hooks: hooksAdded
-  }
 }
 
 async function fetchCollection (ctx) {
