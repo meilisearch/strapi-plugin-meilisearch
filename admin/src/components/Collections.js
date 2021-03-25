@@ -32,7 +32,7 @@ const headers = [
     value: 'status'
   },
   {
-    name: 'Listener',
+    name: 'Hooks',
     value: 'hooked'
   }
 ]
