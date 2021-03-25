@@ -92,10 +92,16 @@ async function addCollectionRows (ctx) {
   const { collection } = ctx.params
   const { data } = ctx.request.body
   const credentials = await getCredentials()
-  return meilisearch.http(meilisearch.client(credentials)).addDocuments({
-    indexUid: collection,
-    data
-  })
+  if (data.length > 0) {
+    return meilisearch.http(meilisearch.client(credentials)).addDocuments({
+      indexUid: collection,
+      data
+    })
+  } else {
+    return await meilisearch.http(meilisearch.client(credentials)).createIndex({
+      indexUid: collection
+    })
+  }
 }
 
 async function fetchCollection (ctx) {

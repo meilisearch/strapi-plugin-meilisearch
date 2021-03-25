@@ -34,6 +34,10 @@ async function getIndexes () {
   return this.client.listIndexes()
 }
 
+async function createIndex ({ indexUid }) {
+  return this.client.getOrCreateIndex(indexUid)
+}
+
 async function getRawIndex ({ indexUid }) {
   return this.client.index(indexUid).getRawInfo()
 }
@@ -62,6 +66,7 @@ module.exports = (client) => (
     deleteIndex,
     deleteDocuments,
     getRawIndex,
-    deleteAllDocuments
+    deleteAllDocuments,
+    createIndex
   }
 )

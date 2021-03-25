@@ -17,11 +17,15 @@ const meilisearch = {
   lifecycles: () => strapi.plugins.meilisearch.services.lifecycles
 }
 
-async function getIndexes () {
+async function getClient () {
+  const credentials = await getCredentials()
+  const client = meilisearch.client(credentials)
+  return await meilisearch.http(client)
+}
+
+async function getIndexes (client) {
   try {
-    const credentials = await getCredentials()
-    const client = meilisearch.client(credentials)
-    return await meilisearch.http(client).getIndexes()
+    return client.getIndexes()
   } catch (e) {
     return []
   }
@@ -35,26 +39,31 @@ async function getCredentials () {
 }
 
 async function initHooks (store) {
-  const models = strapi.models
-  const indexes = (await getIndexes()).map(index => index.uid)
-  const indexed = Object.keys(models).filter(model => indexes.includes(model))
-  indexed.map(collection => {
-    const model = strapi.models[collection]
-    const meilisearchLifecycles = Object.keys(meilisearch.lifecycles())
-    model.lifecycles = model.lifecycles || {}
+  try {
+    const models = strapi.models
+    const httpClient = await getClient()
+    const indexes = (await getIndexes(httpClient)).map(index => index.uid)
+    const indexedCollections = Object.keys(models).filter(model => indexes.includes(model))
+    indexedCollections.map(collection => {
+      const model = strapi.models[collection]
+      const meilisearchLifecycles = Object.keys(meilisearch.lifecycles())
+      model.lifecycles = model.lifecycles || {}
 
-    meilisearchLifecycles.map(lifecycleName => {
-      const fn = model.lifecycles[lifecycleName] || (() => {})
-      model.lifecycles[lifecycleName] = (data) => {
-        fn(data)
-        meilisearch.lifecycles()[lifecycleName](data, collection)
-      }
+      meilisearchLifecycles.map(lifecycleName => {
+        const fn = model.lifecycles[lifecycleName] || (() => {})
+        model.lifecycles[lifecycleName] = (data) => {
+          fn(data)
+          meilisearch.lifecycles()[lifecycleName](data, collection, httpClient)
+        }
+      })
     })
-  })
-  store.set({
-    key: 'meilisearch_hooked',
-    value: indexed
-  })
+    store.set({
+      key: 'meilisearch_hooked',
+      value: indexedCollections
+    })
+  } catch (e) {
+    console.error(e)
+  }
 }
 
 module.exports = async () => {

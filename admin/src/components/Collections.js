@@ -43,20 +43,21 @@ const Collections = ({ updateCredentials }) => {
   const [needReload, setNeedReload] = useState(false)
 
   const updateStatus = async ({ collection, updateId }) => {
-    const response = await request(`/${pluginId}/indexes/${collection}/update/${updateId}`, {
-      method: 'GET'
-    })
-    const { error } = response
-    if (error) errorNotifications(error)
-    else successNotification({ message: `${collection} has all its documents indexed` })
-    setUpdatedCollections(false)
+    if (updateId) {
+      const response = await request(`/${pluginId}/indexes/${collection}/update/${updateId}`, {
+        method: 'GET'
+      })
+      const { error } = response
+      if (error) errorNotifications(error)
+      else successNotification({ message: `${collection} has all its documents indexed` })
+      setUpdatedCollections(false)
+    }
   }
 
   const addCollectionToMeiliSearch = async ({ name: collection }) => {
     const update = await request(`/${pluginId}/collections/${collection}/`, {
       method: 'POST'
     })
-    console.log({ update })
     if (update.error) {
       errorNotifications(update)
     } else {

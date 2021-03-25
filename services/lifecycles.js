@@ -4,13 +4,9 @@
  * to customize this model
  */
 
-async function meilisearchService (uid) {
-  return await strapi.plugins.meilisearch.services.meilisearch_lifecycles_template_utils(uid)
-}
-
-async function afterCreate (result, collection) {
+async function afterCreate (result, collection, httpClient) {
   try {
-    await (await this.meilisearchService(collection)).addDocuments({
+    await httpClient.addDocuments({
       indexUid: collection,
       data: [result]
     })
@@ -19,9 +15,9 @@ async function afterCreate (result, collection) {
   }
 }
 
-async function afterDelete (result, collection) {
+async function afterDelete (result, collection, httpClient) {
   try {
-    await (await this.meilisearchService(collection)).deleteDocuments({
+    await httpClient.deleteDocuments({
       indexUid: collection,
       documentIds: [result.id]
     })
@@ -30,9 +26,9 @@ async function afterDelete (result, collection) {
   }
 }
 
-async function afterUpdate (result, collection) {
+async function afterUpdate (result, collection, httpClient) {
   try {
-    await (await this.meilisearch()).addDocuments({
+    await httpClient.addDocuments({
       indexUid: collection,
       data: [result]
     })
@@ -44,6 +40,5 @@ async function afterUpdate (result, collection) {
 module.exports = {
   afterCreate,
   afterDelete,
-  afterUpdate,
-  meilisearchService
+  afterUpdate
 }
