@@ -96,6 +96,11 @@ async function addCollectionRows (ctx) {
     indexUid: collection,
     data
   })
+  const hooksAdded = meilisearch.lifecycle().add(collection)
+  return {
+    ...updateId,
+    hooks: hooksAdded
+  }
 }
 
 async function fetchCollection (ctx) {
@@ -104,7 +109,6 @@ async function fetchCollection (ctx) {
   if (!Object.keys(strapi.services).includes(collection)) {
     return { error: true, message: 'Collection not found' }
   }
-
   const rows = await strapi.services[collection].find({ _publicationState: 'preview' })
   ctx.request.body = { data: rows }
   return ctx

@@ -90,7 +90,6 @@ yarn playground:dev
 
 This command will install required dependencies and launch the app in development mode. You should be able to reach it on the [port 8000 of your localhost](http://localhost:8000/admin/).
 
-
 ### Create Strapi project
 
 Install Strapi with this **Quickstart** command to create a Strapi project instantly:
