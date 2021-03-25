@@ -29,8 +29,8 @@ async function getIndexes () {
 
 async function getCredentials () {
   const store = await meilisearch.store()
-  const apiKey = await store.getStoreKey('meilisearchApiKey')
-  const host = await store.getStoreKey('meilisearchHost')
+  const apiKey = await store.getStoreKey('meilisearch_api_key')
+  const host = await store.getStoreKey('meilisearch_host')
   return { apiKey, host }
 }
 
@@ -38,7 +38,6 @@ async function initHooks (store) {
   const models = strapi.models
   const indexes = (await getIndexes()).map(index => index.uid)
   const indexed = Object.keys(models).filter(model => indexes.includes(model))
-
   indexed.map(collection => {
     const model = strapi.models[collection]
     const meilisearchLifecycles = Object.keys(meilisearch.lifecycles())

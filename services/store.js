@@ -7,8 +7,6 @@
  */
 
 async function getStoreKey (key) {
-  this.store().delete('meilisearchApiKey')
-  this.store().delete('meilisearchHost')
   return this.store().get({ key })
 }
 

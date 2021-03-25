@@ -34,7 +34,6 @@ describe('Strapi Login flow', () => {
   it('Enter to the plugin Home Page', () => {
     cy.contains('MeiliSearch', { timeout: 10000 }).click()
     cy.url().should('include', '/plugins/meilisearch')
-    removeNotifications()
   })
 
   it('Add credentials', () => {
@@ -55,25 +54,25 @@ describe('Strapi Login flow', () => {
   })
 
   it('Add Collections to MeiliSearch', () => {
-    const restaurant = '.collections tbody tr:first-child'
-    cy.get(`${restaurant} input[type="checkbox"]`).click()
-    removeNotifications()
-    cy.get(`${restaurant}`).contains('processed')
-    const category = '.collections tbody tr:nth-child(2)'
+    const category = '.collections tbody tr:first-child'
     cy.get(`${category} input[type="checkbox"]`).click()
     removeNotifications()
-    cy.get(`${category}`).contains('processed')
+    cy.get(`${category}`).contains('Indexed In MeiliSearch')
+    const restaurant = '.collections tbody tr:nth-child(2)'
+    cy.get(`${restaurant} input[type="checkbox"]`).click()
+    removeNotifications()
+    cy.get(`${restaurant}`).contains('Indexed In MeiliSearch')
   })
 
   it('Remove Collections from MeiliSearch', () => {
-    const restaurant = '.collections tbody tr:first-child'
-    cy.get(`${restaurant} input[type="checkbox"]`).click()
-    cy.get(`${restaurant}`).contains('Not in MeiliSearch')
-    removeNotifications()
-    const category = '.collections tbody tr:nth-child(2)'
+    const category = '.collections tbody tr:first-child'
     cy.get(`${category} input[type="checkbox"]`).click()
-    cy.get(`${category}`).contains('Not in MeiliSearch')
     removeNotifications()
+    cy.get(`${category}`).contains('Not in MeiliSearch')
+    const restaurant = '.collections tbody tr:nth-child(2)'
+    cy.get(`${restaurant} input[type="checkbox"]`).click()
+    removeNotifications()
+    cy.get(`${restaurant}`).contains('Not in MeiliSearch')
   })
 
   it('Change Host', () => {

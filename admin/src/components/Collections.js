@@ -121,7 +121,7 @@ const Collections = ({ updateCredentials }) => {
       const colStatus = collections.map(col => (
         {
           ...col,
-          status: (col.indexed) ? 'Indexed In MeiliSearch' : 'Not in Meilisearch',
+          status: (col.indexed) ? 'Indexed In MeiliSearch' : 'Not in MeiliSearch',
           hooked: reloadNeeded(col.indexed, col.hooked),
           _isChecked: col.indexed
         }
@@ -182,7 +182,7 @@ const Collections = ({ updateCredentials }) => {
                   {
                   needReload && <Button
                     color="delete"
-                    className="credentials_button"
+                    className="reload_button"
                     onClick={() => { reload() }}
                     style={{ marginTop: '20px' }}
                                 >
