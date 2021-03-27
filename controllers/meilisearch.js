@@ -145,7 +145,7 @@ async function getCollections () {
 async function reload (ctx) {
   ctx.send('ok')
   strapi.reload.isWatching = false
-  strapi.reload()
+  setImmediate(() => strapi.reload())
   return { message: 'ok' }
 }
 
