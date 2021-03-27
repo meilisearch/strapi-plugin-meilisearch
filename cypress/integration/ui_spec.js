@@ -91,7 +91,6 @@ describe('Strapi Login flow', () => {
     if (env === 'watch') {
       cy.wait(4000)
       cy.visit(adminUrl, { timeout: 4000 })
-      // cy.reload()
       cy.url().should('match', /login/)
       cy.get('form', { timeout: 10000 }).should('be.visible')
       cy.get('input[name="email"]').type(email).should('have.value', email)
