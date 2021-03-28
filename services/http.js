@@ -12,6 +12,7 @@ function removeDateLogs (document) {
     created_at: omitCreatedAt,
     created_by: omitCreatedBy,
     updated_by: omitUpdatedBy,
+    published_at: omitPublishedAt,
     ...noDateLogDocument
   } = document
   return noDateLogDocument
