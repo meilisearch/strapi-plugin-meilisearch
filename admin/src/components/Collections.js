@@ -141,9 +141,12 @@ const Collections = ({ updateCredentials }) => {
       const { error, ...res } = await request(`/${pluginId}/reload`, {
         method: 'GET'
       })
-      if (error) errorNotifications(res)
-      if (res) {
-        // Reload the app
+      if (error) {
+        errorNotifications(res)
+        strapi.unlockApp()
+      }
+      else {
+        // Reload the app if autoReload is set
         window.location.reload()
       }
     } catch (err) {
