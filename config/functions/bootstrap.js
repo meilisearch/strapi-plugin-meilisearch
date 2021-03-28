@@ -17,8 +17,7 @@ const meilisearch = {
   lifecycles: () => strapi.plugins.meilisearch.services.lifecycles
 }
 
-async function getClient () {
-  const credentials = await getCredentials()
+async function getClient (credentials) {
   const client = meilisearch.client(credentials)
   return await meilisearch.http(client)
 }
@@ -38,29 +37,55 @@ async function getCredentials () {
   return { apiKey, host }
 }
 
+function addHookedCollectionsToStore ({ store, collections }) {
+  store.set({
+    key: 'meilisearch_hooked',
+    value: collections
+  })
+}
+
+function addLifecycles ({ client, collections }) {
+  // Add lifecyles
+  collections.map(collection => {
+    const model = strapi.models[collection]
+    const meilisearchLifecycles = Object.keys(meilisearch.lifecycles())
+    model.lifecycles = model.lifecycles || {}
+
+    meilisearchLifecycles.map(lifecycleName => {
+      const fn = model.lifecycles[lifecycleName] || (() => {})
+      model.lifecycles[lifecycleName] = (data) => {
+        fn(data)
+        meilisearch.lifecycles()[lifecycleName](data, collection, client)
+      }
+    })
+  })
+}
+
 async function initHooks (store) {
   try {
-    const models = strapi.models
-    const httpClient = await getClient()
-    const indexes = (await getIndexes(httpClient)).map(index => index.uid)
-    const indexedCollections = Object.keys(models).filter(model => indexes.includes(model))
-    indexedCollections.map(collection => {
-      const model = strapi.models[collection]
-      const meilisearchLifecycles = Object.keys(meilisearch.lifecycles())
-      model.lifecycles = model.lifecycles || {}
+    const credentials = await getCredentials()
+    console.log({ credentials })
+    if (credentials.host) {
+      const client = await getClient(credentials)
+      // get list of indexes in MeiliSearch Instance
+      const indexes = (await getIndexes(client)).map(index => index.uid)
 
-      meilisearchLifecycles.map(lifecycleName => {
-        const fn = model.lifecycles[lifecycleName] || (() => {})
-        model.lifecycles[lifecycleName] = (data) => {
-          fn(data)
-          meilisearch.lifecycles()[lifecycleName](data, collection, httpClient)
-        }
+      // Collections in Strapi
+      const models = strapi.models
+
+      // get list of Indexes In MeilISearch that are Collections in Strapi
+      const indexedCollections = Object.keys(models).filter(model => indexes.includes(model))
+      addLifecycles({
+        collections: indexedCollections,
+        client
       })
-    })
-    store.set({
-      key: 'meilisearch_hooked',
-      value: indexedCollections
-    })
+      addHookedCollectionsToStore({
+        collections: indexedCollections,
+        store
+      })
+    }
+
+    // Add collections to hooked store
   } catch (e) {
     console.error(e)
   }
