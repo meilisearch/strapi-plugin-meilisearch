@@ -147,7 +147,6 @@ async function reload (ctx) {
   const {
     config: { autoReload }
   } = strapi
-  console.log(autoReload, !autoReload)
   if (!autoReload) {
     return {
       message: 'autoReload is set to false. Please reload server manually.',
