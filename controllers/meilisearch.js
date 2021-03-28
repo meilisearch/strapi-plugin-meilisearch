@@ -29,7 +29,8 @@ async function sendCtx (ctx, fct) {
 
 async function getHookedCollections () {
   const store = await meilisearch.store()
-  return await store.getStoreKey('meilisearch_hooked')
+  const hookedCollections = await store.getStoreKey('meilisearch_hooked')
+  return hookedCollections || []
 }
 
 async function getCredentials () {
