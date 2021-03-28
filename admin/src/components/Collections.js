@@ -144,8 +144,7 @@ const Collections = ({ updateCredentials }) => {
       if (error) {
         errorNotifications(res)
         strapi.unlockApp()
-      }
-      else {
+      } else {
         // Reload the app if autoReload is set
         window.location.reload()
       }

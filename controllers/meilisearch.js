@@ -145,7 +145,7 @@ async function getCollections () {
 async function reload (ctx) {
   ctx.send('ok')
   const {
-    config: { autoReload },
+    config: { autoReload }
   } = strapi
   console.log(autoReload, !autoReload)
   if (!autoReload) {
@@ -154,14 +154,13 @@ async function reload (ctx) {
       title: 'Reload failed',
       error: true,
       link:
-        'https://strapi.io/documentation/developer-docs/latest/developer-resources/cli/CLI.html#strapi-start',
+        'https://strapi.io/documentation/developer-docs/latest/developer-resources/cli/CLI.html#strapi-start'
     }
-  }
-  else {
-  strapi.reload.isWatching = false
+  } else {
+    strapi.reload.isWatching = false
     strapi.reload()
-  return { message: 'ok' }
-}
+    return { message: 'ok' }
+  }
 }
 
 module.exports = {
