@@ -25,7 +25,7 @@ export const ReloadButton = styled(Button)`
 const headers = [
   {
     name: 'Name',
-    value: 'name'
+    value: 'name',
   },
   {
     name: 'In MeiliSearch',
@@ -41,8 +41,8 @@ const headers = [
   },
   {
     name: 'Hooks',
-    value: 'hooked'
-  }
+    value: 'hooked',
+  },
 ]
 
 const Collections = ({ updateCredentials }) => {
@@ -113,7 +113,7 @@ const Collections = ({ updateCredentials }) => {
   // Remove a collection from MeiliSearch
   const removeCollection = async ({ name: collection }) => {
     const res = await request(`/${pluginId}/indexes/${collection}/`, {
-      method: 'DELETE'
+      method: 'DELETE',
     })
     if (res.error) errorNotifications(res)
     else successNotification({ message: `${collection} collection is removed from MeiliSearch!`, duration: 4000 })

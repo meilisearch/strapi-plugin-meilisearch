@@ -16,16 +16,16 @@ const HomePage = () => {
   const { formatMessage } = useGlobalContext()
 
   return (
-      <div className="container-fluid" style={{ padding: '18px 30px 66px 30px' }}>
-          <Header
-            title={{
-              label: formatMessage({ id: getTrad('plugin.name') })
-            }}
-            content={formatMessage({ id: getTrad('header.description') })}
-          />
-          <Credentials setUpdatedCredentials={setUpdatedCredentials} />
-          <Collections updateCredentials={updateCredentials} />
-      </div>
+    <div className="container-fluid" style={{ padding: '18px 30px 66px 30px' }}>
+      <Header
+        title={{
+          label: formatMessage({ id: getTrad('plugin.name') }),
+        }}
+        content={formatMessage({ id: getTrad('header.description') })}
+      />
+      <Credentials setUpdatedCredentials={setUpdatedCredentials} />
+      <Collections updateCredentials={updateCredentials} />
+    </div>
   )
 }
 

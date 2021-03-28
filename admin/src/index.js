@@ -6,7 +6,8 @@ import lifecycles from './lifecycles'
 import trads from './translations'
 
 export default strapi => {
-  const pluginDescription = pluginPkg.strapi.description || pluginPkg.description
+  const pluginDescription =
+    pluginPkg.strapi.description || pluginPkg.description
   const icon = pluginPkg.strapi.icon
   const name = pluginPkg.strapi.name
 
@@ -33,7 +34,7 @@ export default strapi => {
           icon,
           label: {
             id: `${pluginId}.plugin.name`,
-            defaultMessage: name
+            defaultMessage: name,
           },
           name,
           permissions: [
@@ -42,10 +43,10 @@ export default strapi => {
             //   action: '', // the action name should be plugins::plugin-name.actionType
             //   subject: null,
             // },
-          ]
-        }
-      ]
-    }
+          ],
+        },
+      ],
+    },
   }
 
   return strapi.registerPlugin(plugin)

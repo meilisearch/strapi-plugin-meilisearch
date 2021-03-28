@@ -15,9 +15,9 @@ const Credentials = ({ setUpdatedCredentials }) => {
 
   useEffect(() => {
     strapi.lockApp()
-    async function fillMeilisearchCredentials () {
+    async function fillMeilisearchCredentials() {
       const { apiKey, host } = await request(`/${pluginId}/credentials/`, {
-        method: 'GET'
+        method: 'GET',
       })
       setApiKey(apiKey)
       setHost(host)
@@ -31,13 +31,13 @@ const Credentials = ({ setUpdatedCredentials }) => {
       method: 'POST',
       body: {
         host: msHost,
-        apiKey: msApiKey
-      }
+        apiKey: msApiKey,
+      },
     })
     strapi.notification.toggle({
       type: 'success',
       message: 'MeiliSearch Credentials Updated!',
-      timeout: 4000
+      timeout: 4000,
     })
     setApiKey(apiKey)
     setHost(host)
@@ -45,33 +45,37 @@ const Credentials = ({ setUpdatedCredentials }) => {
   }
 
   return (
-      <div className="col-md-12">
-          <Wrapper>
-              <Label htmlFor="MSHost" message="MeiliSearch Host" />
-              <InputText
-                name="MSHost"
-                onChange={({ target: { value } }) => {
-                  setHost(value)
-                }}
-                placeholder="Host"
-                type="text"
-                value={msHost}
-              />
-              <Label htmlFor="MSApiKey" message="MeiliSearch Api Key" />
-              <InputText
-                name="MSApiKey"
-                onChange={({ target: { value } }) => {
-                  setApiKey(value)
-                }}
-                placeholder="apiKey"
-                type="text"
-                value={msApiKey}
-              />
-              <Button className="credentials_button" onClick={addMeilisearchCredentials} style={{ marginTop: '20px' }}>
-                  Add
-              </Button>
-          </Wrapper>
-      </div>
+    <div className="col-md-12">
+      <Wrapper>
+        <Label htmlFor="MSHost" message="MeiliSearch Host" />
+        <InputText
+          name="MSHost"
+          onChange={({ target: { value } }) => {
+            setHost(value)
+          }}
+          placeholder="Host"
+          type="text"
+          value={msHost}
+        />
+        <Label htmlFor="MSApiKey" message="MeiliSearch Api Key" />
+        <InputText
+          name="MSApiKey"
+          onChange={({ target: { value } }) => {
+            setApiKey(value)
+          }}
+          placeholder="apiKey"
+          type="text"
+          value={msApiKey}
+        />
+        <Button
+          className="credentials_button"
+          onClick={addMeilisearchCredentials}
+          style={{ marginTop: '20px' }}
+        >
+          Add
+        </Button>
+      </Wrapper>
+    </div>
   )
 }
 

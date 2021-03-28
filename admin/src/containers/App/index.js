@@ -17,18 +17,18 @@ import HomePage from '../HomePage'
 const theme = {
   colors: {
     backgroundColor: '#ffffff',
-    shadows: '#e3e9f3'
-  }
+    shadows: '#e3e9f3',
+  },
 }
 
 const App = () => {
   return (
-      <ThemeProvider theme={theme} >
-          <Switch>
-              <Route path={`/plugins/${pluginId}`} component={HomePage} exact />
-              <Route component={NotFound} />
-          </Switch>
-      </ThemeProvider>
+    <ThemeProvider theme={theme}>
+      <Switch>
+        <Route path={`/plugins/${pluginId}`} component={HomePage} exact />
+        <Route component={NotFound} />
+      </Switch>
+    </ThemeProvider>
   )
 }
 

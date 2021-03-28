@@ -43,7 +43,7 @@ const trads = {
   vi,
   'zh-Hans': zhHans,
   zh,
-  sk
+  sk,
 }
 
 export default trads

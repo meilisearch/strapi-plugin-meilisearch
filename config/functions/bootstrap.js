@@ -11,10 +11,11 @@
  */
 
 const meilisearch = {
-  http: (client) => strapi.plugins.meilisearch.services.http(client),
-  client: (credentials) => strapi.plugins.meilisearch.services.client(credentials),
+  http: client => strapi.plugins.meilisearch.services.http(client),
+  client: credentials =>
+    strapi.plugins.meilisearch.services.client(credentials),
   store: () => strapi.plugins.meilisearch.services.store,
-  lifecycles: () => strapi.plugins.meilisearch.services.lifecycles
+  lifecycles: () => strapi.plugins.meilisearch.services.lifecycles,
 }
 
 async function getClient (credentials) {
@@ -22,7 +23,7 @@ async function getClient (credentials) {
   return await meilisearch.http(client)
 }
 
-async function getIndexes (client) {
+async function getIndexes(client) {
   try {
     return client.getIndexes()
   } catch (e) {
@@ -30,7 +31,7 @@ async function getIndexes (client) {
   }
 }
 
-async function getCredentials () {
+async function getCredentials() {
   const store = await meilisearch.store()
   const apiKey = await store.getStoreKey('meilisearch_api_key')
   const host = await store.getStoreKey('meilisearch_host')
@@ -101,7 +102,7 @@ module.exports = async () => {
   const store = strapi.store({
     environment: strapi.config.environment,
     type: 'plugin',
-    name: 'meilisearch_store'
+    name: 'meilisearch_store',
   })
   strapi.plugins.meilisearch.store = store
 
