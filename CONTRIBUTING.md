@@ -60,13 +60,16 @@ If you already have a running Strapi app in local, testing is possible with the 
 yarn cy:open
 ```
 
-### Playgrounds
+### Run Playground
 
 To test directly your changes on the plugin in Strapi, you can run the Strapi playground:
 
 ```bash
+# Root of repository
 yarn playground:dev
 ```
+
+This command will install required dependencies and launch the app in development mode. You should be able to reach it on the [port 8000 of your localhost](http://localhost:8000/admin/).
 
 ## Git Guidelines
 

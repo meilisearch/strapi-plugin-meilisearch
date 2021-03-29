@@ -32,10 +32,10 @@ Add your Strapi collections into a MeiliSearch instance. The plugin listens to m
 - [📖 Documentation](#-documentation)
 - [🔧 Installation](#-installation)
 - [🎬 Getting Started](#-getting-started)
-- [🤖 Compatibility with MeiliSearch](#-compatibility-with-meilisearch)
+- [🤖 Compatibility with MeiliSearch and Strapi](#-compatibility-with-meilisearch)
 - [💡 Learn More](#-learn-more)
 - [⚙️ Development Workflow and Contributing](#️-development-workflow-and-contributing)
-- [✋ Requirements](#-requirements)
+- [🌎 Community support](#️-community-support)
 
 ## 📖 Documentation
 
@@ -61,7 +61,7 @@ To apply the plugin to Strapi, a re-build is needed:
 strapi build
 ```
 
-You will need both a running Strapi app and a running MeiliSearch instance. For [specific version requirements see this section](#-requirements).
+You will need both a running Strapi app and a running MeiliSearch instance. For [specific version compatibiliy see this section](#-compatibility-with-meilisearch).
 
 ### 🏃‍♀️ Run MeiliSearch
 
@@ -97,7 +97,10 @@ First, add your MeiliSearch credentials in the upper box of the MeiliSearch plug
 
 For example, using the credentials used in the [above section](#-run-meilisearch) it looks like this:
 
-![](/assets/credentials.png)
+
+<p align="center">
+<img src="./assets/credentials.png" alt="Add your credentials" width="600"/>
+</p>
 
 Once completed, click on the `add` button.
 
@@ -110,11 +113,48 @@ We will use, as **example**, the collections provided by Strapi's quickstart.
 
 On your plugin homepage you should have two collections appearing: `restaurant` and `category`.
 
-![](/assets/collections.png)
+<p align="center">
+<img src="./assets/collections_indexed.png" alt="Indexed collections need a reload" width="600"/>
+</p>
 
 By clicking on the left checkbox, the collection will be automatically indexed in MeiliSearch. For example, if you click on the `restaurant` checkbox, all your restaurants are now available in MeiliSearch.
 
 You can check it using
+
+### 🪝 Apply Hooks
+
+Hooks are listeners that update MeiliSearch each time you add/update/delete an entry in your collections.
+In order to activate them you will have to reload the server. This is possible by clicking on the `Reload Server` button if you are in auto-reload mode, or by manually reloading the server mode.
+
+
+<p align="center">
+<img src="./assets/no_reload_needed.png" alt="Indexed collections are hooked" width="600"/>
+</p>
+
+
+### 🕵️‍♀️ Start Searching
+
+Once you have a collection containing documents indexed in MeiliSearch, you can [start searching](https://docs.meilisearch.com/learn/getting_started/quick_start.html#search).
+
+Using the above credentials the following code shows how to search on one of your collections:
+
+```javascript
+import { MeiliSearch } from 'meilisearch'
+
+;(async () => {
+  const client = new MeiliSearch({
+    host: 'http://127.0.0.1:7700',
+    apiKey: 'masterKey',
+  })
+
+  // An index is where the documents are stored.
+  const index = client.index('movies').search('')
+})()
+```
+
+## 💡 Learn More
+
+If you don't have a running Strapi app, you can still try this plugin using either of one of the following options:
 
 ### Run Playground
 
@@ -168,7 +208,8 @@ yarn develop
 
 You can now use the plugin on your Strapi project.
 
-## 🖐 Requirements
+
+## 🤖 Compatibility with MeiliSearch and Strapi
 
 Complete installation requirements are exact same as for Strapi itself and can be found in the documentation under [Installation Requirements](https://strapi.io/documentation/v3.x/installation/cli.html#step-1-make-sure-requirements-are-met).
 
@@ -185,20 +226,14 @@ Complete installation requirements are exact same as for Strapi itself and can b
 
 **We recommend always using the latest version of Strapi to start your new projects**.
 
+
+## ⚙️ Development Workflow and Contributing
+
+Any new contribution is more than welcome in this project!
+
+If you want to know more about the development workflow or want to contribute, please visit our [contributing guidelines](/CONTRIBUTING.md) for detailed instructions!
+
 ## 🌎 Community support
 
 - For general help using Strapi, please refer to [the official Strapi documentation](https://strapi.io/documentation/).
 - Strapi Slack [channel](https://slack.strapi.io/)
-
-## Plugin's goal
-
-We want to create a plugin that provides automatic actions and an interface on the Strapi dashboard that helps the user start with MeiliSearch. The User should be able to create or remove new collections from MeiliSearch.
-
-In the background, the plugin should re-index the documents that have been changed in the collections.<br>
-For example, If I change the name of the restaurant `Tonio` with `Tony` in a Strapi collection, an update should automatically be done to update it as well on MeiliSearch.
-
-No additional routes should be created on strapi for the front end users as they will be using the MeiliSearch API to search and not Strapi (unless we want to make this possible?).
-
-## MVP
-
-[You can follow allong the progression of this project here](https://github.com/meilisearch/strapi-plugin-meilisearch/issues).
