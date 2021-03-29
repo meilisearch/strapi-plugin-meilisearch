@@ -54,7 +54,7 @@ const Collections = ({ updateCredentials }) => {
     }
   }
 
-  const addCollectionToMeiliSearch = async ({ name: collection }) => {
+  const addCollection = async ({ name: collection }) => {
     const update = await request(`/${pluginId}/collections/${collection}/`, {
       method: 'POST'
     })
@@ -70,7 +70,7 @@ const Collections = ({ updateCredentials }) => {
     }
   }
 
-  const updateCollectionsInMeiliSearch = async ({ collection }) => {
+  const updateCollections = async ({ collection }) => {
     try {
       const update = await request(`/${pluginId}/collections/${collection}/`, {
         method: 'PUT'
@@ -100,7 +100,7 @@ const Collections = ({ updateCredentials }) => {
 
   const addOrRemoveCollection = async (row) => {
     if (row._isChecked) await removeCollection(row)
-    else await addCollectionToMeiliSearch(row)
+    else await addCollection(row)
     setUpdatedCollections(false)
   }
 
@@ -176,7 +176,7 @@ const Collections = ({ updateCredentials }) => {
                   {
                     icon: <UpdateButton forwardedAs='span'>Update</UpdateButton>,
                     onClick: data => {
-                      updateCollectionsInMeiliSearch({ collection: data.name })
+                      updateCollections({ collection: data.name })
                     }
                   }
                 ]}
