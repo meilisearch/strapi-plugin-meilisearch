@@ -34,18 +34,18 @@ jobs:
           build: yarn playground:build
           start: yarn playground:start
           env: env=ci
-      - name: Test develop admin watch
-        uses: cypress-io/github-action@v2
-        with:
-          build: yarn playground:build
-          start: yarn playground:dev
-          env: env=watch
-      - name: Test develop soft watch
-        uses: cypress-io/github-action@v2
-        with:
-          build: yarn playground:build
-          start: yarn playground:dev
-          env: env=develop
+      # - name: Test develop admin watch
+      #   uses: cypress-io/github-action@v2
+      #   with:
+      #     build: yarn playground:build
+      #     start: yarn playground:dev
+      #     env: env=watch
+      # - name: Test develop soft watch
+      #   uses: cypress-io/github-action@v2
+      #   with:
+      #     build: yarn playground:build
+      #     start: yarn playground:dev
+      #     env: env=develop
       - name: Test production
         uses: cypress-io/github-action@v2
         with:
