@@ -13,11 +13,20 @@ const removeTutorial = () => {
   cy.get('.videosContent').siblings('.openBtn').click()
 }
 
-const clickAndCheckRowContent = (rowNumber, contains) => {
-  const row = `.collections tbody tr:nth-child(${rowNumber})`
+const clickCollection = ({ rowNb }) => {
+  const row = `.collections tbody tr:nth-child(${rowNb})`
   cy.get(`${row} input[type="checkbox"]`).click()
   removeNotifications()
+}
+
+const checkCollectionContent = ({ rowNb, contains }) => {
+  const row = `.collections tbody tr:nth-child(${rowNb})`
   contains.map(content => cy.get(`${row}`).contains(content))
+}
+
+const clickAndCheckRowContent = ({ rowNb, contains }) => {
+  clickCollection({ rowNb })
+  checkCollectionContent({ rowNb, contains })
 }
 
 const removeNotifications = () => {
@@ -80,32 +89,59 @@ describe('Strapi Login flow', () => {
   })
 
   it('Add Collections to MeiliSearch', () => {
-    clickAndCheckRowContent(1, ['Indexed In MeiliSearch', 'Reload needed'])
-    clickAndCheckRowContent(2, ['Indexed In MeiliSearch', 'Reload needed'])
-    clickAndCheckRowContent(3, ['Indexed In MeiliSearch', 'Reload needed'])
+    clickAndCheckRowContent({
+      rowNb: 1,
+      contains: ['Indexed In MeiliSearch', 'Reload needed']
+    })
+    clickAndCheckRowContent({
+      rowNb: 2,
+      contains: ['Indexed In MeiliSearch', 'Reload needed']
+    })
+    clickAndCheckRowContent({
+      rowNb: 3,
+      contains: ['Indexed In MeiliSearch', 'Reload needed']
+    })
   })
 
   it('Reload Server', () => {
     const row = '.reload_button'
     cy.get(`${row}`).click()
-    if (env === 'watch') {
-      cy.wait(4000)
-      cy.visit(adminUrl, { timeout: 4000 })
-      cy.url().should('match', /login/)
-      cy.get('form', { timeout: 10000 }).should('be.visible')
-      cy.get('input[name="email"]').type(email).should('have.value', email)
-      cy.get('input[name="password"]').type(password).should('have.value', password)
-      cy.get('button[type="submit"]').click()
-      cy.contains('MeiliSearch', { timeout: 10000 }).click()
-      cy.url().should('include', '/plugins/meilisearch')
+    cy.wait(4000)
+    if (env === 'develop' || env === 'watch') {
+      removeTutorial()
     }
-    removeTutorial()
+  })
+
+  it('Check for successfull hooks in develop mode', () => {
+    if (env === 'develop' || env === 'watch') {
+      checkCollectionContent({ rowNb: 1, contains: ['Indexed In MeiliSearch', 'Active'] })
+      checkCollectionContent({ rowNb: 2, contains: ['Indexed In MeiliSearch', 'Active'] })
+      checkCollectionContent({ rowNb: 3, contains: ['Indexed In MeiliSearch', 'Active'] })
+    } else {
+      checkCollectionContent({ rowNb: 1, contains: ['Indexed In MeiliSearch', 'Reload needed'] })
+      checkCollectionContent({ rowNb: 2, contains: ['Indexed In MeiliSearch', 'Reload needed'] })
+      checkCollectionContent({ rowNb: 3, contains: ['Indexed In MeiliSearch', 'Reload needed'] })
+    }
   })
 
   it('Remove Collections from MeiliSearch', () => {
-    clickAndCheckRowContent(1, ['Not in MeiliSearch'])
-    clickAndCheckRowContent(2, ['Not in MeiliSearch'])
-    clickAndCheckRowContent(3, ['Not in MeiliSearch'])
+    clickAndCheckRowContent({
+      rowNb: 1,
+      contains: ['Not in MeiliSearch']
+    })
+    clickAndCheckRowContent({
+      rowNb: 2,
+      contains: ['Not in MeiliSearch']
+    })
+    clickAndCheckRowContent({
+      rowNb: 3,
+      contains: ['Not in MeiliSearch']
+    })
+    if (env === 'develop' || env === 'watch') {
+      checkCollectionContent({ rowNb: 1, contains: ['Not in MeiliSearch', 'Reload needed'] })
+      checkCollectionContent({ rowNb: 2, contains: ['Not in MeiliSearch', 'Reload needed'] })
+      checkCollectionContent({ rowNb: 3, contains: ['Not in MeiliSearch', 'Reload needed'] })
+    }
   })
 
   it('Change Host to wrong host', () => {
