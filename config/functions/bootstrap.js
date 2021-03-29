@@ -44,6 +44,10 @@ function addHookedCollectionsToStore ({ store, collections }) {
   })
 }
 
+async function getHookedCollectionsFromStore ({ store }) {
+  return store.get('meilisearch_hooked')
+}
+
 function addLifecycles ({ client, collections }) {
   // Add lifecyles
   collections.map(collection => {
@@ -64,8 +68,9 @@ function addLifecycles ({ client, collections }) {
 async function initHooks (store) {
   try {
     const credentials = await getCredentials()
-    console.log({ credentials })
-    if (credentials.host) {
+    const getHookedCollections = await getHookedCollectionsFromStore({ store })
+
+    if (credentials.host && getHookedCollections) {
       const client = await getClient(credentials)
       // get list of indexes in MeiliSearch Instance
       const indexes = (await getIndexes(client)).map(index => index.uid)
