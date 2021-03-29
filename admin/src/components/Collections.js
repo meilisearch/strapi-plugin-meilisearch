@@ -61,7 +61,7 @@ const Collections = ({ updateCredentials }) => {
     if (update.error) {
       errorNotifications(update)
     } else {
-      successNotification({ message: `${collection} is created!`, duration: 4000, link: '#' })
+      successNotification({ message: `${collection} is created!`, duration: 4000 })
       setCollectionsList(prev => prev.map(col => {
         if (col.name === collection) col.status = 'enqueued'
         return col
@@ -95,7 +95,7 @@ const Collections = ({ updateCredentials }) => {
       method: 'DELETE'
     })
     if (res.error) errorNotifications(res)
-    else successNotification({ message: `${collection} collection is removed from MeiliSearch!`, link: '#', duration: 4000 })
+    else successNotification({ message: `${collection} collection is removed from MeiliSearch!`, duration: 4000 })
   }
 
   const addOrRemoveCollection = async (row) => {

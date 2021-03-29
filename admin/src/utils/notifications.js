@@ -1,10 +1,10 @@
-export function errorNotifications ({ message, link, duration = 4000 }) {
+export function errorNotifications ({ message, link }) {
   strapi.notification.toggle({
     title: 'Operation on MeiliSearch failed',
     type: 'warning',
     message: message,
-    ...(link ? { link: { url: link, label: 'more information' } } : {}),
-    timeout: duration
+    ...(link && { link: { url: link, label: 'learn more' } }),
+    blockTransition: true // The user has to close the error notification manually
   })
 }
 
@@ -12,7 +12,7 @@ export function successNotification ({ message, duration = 4000, link }) {
   strapi.notification.toggle({
     type: 'success',
     message: message,
-    ...(link ? { link: { url: link, label: 'more information' } } : {}),
+    ...(link && { link: { url: link, label: 'learn more' } }),
     timeout: duration
   })
 }
