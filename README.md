@@ -138,6 +138,62 @@ Once you have a collection containing documents indexed in MeiliSearch, you can 
 
 Using the above credentials the following code shows how to search on one of your collections:
 
+To search in MeiliSearch, you can use the [instant-meilisearch](https://github.com/meilisearch/instant-meilisearch) SDK that integrates a whole search interface, or our library [meilisearch-js](https://github.com/meilisearch/meilisearch-js).
+
+#### ⚡️ Using Instant meiliSearch
+
+
+In Instant MeiliSearch you only have to provide your credentials and your index name (`restaurant` is the index name in our example).
+
+You can have a quick preview the following code in a HTML file
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@meilisearch/instant-meilisearch/templates/basic_search.css" />
+  </head>
+  <body>
+    <div class="wrapper">
+      <div id="searchbox" focus></div>
+      <div id="hits"></div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@meilisearch/instant-meilisearch/dist/instant-meilisearch.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/instantsearch.js@4"></script>
+    <script>
+        const search = instantsearch({
+            indexName: "movies",
+            searchClient: instantMeiliSearch(
+                "http://localhost:7700"
+            )
+            });
+
+            search.addWidgets([
+              instantsearch.widgets.searchBox({
+                  container: "#searchbox"
+              }),
+              instantsearch.widgets.configure({ hitsPerPage: 8 }),
+              instantsearch.widgets.hits({
+                  container: "#hits",
+                  templates: {
+                  item: `
+                      <div>
+                      <div class="hit-name">
+                          {{#helpers.highlight}}{ "attribute": "title" }{{/helpers.highlight}}
+                      </div>
+                      </div>
+                  `
+                  }
+              })
+            ]);
+            search.start();
+    </script>
+  </body>
+</html>
+```
+
+
+
 ```javascript
 import { MeiliSearch } from 'meilisearch'
 
@@ -148,8 +204,28 @@ import { MeiliSearch } from 'meilisearch'
   })
 
   // An index is where the documents are stored.
-  const index = client.index('movies').search('')
+  const response = client.index('movies').search('biscoute')
 })()
+```
+
+**response content**:
+```json
+{
+  "hits": [
+    {
+      "id": 3,
+      "name": "Biscotte Restaurant",
+      "description": "Welcome to Biscotte restaurant! Restaurant Biscotte offers a cuisine based on fresh, quality products, often local, organic when possible, and always produced by passionate producers.",
+      "categories": []
+    }
+  ],
+  "offset": 0,
+  "limit": 20,
+  "nbHits": 1,
+  "exhaustiveNbHits": false,
+  "processingTimeMs": 1,
+  "query": "biscoutte"
+}
 ```
 
 ## 💡 Learn More
