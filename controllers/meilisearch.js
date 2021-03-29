@@ -19,10 +19,13 @@ async function sendCtx (ctx, fct) {
     ctx.send(body)
   } catch (e) {
     console.error(e)
+    const message = (e.type === 'MeiliSearchCommunicationError')
+      ? `Could not connect with MeiliSearch ${e.code}`
+      : `${e.type}: \n${e.message || e.code}`
     return {
       error: true,
-      message: `${e.type}: \n${e.message || e.code}`,
-      ...(e.errorLink ? { link: e.errorLink } : {})
+      message,
+      link: e.errorLink
     }
   }
 }
