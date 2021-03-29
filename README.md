@@ -31,12 +31,11 @@ Add your Strapi collections into a MeiliSearch instance. The plugin listens to m
 
 - [📖 Documentation](#-documentation)
 - [🔧 Installation](#-installation)
-- [✌️ Requirements](#-requirements)
 - [🎬 Getting Started](#-getting-started)
 - [🤖 Compatibility with MeiliSearch](#-compatibility-with-meilisearch)
 - [💡 Learn More](#-learn-more)
 - [⚙️ Development Workflow and Contributing](#️-development-workflow-and-contributing)
-- [📜 API Resources](#-api-resources)
+- [✋ Requirements](#-requirements)
 
 ## 📖 Documentation
 
@@ -62,9 +61,7 @@ To apply the plugin to Strapi, a re-build is needed:
 strapi build
 ```
 
-## ✌️ Requirements
-
-You will need both a running Strapi app and a running MeiliSearch instance.
+You will need both a running Strapi app and a running MeiliSearch instance. For [specific version requirements see this section](#-requirements).
 
 ### 🏃‍♀️ Run MeiliSearch
 
@@ -90,13 +87,9 @@ strapi develop
 
 ## 🎬 Getting Started
 
-Now that you have installed the plugin, a running meiliSearch instance and, a running Strapi app, lets go on your admin panel `mydomain/admin`.
+Now that you have installed the plugin, a running meiliSearch instance and, a running Strapi app, lets go the plugin page on your admin dashboard.
 
-On the left-navbar MeiliSearch appears under the `PLUGINS` category.
-
-![](/assets/left_navbar.png)
-
-Clicking on the plugin will bring you to the MeiliSearch dashboard.
+On the left-navbar `MeiliSearch` appears under the `PLUGINS` category. If it does not, ensure that you have installed the plugin and re-build Strapi (see [installation](#-installation)).
 
 ### 🤫 Add Credentials
 
