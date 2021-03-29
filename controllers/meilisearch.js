@@ -153,7 +153,7 @@ async function reload (ctx) {
   } = strapi
   if (!autoReload) {
     return {
-      message: 'autoReload is set to false. Please reload server manually.',
+      message: 'Reload is only possible in develop mode. Please reload server manually.',
       title: 'Reload failed',
       error: true,
       link:
