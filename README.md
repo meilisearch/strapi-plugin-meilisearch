@@ -39,8 +39,8 @@ Add your Strapi collections into a MeiliSearch instance. The plugin listens to m
 
 ## 📖 Documentation
 
-To understand MeiliSearch and how it works, see the [Documentation](https://docs.meilisearch.com/learn/what_is_meilisearch/).
-To understand Strapi and how to create an app, see the [Documentation](https://strapi.io/documentation/developer-docs/latest/getting-started/introduction.html).
+To understand MeiliSearch and how it works, see the [MeiliSearch's documentation](https://docs.meilisearch.com/learn/what_is_meilisearch/).
+To understand Strapi and how to create an app, see [Strapi's documentation](https://strapi.io/documentation/developer-docs/latest/getting-started/introduction.html).
 
 ## 🔧 Installation
 
@@ -53,7 +53,7 @@ npm install strapi-plugin-meilisearch
 
 With `yarn`:
 ```bash
-npm install strapi-plugin-meilisearch
+yarn add strapi-plugin-meilisearch
 ```
 
 To apply the plugin to Strapi, a re-build is needed:
