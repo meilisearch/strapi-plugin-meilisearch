@@ -1,6 +1,14 @@
 {
   "routes": [
     {
+      "method": "GET",
+      "path": "/reload",
+      "handler": "meilisearch.reload",
+      "config": {
+        "policies": []
+      }
+    },
+    {
       "method": "DELETE",
       "path": "/indexes",
       "handler": "meilisearch.deleteAllIndexes",
@@ -12,14 +20,6 @@
       "method": "DELETE",
       "path": "/indexes/:indexUid",
       "handler": "meilisearch.deleteIndex",
-      "config": {
-        "policies": []
-      }
-    },
-    {
-      "method": "POST",
-      "path": "/indexes/:indexUid/documents",
-      "handler": "meilisearch.addDocuments",
       "config": {
         "policies": []
       }
@@ -55,12 +55,19 @@
       "config": {
         "policies": []
       }
-    }
-    ,
+    },
     {
       "method": "POST",
-      "path": "/collections",
+      "path": "/collections/:collection",
       "handler": "meilisearch.addCollection",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "PUT",
+      "path": "/collections/:collection",
+      "handler": "meilisearch.UpdateCollections",
       "config": {
         "policies": []
       }

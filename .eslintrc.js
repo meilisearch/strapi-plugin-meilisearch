@@ -19,7 +19,7 @@ module.exports = {
     },
     ecmaVersion: 11
   },
-  ignorePatterns: ['playground'],
+  ignorePatterns: ['playground/plugins'],
   plugins: [
     'react'
   ],
@@ -33,6 +33,8 @@ module.exports = {
     'react/jsx-indent-props': [2, 2],
     'cypress/no-unnecessary-waiting': 'off',
     'react/prop-types': 'off',
-    'react/jsx-closing-bracket-location': [2, 'tag-aligned']
+    'react/jsx-closing-bracket-location': [2, 'tag-aligned'],
+    'no-unused-vars': ['error', { varsIgnorePattern: '^omit.*$' }],
+    'array-callback-return': 'off'
   }
 }

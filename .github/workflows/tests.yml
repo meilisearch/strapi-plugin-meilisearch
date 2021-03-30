@@ -28,7 +28,7 @@ jobs:
         uses: actions/setup-node@v1
       - name: Install dependencies
         run: yarn --dev && yarn --cwd ./playground
-      - name: Cypress run
+      - name: Test develop no-reload
         uses: cypress-io/github-action@v2
         with:
           build: yarn playground:build

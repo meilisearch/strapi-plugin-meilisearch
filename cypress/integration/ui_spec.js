@@ -4,9 +4,30 @@ const {
   env,
   [env]: { host, adminUrl }
 } = Cypress.env()
+const { MeiliSearch } = require('meilisearch')
 
 const wrongHost = 'http://localhost:1234'
 const wrongApiKey = 'wrongApiKey'
+
+const removeTutorial = () => {
+  cy.get('.videosContent').siblings('.openBtn').click()
+}
+
+const clickCollection = ({ rowNb }) => {
+  const row = `.collections tbody tr:nth-child(${rowNb})`
+  cy.get(`${row} input[type="checkbox"]`).click()
+  removeNotifications()
+}
+
+const checkCollectionContent = ({ rowNb, contains }) => {
+  const row = `.collections tbody tr:nth-child(${rowNb})`
+  contains.map(content => cy.get(`${row}`).contains(content))
+}
+
+const clickAndCheckRowContent = ({ rowNb, contains }) => {
+  clickCollection({ rowNb })
+  checkCollectionContent({ rowNb, contains })
+}
 
 const removeNotifications = () => {
   cy.wait(1000)
@@ -18,8 +39,20 @@ const removeNotifications = () => {
 
 describe('Strapi Login flow', () => {
   before(() => {
+    cy.clearCookies()
     cy.visit(adminUrl)
   })
+  after(async function () {
+    const client = new MeiliSearch({ apiKey, host })
+    const collections = ['restaurant', 'category', 'project']
+    const indexes = await client.listIndexes()
+    const allUids = indexes.map(index => index.uid)
+    const collectionInMs = collections.filter(col => allUids.includes(col))
+    for (const index of collectionInMs) {
+      await client.deleteIndex(index)
+    }
+  })
+
   it('visit the Strapi admin panel', () => {
     cy.url().should('match', /login/)
     cy.get('form', { timeout: 10000 }).should('be.visible')
@@ -33,8 +66,9 @@ describe('Strapi Login flow', () => {
 
   it('Enter to the plugin Home Page', () => {
     cy.contains('MeiliSearch', { timeout: 10000 }).click()
+    removeTutorial()
+    cy.wait(2000)
     cy.url().should('include', '/plugins/meilisearch')
-    removeNotifications()
   })
 
   it('Add credentials', () => {
@@ -55,33 +89,87 @@ describe('Strapi Login flow', () => {
   })
 
   it('Add Collections to MeiliSearch', () => {
-    const restaurant = '.collections tbody tr:first-child'
-    cy.get(`${restaurant} input[type="checkbox"]`).click()
-    removeNotifications()
-    cy.get(`${restaurant}`).contains('processed')
-    const category = '.collections tbody tr:nth-child(2)'
-    cy.get(`${category} input[type="checkbox"]`).click()
-    removeNotifications()
-    cy.get(`${category}`).contains('processed')
+    clickAndCheckRowContent({
+      rowNb: 1,
+      contains: ['Indexed In MeiliSearch', 'Reload needed']
+    })
+    clickAndCheckRowContent({
+      rowNb: 2,
+      contains: ['Indexed In MeiliSearch', 'Reload needed']
+    })
+    clickAndCheckRowContent({
+      rowNb: 3,
+      contains: ['Indexed In MeiliSearch', 'Reload needed']
+    })
+  })
+
+  it('Reload Server', () => {
+    const row = '.reload_button'
+    cy.get(`${row}`).click()
+    cy.wait(4000)
+    if (env === 'develop' || env === 'watch') {
+      removeTutorial()
+    }
+  })
+
+  it('Check for successfull hooks in develop mode', () => {
+    if (env === 'develop' || env === 'watch') {
+      checkCollectionContent({ rowNb: 1, contains: ['Indexed In MeiliSearch', 'Active'] })
+      checkCollectionContent({ rowNb: 2, contains: ['Indexed In MeiliSearch', 'Active'] })
+      checkCollectionContent({ rowNb: 3, contains: ['Indexed In MeiliSearch', 'Active'] })
+    } else {
+      checkCollectionContent({ rowNb: 1, contains: ['Indexed In MeiliSearch', 'Reload needed'] })
+      checkCollectionContent({ rowNb: 2, contains: ['Indexed In MeiliSearch', 'Reload needed'] })
+      checkCollectionContent({ rowNb: 3, contains: ['Indexed In MeiliSearch', 'Reload needed'] })
+    }
   })
 
   it('Remove Collections from MeiliSearch', () => {
-    const restaurant = '.collections tbody tr:first-child'
-    cy.get(`${restaurant} input[type="checkbox"]`).click()
-    cy.get(`${restaurant}`).contains('Not in MeiliSearch')
-    removeNotifications()
-    const category = '.collections tbody tr:nth-child(2)'
-    cy.get(`${category} input[type="checkbox"]`).click()
-    cy.get(`${category}`).contains('Not in MeiliSearch')
-    removeNotifications()
+    clickAndCheckRowContent({
+      rowNb: 1,
+      contains: ['Not in MeiliSearch']
+    })
+    clickAndCheckRowContent({
+      rowNb: 2,
+      contains: ['Not in MeiliSearch']
+    })
+    clickAndCheckRowContent({
+      rowNb: 3,
+      contains: ['Not in MeiliSearch']
+    })
+    if (env === 'develop' || env === 'watch') {
+      checkCollectionContent({ rowNb: 1, contains: ['Not in MeiliSearch', 'Reload needed'] })
+      checkCollectionContent({ rowNb: 2, contains: ['Not in MeiliSearch', 'Reload needed'] })
+      checkCollectionContent({ rowNb: 3, contains: ['Not in MeiliSearch', 'Reload needed'] })
+    }
   })
 
-  it('Change Host', () => {
+  it('Change Host to wrong host', () => {
     cy.get('input[name="MSHost"]').should('have.value', host)
     cy.get('input[name="MSHost"]').clear().type(wrongHost).should('have.value', wrongHost)
     cy.get('.credentials_button').click()
     removeNotifications()
     cy.get('input[name="MSHost"]').should('have.value', wrongHost)
+    const row = '.collections tbody tr:nth-child(1) input[type="checkbox"]'
+    cy.get(row).click()
+    removeNotifications()
+    cy.get(row).should('not.be.checked')
+    cy.get('input[name="MSHost"]').clear().type(host).should('have.value', host)
+    cy.get('.credentials_button').click()
+    removeNotifications()
+    cy.get('input[name="MSHost"]').should('have.value', host)
+  })
+
+  it('Change Host to empty host', () => {
+    cy.get('input[name="MSHost"]').should('have.value', host)
+    cy.get('input[name="MSHost"]').clear().should('have.value', '')
+    cy.get('.credentials_button').click()
+    removeNotifications()
+    cy.get('input[name="MSHost"]').should('have.value', '')
+    const row = '.collections tbody tr:nth-child(1) input[type="checkbox"]'
+    cy.get(row).click()
+    removeNotifications()
+    cy.get(row).should('not.be.checked')
     cy.get('input[name="MSHost"]').clear().type(host).should('have.value', host)
     cy.get('.credentials_button').click()
     removeNotifications()
