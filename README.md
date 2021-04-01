@@ -1,7 +1,7 @@
 <h1 align="center">MeiliSearch Strapi Plugin</h1>
 
 <p align="center">
-  <img src="https://res.cloudinary.com/meilisearch/image/upload/v1587402338/SDKs/meilisearch_js.svg" alt="MeiliSearch-JavaScript" width="200" height="200" />
+  <img src="https://raw.githubusercontent.com/meilisearch/integration-guides/main/assets/logos/meilisearch_strapi.svg" alt="MeiliSearch-Strapi" width="200" height="200" />
 </p>
 
 <h4 align="center">
@@ -133,7 +133,7 @@ Once you have a collection containing documents indexed in MeiliSearch, you can 
 
 Using the above credentials, the following code shows how to search on one of your collections:
 
-To search in MeiliSearch, you can use the [instant-meilisearch](https://github.com/meilisearch/instant-meilisearch) SDK that integrates a whole search interface, or our library [meilisearch-js](https://github.com/meilisearch/meilisearch-js).
+To search in MeiliSearch, you can use the [instant-meilisearch](https://github.com/meilisearch/instant-meilisearch) library that integrates a whole search interface, or our [meilisearch-js](https://github.com/meilisearch/meilisearch-js) SDK.
 
 #### ⚡️ Using Instant meiliSearch
 
@@ -252,7 +252,7 @@ This command will install the required dependencies and launch the app in develo
 
 Install Strapi with this [quickstart]((https://strapi.io/documentation/developer-docs/latest/getting-started/quick-start.html)) command to create a Strapi project instantly:
 
-- Use **yarn** to install the Strapi project (recommended). [Install yarn with these docs](https://yarnpkg.com/lang/en/docs/install/).)
+- Use **yarn** to install the Strapi project (recommended). [Install yarn with these docs](https://yarnpkg.com/lang/en/docs/install/).
 
 ```bash
 # with yarn
