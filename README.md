@@ -96,8 +96,7 @@ On the left-navbar, `MeiliSearch` appears under the `PLUGINS` category. If it do
 
 First, add your MeiliSearch credentials in the upper box of the MeiliSearch plugin page.
 
-For example, using the credentials used in the [above section](#-run-meilisearch) it looks like this:
-
+For example, using the credentials from the section above: `Run MeiliSearch`, it looks like this:
 
 <p align="center">
 <img src="./assets/credentials.png" alt="Add your credentials" width="600"/>
