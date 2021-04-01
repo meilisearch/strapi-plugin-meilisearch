@@ -134,7 +134,7 @@ Once you have a collection containing documents indexed in MeiliSearch, you can 
 
 Using the above credentials, the following code shows how to search on one of your collections:
 
-To search in MeiliSearch, you can use the [instant-meilisearch](https://github.com/meilisearch/instant-meilisearch) SDK that integrates a whole search interface, or our library [meilisearch-js](https://github.com/meilisearch/meilisearch-js).
+To search in MeiliSearch, you can use the [instant-meilisearch](https://github.com/meilisearch/instant-meilisearch) library that integrates a whole search interface, or our [meilisearch-js](https://github.com/meilisearch/meilisearch-js) SDK.
 
 #### ⚡️ Using Instant meiliSearch
 
