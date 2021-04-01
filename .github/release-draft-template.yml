@@ -1,4 +1,4 @@
-name-template: 'v$RESOLVED_VERSION 🌻'
+name-template: 'v$RESOLVED_VERSION 🚀'
 tag-template: 'v$RESOLVED_VERSION'
 exclude-labels:
   - 'skip-changelog'
