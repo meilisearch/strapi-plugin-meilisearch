@@ -144,7 +144,7 @@ You can have a front up and running in record time with [instant-meilisearch](ht
 <img src="./assets/obrigado.gif" alt="Restaurant demo" width="600"/>
 </p>
 
-In Instant MeiliSearch, you only have to provide your credentials and index name (`restaurant` is the index name in our example).
+In Instant MeiliSearch, you only have to provide your credentials and index name (_uid_). `restaurant` is the index name in our example.
 
 You can have a quick preview with the following code in an HTML file. Create an HTML file, copy-paste the code below and open the file in your browser (or find it in `/front_examples/restaurant.html`).
 
