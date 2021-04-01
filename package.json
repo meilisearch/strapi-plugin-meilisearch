@@ -1,7 +1,7 @@
 {
   "name": "strapi-plugin-meilisearch",
-  "version": "0.0.0",
-  "description": "This is the description of the plugin.",
+  "version": "0.1.0",
+  "description": "MeiliSearch plugin for Strapi",
   "scripts": {
     "style": "eslint --ext .js .",
     "style:fix": "eslint --ext .js . --fix",
@@ -25,23 +25,30 @@
     "icon": "plug",
     "description": "Strapi plugin for MeiliSearch"
   },
+  "files": [
+    "admin",
+    "config",
+    "controllers",
+    "services"
+  ],
   "dependencies": {
     "@buffetjs/core": "^3.3.4",
     "meilisearch": "^0.18.1"
   },
   "author": {
-    "name": "Charlotte Vermandel",
-    "email": "charlotte@meilisearch.com"
+    "name": "Charlotte Vermandel <charlotte@meilisearch.com>"
   },
   "maintainers": [
     {
-      "name": "Charlotte Vermandel",
-      "email": "charlotte@meilisearch.com"
+      "name": "Charlotte Vermandel <charlotte@meilisearch.com>"
     }
   ],
   "engines": {
     "node": ">=10.16.0 <=14.x.x",
     "npm": ">=6.0.0"
+  },
+  "bugs": {
+    "url": "https://github.com/meilisearch/strapi-plugin-meilisearch/issues"
   },
   "keywords": [
     "strapi",
@@ -49,6 +56,10 @@
     "meilisearch"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/meilisearch/strapi-plugin-meilisearch.git"
+  },
   "homepage": "https://github.com/meilisearch/strapi-plugin-meilisearch#readme",
   "devDependencies": {
     "cypress": "^6.8.0",

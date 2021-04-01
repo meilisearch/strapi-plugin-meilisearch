@@ -60,13 +60,16 @@ If you already have a running Strapi app in local, testing is possible with the 
 yarn cy:open
 ```
 
-### Playgrounds
+### Run Playground
 
 To test directly your changes on the plugin in Strapi, you can run the Strapi playground:
 
 ```bash
+# Root of repository
 yarn playground:dev
 ```
+
+This command will install required dependencies and launch the app in development mode. You should be able to reach it on the [port 8000 of your localhost](http://localhost:8000/admin/).
 
 ## Git Guidelines
 
@@ -103,6 +106,25 @@ MeiliSearch tools follow the [Semantic Versioning Convention](https://semver.org
 
 This project integrates a bot that helps us manage pull requests merging.<br>
 _[Read more about this](https://github.com/meilisearch/integration-guides/blob/main/guides/bors.md)._
+
+### Automated Changelogs
+
+This project integrates a tool to create automated changelogs.<br>
+_[Read more about this](https://github.com/meilisearch/integration-guides/blob/main/guides/release-drafter.md)._
+
+### How to Publish the Release
+
+⚠️ Before doing anything, make sure you got through the guide about [Releasing an Integration](https://github.com/meilisearch/integration-guides/blob/main/guides/integration-release.md).
+
+Make a PR modifying the file [`package.json`](/package.json) with the right version.
+
+```javascript
+"version": "X.X.X",
+```
+
+Once the changes are merged on `main`, you can publish the current draft release via the [GitHub interface](https://github.com/meilisearch/strapi-plugin-meilisearch/releases).
+
+GitHub Actions will be triggered and push the package to [npm](https://www.npmjs.com/package/strapi-plugin-meilisearch).
 
 <hr>
 
