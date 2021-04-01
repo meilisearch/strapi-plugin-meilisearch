@@ -25,7 +25,7 @@
 
 MeiliSearch is an open-source search engine. [Discover what MeiliSearch is!](https://github.com/meilisearch/meilisearch)
 
-Add your Strapi collections into a MeiliSearch instance. The plugin listens to modifications made on your collections and update MeiliSearch accordingly.
+Add your Strapi collections into a MeiliSearch instance. The plugin listens to modifications made on your collections and updates MeiliSearch accordingly.
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -61,7 +61,7 @@ To apply the plugin to Strapi, a re-build is needed:
 strapi build
 ```
 
-You will need both a running Strapi app and a running MeiliSearch instance. For [specific version compatibiliy see this section](#-compatibility-with-meilisearch).
+You will need both a running Strapi app and a running MeiliSearch instance. For [specific version compatibility see this section](#-compatibility-with-meilisearch).
 
 ### 🏃‍♀️ Run MeiliSearch
 
@@ -79,7 +79,7 @@ yarn develop
 If you don't have a running Strapi project yet, you can either launch the [playground present in this project](#playground) or [create a Strapi Project](#create-strapi-project).
 
 
-It is recommended to add your collections in developement mode as it allows the server reloads, needed to apply hooks.
+We recommend adding your collections in development mode to allow the server reloads needed to apply hooks.
 
 ```bash
 strapi develop
@@ -87,9 +87,9 @@ strapi develop
 
 ## 🎬 Getting Started
 
-Now that you have installed the plugin, a running meiliSearch instance and, a running Strapi app, lets go the plugin page on your admin dashboard.
+Now that you have installed the plugin, a running meiliSearch instance and, a running Strapi app, let's go to the plugin page on your admin dashboard.
 
-On the left-navbar `MeiliSearch` appears under the `PLUGINS` category. If it does not, ensure that you have installed the plugin and re-build Strapi (see [installation](#-installation)).
+On the left-navbar, `MeiliSearch` appears under the `PLUGINS` category. If it does not, ensure that you have installed the plugin and re-build Strapi (see [installation](#-installation)).
 
 ### 🤫 Add Credentials
 
@@ -111,20 +111,18 @@ If you don't have any collection yet in your Strapi Plugin, please follow [Strap
 
 We will use, as **example**, the collections provided by Strapi's quickstart.
 
-On your plugin homepage you should have two collections appearing: `restaurant` and `category`.
+On your plugin homepage, you should have two collections appearing: `restaurant` and `category`.
 
 <p align="center">
 <img src="./assets/collections_indexed.png" alt="Indexed collections need a reload" width="600"/>
 </p>
 
-By clicking on the left checkbox, the collection will be automatically indexed in MeiliSearch. For example, if you click on the `restaurant` checkbox, all your restaurants are now available in MeiliSearch.
-
-You can check it using
+By clicking on the left checkbox, the collection is automatically indexed in MeiliSearch. For example, if you click on the `restaurant` checkbox, all your restaurants are now available in MeiliSearch. We will see in [start searching](#-start-searching) how to try it out.
 
 ### 🪝 Apply Hooks
 
 Hooks are listeners that update MeiliSearch each time you add/update/delete an entry in your collections.
-In order to activate them you will have to reload the server. This is possible by clicking on the `Reload Server` button if you are in auto-reload mode, or by manually reloading the server mode.
+To activate them, you will have to reload the server. If you are in develop mode, click on the red `Reload Server` button. If not, reload the server manually!
 
 
 <p align="center">
@@ -136,16 +134,23 @@ In order to activate them you will have to reload the server. This is possible b
 
 Once you have a collection containing documents indexed in MeiliSearch, you can [start searching](https://docs.meilisearch.com/learn/getting_started/quick_start.html#search).
 
-Using the above credentials the following code shows how to search on one of your collections:
+Using the above credentials, the following code shows how to search on one of your collections:
 
 To search in MeiliSearch, you can use the [instant-meilisearch](https://github.com/meilisearch/instant-meilisearch) SDK that integrates a whole search interface, or our library [meilisearch-js](https://github.com/meilisearch/meilisearch-js).
 
 #### ⚡️ Using Instant meiliSearch
 
+You can have a front up and running in record time with [instant-meilisearch](https://github.com/meilisearch/instant-meilisearch).
 
-In Instant MeiliSearch you only have to provide your credentials and your index name (`restaurant` is the index name in our example).
 
-You can have a quick preview the following code in a HTML file
+<p align="center">
+<img src="./assets/obrigado.gif" alt="Restaurant demo" width="600"/>
+</p>
+
+In Instant MeiliSearch, you only have to provide your credentials and index name (`restaurant` is the index name in our example).
+
+You can have a quick preview with the following code in an HTML file. Create an HTML file, copy-paste the code below and open the file in your browser (or find it in `/front_examples/restaurant.html`).
+
 ```html
 <!DOCTYPE html>
 <html lang="en">
@@ -162,7 +167,7 @@ You can have a quick preview the following code in a HTML file
     <script src="https://cdn.jsdelivr.net/npm/instantsearch.js@4"></script>
     <script>
         const search = instantsearch({
-            indexName: "movies",
+            indexName: "restaurant",
             searchClient: instantMeiliSearch(
                 "http://localhost:7700"
             )
@@ -179,7 +184,7 @@ You can have a quick preview the following code in a HTML file
                   item: `
                       <div>
                       <div class="hit-name">
-                          {{#helpers.highlight}}{ "attribute": "title" }{{/helpers.highlight}}
+                          {{#helpers.highlight}}{ "attribute": "name" }{{/helpers.highlight}}
                       </div>
                       </div>
                   `
@@ -192,7 +197,11 @@ You can have a quick preview the following code in a HTML file
 </html>
 ```
 
+#### 💛 Using MeiliSearch for JS
 
+You can also use [meilisearch-js](https://github.com/meilisearch/meilisearch-js) to communicate with MeiliSearch.
+
+The following code is a setup that will output a restaurant after a search.
 
 ```javascript
 import { MeiliSearch } from 'meilisearch'
@@ -204,7 +213,7 @@ import { MeiliSearch } from 'meilisearch'
   })
 
   // An index is where the documents are stored.
-  const response = client.index('movies').search('biscoute')
+  const response = client.index('movies').search('Biscoutte')
 })()
 ```
 
@@ -243,7 +252,11 @@ npm install
 npm run develop
 ```
 
-Install Strapi with this **Quickstart** command to create a Strapi project instantly:
+This command will install the required dependencies and launch the app in development mode. You should be able to reach it on the [port 8000 of your localhost](http://localhost:8000/admin/).
+
+### Create Strapi project
+
+Install Strapi with this [quickstart]((https://strapi.io/documentation/developer-docs/latest/getting-started/quick-start.html)) command to create a Strapi project instantly:
 
 #### Create strapi project
 
@@ -257,9 +270,9 @@ yarn create strapi-app my-project --quickstart
 npx create-strapi-app my-project --quickstart
 ```
 
-_This command generates a brand new project with the default features (authentication, permissions, content management, content type builder & file upload). The **Quickstart** command installs Strapi using a **SQLite** database which is used for prototyping in development._
+_This command generates a brand new project with the default features (authentication, permissions, content management, content type builder & file upload). The **Quickstart** command installs Strapi using a **SQLite** database used for prototyping in development._
 
-Once your Strapi project has been created, to link the plugin to this project you have to create a symbolic link inside a plugin folder at the root of the Strapi project.
+Once your Strapi project has been created, to link the plugin to this project you have to create a symbolic link inside a plugin folder Strapi's project root.
 
 1. Create plugin folder
 
@@ -287,7 +300,7 @@ You can now use the plugin on your Strapi project.
 
 ## 🤖 Compatibility with MeiliSearch and Strapi
 
-Complete installation requirements are exact same as for Strapi itself and can be found in the documentation under [Installation Requirements](https://strapi.io/documentation/v3.x/installation/cli.html#step-1-make-sure-requirements-are-met).
+Complete installation requirements are the same as for Strapi itself and can be found in the documentation under [installation Requirements](https://strapi.io/documentation/v3.x/installation/cli.html#step-1-make-sure-requirements-are-met).
 
 **Supported Strapi versions**:
 
@@ -295,13 +308,18 @@ Complete installation requirements are exact same as for Strapi itself and can b
 
 (This plugin may work with the older Strapi versions, but these are not tested nor officially supported at this time.)
 
+**Supported MeiliSearch versions**:
+
+- MeiliSearch v0.19
+
+To update MeiliSearch to a more recent version, please follow [this guide](https://docs.meilisearch.com/create/how_to/updating.html#update-to-the-latest-meilisearch-version).
+
 **Node / NPM versions**:
 
 - NodeJS >= 12.10 <= 14
 - NPM >= 6.x
 
 **We recommend always using the latest version of Strapi to start your new projects**.
-
 
 ## ⚙️ Development Workflow and Contributing
 
@@ -311,5 +329,16 @@ If you want to know more about the development workflow or want to contribute, p
 
 ## 🌎 Community support
 
-- For general help using Strapi, please refer to [the official Strapi documentation](https://strapi.io/documentation/).
-- Strapi Slack [channel](https://slack.strapi.io/)
+- MeiliSearch [community Slack](https://slack.meilisearch.com/)
+- For general help using **MeiliSearch**, please refer to [the official MeiliSearch documentation](https://docs.meilisearch.com).
+- Strapi [community Slack](https://slack.strapi.io/)
+- For general help using **Strapi**, please refer to [the official Strapi documentation](https://strapi.io/documentation/).
+
+## 🤩 Just for the pleasure of the eyes
+
+Using the [foodadvisor](https://github.com/strapi/foodadvisor) restaurant demo Strapi provided. We added a searchbar to it using [instant-meilisearch](https://github.com/meilisearch/instant-meilisearch).
+
+<p align="center">
+<img src="./assets/restaurant.gif" alt="Fooradvisor demo" width="600"/>
+</p>
+
