@@ -1,7 +1,7 @@
 {
   "name": "strapi-plugin-meilisearch",
   "version": "0.1.0",
-  "description": "MeiliSearch plugin for strapi",
+  "description": "MeiliSearch plugin for Strapi",
   "scripts": {
     "style": "eslint --ext .js .",
     "style:fix": "eslint --ext .js . --fix",
