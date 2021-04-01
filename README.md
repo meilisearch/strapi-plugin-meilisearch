@@ -78,7 +78,6 @@ yarn develop
 
 If you don't have a running Strapi project yet, you can either launch the [playground present in this project](#playground) or [create a Strapi Project](#create-strapi-project).
 
-
 We recommend adding your collections in development mode to allow the server reloads needed to apply hooks.
 
 ```bash
@@ -104,7 +103,6 @@ For example, using the credentials used in the [above section](#-run-meilisearch
 
 Once completed, click on the `add` button.
 
-
 ### 🚛 Add your collections to MeiliSearch
 
 If you don't have any collection yet in your Strapi Plugin, please follow [Strapi quickstart](https://strapi.io/documentation/developer-docs/latest/getting-started/quick-start.html).
@@ -124,11 +122,9 @@ By clicking on the left checkbox, the collection is automatically indexed in Mei
 Hooks are listeners that update MeiliSearch each time you add/update/delete an entry in your collections.
 To activate them, you will have to reload the server. If you are in develop mode, click on the red `Reload Server` button. If not, reload the server manually!
 
-
 <p align="center">
 <img src="./assets/no_reload_needed.png" alt="Indexed collections are hooked" width="600"/>
 </p>
-
 
 ### 🕵️‍♀️ Start Searching
 
@@ -141,7 +137,6 @@ To search in MeiliSearch, you can use the [instant-meilisearch](https://github.c
 #### ⚡️ Using Instant meiliSearch
 
 You can have a front up and running in record time with [instant-meilisearch](https://github.com/meilisearch/instant-meilisearch).
-
 
 <p align="center">
 <img src="./assets/obrigado.gif" alt="Restaurant demo" width="600"/>
@@ -297,7 +292,6 @@ yarn develop
 
 You can now use the plugin on your Strapi project.
 
-
 ## 🤖 Compatibility with MeiliSearch and Strapi
 
 Complete installation requirements are the same as for Strapi itself and can be found in the documentation under [installation Requirements](https://strapi.io/documentation/v3.x/installation/cli.html#step-1-make-sure-requirements-are-met).
@@ -341,4 +335,3 @@ Using the [foodadvisor](https://github.com/strapi/foodadvisor) restaurant demo S
 <p align="center">
 <img src="./assets/restaurant.gif" alt="Fooradvisor demo" width="600"/>
 </p>
-
