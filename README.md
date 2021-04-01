@@ -253,7 +253,7 @@ This command will install the required dependencies and launch the app in develo
 
 Install Strapi with this [quickstart]((https://strapi.io/documentation/developer-docs/latest/getting-started/quick-start.html)) command to create a Strapi project instantly:
 
-- Use **yarn** to install the Strapi project (recommended). [Install yarn with these docs](https://yarnpkg.com/lang/en/docs/install/).)
+- Use **yarn** to install the Strapi project (recommended). [Install yarn with these docs](https://yarnpkg.com/lang/en/docs/install/).
 
 ```bash
 # with yarn
