@@ -32,7 +32,7 @@ Add your Strapi collections into a MeiliSearch instance. The plugin listens to m
 - [📖 Documentation](#-documentation)
 - [🔧 Installation](#-installation)
 - [🎬 Getting Started](#-getting-started)
-- [🤖 Compatibility with MeiliSearch and Strapi](#-compatibility-with-meilisearch)
+- [🤖 Compatibility with MeiliSearch and Strapi](#-compatibility-with-meilisearch-and-strapi)
 - [💡 Learn More](#-learn-more)
 - [⚙️ Development Workflow and Contributing](#️-development-workflow-and-contributing)
 - [🌎 Community support](#️-community-support)
@@ -292,9 +292,9 @@ You can now use the plugin on your Strapi project.
 
 ## 🤖 Compatibility with MeiliSearch and Strapi
 
-Complete installation requirements are the same as for Strapi itself and can be found in the documentation under [installation Requirements](https://strapi.io/documentation/v3.x/installation/cli.html#step-1-make-sure-requirements-are-met).
-
 **Supported Strapi versions**:
+
+Complete installation requirements are the same as for Strapi itself and can be found in the documentation under [installation Requirements](https://strapi.io/documentation/v3.x/installation/cli.html#step-1-make-sure-requirements-are-met).
 
 - Strapi v3.4.x
 
@@ -302,9 +302,7 @@ Complete installation requirements are the same as for Strapi itself and can be 
 
 **Supported MeiliSearch versions**:
 
-- MeiliSearch v0.19
-
-To update MeiliSearch to a more recent version, please follow [this guide](https://docs.meilisearch.com/create/how_to/updating.html#update-to-the-latest-meilisearch-version).
+This package only guarantees the compatibility with the [version v0.20.0 of MeiliSearch](https://github.com/meilisearch/MeiliSearch/releases/tag/v0.20.0).
 
 **Node / NPM versions**:
 
