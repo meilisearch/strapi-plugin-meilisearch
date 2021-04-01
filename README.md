@@ -40,6 +40,7 @@ Add your Strapi collections into a MeiliSearch instance. The plugin listens to m
 ## 📖 Documentation
 
 To understand MeiliSearch and how it works, see the [MeiliSearch's documentation](https://docs.meilisearch.com/learn/what_is_meilisearch/).
+
 To understand Strapi and how to create an app, see [Strapi's documentation](https://strapi.io/documentation/developer-docs/latest/getting-started/introduction.html).
 
 ## 🔧 Installation
@@ -67,12 +68,13 @@ You will need both a running Strapi app and a running MeiliSearch instance. For 
 
 There are many easy ways to [download and run a MeiliSearch instance](https://docs.meilisearch.com/reference/features/installation.html#download-and-launch).
 
-Instead of adding the plugin to an existing project, you can try it out using the playground.
+For example, if you use Docker:
 
 ```bash
-# with yarn
-yarn develop
+docker pull getmeili/meilisearch:latest # Fetch the latest version of MeiliSearch image from Docker Hub
+docker run -it --rm -p 7700:7700 getmeili/meilisearch:latest ./meilisearch --master-key=masterKey
 ```
+
 
 ### 🏃‍♂️ Run Strapi
 
@@ -241,10 +243,8 @@ If you don't have a running Strapi app, you can still try this plugin using eith
 Instead of adding the plugin to an existing project, you can try it out using the playground in this project.
 
 ```bash
-# with npm
-cd playground
-npm install
-npm run develop
+# Root of repository
+yarn playground:dev
 ```
 
 This command will install the required dependencies and launch the app in development mode. You should be able to reach it on the [port 8000 of your localhost](http://localhost:8000/admin/).
@@ -252,8 +252,6 @@ This command will install the required dependencies and launch the app in develo
 ### Create Strapi project
 
 Install Strapi with this [quickstart]((https://strapi.io/documentation/developer-docs/latest/getting-started/quick-start.html)) command to create a Strapi project instantly:
-
-#### Create strapi project
 
 - Use **yarn** to install the Strapi project (recommended). [Install yarn with these docs](https://yarnpkg.com/lang/en/docs/install/).)
 
