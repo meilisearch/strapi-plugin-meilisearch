@@ -22,7 +22,7 @@
   },
   "strapi": {
     "name": "meilisearch",
-    "icon": "plug",
+    "icon": "search",
     "description": "Strapi plugin for MeiliSearch"
   },
   "files": [
