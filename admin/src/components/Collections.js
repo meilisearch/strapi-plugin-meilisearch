@@ -160,7 +160,7 @@ const Collections = ({ updateCredentials }) => {
     if (error) errorNotifications(res)
     else {
       // Start watching collection that are being indexed
-      collections.map(col => col.isIndexing && watchUpdates({ collection: col }))
+      collections.map(col => col.isIndexing && watchUpdates({ collection: col.name }))
       // Create verbose text that will be showed in the table
       const verboseCols = collections.map(col => constructColRow(col))
       // Find possible collection that needs a reload to activate its hooks
