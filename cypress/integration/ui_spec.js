@@ -91,15 +91,15 @@ describe('Strapi Login flow', () => {
   it('Add Collections to MeiliSearch', () => {
     clickAndCheckRowContent({
       rowNb: 1,
-      contains: ['Indexed In MeiliSearch', 'Reload needed']
+      contains: ['Yes', 'Reload needed']
     })
     clickAndCheckRowContent({
       rowNb: 2,
-      contains: ['Indexed In MeiliSearch', 'Reload needed']
+      contains: ['Yes', 'Reload needed']
     })
     clickAndCheckRowContent({
       rowNb: 3,
-      contains: ['Indexed In MeiliSearch', 'Reload needed']
+      contains: ['Yes', 'Reload needed']
     })
   })
 
@@ -114,33 +114,33 @@ describe('Strapi Login flow', () => {
 
   it('Check for successfull hooks in develop mode', () => {
     if (env === 'develop' || env === 'watch') {
-      checkCollectionContent({ rowNb: 1, contains: ['Indexed In MeiliSearch', 'Active'] })
-      checkCollectionContent({ rowNb: 2, contains: ['Indexed In MeiliSearch', 'Active'] })
-      checkCollectionContent({ rowNb: 3, contains: ['Indexed In MeiliSearch', 'Active'] })
+      checkCollectionContent({ rowNb: 1, contains: ['Yes', 'Active'] })
+      checkCollectionContent({ rowNb: 2, contains: ['Yes', 'Active'] })
+      checkCollectionContent({ rowNb: 3, contains: ['Yes', 'Active'] })
     } else {
-      checkCollectionContent({ rowNb: 1, contains: ['Indexed In MeiliSearch', 'Reload needed'] })
-      checkCollectionContent({ rowNb: 2, contains: ['Indexed In MeiliSearch', 'Reload needed'] })
-      checkCollectionContent({ rowNb: 3, contains: ['Indexed In MeiliSearch', 'Reload needed'] })
+      checkCollectionContent({ rowNb: 1, contains: ['Yes', 'Reload needed'] })
+      checkCollectionContent({ rowNb: 2, contains: ['Yes', 'Reload needed'] })
+      checkCollectionContent({ rowNb: 3, contains: ['Yes', 'Reload needed'] })
     }
   })
 
   it('Remove Collections from MeiliSearch', () => {
     clickAndCheckRowContent({
       rowNb: 1,
-      contains: ['Not in MeiliSearch']
+      contains: ['No']
     })
     clickAndCheckRowContent({
       rowNb: 2,
-      contains: ['Not in MeiliSearch']
+      contains: ['No']
     })
     clickAndCheckRowContent({
       rowNb: 3,
-      contains: ['Not in MeiliSearch']
+      contains: ['No']
     })
     if (env === 'develop' || env === 'watch') {
-      checkCollectionContent({ rowNb: 1, contains: ['Not in MeiliSearch', 'Reload needed'] })
-      checkCollectionContent({ rowNb: 2, contains: ['Not in MeiliSearch', 'Reload needed'] })
-      checkCollectionContent({ rowNb: 3, contains: ['Not in MeiliSearch', 'Reload needed'] })
+      checkCollectionContent({ rowNb: 1, contains: ['No', 'Reload needed'] })
+      checkCollectionContent({ rowNb: 2, contains: ['No', 'Reload needed'] })
+      checkCollectionContent({ rowNb: 3, contains: ['No', 'Reload needed'] })
     }
   })
 
