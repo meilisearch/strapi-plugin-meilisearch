@@ -43,8 +43,22 @@ async function getRawIndex ({ indexUid }) {
   return this.client.index(indexUid).getRawInfo()
 }
 
+async function waitForPendingUpdates ({ indexUid, updateNbr }) {
+  const updates = (await this.client.index(indexUid).getAllUpdateStatus())
+    .filter(update => update.status === 'enqueued')
+    .slice(0, updateNbr)
+  let documentsAdded = 0
+  for (const update of updates) {
+    const { updateId } = update
+    const task = await waitForPendingUpdate.call(this, { updateId, indexUid })
+    const { type: { number } } = task
+    documentsAdded += number
+  }
+  return documentsAdded
+}
+
 async function waitForPendingUpdate ({ updateId, indexUid }) {
-  return this.client.index(indexUid).waitForPendingUpdate(updateId)
+  return this.client.index(indexUid).waitForPendingUpdate(updateId, { intervalMs: 500 })
 }
 
 async function deleteIndex ({ indexUid }) {
@@ -55,6 +69,10 @@ async function deleteIndexes () {
   const indexes = await getIndexes()
   const deletePromise = indexes.map(index => deleteIndex({ indexUid: index.uid }))
   return Promise.all(deletePromise)
+}
+
+async function getStats ({ indexUid }) {
+  return this.client.index(indexUid).getStats()
 }
 
 module.exports = (client) => (
@@ -68,6 +86,8 @@ module.exports = (client) => (
     deleteDocuments,
     getRawIndex,
     deleteAllDocuments,
-    createIndex
+    createIndex,
+    waitForPendingUpdates,
+    getStats
   }
 )
