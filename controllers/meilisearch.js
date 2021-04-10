@@ -63,7 +63,7 @@ async function waitForDocumentsToBeIndexed (ctx) {
   const credentials = await getCredentials()
   const numberOfDocuments = await meilisearch.http(meilisearch.client(credentials)).waitForPendingUpdates({
     indexUid,
-    updateNbr: 5
+    updateNbr: 2
   })
   return { numberOfDocuments }
 }
