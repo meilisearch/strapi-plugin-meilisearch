@@ -1,8 +1,8 @@
-<h1 align="center">MeiliSearch Strapi Plugin</h1>
-
 <p align="center">
   <img src="https://raw.githubusercontent.com/meilisearch/integration-guides/main/assets/logos/meilisearch_strapi.svg" alt="MeiliSearch-Strapi" width="200" height="200" />
 </p>
+
+<h1 align="center">MeiliSearch Strapi Plugin</h1>
 
 <h4 align="center">
   <a href="https://github.com/meilisearch/MeiliSearch">MeiliSearch</a> |
