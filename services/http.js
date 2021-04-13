@@ -43,7 +43,7 @@ async function getRawIndex({ indexUid }) {
   return this.client.index(indexUid).getRawInfo()
 }
 
-async function waitForPendingUpdates ({ indexUid, updateNbr }) {
+async function waitForPendingUpdates({ indexUid, updateNbr }) {
   const updates = (await this.client.index(indexUid).getAllUpdateStatus())
     .filter(update => update.status === 'enqueued')
     .slice(0, updateNbr)
@@ -51,14 +51,18 @@ async function waitForPendingUpdates ({ indexUid, updateNbr }) {
   for (const update of updates) {
     const { updateId } = update
     const task = await waitForPendingUpdate.call(this, { updateId, indexUid })
-    const { type: { number } } = task
+    const {
+      type: { number },
+    } = task
     documentsAdded += number
   }
   return documentsAdded
 }
 
-async function waitForPendingUpdate ({ updateId, indexUid }) {
-  return this.client.index(indexUid).waitForPendingUpdate(updateId, { intervalMs: 500 })
+async function waitForPendingUpdate({ updateId, indexUid }) {
+  return this.client
+    .index(indexUid)
+    .waitForPendingUpdate(updateId, { intervalMs: 500 })
 }
 
 async function deleteIndex({ indexUid }) {
@@ -73,23 +77,21 @@ async function deleteIndexes() {
   return Promise.all(deletePromise)
 }
 
-async function getStats ({ indexUid }) {
+async function getStats({ indexUid }) {
   return this.client.index(indexUid).getStats()
 }
 
-module.exports = (client) => (
-  {
-    client,
-    addDocuments,
-    getIndexes,
-    waitForPendingUpdate,
-    deleteIndexes,
-    deleteIndex,
-    deleteDocuments,
-    getRawIndex,
-    deleteAllDocuments,
-    createIndex,
-    waitForPendingUpdates,
-    getStats
-  }
-)
+module.exports = client => ({
+  client,
+  addDocuments,
+  getIndexes,
+  waitForPendingUpdate,
+  deleteIndexes,
+  deleteIndex,
+  deleteDocuments,
+  getRawIndex,
+  deleteAllDocuments,
+  createIndex,
+  waitForPendingUpdates,
+  getStats,
+})

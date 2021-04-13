@@ -95,15 +95,15 @@ describe('Strapi Login flow', () => {
   it('Add Collections to MeiliSearch', () => {
     clickAndCheckRowContent({
       rowNb: 1,
-      contains: ['Yes', 'Reload needed']
+      contains: ['Yes', 'Reload needed'],
     })
     clickAndCheckRowContent({
       rowNb: 2,
-      contains: ['Yes', 'Reload needed']
+      contains: ['Yes', 'Reload needed'],
     })
     clickAndCheckRowContent({
       rowNb: 3,
-      contains: ['Yes', 'Reload needed']
+      contains: ['Yes', 'Reload needed'],
     })
   })
 
@@ -125,33 +125,21 @@ describe('Strapi Login flow', () => {
       checkCollectionContent({ rowNb: 1, contains: ['Yes', 'Reload needed'] })
       checkCollectionContent({ rowNb: 2, contains: ['Yes', 'Reload needed'] })
       checkCollectionContent({ rowNb: 3, contains: ['Yes', 'Reload needed'] })
-    if (env === 'watch') {
-      cy.wait(4000)
-      cy.visit(adminUrl, { timeout: 4000 })
-      cy.url().should('match', /login/)
-      cy.get('form', { timeout: 10000 }).should('be.visible')
-      cy.get('input[name="email"]').type(email).should('have.value', email)
-      cy.get('input[name="password"]')
-        .type(password)
-        .should('have.value', password)
-      cy.get('button[type="submit"]').click()
-      cy.contains('MeiliSearch', { timeout: 10000 }).click()
-      cy.url().should('include', '/plugins/meilisearch')
     }
   })
 
   it('Remove Collections from MeiliSearch', () => {
     clickAndCheckRowContent({
       rowNb: 1,
-      contains: ['No']
+      contains: ['No'],
     })
     clickAndCheckRowContent({
       rowNb: 2,
-      contains: ['No']
+      contains: ['No'],
     })
     clickAndCheckRowContent({
       rowNb: 3,
-      contains: ['No']
+      contains: ['No'],
     })
     if (env === 'develop' || env === 'watch') {
       checkCollectionContent({ rowNb: 1, contains: ['No', 'Reload needed'] })
