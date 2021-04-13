@@ -32,10 +32,11 @@ Add your Strapi collections into a MeiliSearch instance. The plugin listens to m
 - [📖 Documentation](#-documentation)
 - [🔧 Installation](#-installation)
 - [🎬 Getting Started](#-getting-started)
+- [💡 Run the Playground](#-run-the-playground)
 - [🤖 Compatibility with MeiliSearch and Strapi](#-compatibility-with-meilisearch-and-strapi)
-- [💡 Learn More](#-learn-more)
 - [⚙️ Development Workflow and Contributing](#️-development-workflow-and-contributing)
-- [🌎 Community support](#️-community-support)
+- [🌎 Community support](#-community-support)
+- [🤩 Just for the pleasure of the eyes](#-just-for-the-pleasure-of-the-eyes)
 
 ## 📖 Documentation
 
@@ -64,7 +65,7 @@ strapi build
 
 You will need both a running Strapi app and a running MeiliSearch instance. For [specific version compatibility see this section](#-compatibility-with-meilisearch).
 
-### 🏃‍♀️ Run MeiliSearch
+### 🏃‍♀️ Run MeiliSearch <!-- omit in toc -->
 
 There are many easy ways to [download and run a MeiliSearch instance](https://docs.meilisearch.com/reference/features/installation.html#download-and-launch).
 
@@ -75,15 +76,16 @@ docker pull getmeili/meilisearch:latest # Fetch the latest version of MeiliSearc
 docker run -it --rm -p 7700:7700 getmeili/meilisearch:latest ./meilisearch --master-key=masterKey
 ```
 
+### 🏃‍♂️ Run Strapi <!-- omit in toc -->
 
-### 🏃‍♂️ Run Strapi
-
-If you don't have a running Strapi project yet, you can either launch the [playground present in this project](#playground) or [create a Strapi Project](#create-strapi-project).
+If you don't have a running Strapi project yet, you can either launch the [playground present in this project](#-run-the-playground) or [create a Strapi project](https://strapi.io/documentation/developer-docs/latest/getting-started/quick-start.html).
 
 We recommend adding your collections in development mode to allow the server reloads needed to apply hooks.
 
 ```bash
 strapi develop
+// or
+yarn develop
 ```
 
 ## 🎬 Getting Started
@@ -92,7 +94,7 @@ Now that you have installed the plugin, a running meiliSearch instance and, a ru
 
 On the left-navbar, `MeiliSearch` appears under the `PLUGINS` category. If it does not, ensure that you have installed the plugin and re-build Strapi (see [installation](#-installation)).
 
-### 🤫 Add Credentials
+### 🤫 Add Credentials <!-- omit in toc -->
 
 First, add your MeiliSearch credentials in the upper box of the MeiliSearch plugin page.
 
@@ -104,7 +106,7 @@ For example, using the credentials from the section above: `Run MeiliSearch`, it
 
 Once completed, click on the `add` button.
 
-### 🚛 Add your collections to MeiliSearch
+### 🚛 Add your collections to MeiliSearch <!-- omit in toc -->
 
 If you don't have any collection yet in your Strapi Plugin, please follow [Strapi quickstart](https://strapi.io/documentation/developer-docs/latest/getting-started/quick-start.html).
 
@@ -118,7 +120,7 @@ On your plugin homepage, you should have two collections appearing: `restaurant`
 
 By clicking on the left checkbox, the collection is automatically indexed in MeiliSearch. For example, if you click on the `restaurant` checkbox, all your restaurants are now available in MeiliSearch. We will see in [start searching](#-start-searching) how to try it out.
 
-### 🪝 Apply Hooks
+### 🪝 Apply Hooks <!-- omit in toc -->
 
 Hooks are listeners that update MeiliSearch each time you add/update/delete an entry in your collections.
 To activate them, you will have to reload the server. If you are in develop mode, click on the red `Reload Server` button. If not, reload the server manually!
@@ -127,15 +129,13 @@ To activate them, you will have to reload the server. If you are in develop mode
 <img src="./assets/no_reload_needed.png" alt="Indexed collections are hooked" width="600"/>
 </p>
 
-### 🕵️‍♀️ Start Searching
+### 🕵️‍♀️ Start Searching <!-- omit in toc -->
 
 Once you have a collection containing documents indexed in MeiliSearch, you can [start searching](https://docs.meilisearch.com/learn/getting_started/quick_start.html#search).
 
-Using the above credentials, the following code shows how to search on one of your collections:
-
 To search in MeiliSearch, you can use the [instant-meilisearch](https://github.com/meilisearch/instant-meilisearch) library that integrates a whole search interface, or our [meilisearch-js](https://github.com/meilisearch/meilisearch-js) SDK.
 
-#### ⚡️ Using Instant meiliSearch
+#### ⚡️ Using Instant meiliSearch <!-- omit in toc -->
 
 You can have a front up and running in record time with [instant-meilisearch](https://github.com/meilisearch/instant-meilisearch).
 
@@ -193,7 +193,7 @@ You can have a quick preview with the following code in an HTML file. Create an 
 </html>
 ```
 
-#### 💛 Using MeiliSearch for JS
+#### 💛 Using MeiliSearch for JS <!-- omit in toc -->
 
 You can also use [meilisearch-js](https://github.com/meilisearch/meilisearch-js) to communicate with MeiliSearch.
 
@@ -233,11 +233,7 @@ import { MeiliSearch } from 'meilisearch'
 }
 ```
 
-## 💡 Learn More
-
-If you don't have a running Strapi app, you can still try this plugin using either of one of the following options:
-
-### Run Playground
+## 💡 Run the Playground
 
 Instead of adding the plugin to an existing project, you can try it out using the playground in this project.
 
@@ -247,47 +243,6 @@ yarn playground:dev
 ```
 
 This command will install the required dependencies and launch the app in development mode. You should be able to reach it on the [port 8000 of your localhost](http://localhost:8000/admin/).
-
-### Create Strapi project
-
-Install Strapi with this [quickstart]((https://strapi.io/documentation/developer-docs/latest/getting-started/quick-start.html)) command to create a Strapi project instantly:
-
-- Use **yarn** to install the Strapi project (recommended). [Install yarn with these docs](https://yarnpkg.com/lang/en/docs/install/).
-
-```bash
-# with yarn
-yarn create strapi-app my-project --quickstart
-
-# with npm/npx
-npx create-strapi-app my-project --quickstart
-```
-
-_This command generates a brand new project with the default features (authentication, permissions, content management, content type builder & file upload). The **Quickstart** command installs Strapi using a **SQLite** database used for prototyping in development._
-
-Once your Strapi project has been created, to link the plugin to this project you have to create a symbolic link inside a plugin folder Strapi's project root.
-
-1. Create plugin folder
-
-```bash
-mkdir plugins
-```
-2. Create symbolic link
-
-```bash
-cd plugins
-ln -s [PATH_TO_PLUGIN] meilisearch
-```
-3. Build
-```bash
-yarn build
-```
-4. Develop
-
-```bash
-yarn develop
-```
-
-You can now use the plugin on your Strapi project.
 
 ## 🤖 Compatibility with MeiliSearch and Strapi
 
@@ -318,8 +273,8 @@ If you want to know more about the development workflow or want to contribute, p
 
 ## 🌎 Community support
 
-- MeiliSearch [community Slack](https://slack.meilisearch.com/)
 - For general help using **MeiliSearch**, please refer to [the official MeiliSearch documentation](https://docs.meilisearch.com).
+- Contact the [MeiliSearch support](https://docs.meilisearch.com/learn/what_is_meilisearch/contact.html)
 - Strapi [community Slack](https://slack.strapi.io/)
 - For general help using **Strapi**, please refer to [the official Strapi documentation](https://strapi.io/documentation/).
 
