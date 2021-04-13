@@ -2,7 +2,7 @@ const {
   user: { email, password },
   apiKey,
   env,
-  [env]: { host, adminUrl }
+  [env]: { host, adminUrl },
 } = Cypress.env()
 const { MeiliSearch } = require('meilisearch')
 
@@ -32,9 +32,11 @@ const clickAndCheckRowContent = ({ rowNb, contains }) => {
 const removeNotifications = () => {
   cy.wait(1000)
   cy.get('.notification-enter-done > div > div > div:last-child').click({
-    multiple: true
+    multiple: true,
   })
-  cy.get('.notification-enter-done > div > div > div:last-child').should('not.exist')
+  cy.get('.notification-enter-done > div > div > div:last-child').should(
+    'not.exist'
+  )
 }
 
 describe('Strapi Login flow', () => {
@@ -60,7 +62,9 @@ describe('Strapi Login flow', () => {
 
   it('Fill the login form', () => {
     cy.get('input[name="email"]').type(email).should('have.value', email)
-    cy.get('input[name="password"]').type(password).should('have.value', password)
+    cy.get('input[name="password"]')
+      .type(password)
+      .should('have.value', password)
     cy.get('button[type="submit"]').click()
   })
 
@@ -91,15 +95,15 @@ describe('Strapi Login flow', () => {
   it('Add Collections to MeiliSearch', () => {
     clickAndCheckRowContent({
       rowNb: 1,
-      contains: ['Yes', 'Reload needed']
+      contains: ['Yes', 'Reload needed'],
     })
     clickAndCheckRowContent({
       rowNb: 2,
-      contains: ['Yes', 'Reload needed']
+      contains: ['Yes', 'Reload needed'],
     })
     clickAndCheckRowContent({
       rowNb: 3,
-      contains: ['Yes', 'Reload needed']
+      contains: ['Yes', 'Reload needed'],
     })
   })
 
@@ -127,15 +131,15 @@ describe('Strapi Login flow', () => {
   it('Remove Collections from MeiliSearch', () => {
     clickAndCheckRowContent({
       rowNb: 1,
-      contains: ['No']
+      contains: ['No'],
     })
     clickAndCheckRowContent({
       rowNb: 2,
-      contains: ['No']
+      contains: ['No'],
     })
     clickAndCheckRowContent({
       rowNb: 3,
-      contains: ['No']
+      contains: ['No'],
     })
     if (env === 'develop' || env === 'watch') {
       checkCollectionContent({ rowNb: 1, contains: ['No', 'Reload needed'] })
@@ -146,7 +150,10 @@ describe('Strapi Login flow', () => {
 
   it('Change Host to wrong host', () => {
     cy.get('input[name="MSHost"]').should('have.value', host)
-    cy.get('input[name="MSHost"]').clear().type(wrongHost).should('have.value', wrongHost)
+    cy.get('input[name="MSHost"]')
+      .clear()
+      .type(wrongHost)
+      .should('have.value', wrongHost)
     cy.get('.credentials_button').click()
     removeNotifications()
     cy.get('input[name="MSHost"]').should('have.value', wrongHost)
@@ -178,11 +185,17 @@ describe('Strapi Login flow', () => {
 
   it('Change Api Key', () => {
     cy.get('input[name="MSApiKey"]').should('have.value', apiKey)
-    cy.get('input[name="MSApiKey"]').clear().type(wrongApiKey).should('have.value', wrongApiKey)
+    cy.get('input[name="MSApiKey"]')
+      .clear()
+      .type(wrongApiKey)
+      .should('have.value', wrongApiKey)
     cy.get('.credentials_button').click()
     removeNotifications()
     cy.get('input[name="MSApiKey"]').should('have.value', wrongApiKey)
-    cy.get('input[name="MSApiKey"]').clear().type(apiKey).should('have.value', apiKey)
+    cy.get('input[name="MSApiKey"]')
+      .clear()
+      .type(apiKey)
+      .should('have.value', apiKey)
     cy.get('.credentials_button').click()
     removeNotifications()
     cy.get('input[name="MSApiKey"]').should('have.value', apiKey)

@@ -4,33 +4,33 @@
  * to customize this model
  */
 
-async function afterCreate (result, collection, httpClient) {
+async function afterCreate(result, collection, httpClient) {
   try {
     await httpClient.addDocuments({
       indexUid: collection,
-      data: [result]
+      data: [result],
     })
   } catch (e) {
     console.error(e)
   }
 }
 
-async function afterDelete (result, collection, httpClient) {
+async function afterDelete(result, collection, httpClient) {
   try {
     await httpClient.deleteDocuments({
       indexUid: collection,
-      documentIds: [result.id]
+      documentIds: [result.id],
     })
   } catch (e) {
     console.error(e)
   }
 }
 
-async function afterUpdate (result, collection, httpClient) {
+async function afterUpdate(result, collection, httpClient) {
   try {
     await httpClient.addDocuments({
       indexUid: collection,
-      data: [result]
+      data: [result],
     })
   } catch (e) {
     console.error(e)
@@ -40,5 +40,5 @@ async function afterUpdate (result, collection, httpClient) {
 module.exports = {
   afterCreate,
   afterDelete,
-  afterUpdate
+  afterUpdate,
 }

@@ -25,24 +25,24 @@ export const ReloadButton = styled(Button)`
 const headers = [
   {
     name: 'Name',
-    value: 'name'
+    value: 'name',
   },
   {
     name: 'In MeiliSearch',
-    value: 'indexed'
+    value: 'indexed',
   },
   {
     name: 'Indexing',
-    value: 'isIndexing'
+    value: 'isIndexing',
   },
   {
     name: 'Documents',
-    value: 'numberOfDocuments'
+    value: 'numberOfDocuments',
   },
   {
     name: 'Hooks',
-    value: 'hooked'
-  }
+    value: 'hooked',
+  },
 ]
 
 const Collections = ({ updateCredentials }) => {
@@ -64,9 +64,12 @@ const Collections = ({ updateCredentials }) => {
   const watchUpdates = async ({ collection }) => {
     if (!watching.includes(collection)) {
       setWatchingCollection(prev => [...prev, collection])
-      const response = await request(`/${pluginId}/indexes/${collection}/update/`, {
-        method: 'GET'
-      })
+      const response = await request(
+        `/${pluginId}/indexes/${collection}/update/`,
+        {
+          method: 'GET',
+        }
+      )
       if (response.error) errorNotifications(response)
 
       setWatchingCollection(prev => prev.filter(col => col !== collection))
@@ -76,17 +79,23 @@ const Collections = ({ updateCredentials }) => {
 
   // Add collection to MeiliSearch
   const addCollection = async ({ name: collection }) => {
-    setCollectionsList(prev => prev.map(col => {
-      if (col.name === collection) return { ...col, indexed: 'Creating..', _isChecked: true }
-      return col
-    }))
+    setCollectionsList(prev =>
+      prev.map(col => {
+        if (col.name === collection)
+          return { ...col, indexed: 'Creating..', _isChecked: true }
+        return col
+      })
+    )
     const response = await request(`/${pluginId}/collections/${collection}`, {
-      method: 'POST'
+      method: 'POST',
     })
     if (response.error) {
       errorNotifications(response)
     } else {
-      successNotification({ message: `${collection} is created!`, duration: 4000 })
+      successNotification({
+        message: `${collection} is created!`,
+        duration: 4000,
+      })
       watchUpdates({ collection }) // start watching
     }
     setUpdatedCollections(false) // Ask for up to date data
@@ -94,12 +103,15 @@ const Collections = ({ updateCredentials }) => {
 
   // Re-indexes all rows from a given collection to MeilISearch
   const updateCollections = async ({ collection }) => {
-    setCollectionsList(prev => prev.map(col => {
-      if (col.name === collection) return { ...col, indexed: 'Start update...', _isChecked: true }
-      return col
-    }))
+    setCollectionsList(prev =>
+      prev.map(col => {
+        if (col.name === collection)
+          return { ...col, indexed: 'Start update...', _isChecked: true }
+        return col
+      })
+    )
     const response = await request(`/${pluginId}/collections/${collection}/`, {
-      method: 'PUT'
+      method: 'PUT',
     })
     if (response.error) {
       errorNotifications(response)
@@ -113,17 +125,21 @@ const Collections = ({ updateCredentials }) => {
   // Remove a collection from MeiliSearch
   const removeCollection = async ({ name: collection }) => {
     const res = await request(`/${pluginId}/indexes/${collection}/`, {
-      method: 'DELETE'
+      method: 'DELETE',
     })
     if (res.error) errorNotifications(res)
-    else successNotification({ message: `${collection} collection is removed from MeiliSearch!`, duration: 4000 })
+    else
+      successNotification({
+        message: `${collection} collection is removed from MeiliSearch!`,
+        duration: 4000,
+      })
     setUpdatedCollections(false) // ask for up to date data
   }
 
   // Depending on the checkbox states will eather
   // - Add the collection to MeiliSearch
   // - Remove the collection from MeiliSearch
-  const addOrRemoveCollection = async (row) => {
+  const addOrRemoveCollection = async row => {
     if (row._isChecked) await removeCollection(row)
     else addCollection(row)
   }
@@ -140,7 +156,7 @@ const Collections = ({ updateCredentials }) => {
   }
 
   // Construct verbose table text
-  const constructColRow = (col) => {
+  const constructColRow = col => {
     const { indexed, isIndexing, numberOfDocuments, numberOfRows } = col
     return {
       ...col,
@@ -148,19 +164,24 @@ const Collections = ({ updateCredentials }) => {
       isIndexing: isIndexing ? 'Yes' : 'No',
       numberOfDocuments: `${numberOfDocuments} / ${numberOfRows}`,
       hooked: constructReloadStatus(col.indexed, col.hooked),
-      _isChecked: col.indexed
+      _isChecked: col.indexed,
     }
   }
 
   const fetchCollections = async () => {
-    const { collections, error, ...res } = await request(`/${pluginId}/collections/`, {
-      method: 'GET'
-    })
+    const { collections, error, ...res } = await request(
+      `/${pluginId}/collections/`,
+      {
+        method: 'GET',
+      }
+    )
 
     if (error) errorNotifications(res)
     else {
       // Start watching collection that are being indexed
-      collections.map(col => col.isIndexing && watchUpdates({ collection: col.name }))
+      collections.map(
+        col => col.isIndexing && watchUpdates({ collection: col.name })
+      )
       // Create verbose text that will be showed in the table
       const verboseCols = collections.map(col => constructColRow(col))
       // Find possible collection that needs a reload to activate its hooks
@@ -176,9 +197,13 @@ const Collections = ({ updateCredentials }) => {
   const reload = async () => {
     try {
       strapi.lockApp({ enabled: true })
-      const { error, ...res } = await request(`/${pluginId}/reload`, {
-        method: 'GET'
-      }, true)
+      const { error, ...res } = await request(
+        `/${pluginId}/reload`,
+        {
+          method: 'GET',
+        },
+        true
+      )
       if (error) {
         errorNotifications(res)
         strapi.unlockApp()
@@ -192,42 +217,44 @@ const Collections = ({ updateCredentials }) => {
   }
 
   return (
-      <div className="col-md-12">
-          <Wrapper>
-              <Table
-                className='collections'
-                headers={headers}
-                rows={collectionsList}
-                withBulkAction
-                onSelect={(row) => {
-                  addOrRemoveCollection(row)
-                }}
-                onClickRow={(e, data) => {
-                  addOrRemoveCollection(data)
-                }}
-                rowLinks={[
-                  {
-                    icon: <UpdateButton forwardedAs='span'>Update</UpdateButton>,
-                    onClick: data => {
-                      updateCollections({ collection: data.name })
-                    }
-                  }
-                ]}
-              />
-              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                  {
-                  needReload && <Button
-                    color="delete"
-                    className="reload_button"
-                    onClick={() => { reload() }}
-                    style={{ marginTop: '20px' }}
-                                >
-                      Reload Server
-                  </Button>
-                }
-              </div>
-          </Wrapper>
-      </div>
+    <div className="col-md-12">
+      <Wrapper>
+        <Table
+          className="collections"
+          headers={headers}
+          rows={collectionsList}
+          withBulkAction
+          onSelect={row => {
+            addOrRemoveCollection(row)
+          }}
+          onClickRow={(e, data) => {
+            addOrRemoveCollection(data)
+          }}
+          rowLinks={[
+            {
+              icon: <UpdateButton forwardedAs="span">Update</UpdateButton>,
+              onClick: data => {
+                updateCollections({ collection: data.name })
+              },
+            },
+          ]}
+        />
+        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          {needReload && (
+            <Button
+              color="delete"
+              className="reload_button"
+              onClick={() => {
+                reload()
+              }}
+              style={{ marginTop: '20px' }}
+            >
+              Reload Server
+            </Button>
+          )}
+        </div>
+      </Wrapper>
+    </div>
   )
 }
 

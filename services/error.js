@@ -1,5 +1,12 @@
 class MeiliSearchError extends Error {
-  constructor ({ message = 'Something went wrong with MeiliSearch', title = 'Operation on MeiliSearch failed', link }, ...params) {
+  constructor(
+    {
+      message = 'Something went wrong with MeiliSearch',
+      title = 'Operation on MeiliSearch failed',
+      link,
+    },
+    ...params
+  ) {
     super(...params)
 
     if (Error.captureStackTrace) {

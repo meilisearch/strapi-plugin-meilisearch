@@ -6,7 +6,7 @@
  * @description: A set of functions similar to controller's actions to avoid code duplication.
  */
 
-function removeDateLogs (document) {
+function removeDateLogs(document) {
   const {
     updated_at: omitUpdatedAt,
     created_at: omitCreatedAt,
@@ -18,32 +18,32 @@ function removeDateLogs (document) {
   return noDateLogDocument
 }
 
-async function addDocuments ({ indexUid, data }) {
+async function addDocuments({ indexUid, data }) {
   const noDateLogDocuments = data.map(document => removeDateLogs(document))
   return this.client.index(indexUid).addDocuments(noDateLogDocuments)
 }
 
-async function deleteDocuments ({ indexUid, documentIds }) {
+async function deleteDocuments({ indexUid, documentIds }) {
   return this.client.index(indexUid).deleteDocuments(documentIds)
 }
 
-async function deleteAllDocuments ({ indexUid }) {
+async function deleteAllDocuments({ indexUid }) {
   return this.client.index(indexUid).deleteAllDocuments()
 }
 
-async function getIndexes () {
+async function getIndexes() {
   return this.client.listIndexes()
 }
 
-async function createIndex ({ indexUid }) {
+async function createIndex({ indexUid }) {
   return this.client.getOrCreateIndex(indexUid)
 }
 
-async function getRawIndex ({ indexUid }) {
+async function getRawIndex({ indexUid }) {
   return this.client.index(indexUid).getRawInfo()
 }
 
-async function waitForPendingUpdates ({ indexUid, updateNbr }) {
+async function waitForPendingUpdates({ indexUid, updateNbr }) {
   const updates = (await this.client.index(indexUid).getAllUpdateStatus())
     .filter(update => update.status === 'enqueued')
     .slice(0, updateNbr)
@@ -51,43 +51,47 @@ async function waitForPendingUpdates ({ indexUid, updateNbr }) {
   for (const update of updates) {
     const { updateId } = update
     const task = await waitForPendingUpdate.call(this, { updateId, indexUid })
-    const { type: { number } } = task
+    const {
+      type: { number },
+    } = task
     documentsAdded += number
   }
   return documentsAdded
 }
 
-async function waitForPendingUpdate ({ updateId, indexUid }) {
-  return this.client.index(indexUid).waitForPendingUpdate(updateId, { intervalMs: 500 })
+async function waitForPendingUpdate({ updateId, indexUid }) {
+  return this.client
+    .index(indexUid)
+    .waitForPendingUpdate(updateId, { intervalMs: 500 })
 }
 
-async function deleteIndex ({ indexUid }) {
+async function deleteIndex({ indexUid }) {
   return this.client.deleteIndex(indexUid)
 }
 
-async function deleteIndexes () {
+async function deleteIndexes() {
   const indexes = await getIndexes()
-  const deletePromise = indexes.map(index => deleteIndex({ indexUid: index.uid }))
+  const deletePromise = indexes.map(index =>
+    deleteIndex({ indexUid: index.uid })
+  )
   return Promise.all(deletePromise)
 }
 
-async function getStats ({ indexUid }) {
+async function getStats({ indexUid }) {
   return this.client.index(indexUid).getStats()
 }
 
-module.exports = (client) => (
-  {
-    client,
-    addDocuments,
-    getIndexes,
-    waitForPendingUpdate,
-    deleteIndexes,
-    deleteIndex,
-    deleteDocuments,
-    getRawIndex,
-    deleteAllDocuments,
-    createIndex,
-    waitForPendingUpdates,
-    getStats
-  }
-)
+module.exports = client => ({
+  client,
+  addDocuments,
+  getIndexes,
+  waitForPendingUpdate,
+  deleteIndexes,
+  deleteIndex,
+  deleteDocuments,
+  getRawIndex,
+  deleteAllDocuments,
+  createIndex,
+  waitForPendingUpdates,
+  getStats,
+})
