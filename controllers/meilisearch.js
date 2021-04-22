@@ -121,7 +121,7 @@ async function fetchRowBatch({ start, limit, collection }) {
 
 function getCollectionTypes() {
   const services = strapi.services
-  return Object.keys(strapi.services).filter(type => {
+  return Object.keys(services).filter(type => {
     return services[type].count
   })
 }
