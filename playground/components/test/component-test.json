@@ -1,0 +1,13 @@
+{
+  "collectionName": "components_test_component_tests",
+  "info": {
+    "name": "Component-test",
+    "icon": "bong"
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    }
+  }
+}

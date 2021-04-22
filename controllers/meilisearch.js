@@ -119,8 +119,18 @@ async function fetchRowBatch({ start, limit, collection }) {
   })
 }
 
+function getCollectionTypes() {
+  const services = strapi.services
+  return Object.keys(strapi.services).filter(type => {
+    return services[type].count
+  })
+}
+
 async function numberOfRowsInCollection({ collection }) {
-  return strapi.services[collection].count({ _publicationState: 'preview' })
+  return (
+    strapi.services[collection].count &&
+    strapi.services[collection].count({ _publicationState: 'preview' })
+  )
 }
 
 async function batchAddCollection(ctx) {
@@ -170,7 +180,9 @@ async function getStats({ collection }) {
 async function getCollections() {
   const indexes = await getIndexes()
   const hookedCollections = await getHookedCollections()
-  const collections = Object.keys(strapi.services).map(async collection => {
+  const collectionTypes = getCollectionTypes()
+
+  const collections = collectionTypes.map(async collection => {
     const existInMeilisearch = !!indexes.find(
       index => index.name === collection
     )
