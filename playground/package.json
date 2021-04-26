@@ -15,7 +15,7 @@
     "eslint": "^7.22.0",
     "knex": "^0.95.2",
     "sqlite3": "^5.0.2",
-    "strapi": "^3.5.4",
+    "strapi": "^3.6.0",
     "strapi-admin": "^3.5.4",
     "strapi-connector-bookshelf": "^3.5.4",
     "strapi-plugin-content-manager": "^3.5.4",
