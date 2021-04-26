@@ -23,7 +23,7 @@
     "strapi-plugin-email": "^3.5.4",
     "strapi-plugin-oembed": "^0.4.0",
     "strapi-plugin-upload": "^3.5.4",
-    "strapi-plugin-users-permissions": "^3.5.4",
+    "strapi-plugin-users-permissions": "^3.6.0",
     "strapi-utils": "3.5.4"
   },
   "author": {
