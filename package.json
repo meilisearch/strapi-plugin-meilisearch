@@ -33,7 +33,7 @@
   ],
   "dependencies": {
     "@buffetjs/core": "^3.3.5",
-    "meilisearch": "^0.18.1"
+    "meilisearch": "^0.18.2"
   },
   "author": {
     "name": "Charlotte Vermandel <charlotte@meilisearch.com>"
