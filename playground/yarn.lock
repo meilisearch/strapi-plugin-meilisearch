@@ -6393,7 +6393,7 @@ lodash@4.17.20:
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.20.tgz#b44a9b6297bcb698f1c51a3545a2b3b368d59c52"
   integrity sha512-PlhdFcillOINfeV7Ni6oF1TAEayyZBoZ8bcshTHqOYJYlrqzRK5hagpagky5o4HfCzzd1TRkXPMFq6cKk9rGmA==
 
-lodash@^4.1.1, lodash@^4.17.11, lodash@^4.17.12, lodash@^4.17.14, lodash@^4.17.15, lodash@^4.17.19, lodash@^4.17.20, lodash@^4.17.21, lodash@^4.17.3, lodash@^4.17.4:
+lodash@4.17.21, lodash@^4.1.1, lodash@^4.17.11, lodash@^4.17.12, lodash@^4.17.14, lodash@^4.17.15, lodash@^4.17.19, lodash@^4.17.20, lodash@^4.17.21, lodash@^4.17.3, lodash@^4.17.4:
   version "4.17.21"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
   integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
@@ -9837,14 +9837,14 @@ strapi-plugin-content-type-builder@^3.5.4:
     strapi-utils "3.5.4"
     yup "^0.27.0"
 
-strapi-plugin-email@^3.5.4:
-  version "3.5.4"
-  resolved "https://registry.yarnpkg.com/strapi-plugin-email/-/strapi-plugin-email-3.5.4.tgz#035e72e6c2c938fe283a9f810b7371fd31f330d3"
-  integrity sha512-wyXPHkSF2AKrSUd6dD8OoyjfbvZte6hDt2qMdcKfJJGlcHNmL13LFEQlWkh7JPfTPqVU+m14Xa2csYQvxqQDcA==
+strapi-plugin-email@^3.6.1:
+  version "3.6.1"
+  resolved "https://registry.yarnpkg.com/strapi-plugin-email/-/strapi-plugin-email-3.6.1.tgz#ea650443842db4b2ed4769be4f4a82d04b2ec085"
+  integrity sha512-p0AtpOUXDPDoSu076kAYvOxMdbnHszPzF7DM9HoEkGQXZMj4Vv0znY92hYEtr68fwPZMyDmvKA3oPcxLGxK09g==
   dependencies:
-    lodash "4.17.20"
-    strapi-provider-email-sendmail "3.5.4"
-    strapi-utils "3.5.4"
+    lodash "4.17.21"
+    strapi-provider-email-sendmail "3.6.1"
+    strapi-utils "3.6.1"
 
 strapi-plugin-oembed@^0.4.0:
   version "0.4.0"
@@ -9928,13 +9928,13 @@ strapi-plugin-users-permissions@^3.5.4:
     strapi-utils "3.5.4"
     uuid "^3.1.0"
 
-strapi-provider-email-sendmail@3.5.4:
-  version "3.5.4"
-  resolved "https://registry.yarnpkg.com/strapi-provider-email-sendmail/-/strapi-provider-email-sendmail-3.5.4.tgz#f21a7fbd965c0987868d2dc21ea317b4a55e77ee"
-  integrity sha512-2ti6EuopAjjerPnF1geyPuEearvJNXSN471PJavpF2Q45EdFvwMuMe8T35aSgQFQipcxwomI+GclEE67zXth3A==
+strapi-provider-email-sendmail@3.6.1:
+  version "3.6.1"
+  resolved "https://registry.yarnpkg.com/strapi-provider-email-sendmail/-/strapi-provider-email-sendmail-3.6.1.tgz#f7c572738b204c9d3ec38a9a8ca8a677e6a8ae3f"
+  integrity sha512-ia3Q4emk4TGdvgaEoRWxnbKzPm9479g2TeMwf4gfQAwVILUwNGRVyHBY8nAxnINYWFaOwhv26kyCfCFUkTIfuQ==
   dependencies:
     sendmail "^1.6.1"
-    strapi-utils "3.5.4"
+    strapi-utils "3.6.1"
 
 strapi-provider-upload-local@3.5.4:
   version "3.5.4"
@@ -9949,6 +9949,18 @@ strapi-utils@3.5.4:
     "@sindresorhus/slugify" "1.1.0"
     date-fns "^2.19.0"
     lodash "4.17.20"
+    pino "^4.7.1"
+    pluralize "^8.0.0"
+    yup "0.29.3"
+
+strapi-utils@3.6.1:
+  version "3.6.1"
+  resolved "https://registry.yarnpkg.com/strapi-utils/-/strapi-utils-3.6.1.tgz#db6ef96b2db1e239ecc38ec61a2baec86d64da0d"
+  integrity sha512-ij26SXTOH/yLR59fKzaWEThjzQLOEhqTuZ6yBo0p6K5e7iRRcRbf5LI7263WL2rZXUOeqTwTyfvSTGg49odndQ==
+  dependencies:
+    "@sindresorhus/slugify" "1.1.0"
+    date-fns "^2.19.0"
+    lodash "4.17.21"
     pino "^4.7.1"
     pluralize "^8.0.0"
     yup "0.29.3"
