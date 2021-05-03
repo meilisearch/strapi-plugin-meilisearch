@@ -673,10 +673,10 @@ core-util-is@1.0.2, core-util-is@~1.0.0:
   resolved "https://registry.yarnpkg.com/core-util-is/-/core-util-is-1.0.2.tgz#b5fd54220aa2bc5ab57aab7140c940754503c1a7"
   integrity sha1-tf1UIgqivFq1eqtxQMlAdUUDwac=
 
-cross-fetch@^3.0.5:
-  version "3.0.6"
-  resolved "https://registry.yarnpkg.com/cross-fetch/-/cross-fetch-3.0.6.tgz#3a4040bc8941e653e0e9cf17f29ebcd177d3365c"
-  integrity sha512-KBPUbqgFjzWlVcURG+Svp9TlhA5uliYtiNx/0r8nv0pdypeQCRJ9IaSIc3q/x3q8t3F75cHuwxVql1HFGHCNJQ==
+cross-fetch@^3.1.4:
+  version "3.1.4"
+  resolved "https://registry.yarnpkg.com/cross-fetch/-/cross-fetch-3.1.4.tgz#9723f3a3a247bf8b89039f3a380a9244e8fa2f39"
+  integrity sha512-1eAtFWdIubi6T4XPy6ei9iUFoKpUkIF971QLN8lIvvvwueI65+Nw5haMNKUwfJxabqlIIDODJKGrQ66gxC0PbQ==
   dependencies:
     node-fetch "2.6.1"
 
@@ -1978,12 +1978,12 @@ map-stream@~0.1.0:
   resolved "https://registry.yarnpkg.com/map-stream/-/map-stream-0.1.0.tgz#e56aa94c4c8055a16404a0674b78f215f7c8e194"
   integrity sha1-5WqpTEyAVaFkBKBnS3jyFffI4ZQ=
 
-meilisearch@^0.18.1:
-  version "0.18.1"
-  resolved "https://registry.yarnpkg.com/meilisearch/-/meilisearch-0.18.1.tgz#6b12da60628ec5d6438ba677a8295971e1035938"
-  integrity sha512-eGdcx5/0ktj5I2vC/bNbHg3ORuq9nh++fA39t03nG31J1SoFJmnx3Z0r83Q/yrfA+hAP/qhCI/6B8dHMEcCQJg==
+meilisearch@^0.18.2:
+  version "0.18.2"
+  resolved "https://registry.yarnpkg.com/meilisearch/-/meilisearch-0.18.2.tgz#e26d33a4bf163b2d96b14015063ec5979a004793"
+  integrity sha512-L65u+yNNtIyai3V1XB7BOq+fAt6MzB2KtsqvaW6GNahPtWCZF9SKvWOl6fjhzH3KOHDyT++A65UoYJP4J7vnVA==
   dependencies:
-    cross-fetch "^3.0.5"
+    cross-fetch "^3.1.4"
 
 merge-stream@^2.0.0:
   version "2.0.0"
