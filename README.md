@@ -250,7 +250,7 @@ This command will install the required dependencies and launch the app in develo
 
 Complete installation requirements are the same as for Strapi itself and can be found in the documentation under [installation Requirements](https://strapi.io/documentation/v3.x/installation/cli.html#step-1-make-sure-requirements-are-met).
 
-- Strapi v3.4.x
+- Strapi v3.6.x
 
 (This plugin may work with the older Strapi versions, but these are not tested nor officially supported at this time.)
 
