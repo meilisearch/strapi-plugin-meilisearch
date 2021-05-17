@@ -63,7 +63,7 @@
   },
   "homepage": "https://github.com/meilisearch/strapi-plugin-meilisearch#readme",
   "devDependencies": {
-    "cypress": "^6.8.0",
+    "cypress": "^7.3.0",
     "eslint": "^7.21.0",
     "eslint-config-prettier": "^8.2.0",
     "eslint-config-standard": "^16.0.2",
