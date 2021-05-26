@@ -49,6 +49,10 @@ async function getHookedCollectionsFromStore({ store }) {
   return store.get({ key: 'meilisearch_hooked' })
 }
 
+async function createHookedCollection({ store }) {
+  return store.set({ key: 'meilisearch_hooked', value: [] })
+}
+
 function addLifecycles({ client, collections }) {
   // Add lifecyles
   collections.map(collection => {
@@ -69,10 +73,11 @@ function addLifecycles({ client, collections }) {
 async function initHooks(store) {
   try {
     const credentials = await getCredentials()
-    const getHookedCollections = await getHookedCollectionsFromStore({ store })
-    // If hooked collection is not found it means that no MeiliSearch
-    // Indexes are to be hooked. Meaning we do not have to add any lifecycle.
-    if (credentials.host && getHookedCollections) {
+    const hookedCollections =
+      (await getHookedCollectionsFromStore({ store })) ||
+      (await createHookedCollection({ store }))
+
+    if (credentials.host && hookedCollections) {
       const client = await getClient(credentials)
       // get list of indexes in MeiliSearch Instance
       const indexes = (await getIndexes(client)).map(index => index.uid)
