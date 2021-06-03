@@ -17,9 +17,12 @@ async function afterCreate(result, collection, httpClient) {
 
 async function afterDelete(result, collection, httpClient) {
   try {
+    const documentIds = Array.isArray(result)
+      ? result.map(doc => doc.id)
+      : [result.id]
     await httpClient.deleteDocuments({
       indexUid: collection,
-      documentIds: [result.id],
+      documentIds,
     })
   } catch (e) {
     console.error(e)
