@@ -19,7 +19,7 @@
     "strapi-admin": "^3.6.2",
     "strapi-connector-bookshelf": "^3.6.2",
     "strapi-plugin-content-manager": "^3.6.2",
-    "strapi-plugin-content-type-builder": "^3.6.2",
+    "strapi-plugin-content-type-builder": "^3.6.3",
     "strapi-plugin-email": "^3.6.2",
     "strapi-plugin-oembed": "^0.4.0",
     "strapi-plugin-upload": "^3.6.2",
