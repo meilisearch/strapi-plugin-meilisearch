@@ -1050,7 +1050,7 @@
   dependencies:
     regenerator-runtime "^0.13.4"
 
-"@babel/runtime@^7.10.5", "@babel/runtime@^7.13.17", "@babel/runtime@^7.6.2", "@babel/runtime@^7.9.2":
+"@babel/runtime@^7.10.5", "@babel/runtime@^7.13.17", "@babel/runtime@^7.6.2", "@babel/runtime@^7.9.2", "@babel/runtime@^7.9.6":
   version "7.14.0"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.14.0.tgz#46794bc20b612c5f75e62dd071e24dfd95f1cbe6"
   integrity sha512-JELkvo/DlpNdJ7dlyw/eY7E0suy5i5GQH+Vlxaq1nsNJ+H7f4Vtv3jMeCEgRhZZQFXTjldYfQgv2qmM6M1v5wA==
@@ -10127,14 +10127,14 @@ strapi-plugin-content-type-builder@^3.6.2:
     strapi-utils "3.6.2"
     yup "^0.27.0"
 
-strapi-plugin-email@^3.6.2:
-  version "3.6.2"
-  resolved "https://registry.yarnpkg.com/strapi-plugin-email/-/strapi-plugin-email-3.6.2.tgz#a52af064e39d9322db7a5fbaab1b66cb066556ce"
-  integrity sha512-l4Nxq72LVGif7s2jTSA0RBiMvJDg7eHwk2EcxMpYR7n4zD2I63XOYLBpBnWoEYhfxJZh/inbSbdSlxfIJJxkyA==
+strapi-plugin-email@^3.6.3:
+  version "3.6.3"
+  resolved "https://registry.yarnpkg.com/strapi-plugin-email/-/strapi-plugin-email-3.6.3.tgz#967f3da93ea8c1801b5fb26232ce9b2b316997db"
+  integrity sha512-z+dk8uJ4mW6Ohu56BBJOAZCY6fEtZfhUhNMSA7vYsyPop+4sP13MJKqAtNedk44po9MkctXzyC+4wheB4JcPXw==
   dependencies:
     lodash "4.17.21"
-    strapi-provider-email-sendmail "3.6.2"
-    strapi-utils "3.6.2"
+    strapi-provider-email-sendmail "3.6.3"
+    strapi-utils "3.6.3"
 
 strapi-plugin-oembed@^0.4.0:
   version "0.4.0"
@@ -10218,13 +10218,13 @@ strapi-plugin-users-permissions@^3.6.2:
     strapi-utils "3.6.2"
     uuid "^3.1.0"
 
-strapi-provider-email-sendmail@3.6.2:
-  version "3.6.2"
-  resolved "https://registry.yarnpkg.com/strapi-provider-email-sendmail/-/strapi-provider-email-sendmail-3.6.2.tgz#66bebfae125b43b7c8d20954f0c1c10b4222aaf2"
-  integrity sha512-OPOsND7ErREBZ94I//BBES6RuxKdFJDSvuUhOPW9kHAI5YKs1guKA9vzciQgs52vxKPOVpaKeNL+r0EP47sT1g==
+strapi-provider-email-sendmail@3.6.3:
+  version "3.6.3"
+  resolved "https://registry.yarnpkg.com/strapi-provider-email-sendmail/-/strapi-provider-email-sendmail-3.6.3.tgz#c3b443fa24ac08e1005eb77434784327ccd43822"
+  integrity sha512-vqlW3DSnK9lxtjbd/DyronB2sJp2APULfZ4vkX36F3Og7KVyNbpAjfWJoeV1zaMI6qEQtqHjl3S3tKEaSQeDvA==
   dependencies:
     sendmail "^1.6.1"
-    strapi-utils "3.6.2"
+    strapi-utils "3.6.3"
 
 strapi-provider-upload-local@3.6.2:
   version "3.6.2"
@@ -10242,6 +10242,18 @@ strapi-utils@3.6.2:
     pino "^4.7.1"
     pluralize "^8.0.0"
     yup "0.29.3"
+
+strapi-utils@3.6.3:
+  version "3.6.3"
+  resolved "https://registry.yarnpkg.com/strapi-utils/-/strapi-utils-3.6.3.tgz#86b98b9fb86672973769ad116a0fc4d959551559"
+  integrity sha512-FAIdJfOsg8+igndwckgxwoUQkYjJDtsdsI2tHoBzrUZzQT2scVv+0I5RFmM5poXl5JR33iPU51tpAoLuTW/T8w==
+  dependencies:
+    "@sindresorhus/slugify" "1.1.0"
+    date-fns "^2.19.0"
+    lodash "4.17.21"
+    pino "^4.7.1"
+    pluralize "^8.0.0"
+    yup "^0.28.2"
 
 strapi@^3.6.2:
   version "3.6.2"
@@ -10537,7 +10549,7 @@ symbol-observable@^1.2.0:
   resolved "https://registry.yarnpkg.com/symbol-observable/-/symbol-observable-1.2.0.tgz#c22688aed4eab3cdc2dfeacbb561660560a00804"
   integrity sha512-e900nM8RRtGhlV36KGEU9k65K3mPb1WV70OdjfxlG2EAuM1noi/E/BaW/uMhL7bPEssK8QV57vN3esixjUvcXQ==
 
-synchronous-promise@^2.0.13, synchronous-promise@^2.0.6:
+synchronous-promise@^2.0.10, synchronous-promise@^2.0.13, synchronous-promise@^2.0.6:
   version "2.0.15"
   resolved "https://registry.yarnpkg.com/synchronous-promise/-/synchronous-promise-2.0.15.tgz#07ca1822b9de0001f5ff73595f3d08c4f720eb8e"
   integrity sha512-k8uzYIkIVwmT+TcglpdN50pS2y1BDcUnBPK9iJeGu0Pl1lOI8pD6wtzgw91Pjpe+RxtTncw32tLxs/R0yNL2Mg==
@@ -11498,4 +11510,17 @@ yup@^0.27.0:
     lodash "^4.17.11"
     property-expr "^1.5.0"
     synchronous-promise "^2.0.6"
+    toposort "^2.0.2"
+
+yup@^0.28.2:
+  version "0.28.5"
+  resolved "https://registry.yarnpkg.com/yup/-/yup-0.28.5.tgz#85cabb4000d3623ef69be81551190692e631a8a5"
+  integrity sha512-7JZcvpUGUxMKoaEtcoMEM8lCWRaueGNH/A3EhL/UWqfbFm3uloiI+x59Yq4nzhbbYWUTwAsCteaZOJ+VbqI1uw==
+  dependencies:
+    "@babel/runtime" "^7.9.6"
+    fn-name "~3.0.0"
+    lodash "^4.17.15"
+    lodash-es "^4.17.11"
+    property-expr "^2.0.2"
+    synchronous-promise "^2.0.10"
     toposort "^2.0.2"
