@@ -40,9 +40,22 @@ async function getHookedCollections() {
 
 async function getCredentials() {
   const store = await meilisearch.store()
+  const config_apiKey = store.getConfigKey('api_key')
+  const config_host = store.getConfigKey('host')
+  if (config_apiKey && config_host) {
+    return {
+      apiKey: config_apiKey,
+      host: config_host,
+      fromConfig: true,
+    }
+  } else if (config_apiKey || config_host) {
+    strapi.log.warn(
+      'meilisearch configuration not complete, using frontend config'
+    )
+  }
   const apiKey = await store.getStoreKey('meilisearch_api_key')
   const host = await store.getStoreKey('meilisearch_host')
-  return { apiKey, host }
+  return { apiKey, host, fromConfig: false }
 }
 
 async function deleteAllIndexes() {

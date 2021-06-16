@@ -96,7 +96,23 @@ On the left-navbar, `MeiliSearch` appears under the `PLUGINS` category. If it do
 
 ### 🤫 Add Credentials <!-- omit in toc -->
 
-First, add your MeiliSearch credentials in the upper box of the MeiliSearch plugin page.
+First, you need to configure credentials via the strapi config, or on the plugin page.
+
+To use the strapi config add the following to `config/plugins.js` or `config/[NODE_ENV]/plugin.js`:
+```js
+module.exports = () => ({
+  //...
+  "meilisearch": {
+    // Your meili host
+    "host": "http://localhost:7700"
+    // Your master key
+    "api_key": "masterKey",
+  }
+  //...
+})
+```
+
+Otherwise, add your MeiliSearch credentials in the upper box of the MeiliSearch plugin page.
 
 For example, using the credentials from the section above: `Run MeiliSearch`, it looks like this:
 

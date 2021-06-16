@@ -12,15 +12,20 @@ import { Wrapper } from '../components/Wrapper'
 const Credentials = ({ setUpdatedCredentials }) => {
   const [msApiKey, setApiKey] = useState('')
   const [msHost, setHost] = useState('')
+  const [msFromConfig, setFromConfig] = useState(false)
 
   useEffect(() => {
     strapi.lockApp()
     async function fillMeilisearchCredentials() {
-      const { apiKey, host } = await request(`/${pluginId}/credentials/`, {
-        method: 'GET',
-      })
+      const { apiKey, host, fromConfig } = await request(
+        `/${pluginId}/credentials/`,
+        {
+          method: 'GET',
+        }
+      )
       setApiKey(apiKey)
       setHost(host)
+      setFromConfig(fromConfig)
     }
     fillMeilisearchCredentials()
     strapi.unlockApp()
@@ -47,7 +52,10 @@ const Credentials = ({ setUpdatedCredentials }) => {
   return (
     <div className="col-md-12">
       <Wrapper>
-        <Label htmlFor="MSHost" message="MeiliSearch Host" />
+        <Label
+          htmlFor="MSHost"
+          message={`MeiliSearch Host ${msFromConfig && '(loaded from config)'}`}
+        />
         <InputText
           name="MSHost"
           onChange={({ target: { value } }) => {
@@ -56,8 +64,14 @@ const Credentials = ({ setUpdatedCredentials }) => {
           placeholder="Host"
           type="text"
           value={msHost}
+          disabled={msFromConfig}
         />
-        <Label htmlFor="MSApiKey" message="MeiliSearch Api Key" />
+        <Label
+          htmlFor="MSApiKey"
+          message={`MeiliSearch Api Key ${
+            msFromConfig && '(loaded from config)'
+          }`}
+        />
         <InputText
           name="MSApiKey"
           onChange={({ target: { value } }) => {
@@ -65,7 +79,8 @@ const Credentials = ({ setUpdatedCredentials }) => {
           }}
           placeholder="apiKey"
           type="text"
-          value={msApiKey}
+          value={msFromConfig ? '****' : msApiKey}
+          disabled={msFromConfig}
         />
         <Button
           className="credentials_button"
