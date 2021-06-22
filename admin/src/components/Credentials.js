@@ -12,20 +12,22 @@ import { Wrapper } from '../components/Wrapper'
 const Credentials = ({ setUpdatedCredentials }) => {
   const [msApiKey, setApiKey] = useState('')
   const [msHost, setHost] = useState('')
-  const [msFromConfig, setFromConfig] = useState(false)
+  const [configFileApiKey, setconfigFileApiKey] = useState('')
+  const [configFileHost, setconfigFileHost] = useState('')
 
   useEffect(() => {
     strapi.lockApp()
     async function fillMeilisearchCredentials() {
-      const { apiKey, host, fromConfig } = await request(
+      const { apiKey, host, configFileApiKey, configFileHost } = await request(
         `/${pluginId}/credentials/`,
         {
           method: 'GET',
         }
       )
       setApiKey(apiKey)
+      setconfigFileApiKey(configFileApiKey)
       setHost(host)
-      setFromConfig(fromConfig)
+      setconfigFileHost(configFileHost)
     }
     fillMeilisearchCredentials()
     strapi.unlockApp()
@@ -54,7 +56,9 @@ const Credentials = ({ setUpdatedCredentials }) => {
       <Wrapper>
         <Label
           htmlFor="MSHost"
-          message={`MeiliSearch Host ${msFromConfig && '(loaded from config)'}`}
+          message={`MeiliSearch Host ${
+            configFileHost ? ' loaded from config file' : ``
+          }`}
         />
         <InputText
           name="MSHost"
@@ -64,12 +68,13 @@ const Credentials = ({ setUpdatedCredentials }) => {
           placeholder="Host"
           type="text"
           value={msHost}
-          disabled={msFromConfig}
+          disabled={configFileHost}
+          aria-disabled={configFileHost}
         />
         <Label
           htmlFor="MSApiKey"
           message={`MeiliSearch Api Key ${
-            msFromConfig && '(loaded from config)'
+            configFileApiKey ? ' loaded from config file' : ''
           }`}
         />
         <InputText
@@ -79,13 +84,17 @@ const Credentials = ({ setUpdatedCredentials }) => {
           }}
           placeholder="apiKey"
           type="text"
-          value={msFromConfig ? '****' : msApiKey}
-          disabled={msFromConfig}
+          value={configFileApiKey ? '****' : msApiKey}
+          disabled={configFileApiKey}
+          aria-disabled={configFileApiKey}
         />
         <Button
+          color={!(configFileApiKey && configFileHost) ? 'primary' : 'disabled'}
           className="credentials_button"
           onClick={addMeilisearchCredentials}
           style={{ marginTop: '20px' }}
+          disabled={!configFileApiKey && !configFileHost}
+          aria-disabled={!configFileApiKey && !configFileHost}
         >
           Add
         </Button>
