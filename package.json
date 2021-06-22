@@ -13,12 +13,10 @@
     "cy:install": "node ./node_modules/cypress/bin/cypress install",
     "cy:open": "cypress open --env env=watch",
     "cy:run": "cypress run --env env=watch",
-    "test:watch": "start-server-and-test playground:dev http://localhost:8000 'cypress open --env env=watch'",
-    "test:admindev": "start-server-and-test playground:dev http://localhost:1337 'cypress run --env env=watch'",
-    "test:dev": "start-server-and-test playground:soft_dev http://localhost:1337 'cypress run --env env=develop'",
-    "test:production": "start-server-and-test playground:production http://localhost:1337 'cypress run --env env=test'",
     "pretest": "yarn playground:build",
-    "test": "start-server-and-test playground:start http://localhost:1337 'cypress run --env env=test'"
+    "test": "concurrently \"NODE_ENV=test yarn playground:start\" \"cypress run --env env=test\"",
+    "test:watch": "concurrently \"NODE_ENV=test yarn playground:dev\" \"cypress open --env env=watch\"",
+    "test:production": "concurrently \"NODE_ENV=production yarn playground:production\" \"cypress run --env env=test\""
   },
   "strapi": {
     "name": "meilisearch",
@@ -63,6 +61,7 @@
   },
   "homepage": "https://github.com/meilisearch/strapi-plugin-meilisearch#readme",
   "devDependencies": {
+    "concurrently": "^6.2.0",
     "cypress": "^7.3.0",
     "eslint": "^7.21.0",
     "eslint-config-prettier": "^8.2.0",
@@ -73,7 +72,6 @@
     "eslint-plugin-prettier": "^3.4.0",
     "eslint-plugin-promise": "^4.3.1",
     "eslint-plugin-react": "^7.22.0",
-    "prettier": "^2.2.1",
-    "start-server-and-test": "^1.12.1"
+    "prettier": "^2.2.1"
   }
 }
