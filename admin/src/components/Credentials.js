@@ -93,8 +93,8 @@ const Credentials = ({ setUpdatedCredentials }) => {
           className="credentials_button"
           onClick={addMeilisearchCredentials}
           style={{ marginTop: '20px' }}
-          disabled={!configFileApiKey && !configFileHost}
-          aria-disabled={!configFileApiKey && !configFileHost}
+          disabled={configFileApiKey && configFileHost}
+          aria-disabled={configFileApiKey && configFileHost}
         >
           Add
         </Button>
