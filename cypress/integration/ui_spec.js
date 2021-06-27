@@ -42,6 +42,9 @@ const removeNotifications = () => {
 describe('Strapi Login flow', () => {
   before(() => {
     cy.clearCookies()
+    cy.request({
+      url: adminUrl,
+    })
     cy.visit(adminUrl)
   })
   after(async function () {

@@ -14,7 +14,6 @@ updates:
   ignore:
       - dependency-name: "eslint*"
       - dependency-name: "prettier*"
-      - dependency-name: "start-server-and-test"
 - package-ecosystem: npm
   directory: "/playground/"
   schedule:
