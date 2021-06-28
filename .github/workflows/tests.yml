@@ -34,7 +34,7 @@ jobs:
         uses: cypress-io/github-action@v2
         with:
           build: yarn playground:build
-          start: NODE_ENV=test yarn playground:start
+          start: yarn playground:ci
           env: env=ci
       - uses: actions/upload-artifact@v1
         if: failure()

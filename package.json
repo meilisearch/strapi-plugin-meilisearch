@@ -9,6 +9,7 @@
     "playground:soft_dev": "yarn --cwd ./playground && yarn --cwd ./playground soft_dev",
     "playground:build": "yarn --cwd ./playground build",
     "playground:start": "yarn --cwd ./playground start",
+    "playground:ci": "yarn --cwd ./playground ci",
     "playground:production": "NODE_ENV=production yarn --cwd ./playground start",
     "cy:install": "node ./node_modules/cypress/bin/cypress install",
     "cy:open": "cypress open --env env=watch",
