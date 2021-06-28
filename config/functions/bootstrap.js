@@ -106,8 +106,14 @@ async function initHooks(store) {
 }
 
 async function updateStoreCredentials({ store }) {
-  const apiKey = strapi.config.plugins?.meilisearch?.apiKey
-  const host = strapi.config.plugins?.meilisearch?.host
+  // optional chaining is not natively supported by node 12.
+  let apiKey = false
+  let host = false
+  const { plugins } = strapi.config
+  if (plugins && plugins.meilisearch) {
+    apiKey = plugins.meilisearch.apiKey
+    host = plugins.meilisearch.host
+  }
 
   if (apiKey) {
     await store.set({

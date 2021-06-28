@@ -98,29 +98,39 @@ On the left-navbar, `MeiliSearch` appears under the `PLUGINS` category. If it do
 
 First, you need to configure credentials via the strapi config, or on the plugin page.
 
-To use the strapi config add the following to `config/plugins.js` or `config/[NODE_ENV]/plugin.js`:
-```js
-module.exports = () => ({
-  //...
-  "meilisearch": {
-    // Your meili host
-    "host": "http://localhost:7700"
-    // Your master key
-    "api_key": "masterKey",
-  }
-  //...
-})
-```
+#### Using the plugin page
 
-Otherwise, add your MeiliSearch credentials in the upper box of the MeiliSearch plugin page.
+You can add you MeiliSearch credentials in the upper box of the MeiliSearch plugin page.
 
-For example, using the credentials from the section above: `Run MeiliSearch`, it looks like this:
+For example, using the credentials from the section above: [`Run MeiliSearch`](#-run-meilisearch), the following screen shows where the information should be.
 
 <p align="center">
 <img src="./assets/credentials.png" alt="Add your credentials" width="600"/>
 </p>
 
 Once completed, click on the `add` button.
+
+#### Using a config file
+
+To use the strapi config add the following to `config/plugins.js` or `config/[NODE_ENV]/plugin.js`:
+
+```js
+module.exports = () => ({
+  //...
+  meilisearch: {
+    // Your meili host
+    host: "http://localhost:7700"
+    // Your master key
+    api_key: "masterKey",
+  }
+  //...
+})
+```
+
+Using `config/[NODE_ENV]/plugin.js`, it is possible to have a config file for different environments.
+
+Note that if you use both method, the config file overwrites the credentials added through the plugin page.
+
 
 ### 🚛 Add your collections to MeiliSearch <!-- omit in toc -->
 
