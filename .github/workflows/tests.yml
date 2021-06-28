@@ -33,7 +33,7 @@ jobs:
       - name: Test develop no-reload
         uses: cypress-io/github-action@v2
         with:
-          build: NODE_ENV=test yarn playground:build
+          build: yarn playground:build
           start: NODE_ENV=test yarn playground:start
           env: env=ci
       - uses: actions/upload-artifact@v1
