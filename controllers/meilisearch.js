@@ -42,7 +42,11 @@ async function getCredentials() {
   const store = await meilisearch.store()
   const apiKey = await store.getStoreKey('meilisearch_api_key')
   const host = await store.getStoreKey('meilisearch_host')
-  return { apiKey, host }
+  const configFileApiKey =
+    (await store.getStoreKey('meilisearch_api_key_config')) || false
+  const configFileHost =
+    (await store.getStoreKey('meilisearch_host_config')) || false
+  return { apiKey, host, configFileApiKey, configFileHost }
 }
 
 async function deleteAllIndexes() {
@@ -73,16 +77,21 @@ async function waitForDocumentsToBeIndexed(ctx) {
 }
 
 async function addCredentials(ctx) {
+  const { configFileApiKey, configFileHost } = await getCredentials()
   const { host: msHost, apiKey: msApiKey } = ctx.request.body
   const store = await meilisearch.store()
-  await store.setStoreKey({
-    key: 'meilisearch_api_key',
-    value: msApiKey,
-  })
-  await store.setStoreKey({
-    key: 'meilisearch_host',
-    value: msHost,
-  })
+  if (!configFileApiKey) {
+    await store.setStoreKey({
+      key: 'meilisearch_api_key',
+      value: msApiKey,
+    })
+  }
+  if (!configFileHost) {
+    await store.setStoreKey({
+      key: 'meilisearch_host',
+      value: msHost,
+    })
+  }
   return getCredentials()
 }
 

@@ -105,6 +105,40 @@ async function initHooks(store) {
   }
 }
 
+async function updateStoreCredentials({ store }) {
+  // optional chaining is not natively supported by node 12.
+  let apiKey = false
+  let host = false
+  const { plugins } = strapi.config
+  if (plugins && plugins.meilisearch) {
+    apiKey = plugins.meilisearch.apiKey
+    host = plugins.meilisearch.host
+  }
+
+  if (apiKey) {
+    await store.set({
+      key: 'meilisearch_api_key',
+      value: apiKey,
+    })
+  }
+  await store.set({
+    key: 'meilisearch_api_key_config',
+    value: !!apiKey,
+  })
+
+  if (host) {
+    await store.set({
+      key: 'meilisearch_host',
+      value: host,
+    })
+  }
+  await store.set({
+    key: 'meilisearch_host_config',
+    value: !!host,
+  })
+}
+
+// On refresh/build
 module.exports = async () => {
   const store = strapi.store({
     environment: strapi.config.environment,
@@ -113,5 +147,9 @@ module.exports = async () => {
   })
   strapi.plugins.meilisearch.store = store
 
+  // initialize credentials from config file
+  await updateStoreCredentials({ store })
+
+  // initialize hooks
   await initHooks(store)
 }
