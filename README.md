@@ -90,7 +90,7 @@ yarn develop
 
 ### Run Both with Docker
 
-To run MeiliSearch and Strapi on the same server you can use docker. A docker configuration example can be found in the directory [`resources/docker`](resources/docker/docker-compose.yaml) of this folder.
+To run MeiliSearch and Strapi on the same server you can use Docker. A Docker configuration example can be found in the directory [`resources/docker`](resources/docker/docker-compose.yaml) of this repository.
 
 ## 🎬 Getting Started
 
