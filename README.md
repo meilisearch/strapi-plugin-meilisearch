@@ -119,7 +119,7 @@ module.exports = () => ({
   //...
   meilisearch: {
     // Your meili host
-    host: "http://localhost:7700"
+    host: "http://localhost:7700",
     // Your master key
     api_key: "masterKey",
   }
