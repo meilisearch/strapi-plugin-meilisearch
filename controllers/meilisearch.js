@@ -214,8 +214,6 @@ async function getCollections() {
   const collectionTypes = getCollectionTypes()
   const configuredCollections = strapi.config.plugins.meilisearch.collections.filter(({name, index}) => !(!name || !collectionTypes.includes(name) || (typeof index === 'string' && !index.length)));
 
-  // Combine collectionTypes and configuredCollections into one
-
   const collections = configuredCollections.map(async collection => {
     const existInMeilisearch = !!indexes.find(
       index => index.name === (collection.index || collection.name)
