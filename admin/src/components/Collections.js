@@ -106,7 +106,11 @@ const Collections = ({ updateCredentials }) => {
     setCollectionsList(prev =>
       prev.map(col => {
         if (col.name === collection)
-          return { ...col, indexed: `Start update of index: '${col.index}'`, _isChecked: true }
+          return {
+            ...col,
+            indexed: `Start update of index: '${col.index}'`,
+            _isChecked: true,
+          }
         return col
       })
     )

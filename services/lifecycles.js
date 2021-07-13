@@ -8,7 +8,7 @@ async function afterCreate(result, collection, httpClient) {
   try {
     await httpClient.addDocuments({
       indexUid: collection.index || collection.name,
-      data: [{...result, id: collection.name + result.id}],
+      data: [{ ...result, id: collection.name + result.id }],
     })
   } catch (e) {
     console.error(e)
@@ -19,7 +19,7 @@ async function afterDelete(result, collection, httpClient) {
   try {
     const documentIds = Array.isArray(result)
       ? result.map(doc => collection.name + doc.id)
-      : [{...result, id: collection.name + result.id}]
+      : [{ ...result, id: collection.name + result.id }]
     await httpClient.deleteDocuments({
       indexUid: collection.index || collection.name,
       documentIds,
@@ -33,7 +33,7 @@ async function afterUpdate(result, collection, httpClient) {
   try {
     await httpClient.addDocuments({
       indexUid: collection.index || collection.name,
-      data: [{...result, id: collection.name + result.id}],
+      data: [{ ...result, id: collection.name + result.id }],
     })
   } catch (e) {
     console.error(e)

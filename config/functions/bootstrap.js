@@ -26,17 +26,20 @@ async function getClient(credentials) {
 async function getCredentials() {
   const { plugins } = strapi.config
   if (plugins && plugins.meilisearch) {
-
     const apiKey = plugins.meilisearch.apiKey
     const host = plugins.meilisearch.host
 
     if (!apiKey || !apiKey.length || !host || !host.length) {
-      strapi.log.error('Meilisearch: Could not initialize: apiKey and host must be defined');
+      strapi.log.error(
+        'Meilisearch: Could not initialize: apiKey and host must be defined'
+      )
     }
 
     return { apiKey, host }
   } else {
-    strapi.log.error('Meilisearch: Could not initialize: no plugin config found');
+    strapi.log.error(
+      'Meilisearch: Could not initialize: no plugin config found'
+    )
   }
 }
 
@@ -68,31 +71,36 @@ async function initIndexes() {
       const models = Object.keys(strapi.models)
 
       // Validate the collections from config
-      const validCollections = strapi.config.plugins.meilisearch.collections.filter(({name, index}) => {
-        if(!name) {
-          strapi.log.error('Meilisearch: Invalid config: key `name` must be defined in every collection')
-        } else if (!models.includes(name)) {
-          strapi.log.error(`Meilisearch: Invalid config: Collection: '${name}' is not an existing collection`)
-        } else if (typeof index === 'string' && !index.length) {
-          strapi.log.error(`Meilisearch: Invalid config: \`index\` of collection:'${name}' isn't valid`)
-        } else {
-          return true;
+      const validCollections = strapi.config.plugins.meilisearch.collections.filter(
+        ({ name, index }) => {
+          if (!name) {
+            strapi.log.error(
+              'Meilisearch: Invalid config: key `name` must be defined in every collection'
+            )
+          } else if (!models.includes(name)) {
+            strapi.log.error(
+              `Meilisearch: Invalid config: Collection: '${name}' is not an existing collection`
+            )
+          } else if (typeof index === 'string' && !index.length) {
+            strapi.log.error(
+              `Meilisearch: Invalid config: \`index\` of collection:'${name}' isn't valid`
+            )
+          } else {
+            return true
+          }
         }
-      })
+      )
 
-      validCollections.map((collection) => {
+      validCollections.map(collection => {
         try {
-          client.createIndex({indexUid: collection.index || collection.name});
-        }
-        catch (error) {
-
-        }
+          client.createIndex({ indexUid: collection.index || collection.name })
+        } catch (error) {}
       })
 
       addLifecycles({
         collections: validCollections,
         client,
-      });
+      })
     }
 
     // Add collections to hooked store
