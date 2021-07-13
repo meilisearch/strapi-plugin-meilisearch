@@ -25,9 +25,9 @@ const Credentials = ({ setUpdatedCredentials }) => {
         }
       )
       setApiKey(apiKey)
-      setconfigFileApiKey(configFileApiKey)
+      setconfigFileApiKey(true)
       setHost(host)
-      setconfigFileHost(configFileHost)
+      setconfigFileHost(true)
     }
     fillMeilisearchCredentials()
     strapi.unlockApp()
@@ -57,7 +57,7 @@ const Credentials = ({ setUpdatedCredentials }) => {
         <Label
           htmlFor="MSHost"
           message={`MeiliSearch Host ${
-            configFileHost ? ' loaded from config file' : ``
+            configFileHost ? ' (loaded from config file)' : ``
           }`}
         />
         <InputText
@@ -74,7 +74,7 @@ const Credentials = ({ setUpdatedCredentials }) => {
         <Label
           htmlFor="MSApiKey"
           message={`MeiliSearch Api Key ${
-            configFileApiKey ? ' loaded from config file' : ''
+            configFileApiKey ? ' (loaded from config file)' : ''
           }`}
         />
         <InputText
