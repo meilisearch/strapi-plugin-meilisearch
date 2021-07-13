@@ -24,20 +24,24 @@ export const ReloadButton = styled(Button)`
 
 const headers = [
   {
-    name: 'Name',
+    name: 'Collection',
     value: 'name',
   },
   {
-    name: 'In MeiliSearch',
-    value: 'indexed',
+    name: 'Documents in index',
+    value: 'numberOfDocuments',
   },
   {
     name: 'Index',
     value: 'index',
   },
   {
-    name: 'Documents',
-    value: 'numberOfDocuments',
+    name: 'Index in MeiliSearch',
+    value: 'indexed',
+  },
+  {
+    name: 'Entries in collection',
+    value: 'numberOfRows',
   },
   {
     name: 'Hooks',
@@ -166,7 +170,8 @@ const Collections = ({ updateCredentials }) => {
       ...col,
       indexed: indexed ? 'Yes' : 'No',
       index: index,
-      numberOfDocuments: `${numberOfDocuments} / ${numberOfRows}`,
+      numberOfDocuments,
+      numberOfRows,
       hooked: constructReloadStatus(col.indexed, col.hooked),
       _isChecked: col.indexed,
     }
