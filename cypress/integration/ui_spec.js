@@ -137,10 +137,10 @@ describe('Strapi Login flow', () => {
     }
   })
   it('Check for right number of documents indexed', () => {
-      checkCollectionContent({ rowNb: 1, contains: ['3 / 3'] })
-      checkCollectionContent({ rowNb: 2, contains: ['1 / 1'] })
-      checkCollectionContent({ rowNb: 3, contains: ['2 / 2'] })
-      checkCollectionContent({ rowNb: 4, contains: ['1 / 1'] })
+    checkCollectionContent({ rowNb: 1, contains: ['3 / 3'] })
+    checkCollectionContent({ rowNb: 2, contains: ['1 / 1'] })
+    checkCollectionContent({ rowNb: 3, contains: ['2 / 2'] })
+    checkCollectionContent({ rowNb: 4, contains: ['1 / 1'] })
   })
 
   it('Remove Collections from MeiliSearch', () => {
@@ -158,7 +158,7 @@ describe('Strapi Login flow', () => {
     })
     clickAndCheckRowContent({
       rowNb: 4,
-      contains: ['No']
+      contains: ['No'],
     })
     if (env === 'develop' || env === 'watch') {
       checkCollectionContent({ rowNb: 1, contains: ['No', 'Reload needed'] })
