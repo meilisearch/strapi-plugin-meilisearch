@@ -3,6 +3,7 @@
 </p>
 
 <h1 align="center">MeiliSearch Strapi Plugin</h1>
+<h1 align="center">Forked by [@MattieBelt](https://github.com/MattieBelt)</h1>
 
 <h4 align="center">
   <a href="https://github.com/meilisearch/MeiliSearch">MeiliSearch</a> |
@@ -96,32 +97,23 @@ On the left-navbar, `MeiliSearch` appears under the `PLUGINS` category. If it do
 
 ### 🤫 Add Credentials <!-- omit in toc -->
 
-First, you need to configure credentials via the strapi config, or on the plugin page.
-
-#### Using the plugin page
-
-You can add you MeiliSearch credentials in the upper box of the MeiliSearch plugin page.
-
-For example, using the credentials from the section above: [`Run MeiliSearch`](#-run-meilisearch), the following screen shows where the information should be.
-
-<p align="center">
-<img src="./assets/credentials.png" alt="Add your credentials" width="600"/>
-</p>
-
-Once completed, click on the `add` button.
-
-#### Using a config file
-
-To use the strapi config add the following to `config/plugins.js` or `config/[NODE_ENV]/plugin.js`:
+First, you need to configure credentials via the strapi config.
+Add the following to `config/plugins.js` or `config/[NODE_ENV]/plugin.js` ([docs](https://strapi.io/documentation/developer-docs/latest/setup-deployment-guides/configurations.html#plugins)):
 
 ```js
 module.exports = () => ({
   //...
   meilisearch: {
-    // Your meili host
-    host: "http://localhost:7700",
     // Your master key
     api_key: "masterKey",
+    // Your meili host
+    host: "http://localhost:7700",
+    // The collections you want to be indexed
+    collections: [
+        { name: 'project', index: 'global' }, // `index` is optional
+        { name: 'category' },
+        { name: 'page', index: 'global' }
+      ]
   }
   //...
 })
@@ -131,25 +123,10 @@ Using `config/[NODE_ENV]/plugin.js`, it is possible to have a config file for di
 
 Note that if you use both method, the config file overwrites the credentials added through the plugin page.
 
-
-### 🚛 Add your collections to MeiliSearch <!-- omit in toc -->
-
-If you don't have any collection yet in your Strapi Plugin, please follow [Strapi quickstart](https://strapi.io/documentation/developer-docs/latest/getting-started/quick-start.html).
-
-We will use, as **example**, the collections provided by Strapi's quickstart.
-
-On your plugin homepage, you should have two collections appearing: `restaurant` and `category`.
-
-<p align="center">
-<img src="./assets/collections_indexed.png" alt="Indexed collections need a reload" width="600"/>
-</p>
-
-By clicking on the left checkbox, the collection is automatically indexed in MeiliSearch. For example, if you click on the `restaurant` checkbox, all your restaurants are now available in MeiliSearch. We will see in [start searching](#-start-searching) how to try it out.
-
 ### 🪝 Apply Hooks <!-- omit in toc -->
 
 Hooks are listeners that update MeiliSearch each time you add/update/delete an entry in your collections.
-To activate them, you will have to reload the server. If you are in develop mode, click on the red `Reload Server` button. If not, reload the server manually!
+To will load on a server (re)start.
 
 <p align="center">
 <img src="./assets/no_reload_needed.png" alt="Indexed collections are hooked" width="600"/>
