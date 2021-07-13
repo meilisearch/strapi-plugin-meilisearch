@@ -145,7 +145,7 @@ async function numberOfRowsInCollection({ collection }) {
 async function batchAddCollection(ctx) {
   const { collection } = ctx.params
   const count = await numberOfRowsInCollection({ collection })
-  console.log({ count });
+  console.log({ count })
   const BATCH_SIZE = 1000
   const updateIds = []
   for (let index = 0; index <= count; index += BATCH_SIZE) {
