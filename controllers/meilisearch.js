@@ -196,22 +196,25 @@ async function getCollections() {
   const indexes = await getIndexes()
   const hookedCollections = await getHookedCollections()
   const collectionTypes = getCollectionTypes()
+  const configuredCollections = strapi.config.plugins.meilisearch.collections.filter(({name, index}) => !(!name && !collectionTypes.includes(name) && typeof index === 'string' && !index.length))
 
-  const collections = collectionTypes.map(async collection => {
+  // Combine collectionTypes and configuredCollections into one
+
+  const collections = configuredCollections.map(async collection => {
     const existInMeilisearch = !!indexes.find(
-      index => index.name === collection
+      index => index.name === (collection.index || collection.name)
     )
     const { numberOfDocuments = 0, isIndexing = false } = existInMeilisearch
-      ? await getStats({ collection })
+      ? await getStats({ collection: (collection.index || collection.name) })
       : {}
-    const numberOfRows = await numberOfRowsInCollection({ collection })
+    const numberOfRows = await numberOfRowsInCollection({ collection: collection.name })
     return {
-      name: collection,
+      name: collection.name,
       indexed: existInMeilisearch,
-      isIndexing,
+      index: collection.index || collection.name,
       numberOfDocuments,
       numberOfRows,
-      hooked: hookedCollections.includes(collection),
+      hooked: true,
     }
   })
   return { collections: await Promise.all(collections) }

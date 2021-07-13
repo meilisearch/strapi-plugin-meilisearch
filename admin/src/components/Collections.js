@@ -32,8 +32,8 @@ const headers = [
     value: 'indexed',
   },
   {
-    name: 'Indexing',
-    value: 'isIndexing',
+    name: 'Index',
+    value: 'index',
   },
   {
     name: 'Documents',
@@ -106,7 +106,7 @@ const Collections = ({ updateCredentials }) => {
     setCollectionsList(prev =>
       prev.map(col => {
         if (col.name === collection)
-          return { ...col, indexed: 'Start update...', _isChecked: true }
+          return { ...col, indexed: `Start update of index: '${col.index}'`, _isChecked: true }
         return col
       })
     )
@@ -157,11 +157,11 @@ const Collections = ({ updateCredentials }) => {
 
   // Construct verbose table text
   const constructColRow = col => {
-    const { indexed, isIndexing, numberOfDocuments, numberOfRows } = col
+    const { indexed, index, numberOfDocuments, numberOfRows } = col
     return {
       ...col,
       indexed: indexed ? 'Yes' : 'No',
-      isIndexing: isIndexing ? 'Yes' : 'No',
+      index: index,
       numberOfDocuments: `${numberOfDocuments} / ${numberOfRows}`,
       hooked: constructReloadStatus(col.indexed, col.hooked),
       _isChecked: col.indexed,
