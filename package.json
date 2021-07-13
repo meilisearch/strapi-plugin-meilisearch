@@ -1,6 +1,6 @@
 {
-  "name": "strapi-plugin-meilisearch",
-  "version": "0.3.2",
+  "name": "@mattiebelt/strapi-plugin-meilisearch",
+  "version": "0.4.0",
   "description": "Synchronise and search in your Strapi collections with MeiliSearch",
   "scripts": {
     "style": "eslint --ext .js .",
@@ -39,7 +39,7 @@
   },
   "maintainers": [
     {
-      "name": "Charlotte Vermandel <charlotte@meilisearch.com>"
+      "name": "Mattias van den Belt <mattiasvandenbelt@gmail.com>"
     }
   ],
   "engines": {
@@ -47,7 +47,7 @@
     "npm": ">=6.0.0"
   },
   "bugs": {
-    "url": "https://github.com/meilisearch/strapi-plugin-meilisearch/issues"
+    "url": "https://github.com/MattieBelt/strapi-plugin-meilisearch/issues"
   },
   "keywords": [
     "strapi",
@@ -58,9 +58,9 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/meilisearch/strapi-plugin-meilisearch.git"
+    "url": "https://github.com/MattieBelt/strapi-plugin-meilisearch.git"
   },
-  "homepage": "https://github.com/meilisearch/strapi-plugin-meilisearch#readme",
+  "homepage": "https://github.com/MattieBelt/strapi-plugin-meilisearch#readme",
   "devDependencies": {
     "concurrently": "^6.2.0",
     "cypress": "^7.3.0",
