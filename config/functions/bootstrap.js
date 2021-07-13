@@ -30,7 +30,7 @@ async function getCredentials() {
     const apiKey = plugins.meilisearch.apiKey
     const host = plugins.meilisearch.host
 
-    if (!apiKey.length || !host.length) {
+    if (!apiKey || !apiKey.length || !host || !host.length) {
       strapi.log.error('Meilisearch: Could not initialize: apiKey and host must be defined');
     }
 
