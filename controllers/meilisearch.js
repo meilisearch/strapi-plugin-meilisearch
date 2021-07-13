@@ -212,7 +212,7 @@ async function getCollections() {
   const indexes = await getIndexes()
   const hookedCollections = await getHookedCollections()
   const collectionTypes = getCollectionTypes()
-  const configuredCollections = strapi.config.plugins.meilisearch.collections.filter(({name, index}) => !(!name && !collectionTypes.includes(name) && typeof index === 'string' && !index.length))
+  const configuredCollections = strapi.config.plugins.meilisearch.collections.filter(({name, index}) => !(!name || !collectionTypes.includes(name) || (typeof index === 'string' && !index.length)));
 
   // Combine collectionTypes and configuredCollections into one
 
