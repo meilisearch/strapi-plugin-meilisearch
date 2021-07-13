@@ -39,14 +39,20 @@ async function getHookedCollections() {
 }
 
 async function getCredentials() {
-  const store = await meilisearch.store()
-  const apiKey = await store.getStoreKey('meilisearch_api_key')
-  const host = await store.getStoreKey('meilisearch_host')
-  const configFileApiKey =
-    (await store.getStoreKey('meilisearch_api_key_config')) || false
-  const configFileHost =
-    (await store.getStoreKey('meilisearch_host_config')) || false
-  return { apiKey, host, configFileApiKey, configFileHost }
+  const { plugins } = strapi.config
+  if (plugins && plugins.meilisearch) {
+
+    const apiKey = plugins.meilisearch.apiKey
+    const host = plugins.meilisearch.host
+
+    if (!apiKey.length || !host.length) {
+      strapi.log.error('Meilisearch: Could not initialize: apiKey and host must be defined');
+    }
+
+    return { apiKey, host }
+  } else {
+    strapi.log.error('Meilisearch: Could not initialize: no plugin config found');
+  }
 }
 
 async function deleteAllIndexes() {
