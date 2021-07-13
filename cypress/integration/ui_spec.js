@@ -108,6 +108,10 @@ describe('Strapi Login flow', () => {
       rowNb: 3,
       contains: ['Yes', 'Reload needed'],
     })
+    clickAndCheckRowContent({
+      rowNb: 4,
+      contains: ['Yes', 'Reload needed'],
+    })
   })
 
   it('Reload Server', () => {
@@ -124,11 +128,19 @@ describe('Strapi Login flow', () => {
       checkCollectionContent({ rowNb: 1, contains: ['Yes', 'Active'] })
       checkCollectionContent({ rowNb: 2, contains: ['Yes', 'Active'] })
       checkCollectionContent({ rowNb: 3, contains: ['Yes', 'Active'] })
+      checkCollectionContent({ rowNb: 4, contains: ['Yes', 'Active'] })
     } else {
       checkCollectionContent({ rowNb: 1, contains: ['Yes', 'Reload needed'] })
       checkCollectionContent({ rowNb: 2, contains: ['Yes', 'Reload needed'] })
       checkCollectionContent({ rowNb: 3, contains: ['Yes', 'Reload needed'] })
+      checkCollectionContent({ rowNb: 4, contains: ['Yes', 'Reload needed'] })
     }
+  })
+  it('Check for right number of documents indexed', () => {
+      checkCollectionContent({ rowNb: 1, contains: ['3 / 3'] })
+      checkCollectionContent({ rowNb: 2, contains: ['1 / 1'] })
+      checkCollectionContent({ rowNb: 3, contains: ['2 / 2'] })
+      checkCollectionContent({ rowNb: 4, contains: ['1 / 1'] })
   })
 
   it('Remove Collections from MeiliSearch', () => {
@@ -144,10 +156,15 @@ describe('Strapi Login flow', () => {
       rowNb: 3,
       contains: ['No'],
     })
+    clickAndCheckRowContent({
+      rowNb: 4,
+      contains: ['No']
+    })
     if (env === 'develop' || env === 'watch') {
       checkCollectionContent({ rowNb: 1, contains: ['No', 'Reload needed'] })
       checkCollectionContent({ rowNb: 2, contains: ['No', 'Reload needed'] })
       checkCollectionContent({ rowNb: 3, contains: ['No', 'Reload needed'] })
+      checkCollectionContent({ rowNb: 4, contains: ['No', 'Reload needed'] })
     }
   })
 

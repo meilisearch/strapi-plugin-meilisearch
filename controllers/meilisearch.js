@@ -121,11 +121,12 @@ async function indexDocuments({ documents = [], collection }) {
 }
 
 async function fetchRowBatch({ start, limit, collection }) {
-  return strapi.services[collection].find({
-    _publicationState: 'preview',
+  const test = await strapi.services[collection].find({
     _limit: limit,
     _start: start,
   })
+  console.log({ test })
+  return test
 }
 
 function getCollectionTypes() {
@@ -137,14 +138,14 @@ function getCollectionTypes() {
 
 async function numberOfRowsInCollection({ collection }) {
   return (
-    strapi.services[collection].count &&
-    strapi.services[collection].count({ _publicationState: 'preview' })
+    strapi.services[collection].count && strapi.services[collection].count()
   )
 }
 
 async function batchAddCollection(ctx) {
   const { collection } = ctx.params
   const count = await numberOfRowsInCollection({ collection })
+  console.log({ count });
   const BATCH_SIZE = 1000
   const updateIds = []
   for (let index = 0; index <= count; index += BATCH_SIZE) {
