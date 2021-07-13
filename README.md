@@ -3,7 +3,7 @@
 </p>
 
 <h1 align="center">MeiliSearch Strapi Plugin</h1>
-<h1 align="center">Forked by [@MattieBelt](https://github.com/MattieBelt)</h1>
+<h3 align="center">Forked by <a href="https://github.com/MattieBelt">@MattieBelt</a></h3>
 
 <h4 align="center">
   <a href="https://github.com/meilisearch/MeiliSearch">MeiliSearch</a> |
@@ -51,17 +51,17 @@ Inside your Strapi app, add the package:
 
 With `npm`:
 ```bash
-npm install strapi-plugin-meilisearch
+npm install strapi-plugin-meilisearch@npm:@mattiebelt/strapi-plugin-meilisearch
 ```
 
 With `yarn`:
 ```bash
-yarn add strapi-plugin-meilisearch
+yarn add strapi-plugin-meilisearch@npm:@mattiebelt/strapi-plugin-meilisearch
 ```
 
 To apply the plugin to Strapi, a re-build is needed:
 ```bash
-strapi build
+strapi build --clean
 ```
 
 You will need both a running Strapi app and a running MeiliSearch instance. For [specific version compatibility see this section](#-compatibility-with-meilisearch).
@@ -105,7 +105,7 @@ module.exports = () => ({
   //...
   meilisearch: {
     // Your master key
-    api_key: "masterKey",
+    apiKey: "masterKey",
     // Your meili host
     host: "http://localhost:7700",
     // The collections you want to be indexed
