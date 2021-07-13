@@ -183,7 +183,11 @@ async function batchAddCollection(ctx) {
 
         const { updateId } = await indexDocuments({
           collection: item.index || item.name,
-          documents: rows.map(row => ({ ...row, id: item.name + row.id })),
+          documents: rows.map(row => ({
+            ...row,
+            id: item.name + row.id,
+            strapiCollectionName: item.name,
+          })),
         })
         if (updateId) updateIds.push(updateId)
       }

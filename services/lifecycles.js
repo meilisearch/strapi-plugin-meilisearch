@@ -8,7 +8,13 @@ async function afterCreate(result, collection, httpClient) {
   try {
     await httpClient.addDocuments({
       indexUid: collection.index || collection.name,
-      data: [{ ...result, id: collection.name + result.id }],
+      data: [
+        {
+          ...result,
+          id: collection.name + result.id,
+          strapiCollectionName: collection.name,
+        },
+      ],
     })
   } catch (e) {
     console.error(e)
@@ -33,7 +39,13 @@ async function afterUpdate(result, collection, httpClient) {
   try {
     await httpClient.addDocuments({
       indexUid: collection.index || collection.name,
-      data: [{ ...result, id: collection.name + result.id }],
+      data: [
+        {
+          ...result,
+          id: collection.name + result.id,
+          strapiCollectionName: collection.name,
+        },
+      ],
     })
   } catch (e) {
     console.error(e)
