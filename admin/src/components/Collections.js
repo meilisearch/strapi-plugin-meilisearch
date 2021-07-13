@@ -223,13 +223,6 @@ const Collections = ({ updateCredentials }) => {
           className="collections"
           headers={headers}
           rows={collectionsList}
-          withBulkAction
-          onSelect={row => {
-            addOrRemoveCollection(row)
-          }}
-          onClickRow={(e, data) => {
-            addOrRemoveCollection(data)
-          }}
           rowLinks={[
             {
               icon: <UpdateButton forwardedAs="span">Update</UpdateButton>,
