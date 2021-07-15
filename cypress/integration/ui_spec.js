@@ -39,24 +39,43 @@ const removeNotifications = () => {
   )
 }
 
+const removeCollectionsFromMeiliSearch = async () => {
+  const client = new MeiliSearch({ apiKey, host })
+  const collections = ['restaurant', 'category', 'project']
+  const indexes = await client.listIndexes()
+  const allUids = indexes.map(index => index.uid)
+  const collectionInMs = collections.filter(col => allUids.includes(col))
+  for (const index of collectionInMs) {
+    await client.deleteIndex(index)
+  }
+}
+
+const reloadServer = () => {
+  const row = '.reload_button'
+  cy.get(`${row}`).click()
+  cy.wait(4000)
+  if (env === 'develop' || env === 'watch') {
+    removeTutorial()
+  }
+}
+
 describe('Strapi Login flow', () => {
-  before(() => {
+  before(async () => {
     cy.clearCookies()
-    cy.viewport('macbook-15')
+    await removeCollectionsFromMeiliSearch()
+    cy.viewport('macbook-16')
     cy.request({
       url: adminUrl,
     })
     cy.visit(adminUrl)
   })
+
+  beforeEach(() => {
+    cy.viewport('macbook-16')
+  })
+
   after(async function () {
-    const client = new MeiliSearch({ apiKey, host })
-    const collections = ['restaurant', 'category', 'project']
-    const indexes = await client.listIndexes()
-    const allUids = indexes.map(index => index.uid)
-    const collectionInMs = collections.filter(col => allUids.includes(col))
-    for (const index of collectionInMs) {
-      await client.deleteIndex(index)
-    }
+    await removeCollectionsFromMeiliSearch()
   })
 
   it('visit the Strapi admin panel', () => {
@@ -113,15 +132,7 @@ describe('Strapi Login flow', () => {
       rowNb: 4,
       contains: ['Yes', 'Reload needed'],
     })
-  })
-
-  it('Reload Server', () => {
-    const row = '.reload_button'
-    cy.get(`${row}`).click()
-    cy.wait(4000)
-    if (env === 'develop' || env === 'watch') {
-      removeTutorial()
-    }
+    reloadServer()
   })
 
   it('Check for successfull hooks in develop mode', () => {
@@ -167,6 +178,7 @@ describe('Strapi Login flow', () => {
       checkCollectionContent({ rowNb: 3, contains: ['No', 'Reload needed'] })
       checkCollectionContent({ rowNb: 4, contains: ['No', 'Reload needed'] })
     }
+    reloadServer()
   })
 
   it('Change Host to wrong host', () => {
