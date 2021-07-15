@@ -41,7 +41,7 @@ const removeNotifications = () => {
 
 const removeCollectionsFromMeiliSearch = async () => {
   const client = new MeiliSearch({ apiKey, host })
-  const collections = ['restaurant', 'category', 'project']
+  const collections = ['restaurant', 'category', 'project', 'reviews']
   const indexes = await client.listIndexes()
   const allUids = indexes.map(index => index.uid)
   const collectionInMs = collections.filter(col => allUids.includes(col))
@@ -60,9 +60,8 @@ const reloadServer = () => {
 }
 
 describe('Strapi Login flow', () => {
-  before(async () => {
+  before(() => {
     cy.clearCookies()
-    await removeCollectionsFromMeiliSearch()
     cy.viewport('macbook-16')
     cy.request({
       url: adminUrl,
