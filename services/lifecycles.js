@@ -17,6 +17,7 @@ async function afterCreate(result, collection, httpClient) {
 
 async function afterDelete(result, collection, httpClient) {
   try {
+    // works with both delete methods
     const documentIds = Array.isArray(result)
       ? result.map(doc => doc.id)
       : [result.id]
