@@ -121,12 +121,10 @@ async function indexDocuments({ documents = [], collection }) {
 }
 
 async function fetchRowBatch({ start, limit, collection }) {
-  const test = await strapi.services[collection].find({
+  return await strapi.services[collection].find({
     _limit: limit,
     _start: start,
   })
-  console.log({ test })
-  return test
 }
 
 function getCollectionTypes() {
