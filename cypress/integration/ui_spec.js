@@ -54,7 +54,7 @@ const reloadServer = () => {
   const row = '.reload_button'
   cy.get(`${row}`).click()
   cy.wait(4000)
-  if (env === 'develop' || env === 'watch') {
+  if (env === 'develop' || env === 'watch' || env === 'test') {
     removeTutorial()
   }
 }
@@ -147,6 +147,7 @@ describe('Strapi Login flow', () => {
       checkCollectionContent({ rowNb: 4, contains: ['Yes', 'Reload needed'] })
     }
   })
+
   it('Check for right number of documents indexed', () => {
     checkCollectionContent({ rowNb: 1, contains: ['3 / 3'] })
     checkCollectionContent({ rowNb: 2, contains: ['1 / 1'] })
@@ -177,7 +178,6 @@ describe('Strapi Login flow', () => {
       checkCollectionContent({ rowNb: 3, contains: ['No', 'Reload needed'] })
       checkCollectionContent({ rowNb: 4, contains: ['No', 'Reload needed'] })
     }
-    reloadServer()
   })
 
   it('Change Host to wrong host', () => {
