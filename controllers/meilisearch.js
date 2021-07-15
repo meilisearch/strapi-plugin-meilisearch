@@ -121,8 +121,7 @@ async function indexDocuments({ documents = [], collection }) {
 }
 
 async function fetchRowBatch({ start, limit, collection }) {
-  return strapi.services[collection].find({
-    _publicationState: 'preview',
+  return await strapi.services[collection].find({
     _limit: limit,
     _start: start,
   })
@@ -137,8 +136,7 @@ function getCollectionTypes() {
 
 async function numberOfRowsInCollection({ collection }) {
   return (
-    strapi.services[collection].count &&
-    strapi.services[collection].count({ _publicationState: 'preview' })
+    strapi.services[collection].count && strapi.services[collection].count()
   )
 }
 

@@ -6,7 +6,7 @@
     "style": "eslint --ext .js .",
     "style:fix": "eslint --ext .js . --fix",
     "playground:dev": "yarn --cwd ./playground && yarn --cwd ./playground develop",
-    "playground:soft_dev": "yarn --cwd ./playground && yarn --cwd ./playground soft_dev",
+    "playground:soft_dev": "yarn --cwd ./playground && yarn --cwd ./playground soft",
     "playground:build": "yarn --cwd ./playground build",
     "playground:start": "yarn --cwd ./playground start",
     "playground:ci": "yarn --cwd ./playground ci",
@@ -15,7 +15,7 @@
     "cy:open": "cypress open --env env=watch",
     "cy:run": "cypress run --env env=watch",
     "pretest": "yarn playground:build",
-    "test": "concurrently --kill-others -s first \"NODE_ENV=test yarn playground:start\" \"cypress run --env env=test\"",
+    "test": "concurrently --kill-others -s first \"NODE_ENV=test yarn playground:soft_dev\" \"cypress run --env env=develop\"",
     "test:watch": "concurrently --kill-others -s first \"NODE_ENV=test yarn playground:dev\" \"cypress open --env env=watch\"",
     "test:production": "concurrently --kill-others -s first \"NODE_ENV=production yarn playground:production\" \"cypress run --env env=test\""
   },

@@ -39,23 +39,42 @@ const removeNotifications = () => {
   )
 }
 
+const removeCollectionsFromMeiliSearch = async () => {
+  const client = new MeiliSearch({ apiKey, host })
+  const collections = ['restaurant', 'category', 'project', 'reviews']
+  const indexes = await client.listIndexes()
+  const allUids = indexes.map(index => index.uid)
+  const collectionInMs = collections.filter(col => allUids.includes(col))
+  for (const index of collectionInMs) {
+    await client.deleteIndex(index)
+  }
+}
+
+const reloadServer = () => {
+  const row = '.reload_button'
+  cy.get(`${row}`).click()
+  cy.wait(4000)
+  if (env === 'develop' || env === 'watch' || env === 'test') {
+    removeTutorial()
+  }
+}
+
 describe('Strapi Login flow', () => {
   before(() => {
     cy.clearCookies()
+    cy.viewport('macbook-16')
     cy.request({
       url: adminUrl,
     })
     cy.visit(adminUrl)
   })
+
+  beforeEach(() => {
+    cy.viewport('macbook-16')
+  })
+
   after(async function () {
-    const client = new MeiliSearch({ apiKey, host })
-    const collections = ['restaurant', 'category', 'project']
-    const indexes = await client.listIndexes()
-    const allUids = indexes.map(index => index.uid)
-    const collectionInMs = collections.filter(col => allUids.includes(col))
-    for (const index of collectionInMs) {
-      await client.deleteIndex(index)
-    }
+    await removeCollectionsFromMeiliSearch()
   })
 
   it('visit the Strapi admin panel', () => {
@@ -108,15 +127,11 @@ describe('Strapi Login flow', () => {
       rowNb: 3,
       contains: ['Yes', 'Reload needed'],
     })
-  })
-
-  it('Reload Server', () => {
-    const row = '.reload_button'
-    cy.get(`${row}`).click()
-    cy.wait(4000)
-    if (env === 'develop' || env === 'watch') {
-      removeTutorial()
-    }
+    clickAndCheckRowContent({
+      rowNb: 4,
+      contains: ['Yes', 'Reload needed'],
+    })
+    reloadServer()
   })
 
   it('Check for successfull hooks in develop mode', () => {
@@ -124,11 +139,20 @@ describe('Strapi Login flow', () => {
       checkCollectionContent({ rowNb: 1, contains: ['Yes', 'Active'] })
       checkCollectionContent({ rowNb: 2, contains: ['Yes', 'Active'] })
       checkCollectionContent({ rowNb: 3, contains: ['Yes', 'Active'] })
+      checkCollectionContent({ rowNb: 4, contains: ['Yes', 'Active'] })
     } else {
       checkCollectionContent({ rowNb: 1, contains: ['Yes', 'Reload needed'] })
       checkCollectionContent({ rowNb: 2, contains: ['Yes', 'Reload needed'] })
       checkCollectionContent({ rowNb: 3, contains: ['Yes', 'Reload needed'] })
+      checkCollectionContent({ rowNb: 4, contains: ['Yes', 'Reload needed'] })
     }
+  })
+
+  it('Check for right number of documents indexed', () => {
+    checkCollectionContent({ rowNb: 1, contains: ['3 / 3'] })
+    checkCollectionContent({ rowNb: 2, contains: ['1 / 1'] })
+    checkCollectionContent({ rowNb: 3, contains: ['2 / 2'] })
+    checkCollectionContent({ rowNb: 4, contains: ['1 / 1'] })
   })
 
   it('Remove Collections from MeiliSearch', () => {
@@ -144,10 +168,15 @@ describe('Strapi Login flow', () => {
       rowNb: 3,
       contains: ['No'],
     })
+    clickAndCheckRowContent({
+      rowNb: 4,
+      contains: ['No'],
+    })
     if (env === 'develop' || env === 'watch') {
       checkCollectionContent({ rowNb: 1, contains: ['No', 'Reload needed'] })
       checkCollectionContent({ rowNb: 2, contains: ['No', 'Reload needed'] })
       checkCollectionContent({ rowNb: 3, contains: ['No', 'Reload needed'] })
+      checkCollectionContent({ rowNb: 4, contains: ['No', 'Reload needed'] })
     }
   })
 
