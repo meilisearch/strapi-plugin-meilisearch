@@ -24,20 +24,24 @@ export const ReloadButton = styled(Button)`
 
 const headers = [
   {
-    name: 'Name',
+    name: 'Collection',
     value: 'name',
   },
   {
-    name: 'In MeiliSearch',
+    name: 'Documents in index',
+    value: 'numberOfDocuments',
+  },
+  {
+    name: 'Index',
+    value: 'index',
+  },
+  {
+    name: 'Index in MeiliSearch',
     value: 'indexed',
   },
   {
-    name: 'Indexing',
-    value: 'isIndexing',
-  },
-  {
-    name: 'Documents',
-    value: 'numberOfDocuments',
+    name: 'Entries in collection',
+    value: 'numberOfRows',
   },
   {
     name: 'Hooks',
@@ -106,7 +110,11 @@ const Collections = ({ updateCredentials }) => {
     setCollectionsList(prev =>
       prev.map(col => {
         if (col.name === collection)
-          return { ...col, indexed: 'Start update...', _isChecked: true }
+          return {
+            ...col,
+            indexed: `Start update of index: '${col.index}'`,
+            _isChecked: true,
+          }
         return col
       })
     )
@@ -157,12 +165,13 @@ const Collections = ({ updateCredentials }) => {
 
   // Construct verbose table text
   const constructColRow = col => {
-    const { indexed, isIndexing, numberOfDocuments, numberOfRows } = col
+    const { indexed, index, numberOfDocuments, numberOfRows } = col
     return {
       ...col,
       indexed: indexed ? 'Yes' : 'No',
-      isIndexing: isIndexing ? 'Yes' : 'No',
-      numberOfDocuments: `${numberOfDocuments} / ${numberOfRows}`,
+      index: index,
+      numberOfDocuments,
+      numberOfRows,
       hooked: constructReloadStatus(col.indexed, col.hooked),
       _isChecked: col.indexed,
     }
@@ -223,13 +232,6 @@ const Collections = ({ updateCredentials }) => {
           className="collections"
           headers={headers}
           rows={collectionsList}
-          withBulkAction
-          onSelect={row => {
-            addOrRemoveCollection(row)
-          }}
-          onClickRow={(e, data) => {
-            addOrRemoveCollection(data)
-          }}
           rowLinks={[
             {
               icon: <UpdateButton forwardedAs="span">Update</UpdateButton>,

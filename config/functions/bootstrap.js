@@ -23,40 +23,30 @@ async function getClient(credentials) {
   return await meilisearch.http(client)
 }
 
-async function getIndexes(client) {
-  try {
-    return client.getIndexes()
-  } catch (e) {
-    return []
-  }
-}
-
 async function getCredentials() {
-  const store = await meilisearch.store()
-  const apiKey = await store.getStoreKey('meilisearch_api_key')
-  const host = await store.getStoreKey('meilisearch_host')
-  return { apiKey, host }
-}
+  const { plugins } = strapi.config
+  if (plugins && plugins.meilisearch) {
+    const apiKey = plugins.meilisearch.apiKey
+    const host = plugins.meilisearch.host
 
-function addHookedCollectionsToStore({ store, collections }) {
-  store.set({
-    key: 'meilisearch_hooked',
-    value: collections,
-  })
-}
+    if (!apiKey || !apiKey.length || !host || !host.length) {
+      strapi.log.error(
+        'Meilisearch: Could not initialize: apiKey and host must be defined'
+      )
+    }
 
-async function getHookedCollectionsFromStore({ store }) {
-  return store.get({ key: 'meilisearch_hooked' })
-}
-
-async function createHookedCollection({ store }) {
-  return store.set({ key: 'meilisearch_hooked', value: [] })
+    return { apiKey, host }
+  } else {
+    strapi.log.error(
+      'Meilisearch: Could not initialize: no plugin config found'
+    )
+  }
 }
 
 function addLifecycles({ client, collections }) {
   // Add lifecyles
   collections.map(collection => {
-    const model = strapi.models[collection]
+    const model = strapi.models[collection.name]
     const meilisearchLifecycles = Object.keys(meilisearch.lifecycles())
     model.lifecycles = model.lifecycles || {}
 
@@ -70,32 +60,46 @@ function addLifecycles({ client, collections }) {
   })
 }
 
-async function initHooks(store) {
+async function initIndexes() {
   try {
     const credentials = await getCredentials()
-    const hookedCollections =
-      (await getHookedCollectionsFromStore({ store })) ||
-      (await createHookedCollection({ store }))
 
-    if (credentials.host && hookedCollections) {
+    if (strapi.config.plugins.meilisearch.collections) {
       const client = await getClient(credentials)
-      // get list of indexes in MeiliSearch Instance
-      const indexes = (await getIndexes(client)).map(index => index.uid)
 
       // Collections in Strapi
-      const models = strapi.models
+      const models = Object.keys(strapi.models)
 
-      // get list of Indexes In MeilISearch that are Collections in Strapi
-      const indexedCollections = Object.keys(models).filter(model =>
-        indexes.includes(model)
+      // Validate the collections from config
+      const validCollections = strapi.config.plugins.meilisearch.collections.filter(
+        ({ name, index }) => {
+          if (!name) {
+            strapi.log.error(
+              'Meilisearch: Invalid config: key `name` must be defined in every collection'
+            )
+          } else if (!models.includes(name)) {
+            strapi.log.error(
+              `Meilisearch: Invalid config: Collection: '${name}' is not an existing collection`
+            )
+          } else if (typeof index === 'string' && !index.length) {
+            strapi.log.error(
+              `Meilisearch: Invalid config: \`index\` of collection:'${name}' isn't valid`
+            )
+          } else {
+            return true
+          }
+        }
       )
-      addLifecycles({
-        collections: indexedCollections,
-        client,
+
+      validCollections.map(collection => {
+        try {
+          client.createIndex({ indexUid: collection.index || collection.name })
+        } catch (error) {}
       })
-      addHookedCollectionsToStore({
-        collections: indexedCollections,
-        store,
+
+      addLifecycles({
+        collections: validCollections,
+        client,
       })
     }
 
@@ -103,39 +107,6 @@ async function initHooks(store) {
   } catch (e) {
     console.error(e)
   }
-}
-
-async function updateStoreCredentials({ store }) {
-  // optional chaining is not natively supported by node 12.
-  let apiKey = false
-  let host = false
-  const { plugins } = strapi.config
-  if (plugins && plugins.meilisearch) {
-    apiKey = plugins.meilisearch.apiKey
-    host = plugins.meilisearch.host
-  }
-
-  if (apiKey) {
-    await store.set({
-      key: 'meilisearch_api_key',
-      value: apiKey,
-    })
-  }
-  await store.set({
-    key: 'meilisearch_api_key_config',
-    value: !!apiKey,
-  })
-
-  if (host) {
-    await store.set({
-      key: 'meilisearch_host',
-      value: host,
-    })
-  }
-  await store.set({
-    key: 'meilisearch_host_config',
-    value: !!host,
-  })
 }
 
 // On refresh/build
@@ -147,9 +118,6 @@ module.exports = async () => {
   })
   strapi.plugins.meilisearch.store = store
 
-  // initialize credentials from config file
-  await updateStoreCredentials({ store })
-
   // initialize hooks
-  await initHooks(store)
+  await initIndexes()
 }

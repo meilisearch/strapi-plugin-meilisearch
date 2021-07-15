@@ -39,14 +39,23 @@ async function getHookedCollections() {
 }
 
 async function getCredentials() {
-  const store = await meilisearch.store()
-  const apiKey = await store.getStoreKey('meilisearch_api_key')
-  const host = await store.getStoreKey('meilisearch_host')
-  const configFileApiKey =
-    (await store.getStoreKey('meilisearch_api_key_config')) || false
-  const configFileHost =
-    (await store.getStoreKey('meilisearch_host_config')) || false
-  return { apiKey, host, configFileApiKey, configFileHost }
+  const { plugins } = strapi.config
+  if (plugins && plugins.meilisearch) {
+    const apiKey = plugins.meilisearch.apiKey
+    const host = plugins.meilisearch.host
+
+    if (!apiKey.length || !host.length) {
+      strapi.log.error(
+        'Meilisearch: Could not initialize: apiKey and host must be defined'
+      )
+    }
+
+    return { apiKey, host }
+  } else {
+    strapi.log.error(
+      'Meilisearch: Could not initialize: no plugin config found'
+    )
+  }
 }
 
 async function deleteAllIndexes() {
@@ -66,11 +75,15 @@ async function deleteIndex(ctx) {
 
 async function waitForDocumentsToBeIndexed(ctx) {
   const { indexUid } = ctx.params
+  const collection = strapi.config.plugins.meilisearch.collections.find(
+    item => item.name === indexUid
+  )
+
   const credentials = await getCredentials()
   const numberOfDocuments = await meilisearch
     .http(meilisearch.client(credentials))
     .waitForPendingUpdates({
-      indexUid,
+      indexUid: collection.index || collection.name,
       updateNbr: 2,
     })
   return { numberOfDocuments }
@@ -96,16 +109,20 @@ async function addCredentials(ctx) {
 }
 
 async function UpdateCollections(ctx) {
-  const { collection: indexUid } = ctx.params
+  let { collection } = ctx.params
+  collection = strapi.config.plugins.meilisearch.collections.find(
+    item => item.name === collection
+  )
+
   const credentials = await getCredentials()
   const { updateId } = await meilisearch
     .http(meilisearch.client(credentials))
     .deleteAllDocuments({
-      indexUid,
+      indexUid: collection.index || collection.name,
     })
   await meilisearch.http(meilisearch.client(credentials)).waitForPendingUpdate({
     updateId,
-    indexUid,
+    indexUid: collection.index || collection.name,
   })
   return addCollection(ctx)
 }
@@ -141,28 +158,51 @@ async function numberOfRowsInCollection({ collection }) {
 }
 
 async function batchAddCollection(ctx) {
-  const { collection } = ctx.params
-  const count = await numberOfRowsInCollection({ collection })
-  const BATCH_SIZE = 1000
-  const updateIds = []
-  for (let index = 0; index <= count; index += BATCH_SIZE) {
-    const rows = await fetchRowBatch({
-      start: index,
-      limit: BATCH_SIZE,
-      collection,
-    })
-    const { updateId } = await indexDocuments({ collection, documents: rows })
-    if (updateId) updateIds.push(updateId)
+  let { collection } = ctx.params
+  collection = strapi.config.plugins.meilisearch.collections.find(
+    item => item.name === collection
+  )
+  const index = collection.index || collection.name
+
+  for (const i in strapi.config.plugins.meilisearch.collections) {
+    const item = strapi.config.plugins.meilisearch.collections[i]
+
+    if (index === (item.index || item.name)) {
+      console.log(item)
+      const count = await numberOfRowsInCollection({ collection: item.name })
+      const BATCH_SIZE = 1000
+      const updateIds = []
+      for (let index = 0; index <= count; index += BATCH_SIZE) {
+        const rows = await fetchRowBatch({
+          start: index,
+          limit: BATCH_SIZE,
+          collection: item.name,
+        })
+
+        const { updateId } = await indexDocuments({
+          collection: item.index || item.name,
+          documents: rows.map(row => ({
+            ...row,
+            id: item.name + row.id,
+            strapiCollectionName: item.name,
+          })),
+        })
+        if (updateId) updateIds.push(updateId)
+      }
+    }
   }
-  return { updateIds }
 }
 
 async function addCollection(ctx) {
-  const { collection } = ctx.params
+  let { collection } = ctx.params
+  collection = strapi.config.plugins.meilisearch.collections.find(
+    item => item.name === collection
+  )
+
   const credentials = await getCredentials()
   // Create collection in MeiliSearch
   await meilisearch.http(meilisearch.client(credentials)).createIndex({
-    indexUid: collection,
+    indexUid: collection.index || collection.name,
   })
   batchAddCollection(ctx) // does not wait for add documents requests
   return { message: 'Index created' }
@@ -188,22 +228,32 @@ async function getCollections() {
   const indexes = await getIndexes()
   const hookedCollections = await getHookedCollections()
   const collectionTypes = getCollectionTypes()
+  const configuredCollections = strapi.config.plugins.meilisearch.collections.filter(
+    ({ name, index }) =>
+      !(
+        !name ||
+        !collectionTypes.includes(name) ||
+        (typeof index === 'string' && !index.length)
+      )
+  )
 
-  const collections = collectionTypes.map(async collection => {
+  const collections = configuredCollections.map(async collection => {
     const existInMeilisearch = !!indexes.find(
-      index => index.name === collection
+      index => index.name === (collection.index || collection.name)
     )
     const { numberOfDocuments = 0, isIndexing = false } = existInMeilisearch
-      ? await getStats({ collection })
+      ? await getStats({ collection: collection.index || collection.name })
       : {}
-    const numberOfRows = await numberOfRowsInCollection({ collection })
+    const numberOfRows = await numberOfRowsInCollection({
+      collection: collection.name,
+    })
     return {
-      name: collection,
+      name: collection.name,
       indexed: existInMeilisearch,
-      isIndexing,
+      index: collection.index || collection.name,
       numberOfDocuments,
       numberOfRows,
-      hooked: hookedCollections.includes(collection),
+      hooked: true,
     }
   })
   return { collections: await Promise.all(collections) }
