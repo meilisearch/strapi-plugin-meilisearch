@@ -42,6 +42,7 @@ const removeNotifications = () => {
 describe('Strapi Login flow', () => {
   before(() => {
     cy.clearCookies()
+    cy.viewport('macbook-15')
     cy.request({
       url: adminUrl,
     })
