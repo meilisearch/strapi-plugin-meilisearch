@@ -25,7 +25,7 @@
     "strapi-plugin-oembed": "^0.4.0",
     "strapi-plugin-upload": "^3.6.5",
     "strapi-plugin-users-permissions": "^3.6.5",
-    "strapi-utils": "3.6.5"
+    "strapi-utils": "3.6.6"
   },
   "author": {
     "name": "A Strapi developer"
