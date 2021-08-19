@@ -112,7 +112,7 @@ Once completed, click on the `add` button.
 
 #### Using a config file
 
-To use the strapi config add the following to `config/plugins.js` or `config/[NODE_ENV]/plugin.js`:
+To use the strapi config add the following to `config/plugins.js` or `config/env/[NODE_ENV]/plugin.js`:
 
 ```js
 module.exports = () => ({
@@ -127,7 +127,7 @@ module.exports = () => ({
 })
 ```
 
-Using `config/[NODE_ENV]/plugin.js`, it is possible to have a config file for different environments.
+Using `config/env/[NODE_ENV]/plugin.js`, it is possible to have a config file for different environments.
 
 Note that if you use both method, the config file overwrites the credentials added through the plugin page.
 
