@@ -14,7 +14,7 @@
   "devDependencies": {},
   "dependencies": {
     "eslint": "^7.22.0",
-    "knex": "^0.95.6",
+    "knex": "^0.95.11",
     "sqlite3": "^5.0.2",
     "strapi": "^3.6.5",
     "strapi-admin": "^3.6.5",
