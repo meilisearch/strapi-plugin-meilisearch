@@ -6,7 +6,7 @@
  * @description: A set of functions called "actions" of the `meilisearch` plugin.
  */
 
-const { cleanData, getIndexName } = require('../lib/utils.js');
+const { calcNumOfDocuments, getIndexName } = require('../lib/utils.js')
 
 const meilisearch = {
   http: client => strapi.plugins.meilisearch.services.http(client),
@@ -100,15 +100,20 @@ async function addCredentials(ctx) {
 async function UpdateCollections(ctx) {
   const { collection: indexUid } = ctx.params
   const credentials = await getCredentials()
-  const { updateId } = await meilisearch
-    .http(meilisearch.client(credentials))
-    .deleteAllDocuments({
-      indexUid,
-    })
-  await meilisearch.http(meilisearch.client(credentials)).waitForPendingUpdate({
-    updateId,
-    indexUid,
-  })
+  // Delete whole index only if the index is not a composite index
+  if (indexUid === getIndexName(indexUid)) {
+    const { updateId } = await meilisearch
+      .http(meilisearch.client(credentials))
+      .deleteAllDocuments({
+        indexUid,
+      })
+    await meilisearch
+      .http(meilisearch.client(credentials))
+      .waitForPendingUpdate({
+        updateId,
+        indexUid,
+      })
+  }
   return addCollection(ctx)
 }
 
@@ -181,9 +186,10 @@ async function getIndexes() {
 
 async function getStats({ collection }) {
   const credentials = await getCredentials()
-  return meilisearch
+  const out = await meilisearch
     .http(meilisearch.client(credentials))
     .getStats({ indexUid: collection })
+  return calcNumOfDocuments(collection, out)
 }
 
 async function getCollections() {

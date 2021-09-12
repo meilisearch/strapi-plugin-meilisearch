@@ -89,11 +89,11 @@ const Credentials = ({ setUpdatedCredentials }) => {
           aria-disabled={configFileApiKey}
         />
         <Button
-          color={!(configFileApiKey && configFileHost) ? 'primary' : 'disabled'}
+          color={!(configFileApiKey && configFileHost) ? 'primary' : 'cancel'}
           className="credentials_button"
           onClick={addMeilisearchCredentials}
           style={{ marginTop: '20px' }}
-          disabled={configFileApiKey && configFileHost}
+          disabled={!!configFileApiKey && !!configFileHost}
           aria-disabled={configFileApiKey && configFileHost}
         >
           Add
