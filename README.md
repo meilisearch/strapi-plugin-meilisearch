@@ -155,6 +155,36 @@ To activate them, you will have to reload the server. If you are in develop mode
 <img src="./assets/no_reload_needed.png" alt="Indexed collections are hooked" width="600"/>
 </p>
 
+### Customizing search indexing
+
+1. By default, this plugin will create a search index with name same as that of model's name. This behavior can be changed by defining a property `searchIndexName` in your model.js file. For eg:
+2. By default, this plugin will send all the data present in the current model instance to MeiliSearch instance for indexing. This behavior can be changed by defining a static function called `toSearchIndex( modelInstance )` which should return the data which will be sent to MeiliSearch for indexing.
+
+For eg:
+api/mymodelname/models/mymodelname.js
+```javascript
+
+'use strict';
+
+/**
+ * Read the documentation (https://strapi.io/documentation/developer-docs/latest/development/backend-customization.html#lifecycle-hooks)
+ * to customize this model
+ */
+
+module.exports = {
+  toSearchIndex(item) {
+    return {
+      id: item.id,
+      content: extractTextFromHtml(item.content), // Only index pure text content instead of indexing HTML content
+      $content_type: 'mymodelname'   // Consider that multiple entities are using same search index. So, Let's specify our model name here, so that we can identify it from the search result
+    };
+  },
+  searchIndexName: 'searchindex',
+};
+
+
+```
+
 ### 🕵️‍♀️ Start Searching <!-- omit in toc -->
 
 Once you have a collection containing documents indexed in MeiliSearch, you can [start searching](https://docs.meilisearch.com/learn/getting_started/quick_start.html#search).
