@@ -10,6 +10,8 @@
  * See more details here: https://strapi.io/documentation/developer-docs/latest/concepts/configurations.html#bootstrap
  */
 
+const { cleanData, getIndexName } = require('../../lib/utils.js');
+
 const meilisearch = {
   http: client => strapi.plugins.meilisearch.services.http(client),
   client: credentials =>
@@ -87,7 +89,7 @@ async function initHooks(store) {
 
       // get list of Indexes In MeilISearch that are Collections in Strapi
       const indexedCollections = Object.keys(models).filter(model =>
-        indexes.includes(model)
+        indexes.includes(getIndexName(model))
       )
       addLifecycles({
         collections: indexedCollections,

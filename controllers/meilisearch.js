@@ -6,6 +6,8 @@
  * @description: A set of functions called "actions" of the `meilisearch` plugin.
  */
 
+const { cleanData, getIndexName } = require('../lib/utils.js');
+
 const meilisearch = {
   http: client => strapi.plugins.meilisearch.services.http(client),
   client: credentials =>
@@ -191,7 +193,7 @@ async function getCollections() {
 
   const collections = collectionTypes.map(async collection => {
     const existInMeilisearch = !!indexes.find(
-      index => index.name === collection
+      index => index.name === getIndexName(collection)
     )
     const { numberOfDocuments = 0, isIndexing = false } = existInMeilisearch
       ? await getStats({ collection })
