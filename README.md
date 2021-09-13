@@ -157,8 +157,10 @@ To activate them, you will have to reload the server. If you are in develop mode
 
 ### Customizing search indexing
 
-1. By default, this plugin will create a search index with name same as that of model's name. This behavior can be changed by defining a property `searchIndexName` in your model.js file. For eg:
+1. By default, this plugin will create a search index with name same as that of model's name. This behavior can be changed by defining a property `searchIndexName` in your model.js file.
 2. By default, this plugin will send all the data present in the current model instance to MeiliSearch instance for indexing. This behavior can be changed by defining a static function called `toSearchIndex( modelInstance )` which should return the data which will be sent to MeiliSearch for indexing.
+3. While specifying a custom index name, if the index is shared more than one model, then this plugin need to handle statistics display, index deletion etc in a special way by considering that. so we need to specify that information by adding a optional field called `isUsingCompositeIndex` in model file
+4. If multiple models are using same index, we can not get statistics of individual models. For that to work, we need to add an flag field while sending data for index. Name of that flag field should be specified in model definition as `searchIndexTypeId` This is applicable only if we are using a composite index.
 
 For eg:
 api/mymodelname/models/mymodelname.js
@@ -174,12 +176,25 @@ api/mymodelname/models/mymodelname.js
 module.exports = {
   toSearchIndex(item) {
     return {
-      id: item.id,
-      content: extractTextFromHtml(item.content), // Only index pure text content instead of indexing HTML content
-      $content_type: 'mymodelname'   // Consider that multiple entities are using same search index. So, Let's specify our model name here, so that we can identify it from the search result
+      id: 'mm'+item.id,  // simple id should not be added if the target search index is
+                         // sahred by more than one models.  Id number conflicts will
+                         // cuase unexpected behavior. Use a unique prefix in that case
+
+      content: extractTextFromHtml(item.content), // Only index pure text
+                                                  // content instead of indexing
+                                                  // HTML content
+
+      $is_mymodelname: 1  // Consider that multiple entities are using same
+                          // search index. So, Let's specify our model name here,
+                          // so that we can identify it from the search result
     };
   },
   searchIndexName: 'searchindex',
+
+  isUsingCompositeIndex: true, // the index 'searchindex' is shared with
+                               // multiple models
+
+  searchIndexName: '$is_mymodelname' // We count records in by counting this field
 };
 
 
