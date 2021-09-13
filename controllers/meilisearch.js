@@ -223,9 +223,10 @@ async function getStats({ collection }) {
   console.log('getStats', { collection })
   // TODO should work for compositeIndexes as well
   const credentials = await getCredentials()
-  return meilisearch
+  const out = await meilisearch
     .http(meilisearch.client(credentials))
     .getStats({ indexUid: collection })
+  return calcNumOfDocuments(collection, out)
 }
 
 async function getCollections() {
