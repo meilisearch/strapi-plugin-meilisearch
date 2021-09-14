@@ -194,7 +194,7 @@ module.exports = {
   isUsingCompositeIndex: true, // the index 'searchindex' is shared with
                                // multiple models
 
-  searchIndexName: '$is_mymodelname' // We count records in by counting this field
+  searchIndexTypeId: '$is_mymodelname' // We count records in by counting this field
 };
 
 
