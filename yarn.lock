@@ -1949,10 +1949,10 @@ lru-cache@^6.0.0:
   dependencies:
     yallist "^4.0.0"
 
-meilisearch@^0.19.0:
-  version "0.19.0"
-  resolved "https://registry.yarnpkg.com/meilisearch/-/meilisearch-0.19.0.tgz#b94b97b30a4e62270e53860c3a6b2e25765b00f3"
-  integrity sha512-o1rKT65q09i0W/vigpGEXVTX44A8IBscNQhZ+JkAlEgpk2+mYZMQxHXcoBtWjZI/CYKoswVnUxBVB4HEJ8tJQw==
+meilisearch@^0.20.1:
+  version "0.20.1"
+  resolved "https://registry.yarnpkg.com/meilisearch/-/meilisearch-0.20.1.tgz#db46aee790483e55a0f2ef1f9efc24532067ba48"
+  integrity sha512-5IGTiM3Bbc9gHUxqzsLBJdQgi2NVZxbEfwnc95tKIpkbFWr6fZpKL+jp747u/eQkvbAo3JtOPnMikCAwTQ3uhw==
   dependencies:
     cross-fetch "^3.1.4"
 
