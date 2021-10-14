@@ -1,4 +1,14 @@
 {
   "plugin.name": "MeiliSearch",
-  "header.description": "Add your data to MeiliSearch and start searching"
+  "header.description": "Add your data to MeiliSearch and start searching",
+  "collection.addCollection.successNotification": " is created!",
+  "collection.updateCollection.successNotification": " update started!",
+  "collection.removeCollection.successNotification": " collection is removed from MeiliSearch!",
+  "collection.reload.errorNotifications": "Could not reload the server",
+  "collection.button.Update": "Update",
+  "collection.button.Reload": "Reload Server",
+  "collection.contructReloadStatus.Reload":"Reload needed",
+  "collection.contructReloadStatus.Active":"Active",
+  "collection.contructColRow.Yes":"Yes",
+  "collection.contructColRow.No":"No"
 }

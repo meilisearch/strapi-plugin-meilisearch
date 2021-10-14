@@ -93,7 +93,11 @@ const Collections = ({ updateCredentials }) => {
       errorNotifications(response)
     } else {
       successNotification({
-        message: `${collection} is created!`,
+        message: 
+        `${collection}` +
+        formatMessage({
+          id: getTrad('collection.addCollection.successNotification'),
+        }),
         duration: 4000,
       })
       watchUpdates({ collection }) // start watching
@@ -116,7 +120,13 @@ const Collections = ({ updateCredentials }) => {
     if (response.error) {
       errorNotifications(response)
     } else {
-      successNotification({ message: `${collection} update started!` })
+      successNotification({ 
+        message: 
+        `${collection}` +
+        formatMessage({
+          id: getTrad('collection.updateCollection.successNotification'),
+        }),
+      })
       watchUpdates({ collection }) // start watching
     }
     setUpdatedCollections(false) // ask for up to date data
@@ -130,7 +140,11 @@ const Collections = ({ updateCredentials }) => {
     if (res.error) errorNotifications(res)
     else
       successNotification({
-        message: `${collection} collection is removed from MeiliSearch!`,
+        message:
+          `${collection}` +
+          formatMessage({
+            id: getTrad('collection.removeCollection.successNotification'),
+          }),
         duration: 4000,
       })
     setUpdatedCollections(false) // ask for up to date data
@@ -147,9 +161,13 @@ const Collections = ({ updateCredentials }) => {
   // Construct reload status to add in table
   const constructReloadStatus = (indexed, hooked) => {
     if ((indexed && !hooked) || (!indexed && hooked)) {
-      return 'Reload needed'
+      return formatMessage({
+        id: getTrad('collection.contructReloadStatus.Reload'),
+      })
     } else if (indexed && hooked) {
-      return 'Active'
+      return formatMessage({
+        id: getTrad('collection.contructReloadStatus.Active'),
+      })
     } else {
       return ''
     }
@@ -160,8 +178,20 @@ const Collections = ({ updateCredentials }) => {
     const { indexed, isIndexing, numberOfDocuments, numberOfRows } = col
     return {
       ...col,
-      indexed: indexed ? 'Yes' : 'No',
-      isIndexing: isIndexing ? 'Yes' : 'No',
+      indexed: indexed 
+        ? formatMessage({
+          id: getTrad('collection.contructColRow.Yes'),
+        }) 
+        : formatMessage({
+          id: getTrad('collection.contructColRow.No'),
+        }),
+      isIndexing: isIndexing 
+        ? formatMessage({
+          id: getTrad('collection.contructColRow.Yes'),
+        })
+        : formatMessage({
+          id: getTrad('collection.contructColRow.No'),
+        }),
       numberOfDocuments: `${numberOfDocuments} / ${numberOfRows}`,
       hooked: constructReloadStatus(col.indexed, col.hooked),
       _isChecked: col.indexed,
@@ -212,7 +242,11 @@ const Collections = ({ updateCredentials }) => {
       }
     } catch (err) {
       strapi.unlockApp()
-      errorNotifications({ message: 'Could not reload the server' })
+      errorNotifications({ 
+        message: formatMessage({
+          id: getTrad('collection.reload.errorNotifications'),
+        }),
+      })
     }
   }
 
@@ -232,7 +266,11 @@ const Collections = ({ updateCredentials }) => {
           }}
           rowLinks={[
             {
-              icon: <UpdateButton forwardedAs="span">Update</UpdateButton>,
+              icon:(
+              <UpdateButton forwardedAs="span">
+                {formatMessage({ id: getTrad('collection.button.Update') })}
+              </UpdateButton>
+              ),
               onClick: data => {
                 updateCollections({ collection: data.name })
               },
@@ -249,7 +287,7 @@ const Collections = ({ updateCredentials }) => {
               }}
               style={{ marginTop: '20px' }}
             >
-              Reload Server
+              {formatMessage({ id: getTrad('collection.button.Reload') })}
             </Button>
           )}
         </div>
