@@ -6,7 +6,10 @@
  * @description: A set of functions called "actions" of the `meilisearch` plugin.
  */
 
-const { calcNumOfDocuments, getIndexName } = require('../lib/utils.js')
+const {
+  getIndexName,
+  isCollectionACompositeIndex,
+} = require('./../services/collection')
 
 const meilisearch = {
   http: client => strapi.plugins.meilisearch.services.http(client),
@@ -57,6 +60,35 @@ async function deleteAllIndexes() {
   return { message: 'ok' }
 }
 
+async function removeCollection(ctx) {
+  const { collection } = ctx.params
+  console.log(ctx.params)
+  const isCompositeIndex = isCollectionACompositeIndex({ collection })
+  console.log('Delete resolver', { collection, isCompositeIndex })
+  const credentials = await getCredentials()
+  if (!isCompositeIndex) {
+    await meilisearch.http(meilisearch.client(credentials)).deleteIndex({
+      collection,
+    })
+  } else {
+    await meilisearch.http(meilisearch.client(credentials)).deleteIndex({
+      collection,
+    })
+    // const { collection } = ctx.params
+    // const count = await numberOfRowsInCollection({ collection })
+    // numberOfRowsInCollection
+    // const BATCH_SIZE = 1000
+    // const updateIds = []
+    // for (let index = 0; index <= count; index += BATCH_SIZE) {
+    // await meilisearch.http(meilisearch.client(credentials)).deleteDocuments({
+    //   indexUid,
+    // })
+  }
+  return { message: 'ok' }
+}
+
+// TODO only delete when not composite
+// or if composite only has one collection
 async function deleteIndex(ctx) {
   const { indexUid } = ctx.params
   const credentials = await getCredentials()
@@ -97,7 +129,7 @@ async function addCredentials(ctx) {
   return getCredentials()
 }
 
-async function UpdateCollections(ctx) {
+async function uspdateCollections(ctx) {
   const { collection: indexUid } = ctx.params
   const credentials = await getCredentials()
   // Delete whole index only if the index is not a composite index
@@ -185,11 +217,12 @@ async function getIndexes() {
 }
 
 async function getStats({ collection }) {
+  console.log('getStats', { collection })
+  // TODO should work for compositeIndexes as well
   const credentials = await getCredentials()
-  const out = await meilisearch
+  return meilisearch
     .http(meilisearch.client(credentials))
     .getStats({ indexUid: collection })
-  return calcNumOfDocuments(collection, out)
 }
 
 async function getCollections() {
@@ -249,7 +282,8 @@ module.exports = {
   addCredentials: async ctx => sendCtx(ctx, addCredentials),
   deleteAllIndexes: async ctx => sendCtx(ctx, deleteAllIndexes),
   deleteIndex: async ctx => sendCtx(ctx, deleteIndex),
-  UpdateCollections: async ctx => sendCtx(ctx, UpdateCollections),
+  removeCollection: async ctx => sendCtx(ctx, removeCollection),
+  uspdateCollections: async ctx => sendCtx(ctx, uspdateCollections),
   reload: async ctx => sendCtx(ctx, reload),
   batchAddCollection: async ctx => sendCtx(ctx, batchAddCollection),
 }

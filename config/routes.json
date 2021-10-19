@@ -17,14 +17,6 @@
       }
     },
     {
-      "method": "DELETE",
-      "path": "/indexes/:indexUid",
-      "handler": "meilisearch.deleteIndex",
-      "config": {
-        "policies": []
-      }
-    },
-    {
       "method": "GET",
       "path": "/indexes/:indexUid/update",
       "handler": "meilisearch.waitForDocumentsToBeIndexed",
@@ -67,7 +59,15 @@
     {
       "method": "PUT",
       "path": "/collections/:collection",
-      "handler": "meilisearch.UpdateCollections",
+      "handler": "meilisearch.updateCollections",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "DELETE",
+      "path": "/collections/:collection",
+      "handler": "meilisearch.removeCollection",
       "config": {
         "policies": []
       }

@@ -125,7 +125,7 @@ const Collections = ({ updateCredentials }) => {
 
   // Remove a collection from MeiliSearch
   const removeCollection = async ({ name: collection }) => {
-    const res = await request(`/${pluginId}/indexes/${collection}/`, {
+    const res = await request(`/${pluginId}/collections/${collection}/`, {
       method: 'DELETE',
     })
     if (res.error) errorNotifications(res)

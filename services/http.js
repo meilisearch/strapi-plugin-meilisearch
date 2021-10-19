@@ -6,7 +6,7 @@
  * @description: A set of functions similar to controller's actions to avoid code duplication.
  */
 
-const { cleanData, getIndexName } = require('../lib/utils.js');
+const { cleanData, getIndexName } = require('./collection')
 
 function removeDateLogs(document) {
   const {
