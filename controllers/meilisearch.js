@@ -129,7 +129,7 @@ async function addCredentials(ctx) {
   return getCredentials()
 }
 
-async function uspdateCollections(ctx) {
+async function updateCollections(ctx) {
   const { collection: indexUid } = ctx.params
   const credentials = await getCredentials()
   // Delete whole index only if the index is not a composite index
@@ -283,7 +283,7 @@ module.exports = {
   deleteAllIndexes: async ctx => sendCtx(ctx, deleteAllIndexes),
   deleteIndex: async ctx => sendCtx(ctx, deleteIndex),
   removeCollection: async ctx => sendCtx(ctx, removeCollection),
-  uspdateCollections: async ctx => sendCtx(ctx, uspdateCollections),
+  updateCollections: async ctx => sendCtx(ctx, updateCollections),
   reload: async ctx => sendCtx(ctx, reload),
   batchAddCollection: async ctx => sendCtx(ctx, batchAddCollection),
 }

@@ -5,4 +5,11 @@
  * to customize this model
  */
 
-module.exports = {};
+// TODO remove example
+module.exports = {
+  // if searchIndexName is same with others
+  isUsingCompositeIndex: true,
+  // should not crash the whole server?, why the `$` ?
+  searchIndexTypeId: 'restaurant',
+  searchIndexName: 'restaurant'
+};

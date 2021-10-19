@@ -25,8 +25,8 @@ export const ReloadButton = styled(Button)`
 
 const headers = [
   {
-    name: 'Name',
-    value: 'name',
+    name: 'Collection',
+    value: 'collection',
   },
   {
     name: 'In MeiliSearch',
@@ -35,6 +35,10 @@ const headers = [
   {
     name: 'Indexing',
     value: 'isIndexing',
+  },
+  {
+    name: 'Index',
+    value: 'indexUid',
   },
   {
     name: 'Documents',
@@ -79,10 +83,10 @@ const Collections = ({ updateCredentials }) => {
   }
 
   // Add collection to MeiliSearch
-  const addCollection = async ({ name: collection }) => {
+  const addCollection = async ({ collection }) => {
     setCollectionsList(prev =>
       prev.map(col => {
-        if (col.name === collection)
+        if (col.collection === collection)
           return { ...col, indexed: 'Creating..', _isChecked: true }
         return col
       })
@@ -106,7 +110,7 @@ const Collections = ({ updateCredentials }) => {
   const updateCollections = async ({ collection }) => {
     setCollectionsList(prev =>
       prev.map(col => {
-        if (col.name === collection)
+        if (col.collection === collection)
           return { ...col, indexed: 'Start update...', _isChecked: true }
         return col
       })
@@ -124,7 +128,7 @@ const Collections = ({ updateCredentials }) => {
   }
 
   // Remove a collection from MeiliSearch
-  const removeCollection = async ({ name: collection }) => {
+  const removeCollection = async ({ collection }) => {
     const res = await request(`/${pluginId}/collections/${collection}/`, {
       method: 'DELETE',
     })
@@ -181,7 +185,7 @@ const Collections = ({ updateCredentials }) => {
     else {
       // Start watching collection that are being indexed
       collections.map(
-        col => col.isIndexing && watchUpdates({ collection: col.name })
+        col => col.isIndexing && watchUpdates({ collection: col.collection })
       )
       // Create verbose text that will be showed in the table
       const verboseCols = collections.map(col => constructColRow(col))
@@ -235,7 +239,7 @@ const Collections = ({ updateCredentials }) => {
             {
               icon: <UpdateButton forwardedAs="span">Update</UpdateButton>,
               onClick: data => {
-                updateCollections({ collection: data.name })
+                updateCollections({ collection: data.collection })
               },
             },
           ]}
