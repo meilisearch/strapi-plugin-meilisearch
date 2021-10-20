@@ -8,7 +8,7 @@
  */
 function getIndexName(indexUid) {
   const model = strapi.models[indexUid]
-  console.log('getIndexName', { models: model.searchIndexName, indexUid })
+  // console.log('getIndexName', { models: model.searchIndexName, indexUid })
   return model.searchIndexName || indexUid
 }
 /**

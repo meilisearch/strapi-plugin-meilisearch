@@ -38,7 +38,7 @@ async function numberOfRowsInCollection(collection) {
   )
 }
 
-function getCollectionTypes() {
+function getMultiEntriesCollections() {
   const services = strapi.services
   return Object.keys(services).filter(type => {
     return services[type].count
@@ -57,5 +57,5 @@ module.exports = {
   transformEntries,
   isCollectionACompositeIndex,
   numberOfRowsInCollection,
-  getCollectionTypes,
+  getMultiEntriesCollections,
 }

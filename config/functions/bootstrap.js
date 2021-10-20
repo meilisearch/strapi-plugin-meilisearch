@@ -13,7 +13,7 @@
 const { getIndexName } = require('../../services/indexes')
 
 const meilisearch = {
-  http: client => strapi.plugins.meilisearch.services.http(client),
+  http: client => strapi.plugins.meilisearch.services.meilisearch(client),
   client: credentials =>
     strapi.plugins.meilisearch.services.client(credentials),
   store: () => strapi.plugins.meilisearch.services.store,
@@ -33,7 +33,7 @@ async function getIndexes(client) {
   }
 }
 
-async function getCredentials() {
+async function getClientCredentials() {
   const store = await meilisearch.store()
   const apiKey = await store.getStoreKey('meilisearch_api_key')
   const host = await store.getStoreKey('meilisearch_host')
@@ -74,7 +74,7 @@ function addLifecycles({ client, collections }) {
 
 async function initHooks(store) {
   try {
-    const credentials = await getCredentials()
+    const credentials = await getClientCredentials()
     const hookedCollections =
       (await getHookedCollectionsFromStore({ store })) ||
       (await createHookedCollection({ store }))
