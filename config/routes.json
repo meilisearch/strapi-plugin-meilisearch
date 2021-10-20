@@ -19,7 +19,7 @@
     {
       "method": "GET",
       "path": "/credentials",
-      "handler": "meilisearch.getCredentials",
+      "handler": "meilisearch.getClientCredentials",
       "config": {
         "policies": []
       }
