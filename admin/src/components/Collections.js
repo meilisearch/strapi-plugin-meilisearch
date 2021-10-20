@@ -70,7 +70,7 @@ const Collections = ({ updateCredentials }) => {
     if (!watching.includes(collection)) {
       setWatchingCollection(prev => [...prev, collection])
       const response = await request(
-        `/${pluginId}/indexes/${collection}/update/`,
+        `/${pluginId}/collection/${collection}/update/`,
         {
           method: 'GET',
         }
