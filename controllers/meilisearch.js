@@ -130,20 +130,20 @@ async function addCredentials(ctx) {
 }
 
 async function updateCollections(ctx) {
-  const { collection: indexUid } = ctx.params
+  const { collection } = ctx.params
   const credentials = await getCredentials()
   // Delete whole index only if the index is not a composite index
-  if (indexUid === getIndexName(indexUid)) {
+  if (collection === getIndexName(collection)) {
     const { updateId } = await meilisearch
       .http(meilisearch.client(credentials))
       .deleteAllDocuments({
-        indexUid,
+        indexUid: getIndexName(collection),
       })
     await meilisearch
       .http(meilisearch.client(credentials))
       .waitForPendingUpdate({
         updateId,
-        indexUid,
+        indexUid: getIndexName(collection),
       })
   }
   return addCollection(ctx)
@@ -153,7 +153,7 @@ async function indexDocuments({ documents = [], collection }) {
   const credentials = await getCredentials()
   if (documents.length > 0) {
     return meilisearch.http(meilisearch.client(credentials)).addDocuments({
-      indexUid: collection,
+      indexUid: getIndexName(collection),
       data: documents,
     })
   }
@@ -190,7 +190,10 @@ async function batchAddCollection(ctx) {
       limit: BATCH_SIZE,
       collection,
     })
-    const { updateId } = await indexDocuments({ collection, documents: rows })
+    const { updateId } = await indexDocuments({
+      collection,
+      documents: rows,
+    })
     if (updateId) updateIds.push(updateId)
   }
   return { updateIds }
@@ -231,15 +234,15 @@ async function getCollections() {
   const collectionTypes = getCollectionTypes()
 
   const collections = collectionTypes.map(async collection => {
-    const existInMeilisearch = !!indexes.find(
-      index => index.name === getIndexName(collection)
-    )
+    const indexUid = getIndexName(collection)
+    const existInMeilisearch = !!indexes.find(index => index.name === indexUid)
     const { numberOfDocuments = 0, isIndexing = false } = existInMeilisearch
       ? await getStats({ collection })
       : {}
     const numberOfRows = await numberOfRowsInCollection({ collection })
     return {
-      name: collection,
+      collection,
+      indexUid,
       indexed: existInMeilisearch,
       isIndexing,
       numberOfDocuments,

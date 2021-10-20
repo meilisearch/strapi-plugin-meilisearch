@@ -28,8 +28,7 @@
     "admin",
     "config",
     "controllers",
-    "services",
-    "lib"
+    "services"
   ],
   "dependencies": {
     "@buffetjs/core": "^3.3.5",

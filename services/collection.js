@@ -2,7 +2,7 @@
 
 /**
  * @brief: Map model name into the actual index name in meilisearch instance. it
- * uses `searchIndexName` property from model defnition
+ * uses `searchIndexName` property of the model definition
  *
  * @param indexUid - this will be equal to model's name
  *
@@ -18,9 +18,9 @@ function getIndexName(indexUid) {
  *
  * @param indexUid - This is will equal to model's name
  * @param data {Array|Object} - The data to convert. Conversion will use
- * `toSearchIndex` static method defined in the model defnition
+ * the static method `toSearchIndex` defined in the model definition
  *
- * @return {Array|Object} - converted or mapped data
+ * @return {Array|Object} - Converted or mapped data
  */
 function cleanData(indexUid, data) {
   const model = strapi.models[indexUid]

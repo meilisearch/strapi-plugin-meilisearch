@@ -165,11 +165,11 @@ To activate them, you will have to reload the server. If you are in develop mode
 
 #### Custom Index Name
 
-By default, this plugin will create a search index with name same as that of model's name. This behavior can be changed by defining a property `searchIndexName` in your model.js file.
+By default, this plugin will create a search index with the same name as the model. This behavior can be changed by setting a `searchIndexName` property in your model.js file.
 
 **Example:**
 
-In the following example, the restaurants are not added to the default `restaurant` index but to a custom named `my_restaurant` index.
+In the following example, the model `restaurant` does not create a Meilisearch index named `restaurant`, the restaurants are added to a custom index named `my_restaurant`.
 ```js
 // api/restaurant/models/restaurant.js
 
