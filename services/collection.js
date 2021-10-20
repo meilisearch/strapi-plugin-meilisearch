@@ -32,7 +32,30 @@ function isCollectionACompositeIndex(collection) {
   return isCompositeIndex
 }
 
+async function numberOfRowsInCollection(collection) {
+  return (
+    strapi.services[collection].count && strapi.services[collection].count()
+  )
+}
+
+function getCollectionTypes() {
+  const services = strapi.services
+  return Object.keys(services).filter(type => {
+    return services[type].count
+  })
+}
+
+async function fetchRowBatch({ start, limit, collection }) {
+  return await strapi.services[collection].find({
+    _limit: limit,
+    _start: start,
+  })
+}
+
 module.exports = {
+  fetchRowBatch,
   transformEntries,
   isCollectionACompositeIndex,
+  numberOfRowsInCollection,
+  getCollectionTypes,
 }
