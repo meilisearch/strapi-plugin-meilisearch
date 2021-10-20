@@ -10,7 +10,7 @@
  * See more details here: https://strapi.io/documentation/developer-docs/latest/concepts/configurations.html#bootstrap
  */
 
-const { getIndexName } = require('../../services/collection')
+const { getIndexName } = require('../../services/indexes')
 
 const meilisearch = {
   http: client => strapi.plugins.meilisearch.services.http(client),

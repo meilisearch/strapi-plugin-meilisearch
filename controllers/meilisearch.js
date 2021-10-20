@@ -7,21 +7,26 @@
  */
 
 const {
-  getIndexName,
+  transformEntries,
   isCollectionACompositeIndex,
 } = require('./../services/collection')
+
+const { getIndexName } = require('./../services/indexes')
 
 const meilisearch = {
   http: client => strapi.plugins.meilisearch.services.http(client),
   client: credentials =>
     strapi.plugins.meilisearch.services.client(credentials),
-  store: () => strapi.plugins.meilisearch.services.store,
+  // store: () => strapi.plugins.meilisearch.services.store,
   lifecycles: () => strapi.plugins.meilisearch.services.lifecycles,
 }
 
 async function sendCtx(ctx, fct) {
   try {
-    const body = await fct(ctx)
+    const store = strapi.plugins.meilisearch.services.store
+    const body = await fct(ctx, {
+      store,
+    })
     ctx.send(body)
   } catch (e) {
     console.error(e)
@@ -37,14 +42,12 @@ async function sendCtx(ctx, fct) {
   }
 }
 
-async function getHookedCollections() {
-  const store = await meilisearch.store()
+async function getHookedCollections(store) {
   const hookedCollections = await store.getStoreKey('meilisearch_hooked')
   return hookedCollections || []
 }
 
-async function getCredentials() {
-  const store = await meilisearch.store()
+async function getCredentials(ctx, { store }) {
   const apiKey = await store.getStoreKey('meilisearch_api_key')
   const host = await store.getStoreKey('meilisearch_host')
   const configFileApiKey =
@@ -54,66 +57,65 @@ async function getCredentials() {
   return { apiKey, host, configFileApiKey, configFileHost }
 }
 
-async function deleteAllIndexes() {
-  const credentials = await getCredentials()
+async function deleteAllIndexes(ctx, { store }) {
+  const credentials = await getCredentials(ctx, { store })
   await meilisearch.http(meilisearch.client(credentials)).deleteIndexes()
   return { message: 'ok' }
 }
 
-async function removeCollection(ctx) {
+async function removeCollection(ctx, { store, meiliSearchClient, lifecycles }) {
   const { collection } = ctx.params
-  console.log(ctx.params)
-  const isCompositeIndex = isCollectionACompositeIndex({ collection })
+  const isCompositeIndex = isCollectionACompositeIndex(collection)
   console.log('Delete resolver', { collection, isCompositeIndex })
-  const credentials = await getCredentials()
+  const credentials = await getCredentials(ctx, { store })
   if (!isCompositeIndex) {
     await meilisearch.http(meilisearch.client(credentials)).deleteIndex({
-      collection,
+      indexUid: getIndexName(collection),
     })
   } else {
+    // TODO if composite
     await meilisearch.http(meilisearch.client(credentials)).deleteIndex({
-      collection,
+      indexUid: getIndexName(collection),
     })
-    // const { collection } = ctx.params
-    // const count = await numberOfRowsInCollection({ collection })
-    // numberOfRowsInCollection
-    // const BATCH_SIZE = 1000
-    // const updateIds = []
-    // for (let index = 0; index <= count; index += BATCH_SIZE) {
-    // await meilisearch.http(meilisearch.client(credentials)).deleteDocuments({
-    //   indexUid,
-    // })
   }
   return { message: 'ok' }
 }
 
 // TODO only delete when not composite
 // or if composite only has one collection
-async function deleteIndex(ctx) {
-  const { indexUid } = ctx.params
-  const credentials = await getCredentials()
+async function deleteIndex(
+  ctx,
+  { store, meiliSearchClient, lifecycles, meiliSearchService }
+) {
+  const { collection } = ctx.params
+  const credentials = await getCredentials(ctx, { store })
   await meilisearch.http(meilisearch.client(credentials)).deleteIndex({
-    indexUid,
+    indexUid: getIndexName(collection),
   })
   return { message: 'ok' }
 }
 
-async function waitForDocumentsToBeIndexed(ctx) {
-  const { indexUid } = ctx.params
-  const credentials = await getCredentials()
+async function waitForCollectionIndexing(
+  ctx,
+  { store, meiliSearchClient, lifecycles }
+) {
+  const { collection } = ctx.params
+  console.log('waitfor', collection)
+  const credentials = await getCredentials(ctx, { store })
   const numberOfDocuments = await meilisearch
     .http(meilisearch.client(credentials))
     .waitForPendingUpdates({
-      indexUid,
+      indexUid: getIndexName(collection),
       updateNbr: 2,
     })
   return { numberOfDocuments }
 }
 
-async function addCredentials(ctx) {
-  const { configFileApiKey, configFileHost } = await getCredentials()
+async function addCredentials(ctx, { store, meiliSearchClient, lifecycles }) {
+  const { configFileApiKey, configFileHost } = await getCredentials(ctx, {
+    store,
+  })
   const { host: msHost, apiKey: msApiKey } = ctx.request.body
-  const store = await meilisearch.store()
   if (!configFileApiKey) {
     await store.setStoreKey({
       key: 'meilisearch_api_key',
@@ -126,12 +128,15 @@ async function addCredentials(ctx) {
       value: msHost,
     })
   }
-  return getCredentials()
+  return getCredentials(ctx, { store })
 }
 
-async function updateCollections(ctx) {
+async function updateCollections(
+  ctx,
+  { store, meiliSearchClient, lifecycles }
+) {
   const { collection } = ctx.params
-  const credentials = await getCredentials()
+  const credentials = await getCredentials(ctx, { store })
   // Delete whole index only if the index is not a composite index
   if (collection === getIndexName(collection)) {
     const { updateId } = await meilisearch
@@ -146,15 +151,16 @@ async function updateCollections(ctx) {
         indexUid: getIndexName(collection),
       })
   }
-  return addCollection(ctx)
+  return addCollection(ctx, { store, meiliSearchClient, lifecycles })
 }
 
-async function indexDocuments({ documents = [], collection }) {
-  const credentials = await getCredentials()
+async function indexDocuments({ documents = [], collection }, store) {
+  const credentials = await getCredentials({}, { store })
+  const indexUid = getIndexName(collection)
   if (documents.length > 0) {
     return meilisearch.http(meilisearch.client(credentials)).addDocuments({
-      indexUid: getIndexName(collection),
-      data: documents,
+      indexUid,
+      data: transformEntries(collection, documents),
     })
   }
 }
@@ -179,7 +185,10 @@ async function numberOfRowsInCollection({ collection }) {
   )
 }
 
-async function batchAddCollection(ctx) {
+async function batchAddCollection(
+  ctx,
+  { store, meiliSearchClient, lifecycles }
+) {
   const { collection } = ctx.params
   const count = await numberOfRowsInCollection({ collection })
   const BATCH_SIZE = 1000
@@ -190,56 +199,59 @@ async function batchAddCollection(ctx) {
       limit: BATCH_SIZE,
       collection,
     })
-    const { updateId } = await indexDocuments({
-      collection,
-      documents: rows,
-    })
+    const { updateId } = await indexDocuments(
+      {
+        collection,
+        documents: rows,
+      },
+      store
+    )
     if (updateId) updateIds.push(updateId)
   }
   return { updateIds }
 }
 
-async function addCollection(ctx) {
+async function addCollection(ctx, { store, meiliSearchClient, lifecycles }) {
   const { collection } = ctx.params
-  const credentials = await getCredentials()
+  const credentials = await getCredentials(ctx, { store })
   // Create collection in MeiliSearch
   await meilisearch.http(meilisearch.client(credentials)).createIndex({
     indexUid: collection,
   })
-  batchAddCollection(ctx) // does not wait for add documents requests
+  batchAddCollection(ctx, { store, meiliSearchClient, lifecycles }) // does not wait for add documents requests
   return { message: 'Index created' }
 }
 
-async function getIndexes() {
+async function getIndexes(store) {
   try {
-    const credentials = await getCredentials()
+    const credentials = await getCredentials({}, { store })
     return await meilisearch.http(meilisearch.client(credentials)).getIndexes()
   } catch (e) {
     return []
   }
 }
 
-async function getStats({ collection }) {
-  console.log('getStats', { collection })
+async function getStats(collection, store) {
   // TODO should work for compositeIndexes as well
-  const credentials = await getCredentials()
-  const out = await meilisearch
+  const indexUid = getIndexName(collection)
+  const credentials = await getCredentials({}, { store })
+  return meilisearch
     .http(meilisearch.client(credentials))
-    .getStats({ indexUid: collection })
-  return calcNumOfDocuments(collection, out)
+    .getStats({ indexUid })
 }
 
-async function getCollections() {
-  const indexes = await getIndexes()
-  const hookedCollections = await getHookedCollections()
+async function getCollections(ctx, { store }) {
+  const indexes = await getIndexes(store)
+  const hookedCollections = await getHookedCollections(store)
   const collectionTypes = getCollectionTypes()
-
   const collections = collectionTypes.map(async collection => {
     const indexUid = getIndexName(collection)
+    console.log('getcol', { collection, indexUid })
     const existInMeilisearch = !!indexes.find(index => index.name === indexUid)
     const { numberOfDocuments = 0, isIndexing = false } = existInMeilisearch
-      ? await getStats({ collection })
+      ? await getStats(collection, store)
       : {}
+
     const numberOfRows = await numberOfRowsInCollection({ collection })
     return {
       collection,
@@ -254,7 +266,7 @@ async function getCollections() {
   return { collections: await Promise.all(collections) }
 }
 
-async function reload(ctx) {
+async function reload(ctx, { store, meiliSearchClient, lifecycles }) {
   ctx.send('ok')
   const {
     config: { autoReload },
@@ -277,10 +289,8 @@ async function reload(ctx) {
 
 module.exports = {
   getCredentials: async ctx => sendCtx(ctx, getCredentials),
-  indexDocuments: async ctx => sendCtx(ctx, indexDocuments),
-  waitForDocumentsToBeIndexed: async ctx =>
-    sendCtx(ctx, waitForDocumentsToBeIndexed),
-  getIndexes: async ctx => sendCtx(ctx, getIndexes),
+  waitForCollectionIndexing: async ctx =>
+    sendCtx(ctx, waitForCollectionIndexing),
   getCollections: async ctx => sendCtx(ctx, getCollections),
   addCollection: async ctx => sendCtx(ctx, addCollection),
   addCredentials: async ctx => sendCtx(ctx, addCredentials),
