@@ -1,0 +1,15 @@
+version: "3"
+services:
+  strapi:
+    build: .
+    ports:
+      - "1337:1337"
+    depends_on:
+      - meilisearch
+  meilisearch:
+    image: getmeili/meilisearch
+    command: ./meilisearch
+    volumes:
+      - ../meilisearch/data.ms:/data.ms
+    ports:
+      - "7700:7700"

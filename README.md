@@ -88,6 +88,12 @@ strapi develop
 yarn develop
 ```
 
+### Run Both with Docker
+
+To run MeiliSearch and Strapi on the same server you can use Docker. A Docker configuration example can be found in the directory [`resources/docker`](resources/docker/) of this repository.
+
+To run the Docker script add both files `Dockerfile` and `docker-compose.yaml` at the root of your Strapi project and run it with the following command: `docker-compose up`.
+
 ## 🎬 Getting Started
 
 Now that you have installed the plugin, a running meiliSearch instance and, a running Strapi app, let's go to the plugin page on your admin dashboard.
