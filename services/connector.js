@@ -8,14 +8,74 @@ const {
 
 const { getIndexName } = require('./../services/indexes')
 
-module.exports = async (clientService, meilisearchService, storeService) => {
-  const store = storeService
+module.exports = async ({
+  clientService,
+  meilisearchService,
+  storeService,
+  storeClient,
+}) => {
+  console.log({ storeClient })
+  console.log({ storeService })
+
+  const store = storeService(storeClient)
   const apiKey = await store.getStoreKey('meilisearch_api_key')
   const host = await store.getStoreKey('meilisearch_host')
   const client = clientService({ apiKey, host })
   const meilisearch = meilisearchService(client)
+
   return {
     meilisearch,
+    addCredentials: async function ({ host, apiKey }) {
+      const {
+        configFileApiKey,
+        configFileHost,
+      } = await this.resolveClientCredentials()
+      if (!configFileApiKey) {
+        await store.setStoreKey({
+          key: 'meilisearch_api_key',
+          value: apiKey,
+        })
+      }
+      if (!configFileHost) {
+        await store.setStoreKey({
+          key: 'meilisearch_host',
+          value: host,
+        })
+      }
+      return this.resolveClientCredentials()
+    },
+    updateStoreCredentials: async function (plugins) {
+      // optional chaining is not natively supported by node 12.
+      let apiKey = false
+      let host = false
+
+      if (plugins && plugins.meilisearch) {
+        apiKey = plugins.meilisearch.apiKey
+        host = plugins.meilisearch.host
+      }
+
+      if (apiKey) {
+        await store.setStoreKey({
+          key: 'meilisearch_api_key',
+          value: apiKey,
+        })
+      }
+      await store.setStoreKey({
+        key: 'meilisearch_api_key_config',
+        value: !!apiKey,
+      })
+
+      if (host) {
+        await store.setStoreKey({
+          key: 'meilisearch_host',
+          value: host,
+        })
+      }
+      await store.setStoreKey({
+        key: 'meilisearch_host_config',
+        value: !!host,
+      })
+    },
     addCollectionInMeiliSearch: async function ({
       documents = [],
       collection,
@@ -37,24 +97,8 @@ module.exports = async (clientService, meilisearchService, storeService) => {
         (await store.getStoreKey('meilisearch_host_config')) || false
       return { apiKey, host, configFileApiKey, configFileHost }
     },
-    addCredentials: async function ({ host, apiKey }) {
-      const {
-        configFileApiKey,
-        configFileHost,
-      } = await this.resolveClientCredentials()
-      if (!configFileApiKey) {
-        await store.setStoreKey({
-          key: 'meilisearch_api_key',
-          value: apiKey,
-        })
-      }
-      if (!configFileHost) {
-        await store.setStoreKey({
-          key: 'meilisearch_host',
-          value: host,
-        })
-      }
-      return this.resolveClientCredentials()
+    getClient: function () {
+      return client
     },
     getIndexStats: async function (collection) {
       // TODO should work for compositeIndexes as well
@@ -82,7 +126,7 @@ module.exports = async (clientService, meilisearchService, storeService) => {
     },
     getCollections: async function () {
       const indexes = await this.getIndexes()
-      const watchedCollections = await this.watchedCollections()
+      const watchedCollections = await this.getWatchedCollections()
       const multiRowsCollections = getMultiEntriesCollections()
       const collections = multiRowsCollections.map(async collection => {
         const indexUid = getIndexName(collection)
@@ -159,9 +203,24 @@ module.exports = async (clientService, meilisearchService, storeService) => {
       }
       return { message: 'ok' }
     },
-    watchedCollections: async function () {
+    getWatchedCollections: async function () {
       const collections = await store.getStoreKey('meilisearch_hooked')
       return collections || []
+    },
+    createWatchedCollectionsStore: async function () {
+      return store.setStoreKey({ key: 'meilisearch_hooked', value: [] })
+    },
+    addWatchedCollectionToStore: async function (collections) {
+      store.setStoreKey({
+        key: 'meilisearch_hooked',
+        value: collections,
+      })
+    },
+    getIndexUidsOfIndexedCollections: async function (collections) {
+      // get list of indexes in MeiliSearch Instance
+      let indexes = await this.getIndexes()
+      indexes = indexes.map(index => index.uid)
+      return collections.filter(model => indexes.includes(getIndexName(model)))
     },
   }
 }

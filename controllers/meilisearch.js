@@ -7,16 +7,24 @@
  */
 
 const Connector = require('./../services/connector')
+const reloader = require('./../services/reloader')
 const services = require('./../services/strapi')
 
-async function sendCtx(ctx, fct) {
+async function ctxWrapper(ctx, fct) {
   try {
-    const { storeService, meilisearchService, clientService } = services()
-    const connector = await Connector(
+    const {
+      storeService,
+      meilisearchService,
+      clientService,
+      storeClient,
+    } = services()
+
+    const connector = await Connector({
       clientService,
       meilisearchService,
-      storeService
-    )
+      storeService,
+      storeClient,
+    })
     const body = await fct(ctx, {
       connector,
     })
@@ -75,7 +83,7 @@ async function updateCollections(ctx, { connector }) {
 
 async function addCollection(ctx, { connector }) {
   const { collection } = ctx.params
-  connector.addCollection(collection)
+  await connector.addCollection(collection)
   return { message: 'Index created' }
 }
 
@@ -83,37 +91,21 @@ async function getCollections(_, { connector }) {
   return connector.getCollections()
 }
 
-async function reload(ctx) {
+function reload(ctx) {
   ctx.send('ok')
-  const {
-    config: { autoReload },
-  } = strapi
-  if (!autoReload) {
-    return {
-      message:
-        'Reload is only possible in develop mode. Please reload server manually.',
-      title: 'Reload failed',
-      error: true,
-      link:
-        'https://strapi.io/documentation/developer-docs/latest/developer-resources/cli/CLI.html#strapi-start',
-    }
-  } else {
-    strapi.reload.isWatching = false
-    strapi.reload()
-    return { message: 'ok' }
-  }
+  return reloader()
 }
 
 module.exports = {
-  getClientCredentials: async ctx => sendCtx(ctx, getClientCredentials),
+  getClientCredentials: async ctx => ctxWrapper(ctx, getClientCredentials),
   waitForCollectionIndexing: async ctx =>
-    sendCtx(ctx, waitForCollectionIndexing),
-  getCollections: async ctx => sendCtx(ctx, getCollections),
-  addCollection: async ctx => sendCtx(ctx, addCollection),
-  addCredentials: async ctx => sendCtx(ctx, addCredentials),
-  deleteAllIndexes: async ctx => sendCtx(ctx, deleteAllIndexes),
-  deleteIndex: async ctx => sendCtx(ctx, deleteIndex),
-  removeCollection: async ctx => sendCtx(ctx, removeCollection),
-  updateCollections: async ctx => sendCtx(ctx, updateCollections),
-  reload: async ctx => sendCtx(ctx, reload),
+    ctxWrapper(ctx, waitForCollectionIndexing),
+  getCollections: async ctx => ctxWrapper(ctx, getCollections),
+  addCollection: async ctx => ctxWrapper(ctx, addCollection),
+  addCredentials: async ctx => ctxWrapper(ctx, addCredentials),
+  deleteAllIndexes: async ctx => ctxWrapper(ctx, deleteAllIndexes),
+  deleteIndex: async ctx => ctxWrapper(ctx, deleteIndex),
+  removeCollection: async ctx => ctxWrapper(ctx, removeCollection),
+  updateCollections: async ctx => ctxWrapper(ctx, updateCollections),
+  reload: async ctx => ctxWrapper(ctx, reload),
 }

@@ -7,19 +7,17 @@
  */
 
 async function getStoreKey(key) {
-  return this.store().get({ key })
+  return this.store.get({ key })
 }
 
-async function setStoreKey(key) {
-  return this.store().set(key)
+async function setStoreKey({ key, value }) {
+  return this.store.set({ key, value })
 }
 
-function store() {
-  return strapi.plugins.meilisearch.store
-}
-
-module.exports = {
-  store,
-  getStoreKey,
-  setStoreKey,
+module.exports = store => {
+  return {
+    store,
+    getStoreKey,
+    setStoreKey,
+  }
 }
