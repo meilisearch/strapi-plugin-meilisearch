@@ -11,11 +11,11 @@
  */
 
 const services = require('../../services/strapi')
-const Connector = require('../../services/connector')
+const createConnector = require('../../services/connectors')
 
 function addWatchersOnCollections({
   collections,
-  lifecycleService,
+  lifeCycles,
   models,
   connector,
 }) {
@@ -23,7 +23,7 @@ function addWatchersOnCollections({
   collections.map(collection => {
     const model = models[collection]
 
-    const meilisearchLifecycles = Object.keys(lifecycleService)
+    const meilisearchLifecycles = Object.keys(lifeCycles)
 
     model.lifecycles = model.lifecycles || {}
 
@@ -31,13 +31,13 @@ function addWatchersOnCollections({
       const fn = model.lifecycles[lifecycleName] || (() => {})
       model.lifecycles[lifecycleName] = data => {
         fn(data)
-        lifecycleService[lifecycleName](data, collection, connector)
+        lifeCycles[lifecycleName](data, collection, connector)
       }
     })
   })
 }
 
-async function initHooks(connector, lifecycleService, models) {
+async function initHooks(connector, lifeCycles, models) {
   try {
     const credentials = await connector.resolveClientCredentials()
     let hookedCollections = await connector.getWatchedCollections()
@@ -54,7 +54,7 @@ async function initHooks(connector, lifecycleService, models) {
 
       addWatchersOnCollections({
         collections: indexes,
-        lifecycleService,
+        lifeCycles,
         models,
         connector,
       })
@@ -72,24 +72,26 @@ module.exports = async () => {
   const {
     storeService,
     meilisearchService,
-    clientService,
+    MeiliSearchClient,
     storeClient,
-    lifeCycleService,
+    lifeCycles,
     pluginConfig,
     models,
+    strapiServices,
   } = services()
 
-  const connector = await Connector({
+  const connector = await createConnector({
     storeService,
     meilisearchService,
-    clientService,
+    MeiliSearchClient,
     storeClient,
     models,
+    strapiServices,
   })
 
   // initialize credentials from config file
   connector.updateStoreCredentials(pluginConfig, models)
 
   // initialize hooks
-  await initHooks(connector, lifeCycleService, models)
+  await initHooks(connector, lifeCycles, models)
 }

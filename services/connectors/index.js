@@ -1,29 +1,23 @@
-const {
-  isCollectionACompositeIndex,
-  numberOfRowsInCollection,
-  getMultiEntriesCollections,
-  fetchRowBatch,
-  getIndexName,
-} = require('./../services/collection')
+'use strict'
+
+const createCollectionConnector = require('./collection-connector')
 
 module.exports = async ({
-  clientService,
+  MeiliSearchClient,
   meilisearchService,
   storeService,
   storeClient,
   models,
+  strapiServices,
 }) => {
-  console.log({ storeClient })
-  console.log({ storeService })
-
+  const colConnector = createCollectionConnector(strapiServices, models)
   const store = storeService(storeClient)
   const apiKey = await store.getStoreKey('meilisearch_api_key')
   const host = await store.getStoreKey('meilisearch_host')
-  const client = clientService({ apiKey, host })
+  const client = MeiliSearchClient({ apiKey, host })
   const meilisearch = meilisearchService(client)
 
   return {
-    meilisearch,
     addCredentials: async function ({ host, apiKey }) {
       const {
         configFileApiKey,
@@ -87,18 +81,18 @@ module.exports = async ({
     },
     deleteIndex: async function (collection) {
       await meilisearch.deleteIndex({
-        indexUid: getIndexName(collection, models),
+        indexUid: colConnector.getIndexName(collection),
       })
     },
     deleteEntriesFromMeiliSearch: async function ({ collection, entriesId }) {
       await meilisearch.deleteDocuments({
-        indexUid: getIndexName(collection, models),
+        indexUid: colConnector.getIndexName(collection),
         documentIds: entriesId,
       })
     },
     waitForCollectionIndexation: async function (collection) {
       const numberOfDocuments = await meilisearch.waitForPendingUpdates({
-        indexUid: getIndexName(collection, models),
+        indexUid: colConnector.getIndexName(collection),
         updateNbr: 2,
       })
       return { numberOfDocuments }
@@ -106,9 +100,9 @@ module.exports = async ({
     getCollectionsReport: async function () {
       const indexes = await meilisearch.getIndexes()
       const watchedCollections = await this.getWatchedCollections()
-      const multiRowsCollections = getMultiEntriesCollections()
+      const multiRowsCollections = colConnector.listAllMultiEntriesCollections()
       const collections = multiRowsCollections.map(async collection => {
-        const indexUid = getIndexName(collection, models)
+        const indexUid = colConnector.getIndexName(collection)
 
         const existInMeilisearch = !!indexes.find(
           index => index.name === indexUid
@@ -117,7 +111,7 @@ module.exports = async ({
           ? await meilisearch.getStats({ indexUid })
           : {}
 
-        const numberOfRows = await numberOfRowsInCollection(collection)
+        const numberOfRows = await colConnector.numberOfRows(collection)
         return {
           collection,
           indexUid,
@@ -135,27 +129,27 @@ module.exports = async ({
         entry = [entry]
       }
       return meilisearch.addDocuments({
-        indexUid: getIndexName(collection, models),
+        indexUid: colConnector.getIndexName(collection),
         data: this.transformEntries(collection, entry),
       })
     },
     addCollectionInMeiliSearch: async function (collection) {
       await meilisearch.createIndex({
-        indexUid: getIndexName(collection, models),
+        indexUid: colConnector.getIndexName(collection),
       })
-      const entries_count = await numberOfRowsInCollection(collection)
+      const entries_count = await colConnector.numberOfRows(collection)
       const BATCH_SIZE = 1000
       const updateIds = []
 
       for (let index = 0; index <= entries_count; index += BATCH_SIZE) {
         const entries =
-          (await fetchRowBatch({
+          (await colConnector.fetchRowBatch({
             start: index,
             limit: BATCH_SIZE,
             collection,
           })) || []
 
-        const indexUid = getIndexName(collection, models)
+        const indexUid = colConnector.getIndexName(collection)
         const { updateId } = await meilisearch.addDocuments({
           indexUid,
           data: this.transformEntries(collection, entries),
@@ -167,28 +161,28 @@ module.exports = async ({
     },
     updateCollectionInMeiliSearch: async function (collection) {
       // Delete whole index only if the index is not a composite index
-      if (collection === getIndexName(collection, models)) {
+      if (collection === colConnector.getIndexName(collection)) {
         const { updateId } = await meilisearch.deleteAllDocuments({
-          indexUid: getIndexName(collection, models),
+          indexUid: colConnector.getIndexName(collection),
         })
         await meilisearch.waitForPendingUpdate({
           updateId,
-          indexUid: getIndexName(collection, models),
+          indexUid: colConnector.getIndexName(collection),
         })
       }
       return this.addCollectionInMeiliSearch(collection)
     },
     removeCollectionFromMeiliSearch: async function (collection) {
-      const isCompositeIndex = isCollectionACompositeIndex(collection, models)
+      const isCompositeIndex = colConnector.isCompositeIndex(collection)
 
       if (!isCompositeIndex) {
         await meilisearch.deleteIndex({
-          indexUid: getIndexName(collection, models),
+          indexUid: colConnector.getIndexName(collection),
         })
       } else {
         // TODO if composite
         await meilisearch.deleteIndex({
-          indexUid: getIndexName(collection, models),
+          indexUid: colConnector.getIndexName(collection),
         })
       }
       return { message: 'ok' }
@@ -211,7 +205,7 @@ module.exports = async ({
       let indexes = await meilisearch.getIndexes()
       indexes = indexes.map(index => index.uid)
       return collections.filter(collection =>
-        indexes.includes(getIndexName(collection, models))
+        indexes.includes(colConnector.getIndexName(collection))
       )
     },
     /**

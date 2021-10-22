@@ -1,3 +1,5 @@
+'use strict'
+
 /**
  * @brief Calculate number of records in an index while considering the case of
  * composite indexes.

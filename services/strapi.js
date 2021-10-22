@@ -1,13 +1,16 @@
+'use strict'
+
 module.exports = () => ({
   storeService: strapi.plugins.meilisearch.services.store,
   meilisearchService: strapi.plugins.meilisearch.services.meilisearch,
-  clientService: strapi.plugins.meilisearch.services.client,
+  MeiliSearchClient: strapi.plugins.meilisearch.services.client,
   storeClient: strapi.store({
     environment: strapi.config.environment,
     type: 'plugin',
     name: 'meilisearch_store',
   }),
-  lifeCycleService: strapi.plugins.meilisearch.services.lifecycles,
+  lifeCycles: strapi.plugins.meilisearch.services.lifecycles,
   models: strapi.models,
   pluginConfig: strapi.config,
+  strapiServices: strapi.services,
 })
