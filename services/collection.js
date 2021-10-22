@@ -1,32 +1,23 @@
 'use strict'
+
 /**
- * @brief Convert a mode instance into data structure used for indexing.
+ * @brief: Map model name into the actual index name in meilisearch instance. it
+ * uses `searchIndexName` property from model defnition
  *
- * @param indexUid - This is will equal to model's name
- * @param data {Array|Object} - The data to convert. Conversion will use
- * the static method `toSearchIndex` defined in the model definition
+ * @param indexUid - this will be equal to model's name
  *
- * @return {Array|Object} - Converted or mapped data
+ * @return {String} - Actual index name
  */
-function transformEntries(collection, data) {
-  console.log({ collection, data })
-  const model = strapi.models[collection]
-  const mapFunction = model.toSearchIndex
-  if (!(mapFunction instanceof Function)) {
-    return data
-  }
-  if (Array.isArray(data)) {
-    data.map(mapFunction)
-    return data.map(mapFunction)
-  }
-  return mapFunction(data)
+function getIndexName(collection, models) {
+  const model = models[collection]
+  return model.searchIndexName || collection
 }
 
 /**
  * @param  {string} collection - Name of the collection
  */
-function isCollectionACompositeIndex(collection) {
-  const model = strapi.models[collection]
+function isCollectionACompositeIndex(collection, models) {
+  const model = models[collection]
   // console.log('col', strapi.models[collection])
   const isCompositeIndex = !!model.isUsingCompositeIndex
   return isCompositeIndex
@@ -54,8 +45,8 @@ async function fetchRowBatch({ start, limit, collection }) {
 
 module.exports = {
   fetchRowBatch,
-  transformEntries,
   isCollectionACompositeIndex,
   numberOfRowsInCollection,
   getMultiEntriesCollections,
+  getIndexName,
 }

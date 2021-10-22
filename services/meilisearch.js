@@ -19,11 +19,14 @@ function removeDateLogs(document) {
 }
 
 async function addDocuments({ indexUid, data }) {
-  const noDateLogDocuments = data.map(document => removeDateLogs(document))
-  return this.client.index(indexUid).addDocuments(noDateLogDocuments)
+  if (data.length > 0) {
+    const noDateLogDocuments = data.map(document => removeDateLogs(document))
+    return this.client.index(indexUid).addDocuments(noDateLogDocuments)
+  }
 }
 
 async function deleteDocuments({ indexUid, documentIds }) {
+  console.log(documentIds)
   return this.client.index(indexUid).deleteDocuments(documentIds)
 }
 
@@ -32,7 +35,11 @@ async function deleteAllDocuments({ indexUid }) {
 }
 
 async function getIndexes() {
-  return this.client.listIndexes()
+  try {
+    return await this.client.getIndexes()
+  } catch (e) {
+    return []
+  }
 }
 
 async function createIndex({ indexUid }) {

@@ -13,10 +13,15 @@
 const services = require('../../services/strapi')
 const Connector = require('../../services/connector')
 
-function addWatchersOnCollections({ client, collections, lifecycleService }) {
+function addWatchersOnCollections({
+  collections,
+  lifecycleService,
+  models,
+  connector,
+}) {
   // Add lifecyles
   collections.map(collection => {
-    const model = strapi.models[collection]
+    const model = models[collection]
 
     const meilisearchLifecycles = Object.keys(lifecycleService)
 
@@ -26,13 +31,13 @@ function addWatchersOnCollections({ client, collections, lifecycleService }) {
       const fn = model.lifecycles[lifecycleName] || (() => {})
       model.lifecycles[lifecycleName] = data => {
         fn(data)
-        lifecycleService[lifecycleName](data, collection, client)
+        lifecycleService[lifecycleName](data, collection, connector)
       }
     })
   })
 }
 
-async function initHooks(connector, lifecycleService) {
+async function initHooks(connector, lifecycleService, models) {
   try {
     const credentials = await connector.resolveClientCredentials()
     let hookedCollections = await connector.getWatchedCollections()
@@ -42,9 +47,6 @@ async function initHooks(connector, lifecycleService) {
     }
 
     if (credentials.host && hookedCollections) {
-      // Collections in Strapi
-      const models = strapi.models
-
       // get list of Indexes In MeilISearch that are Collections in Strapi
       const indexes = await connector.getIndexUidsOfIndexedCollections(
         Object.keys(models)
@@ -52,8 +54,9 @@ async function initHooks(connector, lifecycleService) {
 
       addWatchersOnCollections({
         collections: indexes,
-        client: connector.getClient(),
         lifecycleService,
+        models,
+        connector,
       })
       connector.addWatchedCollectionToStore(indexes)
     }
@@ -72,6 +75,8 @@ module.exports = async () => {
     clientService,
     storeClient,
     lifeCycleService,
+    pluginConfig,
+    models,
   } = services()
 
   const connector = await Connector({
@@ -79,11 +84,12 @@ module.exports = async () => {
     meilisearchService,
     clientService,
     storeClient,
+    models,
   })
 
   // initialize credentials from config file
-  connector.updateStoreCredentials(strapi.config)
+  connector.updateStoreCredentials(pluginConfig, models)
 
   // initialize hooks
-  await initHooks(connector, lifeCycleService)
+  await initHooks(connector, lifeCycleService, models)
 }

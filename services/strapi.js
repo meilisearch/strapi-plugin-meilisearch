@@ -8,4 +8,6 @@ module.exports = () => ({
     name: 'meilisearch_store',
   }),
   lifeCycleService: strapi.plugins.meilisearch.services.lifecycles,
+  models: strapi.models,
+  pluginConfig: strapi.config,
 })

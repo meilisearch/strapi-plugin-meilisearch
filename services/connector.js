@@ -1,18 +1,17 @@
 const {
-  transformEntries,
   isCollectionACompositeIndex,
   numberOfRowsInCollection,
   getMultiEntriesCollections,
   fetchRowBatch,
+  getIndexName,
 } = require('./../services/collection')
-
-const { getIndexName } = require('./../services/indexes')
 
 module.exports = async ({
   clientService,
   meilisearchService,
   storeService,
   storeClient,
+  models,
 }) => {
   console.log({ storeClient })
   console.log({ storeService })
@@ -76,18 +75,7 @@ module.exports = async ({
         value: !!host,
       })
     },
-    addCollectionInMeiliSearch: async function ({
-      documents = [],
-      collection,
-    }) {
-      const indexUid = getIndexName(collection)
-      if (documents.length > 0) {
-        return meilisearch.addDocuments({
-          indexUid,
-          data: transformEntries(collection, documents),
-        })
-      }
-    },
+
     resolveClientCredentials: async function () {
       const apiKey = await store.getStoreKey('meilisearch_api_key')
       const host = await store.getStoreKey('meilisearch_host')
@@ -97,45 +85,36 @@ module.exports = async ({
         (await store.getStoreKey('meilisearch_host_config')) || false
       return { apiKey, host, configFileApiKey, configFileHost }
     },
-    getClient: function () {
-      return client
-    },
-    getIndexStats: async function (collection) {
-      // TODO should work for compositeIndexes as well
-      const indexUid = getIndexName(collection)
-      return meilisearch.getStats({ indexUid })
-    },
-    getIndexes: async function () {
-      try {
-        return await meilisearch.getIndexes()
-      } catch (e) {
-        return []
-      }
-    },
     deleteIndex: async function (collection) {
       await meilisearch.deleteIndex({
-        indexUid: getIndexName(collection),
+        indexUid: getIndexName(collection, models),
       })
     },
-    waitForIndexation: async function (collection) {
+    deleteEntriesFromMeiliSearch: async function ({ collection, entriesId }) {
+      await meilisearch.deleteDocuments({
+        indexUid: getIndexName(collection, models),
+        documentIds: entriesId,
+      })
+    },
+    waitForCollectionIndexation: async function (collection) {
       const numberOfDocuments = await meilisearch.waitForPendingUpdates({
-        indexUid: getIndexName(collection),
+        indexUid: getIndexName(collection, models),
         updateNbr: 2,
       })
       return { numberOfDocuments }
     },
-    getCollections: async function () {
-      const indexes = await this.getIndexes()
+    getCollectionsReport: async function () {
+      const indexes = await meilisearch.getIndexes()
       const watchedCollections = await this.getWatchedCollections()
       const multiRowsCollections = getMultiEntriesCollections()
       const collections = multiRowsCollections.map(async collection => {
-        const indexUid = getIndexName(collection)
+        const indexUid = getIndexName(collection, models)
 
         const existInMeilisearch = !!indexes.find(
           index => index.name === indexUid
         )
         const { numberOfDocuments = 0, isIndexing = false } = existInMeilisearch
-          ? await this.getIndexStats(collection)
+          ? await meilisearch.getStats({ indexUid })
           : {}
 
         const numberOfRows = await numberOfRowsInCollection(collection)
@@ -151,54 +130,65 @@ module.exports = async ({
       })
       return { collections: await Promise.all(collections) }
     },
-    addCollection: async function (collection) {
+    addOneEntryInMeiliSearch: async function ({ collection, entry }) {
+      if (!Array.isArray(entry)) {
+        entry = [entry]
+      }
+      return meilisearch.addDocuments({
+        indexUid: getIndexName(collection, models),
+        data: this.transformEntries(collection, entry),
+      })
+    },
+    addCollectionInMeiliSearch: async function (collection) {
       await meilisearch.createIndex({
-        indexUid: getIndexName(collection),
+        indexUid: getIndexName(collection, models),
       })
       const entries_count = await numberOfRowsInCollection(collection)
       const BATCH_SIZE = 1000
       const updateIds = []
 
       for (let index = 0; index <= entries_count; index += BATCH_SIZE) {
-        const rows_batch = await fetchRowBatch({
-          start: index,
-          limit: BATCH_SIZE,
-          collection,
+        const entries =
+          (await fetchRowBatch({
+            start: index,
+            limit: BATCH_SIZE,
+            collection,
+          })) || []
+
+        const indexUid = getIndexName(collection, models)
+        const { updateId } = await meilisearch.addDocuments({
+          indexUid,
+          data: this.transformEntries(collection, entries),
         })
 
-        const { updateId } = await this.addCollectionInMeiliSearch({
-          collection,
-          documents: rows_batch,
-          meilisearch,
-        })
         if (updateId) updateIds.push(updateId)
       }
       return { updateIds }
     },
-    updateCollection: async function (collection) {
+    updateCollectionInMeiliSearch: async function (collection) {
       // Delete whole index only if the index is not a composite index
-      if (collection === getIndexName(collection)) {
+      if (collection === getIndexName(collection, models)) {
         const { updateId } = await meilisearch.deleteAllDocuments({
-          indexUid: getIndexName(collection),
+          indexUid: getIndexName(collection, models),
         })
         await meilisearch.waitForPendingUpdate({
           updateId,
-          indexUid: getIndexName(collection),
+          indexUid: getIndexName(collection, models),
         })
       }
-      return this.addCollection(collection)
+      return this.addCollectionInMeiliSearch(collection)
     },
-    removeCollection: async function (collection) {
-      const isCompositeIndex = isCollectionACompositeIndex(collection)
+    removeCollectionFromMeiliSearch: async function (collection) {
+      const isCompositeIndex = isCollectionACompositeIndex(collection, models)
 
       if (!isCompositeIndex) {
         await meilisearch.deleteIndex({
-          indexUid: getIndexName(collection),
+          indexUid: getIndexName(collection, models),
         })
       } else {
         // TODO if composite
         await meilisearch.deleteIndex({
-          indexUid: getIndexName(collection),
+          indexUid: getIndexName(collection, models),
         })
       }
       return { message: 'ok' }
@@ -218,9 +208,32 @@ module.exports = async ({
     },
     getIndexUidsOfIndexedCollections: async function (collections) {
       // get list of indexes in MeiliSearch Instance
-      let indexes = await this.getIndexes()
+      let indexes = await meilisearch.getIndexes()
       indexes = indexes.map(index => index.uid)
-      return collections.filter(model => indexes.includes(getIndexName(model)))
+      return collections.filter(collection =>
+        indexes.includes(getIndexName(collection, models))
+      )
+    },
+    /**
+     * @brief Convert a mode instance into data structure used for indexing.
+     *
+     * @param indexUid - This is will equal to model's name
+     * @param data {Array|Object} - The data to convert. Conversion will use
+     * the static method `toSearchIndex` defined in the model definition
+     *
+     * @return {Array|Object} - Converted or mapped data
+     */
+    transformEntries: function (collection, entries) {
+      const model = models[collection]
+      const mapFunction = model.toSearchIndex
+      if (!(mapFunction instanceof Function)) {
+        return entries
+      }
+      if (Array.isArray(entries)) {
+        entries.map(mapFunction)
+        return entries.map(mapFunction)
+      }
+      return mapFunction(entries)
     },
   }
 }

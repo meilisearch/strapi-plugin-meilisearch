@@ -1,17 +1,4 @@
 /**
- * @brief: Map model name into the actual index name in meilisearch instance. it
- * uses `searchIndexName` property from model defnition
- *
- * @param indexUid - this will be equal to model's name
- *
- * @return {String} - Actual index name
- */
-function getIndexName(indexUid) {
-  const model = strapi.models[indexUid]
-  // console.log('getIndexName', { models: model.searchIndexName, indexUid })
-  return model.searchIndexName || indexUid
-}
-/**
  * @brief Calculate number of records in an index while considering the case of
  * composite indexes.
  *
@@ -27,8 +14,8 @@ function getIndexName(indexUid) {
  *
  * @return {Object} - { numberOfDocuments, isIndexing }
  */
-function calcNumOfDocuments(indexUid, compositeStats) {
-  const model = strapi.models[indexUid]
+function calcNumOfDocuments(indexUid, compositeStats, models) {
+  const model = models[indexUid]
   const isCompositeIndex = model.isUsingCompositeIndex
 
   // If the index is not ca composite index, do nothing
@@ -48,6 +35,5 @@ function calcNumOfDocuments(indexUid, compositeStats) {
 }
 
 module.exports = {
-  getIndexName,
   calcNumOfDocuments,
 }
