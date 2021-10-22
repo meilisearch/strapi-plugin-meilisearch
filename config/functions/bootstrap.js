@@ -34,7 +34,7 @@ function addWatchersOnCollections({ collections, plugin, models, connector }) {
 
 async function initHooks(connector, plugin, models) {
   try {
-    const credentials = await connector.resolveClientCredentials()
+    const credentials = await connector.storedCredentials()
     let hookedCollections = await connector.getWatchedCollections()
 
     if (!hookedCollections) {

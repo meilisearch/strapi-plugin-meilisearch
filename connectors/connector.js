@@ -4,10 +4,15 @@ const createCollectionConnector = require('./collection')
 const createMeiliSearchConnector = require('./meilisearch')
 
 /**
- * Assign the project to an employee.
- * @param {Object} services - The employee who is responsible for the project.
- * @param {string} employee.name - The name of the employee.
- * @param {string} employee.department - The employee's department.
+ * Connector factory to communicate between Strapi, the store, and MeiliSearch
+ *
+ * @param {Object} strapi - Strapi environment.
+ * @param {Object} strapi.plugin - Plugins required services.
+ * @param {Object} strapi.models - Strapi models.
+ * @param {Object} strapi.services - Strapi services.
+ * @param {Object} clients - Required clients.
+ * @param {Object} clients.MeiliSearchClient - Constructor to create a MeiliSearch client.
+ * @param {Object} clients.storeClient - Store instance.
  */
 module.exports = async (
   { plugin, models, services },
@@ -21,25 +26,33 @@ module.exports = async (
   const meilisearch = createMeiliSearchConnector(client)
 
   return {
+    /**
+     * Add Clients credentials to the store
+     *
+     * @param  {Object} credentials
+     * @param  {string} credentials.host - Host of the searchClient.
+     * @param  {string} credentials.apiKey - ApiKey of the searchClient.
+     * @return {{ host: string, apiKey: string}} - Credentials
+     */
     addCredentials: async function ({ host, apiKey }) {
       const {
         configFileApiKey,
         configFileHost,
-      } = await this.resolveClientCredentials()
+      } = await this.storedCredentials()
       if (!configFileApiKey) {
-        await store.setStoreKey({
-          key: 'meilisearch_api_key',
-          value: apiKey,
-        })
+        await store.setApiKey(apiKey)
       }
       if (!configFileHost) {
-        await store.setStoreKey({
-          key: 'meilisearch_host',
-          value: host,
-        })
+        await store.setHost(host)
       }
-      return this.resolveClientCredentials()
+      return this.storedCredentials()
     },
+
+    /**
+     * Update clients credentials in the store
+     *
+     * @param  {Object} config - Credentials
+     */
     updateStoreCredentials: async function (config) {
       // optional chaining is not natively supported by node 12.
       let apiKey = false
@@ -51,48 +64,47 @@ module.exports = async (
       }
 
       if (apiKey) {
-        await store.setStoreKey({
-          key: 'meilisearch_api_key',
-          value: apiKey,
-        })
+        await store.setApiKey(apiKey)
       }
-      await store.setStoreKey({
-        key: 'meilisearch_api_key_config',
-        value: !!apiKey,
-      })
+      await store.setConfigApiKey(!!apiKey)
 
       if (host) {
-        await store.setStoreKey({
-          key: 'meilisearch_host',
-          value: host,
-        })
+        await store.setHost(host)
       }
-      await store.setStoreKey({
-        key: 'meilisearch_host_config',
-        value: !!host,
-      })
+      await store.setConfigHost(!!host)
     },
 
-    resolveClientCredentials: async function () {
-      const apiKey = await store.getStoreKey('meilisearch_api_key')
-      const host = await store.getStoreKey('meilisearch_host')
-      const configFileApiKey =
-        (await store.getStoreKey('meilisearch_api_key_config')) || false
-      const configFileHost =
-        (await store.getStoreKey('meilisearch_host_config')) || false
+    /**
+     * Get credentials from the store and from the config file.
+     *
+     * @return {{ host: string, apiKey: string, configFileHost: string, configFileApiKey: string}}
+     */
+    storedCredentials: async function () {
+      const apiKey = await store.getApiKey()
+      const host = await store.getHost()
+      const configFileApiKey = (await store.getConfigApiKey()) || false
+      const configFileHost = (await store.getConfigHost()) || false
       return { apiKey, host, configFileApiKey, configFileHost }
     },
-    deleteIndex: async function (collection) {
-      await meilisearch.deleteIndex({
-        indexUid: colConnector.getIndexName(collection),
-      })
-    },
+
+    /**
+     * Delete multiples entries from the collection in its index in MeiliSearch.
+     *
+     * @param  {string} collection - Collection name.
+     * @param  {number[]} entriesId - Entries id.
+     */
     deleteEntriesFromMeiliSearch: async function ({ collection, entriesId }) {
       await meilisearch.deleteDocuments({
         indexUid: colConnector.getIndexName(collection),
         documentIds: entriesId,
       })
     },
+
+    /**
+     * Wait for the collection to be indexed in MeiliSearch
+     *
+     * @param  {string} collection - Collection name.
+     */
     waitForCollectionIndexation: async function (collection) {
       const numberOfDocuments = await meilisearch.waitForPendingUpdates({
         indexUid: colConnector.getIndexName(collection),
@@ -100,6 +112,12 @@ module.exports = async (
       })
       return { numberOfDocuments }
     },
+
+    /**
+     * Information about collections in MeiliSearch.
+     *
+     * @returns {object[]} - List of collections reports.
+     */
     getCollectionsReport: async function () {
       const indexes = await meilisearch.getIndexes()
       const watchedCollections = await this.getWatchedCollections()
@@ -127,6 +145,14 @@ module.exports = async (
       })
       return { collections: await Promise.all(collections) }
     },
+
+    /**
+     * Add one entry from a collection to its index in MeiliSearch.
+     *
+     * @param  {string} collection - Collection name.
+     * @param  {string} entry - Entry from the document.
+     * @returns {{ updateId: number }} - Update information.
+     */
     addOneEntryInMeiliSearch: async function ({ collection, entry }) {
       if (!Array.isArray(entry)) {
         entry = [entry]
@@ -136,6 +162,13 @@ module.exports = async (
         data: this.transformEntries(collection, entry),
       })
     },
+
+    /**
+     * Add all entries from a collection to its index in MeiliSearch.
+     *
+     * @param  {string} collection - Collection name.
+     * @returns {number[]} - All updates id from the indexation process.
+     */
     addCollectionInMeiliSearch: async function (collection) {
       await meilisearch.createIndex({
         indexUid: colConnector.getIndexName(collection),
@@ -162,6 +195,13 @@ module.exports = async (
       }
       return { updateIds }
     },
+
+    /**
+     * Update all entries from a collection to its index in MeiliSearch.
+     *
+     * @param  {string} collection - Collection name.
+     * @returns {number[]} - All updates id from the indexation process.
+     */
     updateCollectionInMeiliSearch: async function (collection) {
       // Delete whole index only if the index is not a composite index
       if (collection === colConnector.getIndexName(collection)) {
@@ -175,6 +215,11 @@ module.exports = async (
       }
       return this.addCollectionInMeiliSearch(collection)
     },
+    /**
+     * Remove a collection from MeiliSearch
+     *
+     * @param  {string} collection - Collection name.
+     */
     removeCollectionFromMeiliSearch: async function (collection) {
       const isCompositeIndex = colConnector.isCompositeIndex(collection)
 
@@ -190,35 +235,57 @@ module.exports = async (
       }
       return { message: 'ok' }
     },
+
+    /**
+     * Get watched collections from the store
+     *
+     * @returns {string[]} - Collection names.
+     */
     getWatchedCollections: async function () {
-      const collections = await store.getStoreKey('meilisearch_hooked')
+      const collections = await store.getHookedCollections()
       return collections || []
     },
+
+    /**
+     * Create watched collections in the store
+     *
+     * @returns {[]}
+     */
     createWatchedCollectionsStore: async function () {
-      return store.setStoreKey({ key: 'meilisearch_hooked', value: [] })
+      return store.setHookedCollections([])
     },
+
+    /**
+     * Add watched collections to the store.
+     *
+     * @param {string[]} - Collections names that watched.
+     * @returns {string[]} - Collection names.
+     */
     addWatchedCollectionToStore: async function (collections) {
-      store.setStoreKey({
-        key: 'meilisearch_hooked',
-        value: collections,
-      })
+      return store.setHookedCollections(collections)
     },
+
+    /**
+     * Get list of index uids in MeiliSearch Instance
+     *
+     * @returns {number[]} - Index uids
+     */
     getIndexUidsOfIndexedCollections: async function (collections) {
-      // get list of indexes in MeiliSearch Instance
       let indexes = await meilisearch.getIndexes()
       indexes = indexes.map(index => index.uid)
       return collections.filter(collection =>
         indexes.includes(colConnector.getIndexName(collection))
       )
     },
+
     /**
-     * @brief Convert a mode instance into data structure used for indexing.
+     * Transform collection entries before indexation in MeiliSearch.
      *
-     * @param indexUid - This is will equal to model's name
-     * @param data {Array|Object} - The data to convert. Conversion will use
+     * @param {string} collection - Collection name.
+     * @param {Array<Object>} data  - The data to convert. Conversion will use
      * the static method `toSearchIndex` defined in the model definition
      *
-     * @return {Array|Object} - Converted or mapped data
+     * @return {Array<Object>} - Converted or mapped data
      */
     transformEntries: function (collection, entries) {
       const model = models[collection]

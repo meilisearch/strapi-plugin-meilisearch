@@ -47,7 +47,7 @@ async function ctxWrapper(ctx, fct) {
 }
 
 async function getClientCredentials(ctx, { connector }) {
-  return connector.resolveClientCredentials()
+  return connector.storedCredentials()
 }
 
 async function deleteAllIndexes(ctx, { connector }) {
