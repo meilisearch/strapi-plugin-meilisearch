@@ -6,29 +6,28 @@
  * @description: A set of functions called "actions" of the `meilisearch` plugin.
  */
 
-const createConnector = require('../services/connectors')
-const reloader = require('./../services/reloader')
-const services = require('./../services/strapi')
+const createConnector = require('../connectors/connector')
+const reloader = require('./utils/reloader')
+const strapi = require('./../services/strapi')
 
 async function ctxWrapper(ctx, fct) {
   try {
     const {
-      storeService,
-      meilisearchService,
+      plugin,
+      models,
+      services,
       MeiliSearchClient,
       storeClient,
-      models,
-      strapiServices,
-    } = services()
+    } = strapi()
 
-    const connector = await createConnector({
-      MeiliSearchClient,
-      meilisearchService,
-      storeService,
-      storeClient,
-      models,
-      strapiServices,
-    })
+    const connector = await createConnector(
+      {
+        plugin,
+        models,
+        services,
+      },
+      { MeiliSearchClient, storeClient }
+    )
     const body = await fct(ctx, {
       connector,
     })

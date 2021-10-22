@@ -26,10 +26,10 @@
   },
   "files": [
     "admin",
-    "config",
     "controllers",
-    "services",
-    "lib"
+    "connectors",
+    "config",
+    "services"
   ],
   "dependencies": {
     "@buffetjs/core": "^3.3.5",

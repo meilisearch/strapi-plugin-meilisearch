@@ -10,34 +10,29 @@
  * See more details here: https://strapi.io/documentation/developer-docs/latest/concepts/configurations.html#bootstrap
  */
 
-const services = require('../../services/strapi')
-const createConnector = require('../../services/connectors')
+const strapi = require('../../services/strapi')
+const createConnector = require('../../connectors/connector')
 
-function addWatchersOnCollections({
-  collections,
-  lifeCycles,
-  models,
-  connector,
-}) {
+function addWatchersOnCollections({ collections, plugin, models, connector }) {
   // Add lifecyles
   collections.map(collection => {
     const model = models[collection]
 
-    const meilisearchLifecycles = Object.keys(lifeCycles)
+    const lifeCyclesNames = Object.keys(plugin.lifecycles)
 
     model.lifecycles = model.lifecycles || {}
 
-    meilisearchLifecycles.map(lifecycleName => {
+    lifeCyclesNames.map(lifecycleName => {
       const fn = model.lifecycles[lifecycleName] || (() => {})
       model.lifecycles[lifecycleName] = data => {
         fn(data)
-        lifeCycles[lifecycleName](data, collection, connector)
+        plugin.lifecycles[lifecycleName](data, collection, connector)
       }
     })
   })
 }
 
-async function initHooks(connector, lifeCycles, models) {
+async function initHooks(connector, plugin, models) {
   try {
     const credentials = await connector.resolveClientCredentials()
     let hookedCollections = await connector.getWatchedCollections()
@@ -54,7 +49,7 @@ async function initHooks(connector, lifeCycles, models) {
 
       addWatchersOnCollections({
         collections: indexes,
-        lifeCycles,
+        plugin,
         models,
         connector,
       })
@@ -70,28 +65,26 @@ async function initHooks(connector, lifeCycles, models) {
 // On refresh/build
 module.exports = async () => {
   const {
-    storeService,
-    meilisearchService,
+    plugin,
     MeiliSearchClient,
     storeClient,
-    lifeCycles,
-    pluginConfig,
+    config,
     models,
-    strapiServices,
-  } = services()
+    services,
+  } = strapi()
 
-  const connector = await createConnector({
-    storeService,
-    meilisearchService,
-    MeiliSearchClient,
-    storeClient,
-    models,
-    strapiServices,
-  })
+  const connector = await createConnector(
+    {
+      plugin,
+      models,
+      services,
+    },
+    { MeiliSearchClient, storeClient }
+  )
 
   // initialize credentials from config file
-  connector.updateStoreCredentials(pluginConfig, models)
+  connector.updateStoreCredentials(config, models)
 
   // initialize hooks
-  await initHooks(connector, lifeCycles, models)
+  await initHooks(connector, plugin, models)
 }

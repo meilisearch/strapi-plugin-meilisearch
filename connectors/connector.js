@@ -1,21 +1,24 @@
 'use strict'
 
-const createCollectionConnector = require('./collection-connector')
+const createCollectionConnector = require('./collection')
+const createMeiliSearchConnector = require('./meilisearch')
 
-module.exports = async ({
-  MeiliSearchClient,
-  meilisearchService,
-  storeService,
-  storeClient,
-  models,
-  strapiServices,
-}) => {
-  const colConnector = createCollectionConnector(strapiServices, models)
-  const store = storeService(storeClient)
+/**
+ * Assign the project to an employee.
+ * @param {Object} services - The employee who is responsible for the project.
+ * @param {string} employee.name - The name of the employee.
+ * @param {string} employee.department - The employee's department.
+ */
+module.exports = async (
+  { plugin, models, services },
+  { storeClient, MeiliSearchClient }
+) => {
+  const colConnector = createCollectionConnector(services, models)
+  const store = plugin.store(storeClient)
   const apiKey = await store.getStoreKey('meilisearch_api_key')
   const host = await store.getStoreKey('meilisearch_host')
   const client = MeiliSearchClient({ apiKey, host })
-  const meilisearch = meilisearchService(client)
+  const meilisearch = createMeiliSearchConnector(client)
 
   return {
     addCredentials: async function ({ host, apiKey }) {
@@ -37,14 +40,14 @@ module.exports = async ({
       }
       return this.resolveClientCredentials()
     },
-    updateStoreCredentials: async function (plugins) {
+    updateStoreCredentials: async function (config) {
       // optional chaining is not natively supported by node 12.
       let apiKey = false
       let host = false
 
-      if (plugins && plugins.meilisearch) {
-        apiKey = plugins.meilisearch.apiKey
-        host = plugins.meilisearch.host
+      if (config && config.meilisearch) {
+        apiKey = config.meilisearch.apiKey
+        host = config.meilisearch.host
       }
 
       if (apiKey) {
