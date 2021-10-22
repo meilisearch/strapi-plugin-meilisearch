@@ -17,6 +17,7 @@ async function ctxWrapper(ctx, fct) {
       meilisearchService,
       clientService,
       storeClient,
+      models,
     } = services()
 
     const connector = await Connector({
@@ -24,6 +25,7 @@ async function ctxWrapper(ctx, fct) {
       meilisearchService,
       storeService,
       storeClient,
+      models,
     })
     const body = await fct(ctx, {
       connector,
@@ -54,7 +56,7 @@ async function deleteAllIndexes(ctx, { connector }) {
 
 async function removeCollection(ctx, { connector }) {
   const { collection } = ctx.params
-  await connector.removeCollection(collection)
+  await connector.removeCollectionFromMeiliSearch(collection)
   return { message: 'ok' }
 }
 
@@ -68,7 +70,7 @@ async function deleteIndex(ctx, { connector }) {
 
 async function waitForCollectionIndexing(ctx, { connector }) {
   const { collection } = ctx.params
-  return connector.waitForIndexation(collection)
+  return connector.waitForCollectionIndexation(collection)
 }
 
 async function addCredentials(ctx, { connector }) {
@@ -78,17 +80,17 @@ async function addCredentials(ctx, { connector }) {
 
 async function updateCollections(ctx, { connector }) {
   const { collection } = ctx.params
-  return connector.updateCollection(collection)
+  return connector.updateCollectionInMeiliSearch(collection)
 }
 
 async function addCollection(ctx, { connector }) {
   const { collection } = ctx.params
-  await connector.addCollection(collection)
+  await connector.addCollectionInMeiliSearch(collection)
   return { message: 'Index created' }
 }
 
 async function getCollections(_, { connector }) {
-  return connector.getCollections()
+  return connector.getCollectionsReport()
 }
 
 function reload(ctx) {
