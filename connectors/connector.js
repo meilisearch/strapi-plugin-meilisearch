@@ -32,6 +32,7 @@ module.exports = async (
      * @param  {Object} credentials
      * @param  {string} credentials.host - Host of the searchClient.
      * @param  {string} credentials.apiKey - ApiKey of the searchClient.
+     *
      * @return {{ host: string, apiKey: string}} - Credentials
      */
     addCredentials: async function ({ host, apiKey }) {
@@ -104,13 +105,15 @@ module.exports = async (
      * Wait for the collection to be indexed in MeiliSearch
      *
      * @param  {string} collection - Collection name.
+     *
+     * @returns { numberOfDocumentsIndexed: number }
      */
     waitForCollectionIndexation: async function (collection) {
-      const numberOfDocuments = await meilisearch.waitForPendingUpdates({
+      const numberOfDocumentsIndexed = await meilisearch.waitForPendingUpdates({
         indexUid: colConnector.getIndexName(collection),
         updateNbr: 2,
       })
-      return { numberOfDocuments }
+      return { numberOfDocumentsIndexed }
     },
 
     /**
@@ -132,14 +135,14 @@ module.exports = async (
           ? await meilisearch.getStats({ indexUid })
           : {}
 
-        const numberOfRows = await colConnector.numberOfRows(collection)
+        const numberOfEntries = await colConnector.numberOfEntries(collection)
         return {
           collection,
           indexUid,
           indexed: existInMeilisearch,
           isIndexing,
           numberOfDocuments,
-          numberOfRows,
+          numberOfEntries,
           hooked: watchedCollections.includes(collection),
         }
       })
@@ -167,19 +170,19 @@ module.exports = async (
      * Add all entries from a collection to its index in MeiliSearch.
      *
      * @param  {string} collection - Collection name.
-     * @returns {number[]} - All updates id from the indexation process.
+     * @returns {number[]} - All updates id from the batched indexation process.
      */
     addCollectionInMeiliSearch: async function (collection) {
       await meilisearch.createIndex({
         indexUid: colConnector.getIndexName(collection),
       })
-      const entries_count = await colConnector.numberOfRows(collection)
+      const entries_count = await colConnector.numberOfEntries(collection)
       const BATCH_SIZE = 1000
       const updateIds = []
 
       for (let index = 0; index <= entries_count; index += BATCH_SIZE) {
         const entries =
-          (await colConnector.fetchRowBatch({
+          (await colConnector.getEntriesBatch({
             start: index,
             limit: BATCH_SIZE,
             collection,

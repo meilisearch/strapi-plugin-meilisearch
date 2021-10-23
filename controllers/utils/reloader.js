@@ -1,5 +1,7 @@
 'use strict'
-
+/**
+ * Reload Strapi's server. Only works in development mode.
+ */
 module.exports = async function reload() {
   const {
     config: { autoReload },

@@ -4,6 +4,13 @@
  * to customize this model
  */
 
+/**
+ * Hook function that triggers after a collection creates an entry.
+ *
+ * @param  {object} result - Entry added.
+ * @param  {string} collection - Collection name.
+ * @param  {object} connector - Plugin's connector.
+ */
 async function afterCreate(result, collection, connector) {
   try {
     await connector.addOneEntryInMeiliSearch({
@@ -15,6 +22,13 @@ async function afterCreate(result, collection, connector) {
   }
 }
 
+/**
+ * Hook function that triggers after a collection deletes an entry.
+ *
+ * @param  {object} result - Entry added.
+ * @param  {string} collection - Collection name.
+ * @param  {object} connector - Plugin's connector.
+ */
 async function afterDelete(result, collection, connector) {
   try {
     let entriesId = []
@@ -31,6 +45,13 @@ async function afterDelete(result, collection, connector) {
   }
 }
 
+/**
+ * Hook function that triggers after a collection updates an entry.
+ *
+ * @param  {object} result - Entry added.
+ * @param  {string} collection - Collection name.
+ * @param  {object} connector - Plugin's connector.
+ */
 async function afterUpdate(result, collection, connector) {
   try {
     await connector.addOneEntryInMeiliSearch({

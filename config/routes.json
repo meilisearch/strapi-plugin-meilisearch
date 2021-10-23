@@ -9,14 +9,6 @@
       }
     },
     {
-      "method": "DELETE",
-      "path": "/indexes",
-      "handler": "meilisearch.deleteAllIndexes",
-      "config": {
-        "policies": []
-      }
-    },
-    {
       "method": "GET",
       "path": "/credentials",
       "handler": "meilisearch.getClientCredentials",

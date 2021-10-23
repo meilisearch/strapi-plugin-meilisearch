@@ -1,6 +1,9 @@
 'use strict'
 const { MeiliSearch } = require('meilisearch')
 
+/**
+ * Custom MeiliSearch Error class more suited to Strapi environment.
+ */
 class MeiliSearchError extends Error {
   constructor(
     {
@@ -23,6 +26,13 @@ class MeiliSearchError extends Error {
   }
 }
 
+/**
+ * Create a MeiliSearch client instance.
+ *
+ * @param  {object} config - Information to pass to the constructor.
+ *
+ * @returns { object } - MeiliSearch client instance.
+ */
 module.exports = config => {
   try {
     return new MeiliSearch(config)

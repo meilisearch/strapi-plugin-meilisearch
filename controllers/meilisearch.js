@@ -10,6 +10,12 @@ const createConnector = require('../connectors/connector')
 const reloader = require('./utils/reloader')
 const strapi = require('./../services/strapi')
 
+/**
+ * Wrapper around actions to propagate connector and handle errors.
+ *
+ * @param  {Object} ctx - Http request object
+ * @param  {Function} fct - Handler that will be executed
+ */
 async function ctxWrapper(ctx, fct) {
   try {
     const {
@@ -20,6 +26,7 @@ async function ctxWrapper(ctx, fct) {
       storeClient,
     } = strapi()
 
+    // Create connector between SearchClient, Strapi and the Store.
     const connector = await createConnector(
       {
         plugin,
@@ -28,9 +35,7 @@ async function ctxWrapper(ctx, fct) {
       },
       { MeiliSearchClient, storeClient }
     )
-    const body = await fct(ctx, {
-      connector,
-    })
+    const body = await fct(ctx, connector)
     ctx.send(body)
   } catch (e) {
     console.error(e)
@@ -46,16 +51,27 @@ async function ctxWrapper(ctx, fct) {
   }
 }
 
-async function getClientCredentials(ctx, { connector }) {
+/**
+ * Get Client Credentials from the Store.
+ *
+ * @param  {object} ctx - Http request object.
+ * @param  {object} connector - Connector between components.
+ *
+ * @returns {host: string, apiKey: string}
+ */
+async function getClientCredentials(_, connector) {
   return connector.storedCredentials()
 }
 
-async function deleteAllIndexes(ctx, { connector }) {
-  await connector.meilisearch.deleteIndexes()
-  return { message: 'ok' }
-}
-
-async function removeCollection(ctx, { connector }) {
+/**
+ * Remove one collection indexed in MeiliSearch.
+ *
+ * @param  {object} ctx - Http request object.
+ * @param  {object} connector - Connector between components.
+ *
+ * @returns {message: 'ok'}
+ */
+async function removeCollection(ctx, connector) {
   const { collection } = ctx.params
   await connector.removeCollectionFromMeiliSearch(collection)
   return { message: 'ok' }
@@ -63,37 +79,76 @@ async function removeCollection(ctx, { connector }) {
 
 // TODO only delete when not composite
 // or if composite only has one collection
-async function deleteIndex(ctx, { connector }) {
-  const { collection } = ctx.params
-  await connector.deleteIndex(collection)
-  return { message: 'ok' }
-}
 
-async function waitForCollectionIndexing(ctx, { connector }) {
+/**
+ * Wait for one collection to be completely indexed in MeiliSearch.
+ *
+ * @param  {object} ctx - Http request object.
+ * @param  {object} connector - Connector between components.
+ *
+ * @returns { numberOfDocumentsIndexed: number }
+ */
+async function waitForCollectionIndexing(ctx, connector) {
   const { collection } = ctx.params
   return connector.waitForCollectionIndexation(collection)
 }
 
-async function addCredentials(ctx, { connector }) {
+/**
+ * Add MeiliSearch Credentials to the Store.
+ *
+ * @param  {object} ctx - Http request object.
+ * @param  {object} connector - Connector between components.
+ *
+ * @return {{ host: string, apiKey: string}} - Credentials
+ */
+async function addCredentials(ctx, connector) {
   const { host, apiKey } = ctx.request.body
   return connector.addCredentials({ host, apiKey })
 }
 
-async function updateCollections(ctx, { connector }) {
+/**
+ * Remove and re-index a collection in MeiliSearch.
+ *
+ * @param  {object} ctx - Http request object.
+ * @param  {object} connector - Connector between components.
+ *
+ * @returns {number[]} - All updates id from the indexation process.
+ */
+async function updateCollections(ctx, connector) {
   const { collection } = ctx.params
   return connector.updateCollectionInMeiliSearch(collection)
 }
 
-async function addCollection(ctx, { connector }) {
+/**
+ * Add a collection to MeiliSearch.
+ *
+ * @param  {object} ctx - Http request object.
+ * @param  {object} connector - Connector between components.
+ *
+ * @returns {number[]} - All updates id from the batched indexation process.
+ */
+async function addCollection(ctx, connector) {
   const { collection } = ctx.params
   await connector.addCollectionInMeiliSearch(collection)
   return { message: 'Index created' }
 }
 
-async function getCollections(_, { connector }) {
+/**
+ * Get extended information about collections in MeiliSearch.
+ *
+ * @param  {object} ctx - Http request object.
+ * @param  {object} connector - Connector between components.
+ */
+async function getCollections(_, connector) {
   return connector.getCollectionsReport()
 }
 
+/**
+ * Reloads the server. Only works in development mode.
+ *
+ * @param  {object} ctx - Http request object.
+ * @param  {object} connector - Connector between components.
+ */
 function reload(ctx) {
   ctx.send('ok')
   return reloader()
@@ -106,8 +161,6 @@ module.exports = {
   getCollections: async ctx => ctxWrapper(ctx, getCollections),
   addCollection: async ctx => ctxWrapper(ctx, addCollection),
   addCredentials: async ctx => ctxWrapper(ctx, addCredentials),
-  deleteAllIndexes: async ctx => ctxWrapper(ctx, deleteAllIndexes),
-  deleteIndex: async ctx => ctxWrapper(ctx, deleteIndex),
   removeCollection: async ctx => ctxWrapper(ctx, removeCollection),
   updateCollections: async ctx => ctxWrapper(ctx, updateCollections),
   reload: async ctx => ctxWrapper(ctx, reload),
