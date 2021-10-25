@@ -42,7 +42,7 @@ const removeNotifications = () => {
 const removeCollectionsFromMeiliSearch = async () => {
   const client = new MeiliSearch({ apiKey, host })
   const collections = ['restaurant', 'category', 'project', 'reviews']
-  const indexes = await client.listIndexes()
+  const indexes = await client.getIndexes()
   const allUids = indexes.map(index => index.uid)
   const collectionInMs = collections.filter(col => allUids.includes(col))
   for (const index of collectionInMs) {
@@ -61,6 +61,15 @@ const reloadServer = () => {
 
 describe('Strapi Login flow', () => {
   before(() => {
+    console.log('---------')
+    console.log('---------')
+    console.log('---------')
+
+    console.log({ adminUrl })
+    console.log('---------')
+    console.log('---------')
+    console.log('---------')
+
     cy.clearCookies()
     cy.viewport('macbook-16')
     cy.request({
@@ -117,20 +126,24 @@ describe('Strapi Login flow', () => {
   it('Add Collections to MeiliSearch', () => {
     clickAndCheckRowContent({
       rowNb: 1,
-      contains: ['Yes', 'Reload needed'],
+      contains: ['Yes'],
     })
+    cy.contains('Reload needed')
     clickAndCheckRowContent({
       rowNb: 2,
-      contains: ['Yes', 'Reload needed'],
+      contains: ['Yes'],
     })
+    cy.contains('Reload needed')
     clickAndCheckRowContent({
       rowNb: 3,
-      contains: ['Yes', 'Reload needed'],
+      contains: ['Yes'],
     })
+    cy.contains('Reload needed')
     clickAndCheckRowContent({
       rowNb: 4,
-      contains: ['Yes', 'Reload needed'],
+      contains: ['Yes'],
     })
+    cy.contains('Reload needed')
     reloadServer()
   })
 
@@ -141,10 +154,14 @@ describe('Strapi Login flow', () => {
       checkCollectionContent({ rowNb: 3, contains: ['Yes', 'Active'] })
       checkCollectionContent({ rowNb: 4, contains: ['Yes', 'Active'] })
     } else {
-      checkCollectionContent({ rowNb: 1, contains: ['Yes', 'Reload needed'] })
-      checkCollectionContent({ rowNb: 2, contains: ['Yes', 'Reload needed'] })
-      checkCollectionContent({ rowNb: 3, contains: ['Yes', 'Reload needed'] })
-      checkCollectionContent({ rowNb: 4, contains: ['Yes', 'Reload needed'] })
+      checkCollectionContent({ rowNb: 1, contains: ['Yes'] })
+      cy.contains('Reload needed')
+      checkCollectionContent({ rowNb: 2, contains: ['Yes'] })
+      cy.contains('Reload needed')
+      checkCollectionContent({ rowNb: 3, contains: ['Yes'] })
+      cy.contains('Reload needed')
+      checkCollectionContent({ rowNb: 4, contains: ['Yes'] })
+      cy.contains('Reload needed')
     }
   })
 
@@ -177,6 +194,7 @@ describe('Strapi Login flow', () => {
       checkCollectionContent({ rowNb: 2, contains: ['No', 'Reload needed'] })
       checkCollectionContent({ rowNb: 3, contains: ['No', 'Reload needed'] })
       checkCollectionContent({ rowNb: 4, contains: ['No', 'Reload needed'] })
+      reloadServer()
     }
   })
 
@@ -197,6 +215,13 @@ describe('Strapi Login flow', () => {
     cy.get('.credentials_button').click()
     removeNotifications()
     cy.get('input[name="MSHost"]').should('have.value', host)
+  })
+
+  it('Check if collections are set to 0', () => {
+    checkCollectionContent({ rowNb: 1, contains: ['No', '0 / 3'] })
+    checkCollectionContent({ rowNb: 2, contains: ['No', '0 / 1'] })
+    checkCollectionContent({ rowNb: 3, contains: ['No', '0 / 2'] })
+    checkCollectionContent({ rowNb: 4, contains: ['No', '0 / 1'] })
   })
 
   it('Change Host to empty host', () => {
@@ -231,5 +256,11 @@ describe('Strapi Login flow', () => {
     cy.get('.credentials_button').click()
     removeNotifications()
     cy.get('input[name="MSApiKey"]').should('have.value', apiKey)
+  })
+  it('Try to add a collection to MeiliSearch but fail', () => {
+    clickAndCheckRowContent({
+      rowNb: 1,
+      contains: ['No'],
+    })
   })
 })

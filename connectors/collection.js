@@ -1,75 +1,92 @@
 'use strict'
 
-/**
- * @brief: Map model name into the actual index name in meilisearch instance. it
- * uses `searchIndexName` property from model defnition
- *
- * @param collection - Name of the Collection.
- *
- * @return {String} - Actual index name
- */
-function getIndexName(collection) {
-  const model = this.models[collection]
-  return model.searchIndexName || collection
-}
+module.exports = ({ services, models }) => {
+  return {
+    /**
+     * @brief: Map model name into the actual index name in meilisearch instance. it
+     * uses `searchIndexName` property from model defnition
+     *
+     * @param collection - Name of the Collection.
+     *
+     * @return {String} - Actual index name
+     */
+    getIndexName: function (collection) {
+      const model = models[collection]
+      return model.searchIndexName || collection
+    },
 
-/**
- * WIP
- * Check wether a collection is a composite or not.
- *
- * @param  {string} collection - Name of the collection.
- */
-function isCompositeIndex(collection) {
-  const model = this.models[collection]
-  const isCompositeIndex = !!model.isUsingCompositeIndex
-  return isCompositeIndex
-}
-/**
- * Number of entries in a collection.
- *
- * @param  {string} collection - Name of the collection.
- *
- * @returns  {number}
- */
-async function numberOfEntries(collection) {
-  return this.services[collection].count && this.services[collection].count()
-}
+    /**
+     * WIP
+     * Check wether a collection is a composite or not.
+     *
+     * @param  {string} collection - Name of the collection.
+     */
+    isCompositeIndex: function (collection) {
+      const model = models[collection]
+      const isCompositeIndex = !!model.isUsingCompositeIndex
+      return isCompositeIndex
+    },
 
-/**
- * Lists all the collection that are of type `multi-entries`.
- * As opposition with `single` typed collections.
- *
- * @returns  {string[]} collections
- */
-function listAllMultiEntriesCollections() {
-  return Object.keys(this.services).filter(type => {
-    return this.services[type].count
-  })
-}
+    /**
+     * Number of entries in a collection.
+     *
+     * @param  {string} collection - Name of the collection.
+     *
+     * @returns  {number}
+     */
+    numberOfEntries: async function (collection) {
+      return services[collection].count && services[collection].count()
+    },
 
-/**
- * Returns a batch of entries.
- *
- * @param  {object} batchOptions
- * @param  {number} start - Starting batch number.
- * @param  {number} limit - Size of batch.
- * @param  {string} collection - Collection name.
- *
- * @returns  {object[]} - Entries.
- */
-async function getEntriesBatch({ start, limit, collection }) {
-  return await this.services[collection].find({
-    _limit: limit,
-    _start: start,
-  })
-}
+    /**
+     * Lists all the collection that are of type `multi-entries`.
+     * As opposition with `single` typed collections.
+     *
+     * @returns  {string[]} collections
+     */
+    listAllMultiEntriesCollections: function () {
+      return Object.keys(services).filter(type => {
+        return services[type].count
+      })
+    },
 
-module.exports = (services, models) => ({
-  services,
-  models,
-  getEntriesBatch,
-  isCompositeIndex,
-  numberOfEntries,
-  listAllMultiEntriesCollections,
-  getIndexName,
-})
+    /**
+     * Returns a batch of entries.
+     *
+     * @param  {object} batchOptions
+     * @param  {number} start - Starting batch number.
+     * @param  {number} limit - Size of batch.
+     * @param  {string} collection - Collection name.
+     *
+     * @returns  {object[]} - Entries.
+     */
+    getEntriesBatch: async function ({ start, limit, collection }) {
+      return await services[collection].find({
+        _limit: limit,
+        _start: start,
+      })
+    },
+
+    /**
+     * Transform collection entries before indexation in MeiliSearch.
+     *
+     * @param {string} collection - Collection name.
+     * @param {Array<Object>} data  - The data to convert. Conversion will use
+     * the static method `toSearchIndex` defined in the model definition
+     *
+     * @return {Array<Object>} - Converted or mapped data
+     */
+    transformEntries: function (collection, entries) {
+      const model = models[collection]
+      const mapFunction = model.toSearchIndex
+      if (!(mapFunction instanceof Function)) {
+        return entries
+      }
+      if (Array.isArray(entries)) {
+        entries.map(mapFunction)
+        return entries.map(mapFunction)
+      }
+      return mapFunction(entries)
+    },
+  }
+}

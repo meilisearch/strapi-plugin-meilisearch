@@ -10,8 +10,10 @@
  * See more details here: https://strapi.io/documentation/developer-docs/latest/concepts/configurations.html#bootstrap
  */
 
-const strapi = require('../../services/strapi')
-const createConnector = require('../../connectors/connector')
+const strapiService = require('../../services/strapi')
+const createStoreConnector = require('../../connectors/store')
+const createMeiliSearchConnector = require('../../connectors/meilisearch')
+const createCollectionConnector = require('../../connectors/collection')
 
 /**
  * Add watchers on collection that are indexed in MeiliSearch.
@@ -24,7 +26,12 @@ const createConnector = require('../../connectors/connector')
  * @param  {object} strapi.models - Collections models.
  * @param  {object} strapi.connector - Plugin connector.
  */
-function addWatchersOnCollections({ collections, plugin, models, connector }) {
+function addWatchersOnCollections({
+  collections,
+  plugin,
+  models,
+  meilisearch,
+}) {
   // Iterate on all collections present in MeilISearch
   collections.map(collection => {
     const model = models[collection]
@@ -40,7 +47,7 @@ function addWatchersOnCollections({ collections, plugin, models, connector }) {
       const fn = model.lifecycles[lifecycleName] || (() => {})
       model.lifecycles[lifecycleName] = data => {
         fn(data)
-        plugin.lifecycles[lifecycleName](data, collection, connector)
+        plugin.lifecycles[lifecycleName](data, collection, meilisearch)
       }
     })
   })
@@ -53,28 +60,46 @@ function addWatchersOnCollections({ collections, plugin, models, connector }) {
  * @param  {object} plugin - MeiliSearch Plugins services.
  * @param  {object} models - Collections models.
  */
-async function initHooks(connector, plugin, models) {
+async function initHooks({ store, plugin, models, services }) {
   try {
-    const credentials = await connector.storedCredentials()
-    let hookedCollections = await connector.getWatchedCollections()
+    const credentials = await store.getCredentials()
+
+    let hookedCollections = await store.getWatchedCollections()
 
     if (!hookedCollections) {
-      hookedCollections = await connector.createWatchedCollectionsStore()
+      hookedCollections = await store.createWatchedCollectionsStore()
     }
 
     if (credentials.host && hookedCollections) {
-      // get list of Indexes In MeilISearch that are Collections in Strapi
-      const indexes = await connector.getIndexUidsOfIndexedCollections(
-        Object.keys(models)
-      )
-
-      addWatchersOnCollections({
-        collections: indexes,
-        plugin,
+      const collectionConnector = createCollectionConnector({
         models,
-        connector,
+        services,
       })
-      connector.addWatchedCollectionToStore(indexes)
+      const meilisearch = await createMeiliSearchConnector({
+        collectionConnector,
+        storeConnector: store,
+      })
+      // get list of Indexes In MeilISearch that are Collections in Strapi
+      try {
+        const indexes = await meilisearch.getIndexUidsOfIndexedCollections(
+          Object.keys(models)
+        )
+
+        addWatchersOnCollections({
+          collections: indexes,
+          plugin,
+          models,
+          meilisearch,
+        })
+        store.addWatchedCollectionToStore(indexes)
+      } catch (e) {
+        let message =
+          e.name === 'MeiliSearchCommunicationError'
+            ? `Could not connect with MeiliSearch, please check your host.`
+            : `${e.name}: \n${e.message || e.code}`
+        console.error(e)
+        console.error(message)
+      }
     }
 
     // Add collections to hooked store
@@ -88,27 +113,16 @@ async function initHooks(connector, plugin, models) {
  *
  */
 module.exports = async () => {
-  const {
-    plugin,
-    MeiliSearchClient,
-    storeClient,
-    config,
-    models,
-    services,
-  } = strapi()
+  const { plugin, storeClient, config, models, services } = strapiService()
 
-  const connector = await createConnector(
-    {
-      plugin,
-      models,
-      services,
-    },
-    { MeiliSearchClient, storeClient }
-  )
+  const store = await createStoreConnector({
+    plugin,
+    storeClient,
+  })
 
   // initialize credentials from config file.
-  connector.updateStoreCredentials(config, models)
+  await store.updateStoreCredentials(config, store)
 
   // initialize hooks
-  await initHooks(connector, plugin, models)
+  await initHooks({ store, plugin, models, services })
 }

@@ -6,9 +6,27 @@
  * @description: A set of functions called "actions" of the `meilisearch` plugin.
  */
 
-const createConnector = require('../connectors/connector')
+const createStoreConnector = require('../connectors/store')
+const createMeiliSearchConnector = require('../connectors/meilisearch')
+const createCollectionConnector = require('../connectors/collection')
 const reloader = require('./utils/reloader')
 const strapi = require('./../services/strapi')
+
+async function createConnector() {
+  const { plugin, models, services, storeClient } = strapi()
+  const storeConnector = await createStoreConnector({ plugin, storeClient })
+
+  const collectionConnector = createCollectionConnector({
+    services,
+    models,
+  })
+
+  // Create plugin connector.
+  return await createMeiliSearchConnector({
+    collectionConnector,
+    storeConnector,
+  })
+}
 
 /**
  * Wrapper around actions to propagate connector and handle errors.
@@ -18,30 +36,13 @@ const strapi = require('./../services/strapi')
  */
 async function ctxWrapper(ctx, fct) {
   try {
-    const {
-      plugin,
-      models,
-      services,
-      MeiliSearchClient,
-      storeClient,
-    } = strapi()
-
-    // Create connector between SearchClient, Strapi and the Store.
-    const connector = await createConnector(
-      {
-        plugin,
-        models,
-        services,
-      },
-      { MeiliSearchClient, storeClient }
-    )
-    const body = await fct(ctx, connector)
+    const body = await fct(ctx)
     ctx.send(body)
   } catch (e) {
     console.error(e)
     const message =
       e.name === 'MeiliSearchCommunicationError'
-        ? `Could not connect with MeiliSearch ${e.code}`
+        ? `Could not connect with MeiliSearch, please check your host.`
         : `${e.name}: \n${e.message || e.code}`
     return {
       error: true,
@@ -59,8 +60,10 @@ async function ctxWrapper(ctx, fct) {
  *
  * @returns {host: string, apiKey: string}
  */
-async function getClientCredentials(_, connector) {
-  return connector.storedCredentials()
+async function getClientCredentials(_) {
+  const { plugin, storeClient } = strapi()
+  const store = await createStoreConnector({ plugin, storeClient })
+  return store.getCredentials()
 }
 
 /**
@@ -71,7 +74,8 @@ async function getClientCredentials(_, connector) {
  *
  * @returns {message: 'ok'}
  */
-async function removeCollection(ctx, connector) {
+async function removeCollection(ctx) {
+  const connector = await createConnector()
   const { collection } = ctx.params
   await connector.removeCollectionFromMeiliSearch(collection)
   return { message: 'ok' }
@@ -88,9 +92,21 @@ async function removeCollection(ctx, connector) {
  *
  * @returns { numberOfDocumentsIndexed: number }
  */
-async function waitForCollectionIndexing(ctx, connector) {
+async function waitForCollectionIndexing(ctx) {
+  const connector = await createConnector()
   const { collection } = ctx.params
   return connector.waitForCollectionIndexation(collection)
+}
+
+/**
+ * Get extended information about collections in MeiliSearch.
+ *
+ * @param  {object} ctx - Http request object.
+ * @param  {object} connector - Connector between components.
+ */
+async function getCollections(_) {
+  const connector = await createConnector()
+  return connector.getCollectionsReport()
 }
 
 /**
@@ -101,9 +117,11 @@ async function waitForCollectionIndexing(ctx, connector) {
  *
  * @return {{ host: string, apiKey: string}} - Credentials
  */
-async function addCredentials(ctx, connector) {
+async function addCredentials(ctx) {
+  const { plugin, storeClient } = strapi()
+  const store = await createStoreConnector({ plugin, storeClient })
   const { host, apiKey } = ctx.request.body
-  return connector.addCredentials({ host, apiKey })
+  return store.addCredentials({ host, apiKey })
 }
 
 /**
@@ -114,7 +132,8 @@ async function addCredentials(ctx, connector) {
  *
  * @returns {number[]} - All updates id from the indexation process.
  */
-async function updateCollections(ctx, connector) {
+async function updateCollections(ctx) {
+  const connector = await createConnector()
   const { collection } = ctx.params
   return connector.updateCollectionInMeiliSearch(collection)
 }
@@ -127,20 +146,11 @@ async function updateCollections(ctx, connector) {
  *
  * @returns {number[]} - All updates id from the batched indexation process.
  */
-async function addCollection(ctx, connector) {
+async function addCollection(ctx) {
+  const connector = await createConnector()
   const { collection } = ctx.params
   await connector.addCollectionInMeiliSearch(collection)
   return { message: 'Index created' }
-}
-
-/**
- * Get extended information about collections in MeiliSearch.
- *
- * @param  {object} ctx - Http request object.
- * @param  {object} connector - Connector between components.
- */
-async function getCollections(_, connector) {
-  return connector.getCollectionsReport()
 }
 
 /**

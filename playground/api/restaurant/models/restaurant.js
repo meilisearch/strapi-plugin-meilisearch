@@ -25,7 +25,7 @@ module.exports = {
   // if searchIndexName is same with others
   isUsingCompositeIndex: true,
   // should not crash the whole server?, why the `$` ?
-  searchIndexTypeId: 'restaurant',
+  // searchIndexTypeId: 'restaurant',
   // searchIndexName: 'test'
 
 }

@@ -12,8 +12,8 @@ import { Wrapper } from '../components/Wrapper'
 const Credentials = ({ setUpdatedCredentials }) => {
   const [msApiKey, setApiKey] = useState('')
   const [msHost, setHost] = useState('')
-  const [configFileApiKey, setconfigFileApiKey] = useState('')
-  const [configFileHost, setconfigFileHost] = useState('')
+  const [configFileApiKey, setconfigFileApiKey] = useState(false)
+  const [configFileHost, setconfigFileHost] = useState(false)
 
   useEffect(() => {
     strapi.lockApp()
@@ -56,9 +56,7 @@ const Credentials = ({ setUpdatedCredentials }) => {
       <Wrapper>
         <Label
           htmlFor="MSHost"
-          message={`MeiliSearch Host ${
-            configFileHost ? ' loaded from config file' : ``
-          }`}
+          message={`MeiliSearch Host ${configFileHost ? ' from file' : ``}`}
         />
         <InputText
           name="MSHost"
@@ -67,14 +65,14 @@ const Credentials = ({ setUpdatedCredentials }) => {
           }}
           placeholder="Host"
           type="text"
-          value={msHost}
+          value={configFileHost ? '********' : msHost}
           disabled={configFileHost}
           aria-disabled={configFileHost}
         />
         <Label
           htmlFor="MSApiKey"
           message={`MeiliSearch Api Key ${
-            configFileApiKey ? ' loaded from config file' : ''
+            configFileApiKey ? ' from file' : ''
           }`}
         />
         <InputText
@@ -84,7 +82,7 @@ const Credentials = ({ setUpdatedCredentials }) => {
           }}
           placeholder="apiKey"
           type="text"
-          value={configFileApiKey ? '****' : msApiKey}
+          value={configFileApiKey ? '********' : msApiKey}
           disabled={configFileApiKey}
           aria-disabled={configFileApiKey}
         />
@@ -96,7 +94,7 @@ const Credentials = ({ setUpdatedCredentials }) => {
           disabled={!!configFileApiKey && !!configFileHost}
           aria-disabled={configFileApiKey && configFileHost}
         >
-          Add
+          {!!configFileApiKey && !!configFileHost ? 'Disabled' : 'Add'}
         </Button>
       </Wrapper>
     </div>
