@@ -62,7 +62,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
     },
 
     /**
-     * Wait for the collection to be indexed in MeiliSearch
+     * Wait for the collection to be indexed in MeiliSearch.
      *
      * @param  {string} collection - Collection name.
      *
@@ -76,6 +76,11 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
       return { numberOfDocumentsIndexed }
     },
 
+    /**
+     * Get indexes with a safe guard in case of error.
+     *
+     * @returns { string[] }
+     */
     getIndexes: async function () {
       try {
         const client = MeiliSearch({ apiKey, host })
@@ -85,6 +90,13 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
       }
     },
 
+    /**
+     * Get indexes with a safe guard in case of error.
+     *
+     * @param { string } - Index uid.
+     *
+     * @returns { object }
+     */
     getStats: async function (indexUid) {
       try {
         const client = MeiliSearch({ apiKey, host })
