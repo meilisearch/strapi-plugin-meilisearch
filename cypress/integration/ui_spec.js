@@ -91,6 +91,7 @@ describe('Strapi Login flow', () => {
   })
 
   it('Enter to the plugin Home Page', () => {
+    removeNotifications()
     cy.contains('MeiliSearch', { timeout: 10000 }).click()
     removeTutorial()
     cy.wait(2000)
