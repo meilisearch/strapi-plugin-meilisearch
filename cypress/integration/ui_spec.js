@@ -54,7 +54,7 @@ const reloadServer = () => {
   const row = '.reload_button'
   cy.get(`${row}`).click()
   cy.wait(4000)
-  if (env === 'develop' || env === 'watch' || env === 'test') {
+  if (['develop', 'watch', 'test', 'ci'].includes(env)) {
     removeTutorial()
   }
 }
@@ -142,7 +142,7 @@ describe('Strapi Login flow', () => {
   })
 
   it('Check for successfull hooks in develop mode', () => {
-    if (env === 'develop' || env === 'watch') {
+    if (['develop', 'watch', 'ci'].includes(env)) {
       checkCollectionContent({ rowNb: 1, contains: ['Yes', 'Active'] })
       checkCollectionContent({ rowNb: 2, contains: ['Yes', 'Active'] })
       checkCollectionContent({ rowNb: 3, contains: ['Yes', 'Active'] })
