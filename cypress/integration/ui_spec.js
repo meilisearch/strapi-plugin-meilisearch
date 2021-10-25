@@ -61,15 +61,6 @@ const reloadServer = () => {
 
 describe('Strapi Login flow', () => {
   before(() => {
-    console.log('---------')
-    console.log('---------')
-    console.log('---------')
-
-    console.log({ adminUrl })
-    console.log('---------')
-    console.log('---------')
-    console.log('---------')
-
     cy.clearCookies()
     cy.viewport('macbook-16')
     cy.request({
@@ -120,7 +111,9 @@ describe('Strapi Login flow', () => {
 
   it('Collections should be displayed', () => {
     cy.contains('category', { timeout: 10000 })
-    cy.contains('restaurant', { timeout: 10000 })
+    cy.contains('project', { timeout: 10000 })
+    cy.contains('category', { timeout: 10000 })
+    cy.contains('review', { timeout: 10000 })
   })
 
   it('Add Collections to MeiliSearch', () => {
@@ -128,22 +121,22 @@ describe('Strapi Login flow', () => {
       rowNb: 1,
       contains: ['Yes'],
     })
-    cy.contains('Reload needed')
+    cy.contains('Reload needed', { timeout: 10000 })
     clickAndCheckRowContent({
       rowNb: 2,
       contains: ['Yes'],
     })
-    cy.contains('Reload needed')
+    cy.contains('Reload needed', { timeout: 10000 })
     clickAndCheckRowContent({
       rowNb: 3,
       contains: ['Yes'],
     })
-    cy.contains('Reload needed')
+    cy.contains('Reload needed', { timeout: 10000 })
     clickAndCheckRowContent({
       rowNb: 4,
       contains: ['Yes'],
     })
-    cy.contains('Reload needed')
+    cy.contains('Reload needed', { timeout: 10000 })
     reloadServer()
   })
 
@@ -155,13 +148,13 @@ describe('Strapi Login flow', () => {
       checkCollectionContent({ rowNb: 4, contains: ['Yes', 'Active'] })
     } else {
       checkCollectionContent({ rowNb: 1, contains: ['Yes'] })
-      cy.contains('Reload needed')
+      cy.contains('Reload needed', { timeout: 10000 })
       checkCollectionContent({ rowNb: 2, contains: ['Yes'] })
-      cy.contains('Reload needed')
+      cy.contains('Reload needed', { timeout: 10000 })
       checkCollectionContent({ rowNb: 3, contains: ['Yes'] })
-      cy.contains('Reload needed')
+      cy.contains('Reload needed', { timeout: 10000 })
       checkCollectionContent({ rowNb: 4, contains: ['Yes'] })
-      cy.contains('Reload needed')
+      cy.contains('Reload needed', { timeout: 10000 })
     }
   })
 
@@ -170,6 +163,62 @@ describe('Strapi Login flow', () => {
     checkCollectionContent({ rowNb: 2, contains: ['1 / 1'] })
     checkCollectionContent({ rowNb: 3, contains: ['2 / 2'] })
     checkCollectionContent({ rowNb: 4, contains: ['1 / 1'] })
+  })
+
+  // HOOKS CHECK
+
+  it('Enter to restaurant collection page', () => {
+    cy.contains('Restaurants', { timeout: 10000 }).click()
+    removeTutorial()
+    cy.wait(2000)
+    cy.url().should('include', '/admin/plugins/content-manager/collectionType/')
+  })
+
+  it('Add a new restaurant in the collection', () => {
+    cy.contains('Add New Restaurants', { timeout: 10000 }).click()
+    cy.wait(2000)
+  })
+
+  it('Fill the creation form', () => {
+    cy.get('#name')
+      .type('The squared pizza')
+      .should('have.value', 'The squared pizza')
+    cy.contains('Save', { timeout: 10000 }).click()
+    cy.wait(2000)
+  })
+
+  it('Go back to the plugin Home Page', () => {
+    cy.contains('MeiliSearch', { timeout: 10000 }).click()
+    removeTutorial()
+    cy.wait(2000)
+    cy.url().should('include', '/plugins/meilisearch')
+  })
+
+  it('Restaurant should have one 3 entries', () => {
+    checkCollectionContent({ rowNb: 3, contains: ['3 / 3'] })
+  })
+
+  it('Enter to restaurant collection page', () => {
+    cy.contains('Restaurants', { timeout: 10000 }).click()
+    removeTutorial()
+    cy.wait(2000)
+    cy.url().should('include', '/admin/plugins/content-manager/collectionType/')
+  })
+
+  it('Remove a restaurant', () => {
+    cy.get('svg[data-icon="trash-alt"]').first().click()
+    cy.contains('Yes, confirm', { timeout: 10000 }).click()
+  })
+
+  it('Go back to the plugin Home Page', () => {
+    cy.contains('MeiliSearch', { timeout: 10000 }).click()
+    removeTutorial()
+    cy.wait(2000)
+    cy.url().should('include', '/plugins/meilisearch')
+  })
+
+  it('Restaurant should have one 2 entries', () => {
+    checkCollectionContent({ rowNb: 3, contains: ['2 / 2'] })
   })
 
   it('Remove Collections from MeiliSearch', () => {
@@ -190,12 +239,23 @@ describe('Strapi Login flow', () => {
       contains: ['No'],
     })
     if (env === 'develop' || env === 'watch') {
-      checkCollectionContent({ rowNb: 1, contains: ['No', 'Reload needed'] })
-      checkCollectionContent({ rowNb: 2, contains: ['No', 'Reload needed'] })
-      checkCollectionContent({ rowNb: 3, contains: ['No', 'Reload needed'] })
-      checkCollectionContent({ rowNb: 4, contains: ['No', 'Reload needed'] })
-      reloadServer()
+      checkCollectionContent({ rowNb: 1, contains: ['No'] })
+      cy.contains('Reload needed', { timeout: 10000 })
+      checkCollectionContent({ rowNb: 2, contains: ['No'] })
+      cy.contains('Reload needed', { timeout: 10000 })
+      checkCollectionContent({ rowNb: 3, contains: ['No'] })
+      cy.contains('Reload needed', { timeout: 10000 })
+      checkCollectionContent({ rowNb: 4, contains: ['No'] })
+      cy.contains('Reload needed', { timeout: 10000 })
     }
+    reloadServer()
+  })
+
+  it('Check that collections are not in MeiliSearch anymore', () => {
+    checkCollectionContent({ rowNb: 1, contains: ['0 / 3'] })
+    checkCollectionContent({ rowNb: 2, contains: ['0 / 1'] })
+    checkCollectionContent({ rowNb: 3, contains: ['0 / 2'] })
+    checkCollectionContent({ rowNb: 4, contains: ['0 / 1'] })
   })
 
   it('Change Host to wrong host', () => {
@@ -217,13 +277,12 @@ describe('Strapi Login flow', () => {
     cy.get('input[name="MSHost"]').should('have.value', host)
   })
 
-  it('Check if collections are set to 0', () => {
-    checkCollectionContent({ rowNb: 1, contains: ['No', '0 / 3'] })
-    checkCollectionContent({ rowNb: 2, contains: ['No', '0 / 1'] })
-    checkCollectionContent({ rowNb: 3, contains: ['No', '0 / 2'] })
-    checkCollectionContent({ rowNb: 4, contains: ['No', '0 / 1'] })
+  it('Check that collections are still showcased', () => {
+    checkCollectionContent({ rowNb: 1, contains: ['0 / 3'] })
+    checkCollectionContent({ rowNb: 2, contains: ['0 / 1'] })
+    checkCollectionContent({ rowNb: 3, contains: ['0 / 2'] })
+    checkCollectionContent({ rowNb: 4, contains: ['0 / 1'] })
   })
-
   it('Change Host to empty host', () => {
     cy.get('input[name="MSHost"]').should('have.value', host)
     cy.get('input[name="MSHost"]').clear().should('have.value', '')
@@ -256,11 +315,5 @@ describe('Strapi Login flow', () => {
     cy.get('.credentials_button').click()
     removeNotifications()
     cy.get('input[name="MSApiKey"]').should('have.value', apiKey)
-  })
-  it('Try to add a collection to MeiliSearch but fail', () => {
-    clickAndCheckRowContent({
-      rowNb: 1,
-      contains: ['No'],
-    })
   })
 })

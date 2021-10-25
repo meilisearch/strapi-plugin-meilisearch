@@ -60,7 +60,7 @@ async function ctxWrapper(ctx, fct) {
  *
  * @returns {host: string, apiKey: string}
  */
-async function getClientCredentials(_) {
+async function getClientCredentials() {
   const { plugin, storeClient } = strapi()
   const store = await createStoreConnector({ plugin, storeClient })
   return store.getCredentials()
@@ -104,7 +104,7 @@ async function waitForCollectionIndexing(ctx) {
  * @param  {object} ctx - Http request object.
  * @param  {object} connector - Connector between components.
  */
-async function getCollections(_) {
+async function getCollections() {
   const connector = await createConnector()
   return connector.getCollectionsReport()
 }
