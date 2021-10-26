@@ -13,6 +13,8 @@
  */
 async function afterCreate(result, collection, connector) {
   try {
+    // When index was removed from MeiliSearch but hook is still active
+    // It will re-recreate the index because `addDocuments` creates the index
     await connector.addOneEntryInMeiliSearch({
       collection,
       entry: result,

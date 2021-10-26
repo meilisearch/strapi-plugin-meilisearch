@@ -77,8 +77,7 @@ async function getClientCredentials() {
 async function removeCollection(ctx) {
   const connector = await createConnector()
   const { collection } = ctx.params
-  await connector.removeCollectionFromMeiliSearch(collection)
-  return { message: 'ok' }
+  return connector.removeCollectionFromMeiliSearch(collection)
 }
 
 // TODO only delete when not composite
