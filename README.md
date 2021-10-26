@@ -190,14 +190,11 @@ Using the `restaurant` dataset provided in the `/playground`, we change the orig
 ```js
   // api/restaurant/models/restaurant.js
 module.exports = {
-  toSearchIndex(entry) {
+  transformEntryForMeiliSearch(entry) {
     const transformedEntry = {
       ...entry,
-      id: entry.id,
-      categories: entry.categories.map(cat => cat.name)
+      categories: entry.categories.map(cat => cat.name) // map to only have categories name
     };
-    delete transformedEntry.created_by
-    delete transformedEntry.updated_by
     return transformedEntry
   },
 }
@@ -207,13 +204,12 @@ Resulting in entries being transformed before being sent to MeiliSearch. Output 
 
 ```json
   {
+    "id": 2,
     "categories": [
       "Brunch",
       "Italian"
     ],
-    "description": "Not squared pizza's.",
-    "id": 2,
-    "name": "The round pizza"
+    // other fields
   }
 ```
 

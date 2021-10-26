@@ -78,7 +78,7 @@ module.exports = ({ services, models }) => {
      */
     transformEntries: function (collection, entries) {
       const model = models[collection]
-      const mapFunction = model.toSearchIndex
+      const mapFunction = model.transformEntryForMeiliSearch
       if (!(mapFunction instanceof Function)) {
         return entries
       }

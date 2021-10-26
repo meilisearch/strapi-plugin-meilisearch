@@ -7,11 +7,11 @@
 
 module.exports = {
   transformEntryForMeiliSearch(entry) {
-    const transformedEntry = {
-      ...entry,
-      categories: entry.categories.map(cat => cat.name)
-    };
+    const transformedEntry = entry
+    // remove created by and updated by fields
+    delete transformedEntry.created_by
+    delete transformedEntry.updated_by
     return transformedEntry
   },
-  searchIndexName: "my_restaurant"
+  searchIndexName: 'my_restaurant',
 }
