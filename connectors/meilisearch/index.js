@@ -240,7 +240,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
      *
      * @returns {number[]} - Index uids
      */
-    getIndexUidsOfIndexedCollections: async function (collections) {
+    getIndexUidsOfCollectionsInMeiliSearch: async function (collections) {
       const client = MeiliSearch({ apiKey, host })
       let indexes = await client.getIndexes()
       indexes = indexes.map(index => index.uid)
