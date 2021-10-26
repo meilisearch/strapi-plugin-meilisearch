@@ -91,7 +91,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
     },
 
     /**
-     * Get indexes with a safe guard in case of error.
+     * Get stats of an index with a safe guard in case of error.
      *
      * @param { string } - Index uid.
      *
@@ -215,8 +215,10 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
       }
       return this.addCollectionInMeiliSearch(collection)
     },
+
     /**
-     * Remove a collection from MeiliSearch
+     * Remove a collection from MeiliSearchconsole.log()
+
      *
      * @param  {string} collection - Collection name.
      */
@@ -234,7 +236,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
     },
 
     /**
-     * Get list of index uids in MeiliSearch Instance
+     * Get list of index uids in MeiliSearch instance.
      *
      * @returns {number[]} - Index uids
      */

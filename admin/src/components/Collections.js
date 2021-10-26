@@ -84,7 +84,7 @@ const Collections = ({ updateCredentials }) => {
       if (response.error) errorNotifications(response)
 
       setWatchingCollection(prev => prev.filter(col => col !== collection))
-      setUpdatedCollections(false) // Ask for up to date data
+      setUpdatedCollections(false) // Ask for collections to be updated.
     }
   }
 
@@ -113,7 +113,7 @@ const Collections = ({ updateCredentials }) => {
       })
       watchUpdates({ collection }) // start watching
     }
-    setUpdatedCollections(false) // Ask for up to date data
+    setUpdatedCollections(false) // Ask for collections to be updated.
   }
 
   /**
@@ -138,7 +138,7 @@ const Collections = ({ updateCredentials }) => {
       successNotification({ message: `${collection} update started!` })
       watchUpdates({ collection }) // start watching
     }
-    setUpdatedCollections(false) // ask for up to date data
+    setUpdatedCollections(false) // Ask for collections to be updated.
   }
 
   /**
@@ -156,7 +156,7 @@ const Collections = ({ updateCredentials }) => {
         message: `${collection} collection is removed from MeiliSearch!`,
         duration: 4000,
       })
-    setUpdatedCollections(false) // ask for up to date data
+    setUpdatedCollections(false) // Ask for collections to be updated.
   }
 
   /**

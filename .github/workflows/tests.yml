@@ -19,7 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Setup node
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node }}
       - name: Cache dependencies
@@ -39,7 +39,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Setup node
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2
         with:
           node-version: "12.x"
       - name: Cache dependencies
@@ -77,7 +77,7 @@ jobs:
             ./node_modules
           key: ${{ hashFiles('yarn.lock') }}
       - name: Setup node
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2
         with:
           node-version: "12.x"
       - name: Cache dependencies
@@ -91,7 +91,11 @@ jobs:
       - name: Remove plugin symlink
         run: rm ./playground/plugins/meilisearch
       - name: Move plugin inside playground
-        # to avoid circular symlink
+        # Since the plugin is located at the root of the project but a symlink links
+        # to it in ./playground/plugins/meilisearch it causes a circular
+        # chaining problem.
+        # Now that we removed the symlink (see previous step), we need to move our plugin in the
+        # plugin directory of the playground.
         run: mkdir ./playground/plugins/meilisearch &&
           mv admin ./playground/plugins/meilisearch &&
           mv controllers ./playground/plugins/meilisearch &&
@@ -105,12 +109,12 @@ jobs:
           build: yarn playground:build
           start: yarn playground:ci
           env: env=ci
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v2
         if: failure()
         with:
           name: cypress-screenshots
           path: cypress/screenshots
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v2
         if: failure()
         with:
           name: cypress-videos

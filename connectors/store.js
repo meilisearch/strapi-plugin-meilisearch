@@ -124,6 +124,7 @@ module.exports = async ({ storeClient }) => {
     setHookedCollections: async function (value) {
       return this.setStoreKey({ key: 'meilisearch_hooked', value })
     },
+
     /**
      * Add Clients credentials to the store
      *

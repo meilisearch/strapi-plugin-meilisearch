@@ -79,7 +79,8 @@ async function initHooks({ store, plugin, models, services }) {
         collectionConnector,
         storeConnector: store,
       })
-      // get list of Indexes In MeilISearch that are Collections in Strapi
+
+      // Get the list of indexes in MeilISearch that are collections in Strapi.
       try {
         const indexes = await meilisearch.getIndexUidsOfIndexedCollections(
           Object.keys(models)
