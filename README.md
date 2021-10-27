@@ -161,6 +161,114 @@ To activate them, you will have to reload the server. If you are in develop mode
 <img src="./assets/no_reload_needed.png" alt="Indexed collections are hooked" width="600"/>
 </p>
 
+### Customizing search indexing
+
+#### Custom Index Name
+
+By default, this plugin will create a search index with the same name as the model. This behavior can be changed by setting a `searchIndexName` property in your model.js file.
+
+**Example:**
+
+In the following example, the model `restaurant` does not create a Meilisearch index named `restaurant`, the restaurants are added to a custom index named `my_restaurant`.
+```js
+// api/restaurant/models/restaurant.js
+
+module.exports = {
+  searchIndexName: "my_restaurant"
+}
+```
+
+#### Transform sent data
+
+By default, the plugin sent the data the way it is stored in your Strapi collection. It is possible to remove or transform fields before sending your entries to MeiliSearch.
+
+Create the alteration function `toSearchIndex` in your Collection's model. Before sending the data to MeiliSearch, every entry passes through this function where the alteration is applied.
+
+**Example**
+
+Using the `restaurant` dataset provided in the `/playground`, we change the origin entry form in `toSearchIndex` the following way:
+```js
+  // api/restaurant/models/restaurant.js
+module.exports = {
+  toSearchIndex(entry) {
+    const transformedEntry = {
+      ...entry,
+      id: entry.id,
+      categories: entry.categories.map(cat => cat.name)
+    };
+    delete transformedEntry.created_by
+    delete transformedEntry.updated_by
+    return transformedEntry
+  },
+}
+```
+
+Resulting in entries being transformed before being sent to MeiliSearch. Output example of one entry:
+
+```json
+  {
+    "categories": [
+      "Brunch",
+      "Italian"
+    ],
+    "description": "Not squared pizza's.",
+    "id": 2,
+    "name": "The round pizza"
+  }
+```
+
+By transforming the `categories` into an array of names, it is now compatible with the [`filtering` feature](https://docs.meilisearch.com/reference/features/filtering_and_faceted_search.html#configuring-filters) in MeiliSearch.
+
+### Composite Index
+
+As per default, each collection is indexed in its own index. For example, the collection `restaurant` has its entries added in a index (default `restaurant`) and another collection `reviews` has its entried added in another index (default `review`).
+
+In some circumstances, the entries of `restaurant` and `review` should go the same index.
+
+While specifying a custom index name, if the index is shared more than one model, then this plugin need to handle statistics display, index deletion etc in a special way by considering that. so we need to specify that information by adding a optional field called `isUsingCompositeIndex` in model file
+
+
+4. If multiple models are using same index, we can not get statistics of individual models. For that to work, we need to add an flag field while sending data for index. Name of that flag field should be specified in model definition as `searchIndexTypeId` This is applicable only if we are using a composite index.
+
+For eg:
+api/mymodelname/models/mymodelname.js
+```javascript
+
+'use strict';
+
+/**
+ * Read the documentation (https://strapi.io/documentation/developer-docs/latest/development/backend-customization.html#lifecycle-hooks)
+ * to customize this model
+ */
+
+module.exports = {
+  toSearchIndex(item) {
+    return {
+      id: 'mm'+item.id,  // simple id should not be added if the target search index is
+                         // shared by more than one models.  Id number conflicts will
+                         // cause unexpected behavior. Use a unique prefix in that case
+
+      content: extractTextFromHtml(item.content), // Only index pure text
+                                                  // content instead of indexing
+                                                  // HTML content
+
+      // I dont understand this fields naming neither the number
+      $is_mymodelname: 1  // Consider that multiple entities are using same
+                          // search index. So, Let's specify our model name here,
+                          // so that we can identify it from the search result
+    };
+  },
+  searchIndexName: 'searchindex',
+
+  isUsingCompositeIndex: true, // the index 'searchindex' is shared with
+                               // multiple models
+  // why the $ ? Should it be crashing?
+  searchIndexTypeId: '$is_mymodelname' // We count records in by counting this field
+};
+
+
+```
+
 ### 🕵️‍♀️ Start Searching <!-- omit in toc -->
 
 Once you have a collection containing documents indexed in MeiliSearch, you can [start searching](https://docs.meilisearch.com/learn/getting_started/quick_start.html#search).
