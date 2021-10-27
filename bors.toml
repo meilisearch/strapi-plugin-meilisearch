@@ -1,6 +1,8 @@
 status = [
   'playground-build (Node.js 12)',
   'playground-build (Node.js 14)',
+  'integration-tests (Node.js 12)',
+  'integration-tests (Node.js 14)',
   'style-check',
   'cypress-run'
 ]
