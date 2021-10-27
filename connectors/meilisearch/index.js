@@ -217,7 +217,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
     },
 
     /**
-     * Remove a collection from MeiliSearchconsole.log()
+     * Remove a collection from MeiliSearch
 
      *
      * @param  {string} collection - Collection name.

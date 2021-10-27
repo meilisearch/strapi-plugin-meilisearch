@@ -13,5 +13,4 @@ module.exports = {
     };
     return transformedEntry
   },
-  searchIndexName: "my_restaurant"
 }

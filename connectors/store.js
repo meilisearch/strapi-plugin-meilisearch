@@ -11,7 +11,7 @@
  * @param {Object} clients.MeiliSearchClient - Constructor to create a MeiliSearch client.
  * @param {Object} clients.storeClient - Store instance.
  */
-module.exports = async ({ storeClient }) => {
+module.exports = ({ storeClient }) => {
   return {
     /**
      * Get value of a given key from the store.

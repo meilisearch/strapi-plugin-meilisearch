@@ -14,7 +14,7 @@ const strapi = require('./../services/strapi')
 
 async function createConnector() {
   const { plugin, models, services, storeClient } = strapi()
-  const storeConnector = await createStoreConnector({ plugin, storeClient })
+  const storeConnector = createStoreConnector({ plugin, storeClient })
 
   const collectionConnector = createCollectionConnector({
     services,
@@ -62,7 +62,7 @@ async function ctxWrapper(ctx, fct) {
  */
 async function getClientCredentials() {
   const { plugin, storeClient } = strapi()
-  const store = await createStoreConnector({ plugin, storeClient })
+  const store = createStoreConnector({ plugin, storeClient })
   return store.getCredentials()
 }
 
@@ -118,7 +118,7 @@ async function getCollections() {
  */
 async function addCredentials(ctx) {
   const { plugin, storeClient } = strapi()
-  const store = await createStoreConnector({ plugin, storeClient })
+  const store = createStoreConnector({ plugin, storeClient })
   const { host, apiKey } = ctx.request.body
   return store.addCredentials({ host, apiKey })
 }

@@ -116,7 +116,7 @@ async function initHooks({ store, plugin, models, services }) {
 module.exports = async () => {
   const { plugin, storeClient, config, models, services } = strapiService()
 
-  const store = await createStoreConnector({
+  const store = createStoreConnector({
     plugin,
     storeClient,
   })

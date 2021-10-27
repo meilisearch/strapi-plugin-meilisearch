@@ -2,7 +2,6 @@
 
 module.exports = () => ({
   plugin: strapi.plugins.meilisearch.services,
-  MeiliSearchClient: strapi.plugins.meilisearch.services.client,
   storeClient: strapi.store({
     environment: strapi.config.environment,
     type: 'plugin',

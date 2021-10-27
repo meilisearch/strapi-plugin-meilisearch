@@ -13,5 +13,4 @@ module.exports = {
     delete transformedEntry.updated_by
     return transformedEntry
   },
-  searchIndexName: 'my_restaurant',
 }
