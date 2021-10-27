@@ -51,26 +51,32 @@ const headers = [
 ]
 
 const Collections = ({ updateCredentials }) => {
-  const [collectionsList, setCollectionsList] = useState([])
-  const [updatedCollections, setUpdatedCollections] = useState(false)
-  const [needReload, setNeedReload] = useState(false)
-  const [watching, setWatchingCollection] = useState([false])
+  const [collectionsList, setCollectionsList] = useState([]) // All Collections
+  const [updatedCollections, setUpdatedCollections] = useState(false) // Boolean that informs if collections have been updated.
+  const [needReload, setNeedReload] = useState(false) // Boolean to inform that reload is requested.
+  const [watching, setWatchingCollection] = useState([false]) // Collections that are waiting for their indexation to complete.
 
+  // Adds a listener that informs if collections have been updated.
   useEffect(() => {
     setUpdatedCollections(false)
   }, [updateCredentials])
 
+  // Adds a listener that updates collections informations when an update occured.
   useEffect(() => {
     if (!updatedCollections) fetchCollections()
   }, [updatedCollections, updateCredentials])
 
-  // Will start watching a collection (if not already)
-  // For a maximum of 5 enqueued updates in MeiliSearch
+  /**
+   * Watches a collection (if not already)
+   * For a maximum of 5 enqueued updates in MeiliSearch.
+   *
+   * @param {string} collection - Collection name.
+   */
   const watchUpdates = async ({ collection }) => {
     if (!watching.includes(collection)) {
       setWatchingCollection(prev => [...prev, collection])
       const response = await request(
-        `/${pluginId}/indexes/${collection}/update/`,
+        `/${pluginId}/collection/${collection}/update/`,
         {
           method: 'GET',
         }
@@ -78,11 +84,15 @@ const Collections = ({ updateCredentials }) => {
       if (response.error) errorNotifications(response)
 
       setWatchingCollection(prev => prev.filter(col => col !== collection))
-      setUpdatedCollections(false) // Ask for up to date data
+      setUpdatedCollections(false) // Ask for collections to be updated.
     }
   }
 
-  // Add collection to MeiliSearch
+  /**
+   * Add a collection to MeiliSearch
+   *
+   * @param {string} collection - Collection name.
+   */
   const addCollection = async ({ collection }) => {
     setCollectionsList(prev =>
       prev.map(col => {
@@ -103,10 +113,14 @@ const Collections = ({ updateCredentials }) => {
       })
       watchUpdates({ collection }) // start watching
     }
-    setUpdatedCollections(false) // Ask for up to date data
+    setUpdatedCollections(false) // Ask for collections to be updated.
   }
 
-  // Re-indexes all rows from a given collection to MeilISearch
+  /**
+   * Re-indexes all entries from a given collection to MeilISearch
+   *
+   * @param {string} collection - Collection name.
+   */
   const updateCollections = async ({ collection }) => {
     setCollectionsList(prev =>
       prev.map(col => {
@@ -124,10 +138,14 @@ const Collections = ({ updateCredentials }) => {
       successNotification({ message: `${collection} update started!` })
       watchUpdates({ collection }) // start watching
     }
-    setUpdatedCollections(false) // ask for up to date data
+    setUpdatedCollections(false) // Ask for collections to be updated.
   }
 
-  // Remove a collection from MeiliSearch
+  /**
+   * Remove a collection from MeiliSearch.
+   *
+   * @param {string} collection - Collection name.
+   */
   const removeCollection = async ({ collection }) => {
     const res = await request(`/${pluginId}/collections/${collection}/`, {
       method: 'DELETE',
@@ -138,18 +156,26 @@ const Collections = ({ updateCredentials }) => {
         message: `${collection} collection is removed from MeiliSearch!`,
         duration: 4000,
       })
-    setUpdatedCollections(false) // ask for up to date data
+    setUpdatedCollections(false) // Ask for collections to be updated.
   }
 
-  // Depending on the checkbox states will eather
-  // - Add the collection to MeiliSearch
-  // - Remove the collection from MeiliSearch
+  /**
+   * Depending on the checkbox states will either:
+   * - Add the collection to MeiliSearch
+   * - Remove the collection from MeiliSearch
+   *
+   * @param {object} Row - One row information from the table.
+   */
   const addOrRemoveCollection = async row => {
     if (row._isChecked) await removeCollection(row)
     else addCollection(row)
   }
 
-  // Construct reload status to add in table
+  /**
+   * Determine if a collection needs a server reload to be up to date.
+   *
+   * @returns {string} - Reload status
+   */
   const constructReloadStatus = (indexed, hooked) => {
     if ((indexed && !hooked) || (!indexed && hooked)) {
       return 'Reload needed'
@@ -160,19 +186,26 @@ const Collections = ({ updateCredentials }) => {
     }
   }
 
-  // Construct verbose table text
+  /**
+   * Construct verbose table text.
+   *
+   * @param {string[]} col - All collumn names.
+   */
   const constructColRow = col => {
-    const { indexed, isIndexing, numberOfDocuments, numberOfRows } = col
+    const { indexed, isIndexing, numberOfDocuments, numberOfEntries } = col
     return {
       ...col,
       indexed: indexed ? 'Yes' : 'No',
       isIndexing: isIndexing ? 'Yes' : 'No',
-      numberOfDocuments: `${numberOfDocuments} / ${numberOfRows}`,
+      numberOfDocuments: `${numberOfDocuments} / ${numberOfEntries}`,
       hooked: constructReloadStatus(col.indexed, col.hooked),
       _isChecked: col.indexed,
     }
   }
 
+  /**
+   * Fetches extended information about collections in MeiliSearch.
+   */
   const fetchCollections = async () => {
     const { collections, error, ...res } = await request(
       `/${pluginId}/collections/`,
@@ -198,7 +231,9 @@ const Collections = ({ updateCredentials }) => {
     }
   }
 
-  // Reload request
+  /**
+   * Reload request of the server.
+   */
   const reload = async () => {
     try {
       strapi.lockApp({ enabled: true })

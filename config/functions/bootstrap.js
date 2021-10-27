@@ -10,95 +10,97 @@
  * See more details here: https://strapi.io/documentation/developer-docs/latest/concepts/configurations.html#bootstrap
  */
 
-const { getIndexName } = require('../../services/collection')
+const strapiService = require('../../services/strapi')
+const createStoreConnector = require('../../connectors/store')
+const createMeiliSearchConnector = require('../../connectors/meilisearch')
+const createCollectionConnector = require('../../connectors/collection')
 
-const meilisearch = {
-  http: client => strapi.plugins.meilisearch.services.http(client),
-  client: credentials =>
-    strapi.plugins.meilisearch.services.client(credentials),
-  store: () => strapi.plugins.meilisearch.services.store,
-  lifecycles: () => strapi.plugins.meilisearch.services.lifecycles,
-}
-
-async function getClient(credentials) {
-  const client = meilisearch.client(credentials)
-  return await meilisearch.http(client)
-}
-
-async function getIndexes(client) {
-  try {
-    return client.getIndexes()
-  } catch (e) {
-    return []
-  }
-}
-
-async function getCredentials() {
-  const store = await meilisearch.store()
-  const apiKey = await store.getStoreKey('meilisearch_api_key')
-  const host = await store.getStoreKey('meilisearch_host')
-  return { apiKey, host }
-}
-
-function addHookedCollectionsToStore({ store, collections }) {
-  store.set({
-    key: 'meilisearch_hooked',
-    value: collections,
-  })
-}
-
-async function getHookedCollectionsFromStore({ store }) {
-  return store.get({ key: 'meilisearch_hooked' })
-}
-
-async function createHookedCollection({ store }) {
-  return store.set({ key: 'meilisearch_hooked', value: [] })
-}
-
-function addLifecycles({ client, collections }) {
-  // Add lifecyles
+/**
+ * Add watchers on collection that are indexed in MeiliSearch.
+ * Watchers updates automatically collection's in MeiliSearch.
+ * A watcher is triggered with: ADD/UPDATE/DELETE actions.
+ *
+ * @param  {object} strapi - Strapi Services.
+ * @param  {string[]} strapi.collections - All collections present in MeiliSearch.
+ * @param  {object} strapi.plugin - MeiliSearch Plugins services.
+ * @param  {object} strapi.models - Collections models.
+ * @param  {object} strapi.connector - Plugin connector.
+ */
+function addWatchersOnCollections({
+  collections,
+  plugin,
+  models,
+  meilisearch,
+}) {
+  // Iterate on all collections present in MeilISearch
   collections.map(collection => {
-    const model = strapi.models[collection]
-    const meilisearchLifecycles = Object.keys(meilisearch.lifecycles())
+    const model = models[collection]
+
+    // Fetches all lifecycles that are watched by the plugin.
+    const lifeCyclesNames = Object.keys(plugin.lifecycles)
+
+    // Create default lifecycle empty object if no lifecycles functions are found.
     model.lifecycles = model.lifecycles || {}
 
-    meilisearchLifecycles.map(lifecycleName => {
+    // Add lifecycles functions to the collection.
+    lifeCyclesNames.map(lifecycleName => {
       const fn = model.lifecycles[lifecycleName] || (() => {})
       model.lifecycles[lifecycleName] = data => {
         fn(data)
-        meilisearch.lifecycles()[lifecycleName](data, collection, client)
+        plugin.lifecycles[lifecycleName](data, collection, meilisearch)
       }
     })
   })
 }
 
-async function initHooks(store) {
+/**
+ * Initialise hooks based on collections presence in MeiliSearch and in the hooks store.
+ *
+ * @param  {object} connector - Plugin connector.
+ * @param  {object} plugin - MeiliSearch Plugins services.
+ * @param  {object} models - Collections models.
+ */
+async function initHooks({ store, plugin, models, services }) {
   try {
-    const credentials = await getCredentials()
-    const hookedCollections =
-      (await getHookedCollectionsFromStore({ store })) ||
-      (await createHookedCollection({ store }))
+    const credentials = await store.getCredentials()
+
+    let hookedCollections = await store.getWatchedCollections()
+
+    if (!hookedCollections) {
+      hookedCollections = await store.createWatchedCollectionsStore()
+    }
 
     if (credentials.host && hookedCollections) {
-      const client = await getClient(credentials)
-      // get list of indexes in MeiliSearch Instance
-      const indexes = (await getIndexes(client)).map(index => index.uid)
-
-      // Collections in Strapi
-      const models = strapi.models
-
-      // get list of Indexes In MeilISearch that are Collections in Strapi
-      const indexedCollections = Object.keys(models).filter(model =>
-        indexes.includes(getIndexName(model))
-      )
-      addLifecycles({
-        collections: indexedCollections,
-        client,
+      const collectionConnector = createCollectionConnector({
+        models,
+        services,
       })
-      addHookedCollectionsToStore({
-        collections: indexedCollections,
-        store,
+      const meilisearch = await createMeiliSearchConnector({
+        collectionConnector,
+        storeConnector: store,
       })
+
+      // Get the list of indexes in MeilISearch that are collections in Strapi.
+      try {
+        const indexes = await meilisearch.getIndexUidsOfCollectionsInMeiliSearch(
+          Object.keys(models)
+        )
+
+        addWatchersOnCollections({
+          collections: indexes,
+          plugin,
+          models,
+          meilisearch,
+        })
+        store.addWatchedCollectionToStore(indexes)
+      } catch (e) {
+        let message =
+          e.name === 'MeiliSearchCommunicationError'
+            ? `Could not connect with MeiliSearch, please check your host.`
+            : `${e.name}: \n${e.message || e.code}`
+        console.error(e)
+        console.error(message)
+      }
     }
 
     // Add collections to hooked store
@@ -107,51 +109,21 @@ async function initHooks(store) {
   }
 }
 
-async function updateStoreCredentials({ store }) {
-  // optional chaining is not natively supported by node 12.
-  let apiKey = false
-  let host = false
-  const { plugins } = strapi.config
-  if (plugins && plugins.meilisearch) {
-    apiKey = plugins.meilisearch.apiKey
-    host = plugins.meilisearch.host
-  }
-
-  if (apiKey) {
-    await store.set({
-      key: 'meilisearch_api_key',
-      value: apiKey,
-    })
-  }
-  await store.set({
-    key: 'meilisearch_api_key_config',
-    value: !!apiKey,
-  })
-
-  if (host) {
-    await store.set({
-      key: 'meilisearch_host',
-      value: host,
-    })
-  }
-  await store.set({
-    key: 'meilisearch_host_config',
-    value: !!host,
-  })
-}
-
-// On refresh/build
+/**
+ * Bootstrap function runned on every server reload.
+ *
+ */
 module.exports = async () => {
-  const store = strapi.store({
-    environment: strapi.config.environment,
-    type: 'plugin',
-    name: 'meilisearch_store',
-  })
-  strapi.plugins.meilisearch.store = store
+  const { plugin, storeClient, config, models, services } = strapiService()
 
-  // initialize credentials from config file
-  await updateStoreCredentials({ store })
+  const store = await createStoreConnector({
+    plugin,
+    storeClient,
+  })
+
+  // initialize credentials from config file.
+  await store.updateStoreCredentials(config, store)
 
   // initialize hooks
-  await initHooks(store)
+  await initHooks({ store, plugin, models, services })
 }

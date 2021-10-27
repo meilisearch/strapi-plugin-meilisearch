@@ -9,25 +9,9 @@
       }
     },
     {
-      "method": "DELETE",
-      "path": "/indexes",
-      "handler": "meilisearch.deleteAllIndexes",
-      "config": {
-        "policies": []
-      }
-    },
-    {
-      "method": "GET",
-      "path": "/indexes/:indexUid/update",
-      "handler": "meilisearch.waitForDocumentsToBeIndexed",
-      "config": {
-        "policies": []
-      }
-    },
-    {
       "method": "GET",
       "path": "/credentials",
-      "handler": "meilisearch.getCredentials",
+      "handler": "meilisearch.getClientCredentials",
       "config": {
         "policies": []
       }
@@ -44,6 +28,14 @@
       "method": "GET",
       "path": "/collections",
       "handler": "meilisearch.getCollections",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/collection/:collection/update",
+      "handler": "meilisearch.waitForCollectionIndexing",
       "config": {
         "policies": []
       }
