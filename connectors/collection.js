@@ -2,41 +2,6 @@
 
 module.exports = ({ services, models }) => {
   return {
-    validateModelConfiguration: function (collection) {
-      const warnings = []
-      const model = models[collection]
-      const config = model && model.meilisearch
-
-      if (config !== null) {
-        const { searchIndexName, transformEntry } = model
-
-        if (searchIndexName && searchIndexName !== typeof 'string') {
-          warnings.push(`searchIndexName in ${collection} must be a string`)
-        }
-
-        if (searchIndexName && transformEntry instanceof Function) {
-          warnings.push(
-            `transformEntry in ${collection} must be a function returning an entry`
-          )
-        }
-      }
-
-      return warnings
-    },
-    validateConfigurations: function () {
-      const exclude = ['single-type-test', 'core_store', 'strapi_webhooks']
-
-      // models.restaurant.prototype => donne l info de si il est publish hehe
-
-      // `...` is used to remove protype funtion of models
-      const { meilisearch } = models.restaurant?.meilisearch
-      console.log(meilisearch)
-      for (const collection in models) {
-        console.log(this.searchIndexName(collection))
-      }
-      // const config = models[collection].meilisearch || {}
-      // console.log(config)
-    },
     /**
      * @brief: Map model name into the actual index name in meilisearch instance. it
      * uses `searchIndexName` property from model defnition

@@ -20,7 +20,6 @@ async function createConnector() {
     services,
     models,
   })
-  collectionConnector.validateConfigurations('restaurant')
 
   // log.fatal('aaah')
   // Create plugin connector.
@@ -164,10 +163,6 @@ function reload(ctx) {
   ctx.send('ok')
   return reloader()
 }
-
-// async function validateConfig(ctx) {
-
-// }
 
 module.exports = {
   getClientCredentials: async ctx => ctxWrapper(ctx, getClientCredentials),
