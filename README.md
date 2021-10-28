@@ -182,29 +182,52 @@ module.exports = {
 
 By default, the plugin sent the data the way it is stored in your Strapi collection. It is possible to remove or transform fields before sending your entries to MeiliSearch.
 
-Create the alteration function `toSearchIndex` in your Collection's model. Before sending the data to MeiliSearch, every entry passes through this function where the alteration is applied.
+Create the alteration function `transformEntry` in your Collection's model. Before sending the data to MeiliSearch, every entry passes through this function where the alteration is applied.
+
+You can find a lot of examples in [this directory](./resources/entries-transformers).
 
 **Example**
 
-Using the `restaurant` dataset provided in the `/playground`, we change the origin entry form in `toSearchIndex` the following way:
+To remove all private fields and relations from entries before indexing them into MeiliSearch, use [`sanitizeEntity`](https://strapi.io/documentation/developer-docs/latest/development/backend-customization.html#controllers) in the `transFormEntry` function.
+
 ```js
-  // api/restaurant/models/restaurant.js
+// api/restaurant/models/restaurant.js
+const { sanitizeEntity } = require('strapi-utils')
+
 module.exports = {
-  transformEntryForMeiliSearch(entry) {
-    const transformedEntry = {
-      ...entry,
-      categories: entry.categories.map(cat => cat.name) // map to only have categories name
-    };
-    return transformedEntry
+  meilisearch: {
+    transformEntry(entry, model) {
+      return sanitizeEntity(entry, { model })
+    },
   },
 }
 ```
 
-Resulting in entries being transformed before being sent to MeiliSearch. Output example of one entry:
+Another example:
+The `restaurant` collection has a relation with the `category` collection. Inside a `restaurant` entry the `category` field contains an array of each category in an `object` format: `[ { name: "Brunch" ...}, { name: "Italian ... }]`.
 
+To change that format to an array of category names, add a map function inside the `transformEntry` function.
+
+```js
+// api/restaurant/models/restaurant.js
+
+module.exports = {
+  meilisearch: {
+    transformEntry(entry, model) {
+      return  {
+        ...entry,
+        categories: entry.categories.map(cat => cat.name)
+      };
+    },
+  }
+}
+```
+
+Resulting in `categories` being transformed like this in a `restaurant` entry.
 ```json
   {
     "id": 2,
+    "name": "Squared Pizza",
     "categories": [
       "Brunch",
       "Italian"
