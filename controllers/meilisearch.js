@@ -13,7 +13,7 @@ const reloader = require('./utils/reloader')
 const strapi = require('./../services/strapi')
 
 async function createConnector() {
-  const { plugin, models, services, storeClient, log } = strapi()
+  const { plugin, models, services, storeClient } = strapi()
   const storeConnector = createStoreConnector({ plugin, storeClient })
 
   const collectionConnector = createCollectionConnector({
