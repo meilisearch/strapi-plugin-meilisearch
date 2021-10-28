@@ -189,8 +189,6 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
           collection,
           entries
         )
-        // console.log(JSON.stringify(documents, null, 2))
-
         const { updateId } = client.index(indexUid).addDocuments(documents)
         if (updateId) updateIds.push(updateId)
       }

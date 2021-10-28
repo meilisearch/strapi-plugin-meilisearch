@@ -8,7 +8,6 @@
 module.exports = {
   meilisearch: {
     transformEntry(entry) {
-
       const transformedEntry = {
         ...entry,
         categories: entry.categories.map(cat => cat.name)
@@ -16,6 +15,6 @@ module.exports = {
       return transformedEntry
 
     },
-    indexName: "wqwewqe"
+    indexName: "my_restaurant"
   }
 }

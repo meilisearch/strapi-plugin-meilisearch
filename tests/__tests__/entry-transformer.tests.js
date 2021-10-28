@@ -5,62 +5,58 @@ const createCollectionConnector = require('../../connectors/collection')
 
 jest.mock('meilisearch')
 
-function mockInit() {
-  const addDocumentsMock = jest.fn(() => 10)
-  const mockIndex = jest.fn(() => ({
-    addDocuments: addDocumentsMock,
-  }))
+const addDocumentsMock = jest.fn(() => 10)
+const mockIndex = jest.fn(() => ({
+  addDocuments: addDocumentsMock,
+}))
 
-  MeiliSearch.mockImplementation(() => {
-    return {
-      getOrCreateIndex: () => {
-        return mockIndex
-      },
-      index: mockIndex,
-    }
-  })
-
-  const storeClientMock = {
-    set: jest.fn(() => 'test'),
-    get: jest.fn(() => 'test'),
-  }
-
-  const servicesMock = {
-    restaurant: {
-      count: jest.fn(() => {
-        return 11
-      }),
-      find: jest.fn(() => {
-        return [{ id: '1', collection: [{ name: 'one' }, { name: 'two' }] }]
-      }),
+MeiliSearch.mockImplementation(() => {
+  return {
+    getOrCreateIndex: () => {
+      return mockIndex
     },
+    index: mockIndex,
   }
-  const transformEntryMock = jest.fn(function (entry) {
-    console.log('BAH ALORS 5')
-    const transformedEntry = {
-      ...entry,
-      // categories: entry.categories.map(cat => cat.name),
-    }
-    return transformedEntry
-  })
+})
 
-  const modelMock = {
-    restaurant: {
+const storeClientMock = {
+  set: jest.fn(() => 'test'),
+  get: jest.fn(() => 'test'),
+}
+
+const servicesMock = {
+  restaurant: {
+    count: jest.fn(() => {
+      return 11
+    }),
+    find: jest.fn(() => {
+      return [{ id: '1', collection: [{ name: 'one' }, { name: 'two' }] }]
+    }),
+  },
+}
+const transformEntryMock = jest.fn(function (entry) {
+  const transformedEntry = {
+    ...entry,
+    collection: entry.collection.map(cat => cat.name),
+  }
+  return transformedEntry
+})
+
+const modelMock = {
+  restaurant: {
+    meilisearch: {
       searchIndexName: 'my_restaurant',
       transformEntry: transformEntryMock,
     },
-  }
-  return { storeClientMock, modelMock, servicesMock }
+  },
 }
+
 describe('Entry transformation', () => {
   let meilisearchConnector
   let storeConnector
   let collectionConnector
   beforeEach(async () => {
-    jest.resetAllMocks()
-    jest.restoreAllMocks()
-    jest.clearAllMocks()
-    const { storeClientMock, servicesMock, modelMock } = mockInit()
+    // const { storeClientMock, servicesMock, modelMock } = mockInit()
     storeConnector = createStoreConnector({
       storeClient: storeClientMock,
     })
@@ -106,27 +102,24 @@ describe('Entry transformation', () => {
       limit: 1000,
       start: 0,
     })
-    expect(getEntriesBatchSpy).toHaveBeenCalledTimes(1)
 
+    expect(getEntriesBatchSpy).toHaveBeenCalledTimes(1)
     expect(transFormEntriesSpy).toHaveBeenCalledTimes(1)
     expect(transFormEntriesSpy).toHaveBeenCalledWith('restaurant', [
+      { collection: [{ name: 'one' }, { name: 'two' }], id: '1' },
+    ])
+    expect(transFormEntriesSpy).toHaveReturnedWith([
       { collection: ['one', 'two'], id: '1' },
     ])
-    expect(transFormEntriesSpy).toHaveReturnedWith([{ id: '1' }])
 
     expect(getIndexNameSpy).toHaveBeenCalledTimes(2)
     expect(getIndexNameSpy).toHaveBeenCalledWith('restaurant')
     // can only test returned with on sync functions
     expect(getIndexNameSpy).toHaveReturnedWith('my_restaurant')
 
-    // expect(addDocumentsMock).toHaveBeenCalledTimes(1)
-    // expect(addDocumentsMock).toHaveBeenCalledWith([
-    //   { collection: [{ name: 'one' }, { name: 'two' }], id: '1' },
-    // ])
-
-    // expect(addDocumentsMock).toHaveBeenCalledTimes(1)
-    // expect(addDocumentsMock).toHaveBeenCalledWith([
-    //   { collection: [{ name: 'one' }, { name: 'two' }], id: '1' },
-    // ])
+    expect(addDocumentsMock).toHaveBeenCalledTimes(1)
+    expect(addDocumentsMock).toHaveBeenCalledWith([
+      { collection: ['one', 'two'], id: '1' },
+    ])
   })
 })
