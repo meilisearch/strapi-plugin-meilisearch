@@ -14,7 +14,6 @@
     "cy:install": "node ./node_modules/cypress/bin/cypress install",
     "cy:open": "cypress open --env env=watch",
     "cy:run": "cypress run --env env=watch",
-    "pretest": "yarn playground:build",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:e2e": "concurrently --kill-others -s first \"NODE_ENV=test yarn playground:soft_dev\" \"cypress run --env env=develop\"",
