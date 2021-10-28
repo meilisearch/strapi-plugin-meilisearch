@@ -11,11 +11,10 @@ module.exports = {
     transformEntry(entry, model) {
       entry = {
         ...entry,
-        categories: entry.categories.map(cat => cat.name)
-      };
-      entry =  sanitizeEntity(entry, { model })
+        categories: entry.categories.map(cat => cat.name),
+      }
+      entry = sanitizeEntity(entry, { model })
       return entry
     },
-    indexName: "my_restaurant"
-  }
+  },
 }

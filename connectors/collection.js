@@ -77,17 +77,17 @@ module.exports = ({ services, models }) => {
      * @return {Array<Object>} - Converted or mapped data
      */
     transformEntries: function (collection, entries) {
-      console.log('AJKAHSKJH')
-      const model = models[collection].meilisearch || {}
-      const { transformEntry } = model
-      console.log(typeof transformEntry)
+      const meilisearchConfig = models[collection].meilisearch || {}
+      const { transformEntry } = meilisearchConfig
       if (!transformEntry) {
         console.log('bah alors')
         return entries
       }
       try {
         if (Array.isArray(entries)) {
-          return entries.map(x => model.transformEntry(x))
+          return entries.map(entry =>
+            meilisearchConfig.transformEntry(entry, models[collection])
+          )
         }
       } catch (e) {
         console.warn('test')

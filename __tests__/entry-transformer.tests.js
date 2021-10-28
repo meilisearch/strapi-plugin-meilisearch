@@ -1,7 +1,7 @@
 const { MeiliSearch } = require('meilisearch')
-const createMeiliSearchConnector = require('../../connectors/meilisearch')
-const createStoreConnector = require('../../connectors/store')
-const createCollectionConnector = require('../../connectors/collection')
+const createMeiliSearchConnector = require('../connectors/meilisearch')
+const createStoreConnector = require('../connectors/store')
+const createCollectionConnector = require('../connectors/collection')
 
 jest.mock('meilisearch')
 
