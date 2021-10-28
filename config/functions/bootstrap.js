@@ -75,6 +75,7 @@ async function initHooks({ store, plugin, models, services }) {
         models,
         services,
       })
+      collectionConnector.validateConfigurations()
       const meilisearch = await createMeiliSearchConnector({
         collectionConnector,
         storeConnector: store,

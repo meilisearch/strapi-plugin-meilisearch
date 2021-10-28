@@ -173,6 +173,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
       const entries_count = await collectionConnector.numberOfEntries(
         collection
       )
+      // console.log({ entries_count })
       const BATCH_SIZE = 1000
       const updateIds = []
 
@@ -183,13 +184,14 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
             limit: BATCH_SIZE,
             collection,
           })) || []
-
         const indexUid = collectionConnector.getIndexName(collection)
-        const { updateId } = client
-          .index(indexUid)
-          .addDocuments(
-            collectionConnector.transformEntries(collection, entries)
-          )
+        const documents = collectionConnector.transformEntries(
+          collection,
+          entries
+        )
+        // console.log(JSON.stringify(documents, null, 2))
+
+        const { updateId } = client.index(indexUid).addDocuments(documents)
         if (updateId) updateIds.push(updateId)
       }
       return { updateIds }

@@ -13,14 +13,16 @@ const reloader = require('./utils/reloader')
 const strapi = require('./../services/strapi')
 
 async function createConnector() {
-  const { plugin, models, services, storeClient } = strapi()
+  const { plugin, models, services, storeClient, log } = strapi()
   const storeConnector = createStoreConnector({ plugin, storeClient })
 
   const collectionConnector = createCollectionConnector({
     services,
     models,
   })
+  collectionConnector.validateConfigurations('restaurant')
 
+  // log.fatal('aaah')
   // Create plugin connector.
   return await createMeiliSearchConnector({
     collectionConnector,
@@ -162,6 +164,10 @@ function reload(ctx) {
   ctx.send('ok')
   return reloader()
 }
+
+// async function validateConfig(ctx) {
+
+// }
 
 module.exports = {
   getClientCredentials: async ctx => ctxWrapper(ctx, getClientCredentials),

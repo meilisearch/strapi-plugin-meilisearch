@@ -6,11 +6,16 @@
  */
 
 module.exports = {
-  transformEntryForMeiliSearch(entry) {
-    const transformedEntry = {
-      ...entry,
-      categories: entry.categories.map(cat => cat.name)
-    };
-    return transformedEntry
-  },
+  meilisearch: {
+    transformEntry(entry) {
+
+      const transformedEntry = {
+        ...entry,
+        categories: entry.categories.map(cat => cat.name)
+      };
+      return transformedEntry
+
+    },
+    indexName: "wqwewqe"
+  }
 }

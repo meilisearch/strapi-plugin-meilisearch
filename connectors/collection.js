@@ -2,6 +2,41 @@
 
 module.exports = ({ services, models }) => {
   return {
+    validateModelConfiguration: function (collection) {
+      const warnings = []
+      const model = models[collection]
+      const config = model && model.meilisearch
+
+      if (config !== null) {
+        const { searchIndexName, transformEntry } = model
+
+        if (searchIndexName && searchIndexName !== typeof 'string') {
+          warnings.push(`searchIndexName in ${collection} must be a string`)
+        }
+
+        if (searchIndexName && transformEntry instanceof Function) {
+          warnings.push(
+            `transformEntry in ${collection} must be a function returning an entry`
+          )
+        }
+      }
+
+      return warnings
+    },
+    validateConfigurations: function () {
+      const exclude = ['single-type-test', 'core_store', 'strapi_webhooks']
+
+      // models.restaurant.prototype => donne l info de si il est publish hehe
+
+      // `...` is used to remove protype funtion of models
+      const { meilisearch } = models.restaurant?.meilisearch
+      console.log(meilisearch)
+      for (const collection in models) {
+        console.log(this.searchIndexName(collection))
+      }
+      // const config = models[collection].meilisearch || {}
+      // console.log(config)
+    },
     /**
      * @brief: Map model name into the actual index name in meilisearch instance. it
      * uses `searchIndexName` property from model defnition
@@ -11,7 +46,7 @@ module.exports = ({ services, models }) => {
      * @return {String} - Actual index name
      */
     getIndexName: function (collection) {
-      const model = models[collection]
+      const model = models[collection].meilisearch || {}
       return model.searchIndexName || collection
     },
 
@@ -22,7 +57,7 @@ module.exports = ({ services, models }) => {
      * @param  {string} collection - Name of the collection.
      */
     isCompositeIndex: function (collection) {
-      const model = models[collection]
+      const model = models[collection].meilisearch || {}
       const isCompositeIndex = !!model.isUsingCompositeIndex
       return isCompositeIndex
     },
@@ -77,16 +112,23 @@ module.exports = ({ services, models }) => {
      * @return {Array<Object>} - Converted or mapped data
      */
     transformEntries: function (collection, entries) {
-      const model = models[collection]
-      const mapFunction = model.transformEntryForMeiliSearch
-      if (!(mapFunction instanceof Function)) {
+      console.log('AJKAHSKJH')
+      const model = models[collection].meilisearch || {}
+      const { transformEntry } = model
+      console.log(typeof transformEntry)
+      if (!transformEntry) {
+        console.log('bah alors')
         return entries
       }
-      if (Array.isArray(entries)) {
-        entries.map(mapFunction)
-        return entries.map(mapFunction)
+      try {
+        if (Array.isArray(entries)) {
+          return entries.map(x => model.transformEntry(x))
+        }
+      } catch (e) {
+        console.warn('test')
+        return entries
       }
-      return mapFunction(entries)
+      return entries
     },
   }
 }
