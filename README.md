@@ -288,7 +288,7 @@ Complete installation requirements are the same as for Strapi itself and can be 
 
 **Supported MeiliSearch versions**:
 
-This package only guarantees the compatibility with the [version v0.23.0 of MeiliSearch](https://github.com/meilisearch/MeiliSearch/releases/tag/v0.23.0).
+This package only guarantees the compatibility with the [version v0.24.0 of MeiliSearch](https://github.com/meilisearch/MeiliSearch/releases/tag/v0.24.0).
 
 **Node / NPM versions**:
 
