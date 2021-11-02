@@ -42,8 +42,9 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
      *
      * @returns {number} - Number of documents added.
      */
-    waitForPendingUpdates: async function ({ indexUid, updateNbr }) {
+    waitForPendingUpdates: async function ({ collection, updateNbr }) {
       const client = MeiliSearch({ apiKey, host })
+      const indexUid = collectionConnector.getIndexName(collection)
       const updates = (await client.index(indexUid).getAllUpdateStatus())
         .filter(update => update.status === 'enqueued')
         .slice(0, updateNbr)
@@ -70,7 +71,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
      */
     waitForCollectionIndexation: async function (collection) {
       const numberOfDocumentsIndexed = await this.waitForPendingUpdates({
-        indexUid: collectionConnector.getIndexName(collection),
+        collection,
         updateNbr: 2,
       })
       return { numberOfDocumentsIndexed }
@@ -173,7 +174,6 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
       const entries_count = await collectionConnector.numberOfEntries(
         collection
       )
-      // console.log({ entries_count })
       const BATCH_SIZE = 1000
       const updateIds = []
 
@@ -189,7 +189,9 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
           collection,
           entries
         )
-        const { updateId } = client.index(indexUid).addDocuments(documents)
+        const { updateId } = await client
+          .index(indexUid)
+          .addDocuments(documents)
         if (updateId) updateIds.push(updateId)
       }
       return { updateIds }
@@ -210,7 +212,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
         const { updateId } = await client.index(indexUid).deleteAllDocuments()
         await this.waitForPendingUpdates({
           updateId,
-          indexUid: indexUid,
+          collection,
         })
       }
       return this.addCollectionInMeiliSearch(collection)

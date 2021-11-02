@@ -111,6 +111,7 @@ describe('Strapi Login flow', () => {
   })
 
   it('Collections should be displayed', () => {
+    removeTutorial()
     cy.contains('category', { timeout: 10000 })
     cy.contains('project', { timeout: 10000 })
     cy.contains('category', { timeout: 10000 })
@@ -118,6 +119,7 @@ describe('Strapi Login flow', () => {
   })
 
   it('Add Collections to MeiliSearch', () => {
+    removeTutorial()
     clickAndCheckRowContent({
       rowNb: 1,
       contains: ['Yes'],
@@ -185,7 +187,6 @@ describe('Strapi Login flow', () => {
       .type('The squared pizza')
       .should('have.value', 'The squared pizza')
     cy.contains('Save', { timeout: 10000 }).click()
-    cy.wait(2000)
   })
 
   it('Go back to the plugin Home Page', () => {
@@ -249,6 +250,7 @@ describe('Strapi Login flow', () => {
       checkCollectionContent({ rowNb: 4, contains: ['No'] })
       cy.contains('Reload needed', { timeout: 10000 })
     }
+    removeTutorial()
     reloadServer()
   })
 

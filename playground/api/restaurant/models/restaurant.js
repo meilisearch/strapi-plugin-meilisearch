@@ -15,5 +15,3 @@ module.exports = {
     indexName: "my_restaurant"
   }
 }
-
-
