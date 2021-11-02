@@ -135,7 +135,6 @@ describe('Strapi Login flow', () => {
     })
     cy.contains('Reload needed', { timeout: 10000 })
     reloadServer()
-    removeTutorial()
   })
 
   it('Check for successfull hooks in develop mode', () => {
@@ -173,7 +172,6 @@ describe('Strapi Login flow', () => {
 
   it('Add a new restaurant in the collection', () => {
     cy.contains('Add New Restaurants', { timeout: 10000 }).click()
-    removeTutorial()
   })
 
   it('Fill the creation form', () => {
@@ -242,7 +240,6 @@ describe('Strapi Login flow', () => {
       cy.contains('Reload needed', { timeout: 10000 })
     }
     reloadServer()
-    removeTutorial()
   })
 
   it('Check that collections are not in MeiliSearch anymore', () => {
