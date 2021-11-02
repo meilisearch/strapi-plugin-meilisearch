@@ -250,7 +250,6 @@ describe('Strapi Login flow', () => {
       checkCollectionContent({ rowNb: 4, contains: ['No'] })
       cy.contains('Reload needed', { timeout: 10000 })
     }
-    removeTutorial()
     reloadServer()
   })
 
