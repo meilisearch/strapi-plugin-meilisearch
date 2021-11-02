@@ -12,8 +12,11 @@ updates:
       - dependencies
     rebase-strategy: disabled
     ignore:
-      - dependency-name: "eslint*"
-      - dependency-name: "prettier*"
+      - dependency-name: "*eslint*"
+      - dependency-name: "*jest*"
+      - dependency-name: "*cypress*"
+      - dependency-name: "*prettier*"
+      - dependency-name: "*concurrently*"
   - package-ecosystem: npm
     directory: "/playground/"
     schedule:
@@ -26,4 +29,7 @@ updates:
       - dependencies
     rebase-strategy: disabled
     ignore:
-      - dependency-name: "eslint*"
+      - dependency-name: "*eslint*"
+      - dependency-name: "*jest*"
+      - dependency-name: "*cypress*"
+      - dependency-name: "*prettier*"
