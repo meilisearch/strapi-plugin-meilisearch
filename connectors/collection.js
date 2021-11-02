@@ -80,7 +80,6 @@ module.exports = ({ services, models }) => {
       const meilisearchConfig = models[collection].meilisearch || {}
       const { transformEntry } = meilisearchConfig
       if (!transformEntry) {
-        console.log('bah alors')
         return entries
       }
       try {
@@ -90,7 +89,6 @@ module.exports = ({ services, models }) => {
           )
         }
       } catch (e) {
-        console.warn('test')
         return entries
       }
       return entries

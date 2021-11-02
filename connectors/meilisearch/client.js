@@ -44,4 +44,3 @@ module.exports = config => {
     })
   }
 }
-// TATOUT CASSELES ERREURS

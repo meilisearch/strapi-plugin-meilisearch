@@ -98,7 +98,6 @@ async function initHooks({ store, plugin, models, services }) {
           e.name === 'MeiliSearchCommunicationError'
             ? `Could not connect with MeiliSearch, please check your host.`
             : `${e.name}: \n${e.message || e.code}`
-        console.error(e)
         console.error(message)
       }
     }
