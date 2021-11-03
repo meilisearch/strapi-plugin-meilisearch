@@ -173,7 +173,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
       const entries_count = await collectionConnector.numberOfEntries(
         collection
       )
-      const BATCH_SIZE = 1000
+      const BATCH_SIZE = 500
       const updateIds = []
 
       for (let index = 0; index <= entries_count; index += BATCH_SIZE) {
