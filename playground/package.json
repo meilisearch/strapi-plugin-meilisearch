@@ -13,7 +13,7 @@
   },
   "devDependencies": {},
   "dependencies": {
-    "eslint": "^7.22.0",
+    "eslint": "^8.1.0",
     "knex": "^0.95.6",
     "sqlite3": "^5.0.2",
     "strapi": "^3.6.5",
