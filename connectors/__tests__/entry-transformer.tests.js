@@ -92,7 +92,7 @@ describe('Entry transformation', () => {
       'transformEntries'
     )
     await meilisearchConnector.addCollectionInMeiliSearch('restaurant')
-    // expect(servicesMock.restaurant.count).toHaveBeenCalledTimes(1)
+    expect(servicesMock.restaurant.count).toHaveBeenCalledTimes(1)
 
     expect(numberOfEntriesSpy).toHaveBeenCalledWith('restaurant')
     expect(numberOfEntriesSpy).toHaveBeenCalledTimes(1)
