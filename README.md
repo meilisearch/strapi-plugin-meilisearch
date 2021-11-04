@@ -203,8 +203,9 @@ module.exports = {
 }
 ```
 
-Another example:
-The `restaurant` collection has a relation with the `category` collection. Inside a `restaurant` entry the `category` field contains an array of each category in an `object` format: `[ { name: "Brunch" ...}, { name: "Italian ... }]`.
+Another example:<br>
+
+The `restaurant` collection has a relation with the `category` collection. Inside a `restaurant` entry the `category` field contains an array of each category in an `object` format: `[{ name: "Brunch" ...}, { name: "Italian ... }]`.
 
 To change that format to an array of category names, add a map function inside the `transformEntry` function.
 
