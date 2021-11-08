@@ -17,10 +17,10 @@ jobs:
       meilisearch:
         image: getmeili/meilisearch:latest
         env:
-          MEILI_MASTER_KEY: 'masterKey'
-          MEILI_NO_ANALYTICS: 'true'
+          MEILI_MASTER_KEY: "masterKey"
+          MEILI_NO_ANALYTICS: "true"
         ports:
-          - '7700:7700'
+          - "7700:7700"
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -31,9 +31,9 @@ jobs:
             ./node_modules
           key: ${{ hashFiles('yarn.lock') }}
       - name: Setup node
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2
         with:
-          node-version: '12.x'
+          node-version: "12.x"
       - name: Cache dependencies
         uses: actions/cache@v2
         with:
@@ -48,12 +48,12 @@ jobs:
           build: yarn playground:build
           start: yarn playground:ci
           env: env=ci
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v2
         if: failure()
         with:
           name: cypress-screenshots
           path: cypress/screenshots
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v2
         if: failure()
         with:
           name: cypress-videos
@@ -63,12 +63,12 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [ '12', '14' ]
+        node: ["12", "14"]
     name: playground-build (Node.js ${{ matrix.node }})
     steps:
       - uses: actions/checkout@v2
       - name: Setup node
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node }}
       - name: Cache dependencies
@@ -88,9 +88,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Setup node
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2
         with:
-          node-version: '12.x'
+          node-version: "12.x"
       - name: Cache dependencies
         uses: actions/cache@v2
         with:
