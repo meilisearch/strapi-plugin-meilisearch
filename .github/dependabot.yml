@@ -1,0 +1,29 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+      time: "04:00"
+    open-pull-requests-limit: 10
+    versioning-strategy: increase
+    labels:
+      - skip-changelog
+      - dependencies
+    rebase-strategy: disabled
+    ignore:
+      - dependency-name: "eslint*"
+      - dependency-name: "prettier*"
+  - package-ecosystem: npm
+    directory: "/playground/"
+    schedule:
+      interval: weekly
+      time: "04:00"
+    open-pull-requests-limit: 10
+    versioning-strategy: increase
+    labels:
+      - skip-changelog
+      - dependencies
+    rebase-strategy: disabled
+    ignore:
+      - dependency-name: "eslint*"
