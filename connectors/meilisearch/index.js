@@ -197,7 +197,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
       const indexUid = collectionConnector.getIndexName(collection)
 
       const client = MeiliSearch({ apiKey, host })
-      await client.getOrCreateIndex(indexUid) // cree my_restaurant dans MeiliSearch
+      await client.getOrCreateIndex(indexUid)
 
       const addDocuments = async (entries, collection) => {
         let documents = collectionConnector
