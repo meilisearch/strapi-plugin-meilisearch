@@ -15,7 +15,7 @@ module.exports = ({ services, models, logger }) => {
       const indexName = model.indexName || collection
       if (typeof indexName !== 'string') {
         logger.warn(
-          `MEILISEARCH: "indexName" setting provided in the model of the ${collection} must be a string.`
+          `[MEILISEARCH]: "indexName" setting provided in the model of the ${collection} must be a string.`
         )
         return collection
       }
