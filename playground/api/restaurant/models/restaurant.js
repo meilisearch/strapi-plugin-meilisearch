@@ -6,11 +6,12 @@
 
 module.exports = {
   meilisearch: {
-    transformEntry(entry, model) {
-      return  {
+    transformEntry({ entry }) {
+      const transformed = {
         ...entry,
         categories: entry.categories.map(cat => cat.name)
       };
+      return transformed;
     },
     indexName: "my_restaurant"
   }

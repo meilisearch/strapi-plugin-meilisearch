@@ -41,14 +41,11 @@ async function ctxWrapper(ctx, fct) {
     const body = await fct(ctx)
     ctx.send(body)
   } catch (e) {
+    console.error(e)
     const message =
       e.name === 'MeiliSearchCommunicationError'
         ? `Could not connect with MeiliSearch, please check your host.`
         : `${e.name}: \n${e.message || e.code}`
-    console.error({
-      ...e,
-      message,
-    })
     return {
       error: true,
       message,

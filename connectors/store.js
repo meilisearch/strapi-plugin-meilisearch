@@ -126,6 +126,52 @@ module.exports = ({ storeClient }) => {
     },
 
     /**
+     * Get hooked collections from the store.
+     *
+     * @param  {string} key
+     */
+    getIndexedCollections: async function () {
+      const collections = await this.getStoreKey({
+        key: 'meilisearch_indexed_collections',
+      })
+      return collections || []
+    },
+
+    /**
+     * Set indexed collections to the store.
+     *
+     * @param  {string} value
+     */
+    setIndexedCollections: async function (value = {}) {
+      return this.setStoreKey({ key: 'meilisearch_indexed_collections', value })
+    },
+
+    /**
+     * Add indexed collection if it is not already present
+     *
+     * @param  {string} collection
+     */
+    addIndexedCollection: async function (collection) {
+      const indexedCollections = await this.getIndexedCollections()
+      const newSet = new Set(indexedCollections)
+      newSet.add(collection)
+      return this.setIndexedCollections([...newSet])
+    },
+
+    /**
+     * Remove a collection the indexed collection list if it exists.
+     *
+     * @param {string} collection
+     * @returns {array} collections
+     */
+    removeIndexedCollection: async function (collection) {
+      const indexedCollections = await this.getIndexedCollections()
+      const newSet = new Set(indexedCollections)
+      newSet.delete(collection)
+      return this.setIndexedCollections([...newSet])
+    },
+
+    /**
      * Add Clients credentials to the store
      *
      * @param  {Object} credentials

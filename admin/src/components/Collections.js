@@ -37,7 +37,7 @@ const headers = [
     value: 'isIndexing',
   },
   {
-    name: 'Index',
+    name: 'Index name',
     value: 'indexUid',
   },
   {

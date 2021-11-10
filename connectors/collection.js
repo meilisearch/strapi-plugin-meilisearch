@@ -23,15 +23,17 @@ module.exports = ({ services, models, logger }) => {
     },
 
     /**
-     * WIP
-     * Check wether a collection is a composite or not.
+     * Return all collections having the provided indexName setting.
      *
-     * @param  {string} collection - Name of the collection.
+     * @param  {string} indexName
      */
-    isCompositeIndex: function (collection) {
-      const model = models[collection].meilisearch || {}
-      const isCompositeIndex = !!model.isUsingCompositeIndex
-      return isCompositeIndex
+    listCollectionsWithIndexName: async function (indexName) {
+      // Is collection not single-type-collection
+      const multiRowsCollections = this.listAllMultiEntriesCollections() || []
+      const collectionsWithIndexName = multiRowsCollections.filter(
+        collection => this.getIndexName(collection) === indexName
+      )
+      return collectionsWithIndexName
     },
 
     /**
@@ -55,6 +57,20 @@ module.exports = ({ services, models, logger }) => {
       return Object.keys(services).filter(type => {
         return services[type].count
       })
+    },
+
+    /**
+     * Returns the total number of entries of the collections.
+     *
+     * @param  {string[]} collections
+     *
+     * @returns {number} Total entries number.
+     */
+    totalNumberOfEntries: async function (collections) {
+      let collectionsEntriesSize = await Promise.all(
+        collections.map(async col => await this.numberOfEntries(col))
+      )
+      return collectionsEntriesSize.reduce((acc, curr) => (acc += curr), 0)
     },
 
     /**
@@ -92,10 +108,15 @@ module.exports = ({ services, models, logger }) => {
       try {
         if (Array.isArray(entries)) {
           return entries.map(entry =>
-            meilisearchConfig.transformEntry(entry, models[collection])
+            meilisearchConfig.transformEntry({
+              entry,
+              model: models[collection],
+              collection,
+            })
           )
         }
       } catch (e) {
+        console.log(e)
         return entries
       }
       return entries
