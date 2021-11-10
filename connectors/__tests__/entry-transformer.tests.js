@@ -51,6 +51,10 @@ const modelMock = {
   },
 }
 
+const loggerMock = {
+  warn: jest.fn(() => 'test'),
+}
+
 describe('Entry transformation', () => {
   let meilisearchConnector
   let storeConnector
@@ -61,6 +65,7 @@ describe('Entry transformation', () => {
       storeClient: storeClientMock,
     })
     collectionConnector = createCollectionConnector({
+      logger: loggerMock,
       models: modelMock,
       services: servicesMock,
     })

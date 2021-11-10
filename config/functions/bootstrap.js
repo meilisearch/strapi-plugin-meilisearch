@@ -60,7 +60,7 @@ function addWatchersOnCollections({
  * @param  {object} plugin - MeiliSearch Plugins services.
  * @param  {object} models - Collections models.
  */
-async function initHooks({ store, plugin, models, services }) {
+async function initHooks({ store, plugin, models, services, logger }) {
   try {
     const credentials = await store.getCredentials()
 
@@ -74,6 +74,7 @@ async function initHooks({ store, plugin, models, services }) {
       const collectionConnector = createCollectionConnector({
         models,
         services,
+        logger,
       })
       const meilisearch = await createMeiliSearchConnector({
         collectionConnector,
@@ -82,9 +83,10 @@ async function initHooks({ store, plugin, models, services }) {
 
       // Get the list of indexes in MeilISearch that are collections in Strapi.
       try {
-        const indexes = await meilisearch.getIndexUidsOfCollectionsInMeiliSearch(
-          Object.keys(models)
-        )
+        const indexes =
+          await meilisearch.getIndexUidsOfCollectionsInMeiliSearch(
+            Object.keys(models)
+          )
 
         addWatchersOnCollections({
           collections: indexes,
@@ -113,7 +115,8 @@ async function initHooks({ store, plugin, models, services }) {
  *
  */
 module.exports = async () => {
-  const { plugin, storeClient, config, models, services } = strapiService()
+  const { plugin, storeClient, config, models, services, logger } =
+    strapiService()
 
   const store = createStoreConnector({
     plugin,
@@ -124,5 +127,5 @@ module.exports = async () => {
   await store.updateStoreCredentials(config, store)
 
   // initialize hooks
-  await initHooks({ store, plugin, models, services })
+  await initHooks({ store, plugin, models, services, logger })
 }
