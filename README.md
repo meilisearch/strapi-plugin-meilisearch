@@ -165,11 +165,12 @@ To activate them, you will have to reload the server. If you are in develop mode
 
 #### Custom Index Name
 
-By default, this plugin will create a search index with the same name as the model. This behavior can be changed by setting the `indexName` property in your the model file of the related collection.
+By default, when indexing a collection in MeiliSearch the index in MeiliSearch has the same name as the collection. This behavior can be changed by setting the `indexName` property in the model file of the related collection.
 
 **Example:**
 
 In the following example, the model `restaurant` index in MeiliSearch is called `my_restaurant` instead of the default `restaurant`.
+
 ```js
 // api/restaurant/models/restaurant.js
 
@@ -177,6 +178,8 @@ module.exports = {
   indexName: "my_restaurant"
 }
 ```
+
+Examples can be found [this directory](./resources/custom-index-name).
 
 #### Transform sent data
 
