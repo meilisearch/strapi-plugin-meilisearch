@@ -83,10 +83,9 @@ async function initHooks({ store, plugin, models, services, logger }) {
 
       // Get the list of indexes in MeilISearch that are collections in Strapi.
       try {
-        const indexes =
-          await meilisearch.getIndexUidsOfCollectionsInMeiliSearch(
-            Object.keys(models)
-          )
+        const indexes = await meilisearch.getIndexUidsOfCollectionsInMeiliSearch(
+          Object.keys(models)
+        )
 
         addWatchersOnCollections({
           collections: indexes,
@@ -115,8 +114,14 @@ async function initHooks({ store, plugin, models, services, logger }) {
  *
  */
 module.exports = async () => {
-  const { plugin, storeClient, config, models, services, logger } =
-    strapiService()
+  const {
+    plugin,
+    storeClient,
+    config,
+    models,
+    services,
+    logger,
+  } = strapiService()
 
   const store = createStoreConnector({
     plugin,
