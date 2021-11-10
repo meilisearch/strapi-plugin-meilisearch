@@ -99,7 +99,7 @@ describe('Entry transformation', () => {
 
     expect(getEntriesBatchSpy).toHaveBeenCalledWith({
       collection: 'restaurant',
-      limit: 1000,
+      limit: 500,
       start: 0,
     })
 
