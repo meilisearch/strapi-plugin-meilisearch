@@ -33,7 +33,7 @@
     "services"
   ],
   "dependencies": {
-    "@buffetjs/core": "^3.3.5",
+    "@buffetjs/core": "^3.3.8",
     "meilisearch": "^0.22.1"
   },
   "author": {
