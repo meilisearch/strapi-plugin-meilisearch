@@ -31,7 +31,7 @@
     "services"
   ],
   "dependencies": {
-    "@buffetjs/core": "^3.3.5",
+    "@buffetjs/core": "^3.3.8",
     "meilisearch": "^0.19.0"
   },
   "author": {
@@ -64,15 +64,13 @@
   "devDependencies": {
     "concurrently": "^6.2.0",
     "cypress": "^7.3.0",
-    "eslint": "^8.1.0",
+    "eslint": "^8.2.0",
     "eslint-config-prettier": "^8.3.0",
-    "eslint-config-standard": "^16.0.3",
     "eslint-plugin-cypress": "^2.12.1",
-    "eslint-plugin-import": "^2.25.2",
+    "eslint-plugin-import": "^2.25.3",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^4.0.0",
-    "eslint-plugin-promise": "^5.1.1",
-    "eslint-plugin-react": "^7.26.1",
-    "prettier": "^2.4.1"
+    "eslint-plugin-react": "^7.27.0",
+    "prettier": "2.2.1"
   }
 }
