@@ -45,7 +45,7 @@ const transformEntryMock = jest.fn(function (entry) {
 const modelMock = {
   restaurant: {
     meilisearch: {
-      searchIndexName: 'my_restaurant',
+      indexName: 'my_restaurant',
       transformEntry: transformEntryMock,
     },
   },

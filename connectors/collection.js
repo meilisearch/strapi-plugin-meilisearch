@@ -4,7 +4,7 @@ module.exports = ({ services, models }) => {
   return {
     /**
      * @brief: Map model name into the actual index name in meilisearch instance. it
-     * uses `searchIndexName` property from model defnition
+     * uses `indexName` property from model defnition
      *
      * @param collection - Name of the Collection.
      *
@@ -12,7 +12,7 @@ module.exports = ({ services, models }) => {
      */
     getIndexName: function (collection) {
       const model = models[collection].meilisearch || {}
-      return model.searchIndexName || collection
+      return model.indexName || collection
     },
 
     /**
