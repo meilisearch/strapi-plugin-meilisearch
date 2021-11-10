@@ -42,8 +42,9 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
      *
      * @returns {number} - Number of documents added.
      */
-    waitForPendingUpdates: async function ({ indexUid, updateNbr }) {
+    waitForPendingUpdates: async function ({ collection, updateNbr }) {
       const client = MeiliSearch({ apiKey, host })
+      const indexUid = collectionConnector.getIndexName(collection)
       const updates = (await client.index(indexUid).getAllUpdateStatus())
         .filter(update => update.status === 'enqueued')
         .slice(0, updateNbr)
@@ -70,7 +71,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
      */
     waitForCollectionIndexation: async function (collection) {
       const numberOfDocumentsIndexed = await this.waitForPendingUpdates({
-        indexUid: collectionConnector.getIndexName(collection),
+        collection,
         updateNbr: 2,
       })
       return { numberOfDocumentsIndexed }
@@ -173,7 +174,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
       const entries_count = await collectionConnector.numberOfEntries(
         collection
       )
-      const BATCH_SIZE = 1000
+      const BATCH_SIZE = 500
       const updateIds = []
 
       for (let index = 0; index <= entries_count; index += BATCH_SIZE) {
@@ -183,13 +184,14 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
             limit: BATCH_SIZE,
             collection,
           })) || []
-
         const indexUid = collectionConnector.getIndexName(collection)
-        const { updateId } = client
+        const documents = collectionConnector.transformEntries(
+          collection,
+          entries
+        )
+        const { updateId } = await client
           .index(indexUid)
-          .addDocuments(
-            collectionConnector.transformEntries(collection, entries)
-          )
+          .addDocuments(documents)
         if (updateId) updateIds.push(updateId)
       }
       return { updateIds }
@@ -210,14 +212,14 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
         const { updateId } = await client.index(indexUid).deleteAllDocuments()
         await this.waitForPendingUpdates({
           updateId,
-          indexUid: indexUid,
+          collection,
         })
       }
       return this.addCollectionInMeiliSearch(collection)
     },
 
     /**
-     * Remove a collection from MeiliSearchconsole.log()
+     * Remove a collection from MeiliSearch
 
      *
      * @param  {string} collection - Collection name.

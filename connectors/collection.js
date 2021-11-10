@@ -11,7 +11,7 @@ module.exports = ({ services, models }) => {
      * @return {String} - Actual index name
      */
     getIndexName: function (collection) {
-      const model = models[collection]
+      const model = models[collection].meilisearch || {}
       return model.searchIndexName || collection
     },
 
@@ -22,7 +22,7 @@ module.exports = ({ services, models }) => {
      * @param  {string} collection - Name of the collection.
      */
     isCompositeIndex: function (collection) {
-      const model = models[collection]
+      const model = models[collection].meilisearch || {}
       const isCompositeIndex = !!model.isUsingCompositeIndex
       return isCompositeIndex
     },
@@ -77,16 +77,21 @@ module.exports = ({ services, models }) => {
      * @return {Array<Object>} - Converted or mapped data
      */
     transformEntries: function (collection, entries) {
-      const model = models[collection]
-      const mapFunction = model.toSearchIndex
-      if (!(mapFunction instanceof Function)) {
+      const meilisearchConfig = models[collection].meilisearch || {}
+      const { transformEntry } = meilisearchConfig
+      if (!transformEntry) {
         return entries
       }
-      if (Array.isArray(entries)) {
-        entries.map(mapFunction)
-        return entries.map(mapFunction)
+      try {
+        if (Array.isArray(entries)) {
+          return entries.map(entry =>
+            meilisearchConfig.transformEntry(entry, models[collection])
+          )
+        }
+      } catch (e) {
+        return entries
       }
-      return mapFunction(entries)
+      return entries
     },
   }
 }

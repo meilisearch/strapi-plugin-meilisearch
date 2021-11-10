@@ -1,4 +1,5 @@
 'use strict'
+
 /**
  * Read the documentation (https://strapi.io/documentation/developer-docs/latest/concepts/models.html#lifecycle-hooks)
  * to customize this model
@@ -6,12 +7,12 @@
 
 module.exports = {
   meilisearch: {
-    transformEntry(entry, model) {
-      return  {
+    transformEntry(entry) {
+      const transformedEntry = {
         ...entry,
-        categories: entry.categories.map(cat => cat.name)
-      };
+        categories: entry.categories.map(cat => cat.name), // map to only have categories name
+      }
+      return transformedEntry
     },
-    indexName: "my_restaurant"
-  }
+  },
 }

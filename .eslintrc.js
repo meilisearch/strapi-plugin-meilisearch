@@ -4,6 +4,7 @@ module.exports = {
     commonjs: true,
     es2020: true,
     node: true,
+    jest: true,
   },
   globals: {
     strapi: true,

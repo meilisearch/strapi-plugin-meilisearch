@@ -9,19 +9,19 @@ const { MeiliSearch } = require('meilisearch')
 const wrongHost = 'http://localhost:1234'
 const wrongApiKey = 'wrongApiKey'
 
-const removeTutorial = () => {
-  cy.get('.videosContent').siblings('.openBtn').click()
-}
-
 const clickCollection = ({ rowNb }) => {
   const row = `.collections tbody tr:nth-child(${rowNb})`
-  cy.get(`${row} input[type="checkbox"]`).click()
+  cy.get(`${row} input[type="checkbox"]`, { timeout: 10000 }).click({
+    timeout: 10000,
+  })
   removeNotifications()
 }
 
 const checkCollectionContent = ({ rowNb, contains }) => {
   const row = `.collections tbody tr:nth-child(${rowNb})`
-  contains.map(content => cy.get(`${row}`).contains(content))
+  contains.map(content =>
+    cy.get(`${row}`, { timeout: 10000 }).contains(content, { timeout: 10000 })
+  )
 }
 
 const clickAndCheckRowContent = ({ rowNb, contains }) => {
@@ -53,10 +53,7 @@ const removeCollectionsFromMeiliSearch = async () => {
 const reloadServer = () => {
   const row = '.reload_button'
   cy.get(`${row}`).click()
-  cy.wait(4000)
-  if (['develop', 'watch', 'test', 'ci'].includes(env)) {
-    removeTutorial()
-  }
+  cy.wait(10000)
 }
 
 describe('Strapi Login flow', () => {
@@ -93,7 +90,6 @@ describe('Strapi Login flow', () => {
   it('Enter to the plugin Home Page', () => {
     removeNotifications()
     cy.contains('MeiliSearch', { timeout: 10000 }).click()
-    removeTutorial()
     cy.wait(2000)
     cy.url().should('include', '/plugins/meilisearch')
   })
@@ -139,7 +135,6 @@ describe('Strapi Login flow', () => {
     })
     cy.contains('Reload needed', { timeout: 10000 })
     reloadServer()
-    removeTutorial()
   })
 
   it('Check for successfull hooks in develop mode', () => {
@@ -171,13 +166,12 @@ describe('Strapi Login flow', () => {
 
   it('Enter to restaurant collection page', () => {
     cy.contains('Restaurants', { timeout: 10000 }).click()
-    removeTutorial()
+    cy.wait(2000)
     cy.url().should('include', '/admin/plugins/content-manager/collectionType/')
   })
 
   it('Add a new restaurant in the collection', () => {
     cy.contains('Add New Restaurants', { timeout: 10000 }).click()
-    removeTutorial()
   })
 
   it('Fill the creation form', () => {
@@ -189,7 +183,7 @@ describe('Strapi Login flow', () => {
 
   it('Go back to the plugin Home Page', () => {
     cy.contains('MeiliSearch', { timeout: 10000 }).click()
-    removeTutorial()
+    cy.wait(2000)
     cy.url().should('include', '/plugins/meilisearch')
   })
 
@@ -199,7 +193,7 @@ describe('Strapi Login flow', () => {
 
   it('Enter to restaurant collection page', () => {
     cy.contains('Restaurants', { timeout: 10000 }).click()
-    removeTutorial()
+    cy.wait(2000)
     cy.url().should('include', '/admin/plugins/content-manager/collectionType/')
   })
 
@@ -210,7 +204,7 @@ describe('Strapi Login flow', () => {
 
   it('Go back to the plugin Home Page', () => {
     cy.contains('MeiliSearch', { timeout: 10000 }).click()
-    removeTutorial()
+    cy.wait(2000)
     cy.url().should('include', '/plugins/meilisearch')
   })
 
@@ -246,7 +240,6 @@ describe('Strapi Login flow', () => {
       cy.contains('Reload needed', { timeout: 10000 })
     }
     reloadServer()
-    removeTutorial()
   })
 
   it('Check that collections are not in MeiliSearch anymore', () => {

@@ -14,13 +14,14 @@ const strapi = require('./../services/strapi')
 
 async function createConnector() {
   const { plugin, models, services, storeClient } = strapi()
-  const storeConnector = await createStoreConnector({ plugin, storeClient })
+  const storeConnector = createStoreConnector({ plugin, storeClient })
 
   const collectionConnector = createCollectionConnector({
     services,
     models,
   })
 
+  // log.fatal('aaah')
   // Create plugin connector.
   return await createMeiliSearchConnector({
     collectionConnector,
@@ -39,11 +40,14 @@ async function ctxWrapper(ctx, fct) {
     const body = await fct(ctx)
     ctx.send(body)
   } catch (e) {
-    console.error(e)
     const message =
       e.name === 'MeiliSearchCommunicationError'
         ? `Could not connect with MeiliSearch, please check your host.`
         : `${e.name}: \n${e.message || e.code}`
+    console.error({
+      ...e,
+      message,
+    })
     return {
       error: true,
       message,
@@ -62,7 +66,7 @@ async function ctxWrapper(ctx, fct) {
  */
 async function getClientCredentials() {
   const { plugin, storeClient } = strapi()
-  const store = await createStoreConnector({ plugin, storeClient })
+  const store = createStoreConnector({ plugin, storeClient })
   return store.getCredentials()
 }
 
@@ -118,7 +122,7 @@ async function getCollections() {
  */
 async function addCredentials(ctx) {
   const { plugin, storeClient } = strapi()
-  const store = await createStoreConnector({ plugin, storeClient })
+  const store = createStoreConnector({ plugin, storeClient })
   const { host, apiKey } = ctx.request.body
   return store.addCredentials({ host, apiKey })
 }
