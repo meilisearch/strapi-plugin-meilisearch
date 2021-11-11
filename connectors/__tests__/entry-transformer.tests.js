@@ -45,10 +45,14 @@ const transformEntryMock = jest.fn(function (entry) {
 const modelMock = {
   restaurant: {
     meilisearch: {
-      searchIndexName: 'my_restaurant',
+      indexName: 'my_restaurant',
       transformEntry: transformEntryMock,
     },
   },
+}
+
+const loggerMock = {
+  warn: jest.fn(() => 'test'),
 }
 
 describe('Entry transformation', () => {
@@ -61,6 +65,7 @@ describe('Entry transformation', () => {
       storeClient: storeClientMock,
     })
     collectionConnector = createCollectionConnector({
+      logger: loggerMock,
       models: modelMock,
       services: servicesMock,
     })
