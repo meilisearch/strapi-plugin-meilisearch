@@ -9,36 +9,6 @@ const { MeiliSearch } = require('meilisearch')
 const wrongHost = 'http://localhost:1234'
 const wrongApiKey = 'wrongApiKey'
 
-const clickCollection = ({ rowNb }) => {
-  const row = `.collections tbody tr:nth-child(${rowNb})`
-  cy.get(`${row} input[type="checkbox"]`, { timeout: 10000 }).click({
-    timeout: 10000,
-  })
-  removeNotifications()
-}
-
-const checkCollectionContent = ({ rowNb, contains }) => {
-  const row = `.collections tbody tr:nth-child(${rowNb})`
-  contains.map(content =>
-    cy.get(`${row}`, { timeout: 10000 }).contains(content, { timeout: 10000 })
-  )
-}
-
-const clickAndCheckRowContent = ({ rowNb, contains }) => {
-  clickCollection({ rowNb })
-  checkCollectionContent({ rowNb, contains })
-}
-
-const removeNotifications = () => {
-  cy.wait(1000)
-  cy.get('.notification-enter-done > div > div > div:last-child').click({
-    multiple: true,
-  })
-  cy.get('.notification-enter-done > div > div > div:last-child').should(
-    'not.exist'
-  )
-}
-
 const removeCollectionsFromMeiliSearch = async () => {
   const client = new MeiliSearch({ apiKey, host })
   const collections = ['restaurant', 'category', 'project', 'reviews']
@@ -88,6 +58,7 @@ describe('Strapi Login flow', () => {
   })
 
   it('Enter to the plugin Home Page', () => {
+    cy.removeNotifications()
     cy.contains('MeiliSearch', { timeout: 10000 }).click()
     cy.wait(2000)
     cy.url().should('include', '/plugins/meilisearch')
@@ -97,7 +68,7 @@ describe('Strapi Login flow', () => {
     cy.get('input[name="MSHost"]').clear().type(host)
     cy.get('input[name="MSApiKey"]').clear().type(apiKey)
     cy.get('.credentials_button').click()
-    removeNotifications()
+    cy.removeNotifications()
   })
 
   it('Credentials should be displayed', () => {
@@ -113,22 +84,22 @@ describe('Strapi Login flow', () => {
   })
 
   it('Add Collections to MeiliSearch', () => {
-    clickAndCheckRowContent({
+    cy.clickAndCheckRowContent({
       rowNb: 1,
       contains: ['Yes'],
     })
     cy.contains('Reload needed', { timeout: 10000 })
-    clickAndCheckRowContent({
+    cy.clickAndCheckRowContent({
       rowNb: 2,
       contains: ['Yes'],
     })
     cy.contains('Reload needed', { timeout: 10000 })
-    clickAndCheckRowContent({
+    cy.clickAndCheckRowContent({
       rowNb: 3,
       contains: ['Yes'],
     })
     cy.contains('Reload needed', { timeout: 10000 })
-    clickAndCheckRowContent({
+    cy.clickAndCheckRowContent({
       rowNb: 4,
       contains: ['Yes'],
     })
@@ -138,27 +109,27 @@ describe('Strapi Login flow', () => {
 
   it('Check for successfull hooks in develop mode', () => {
     if (['develop', 'watch', 'ci'].includes(env)) {
-      checkCollectionContent({ rowNb: 1, contains: ['Yes', 'Active'] })
-      checkCollectionContent({ rowNb: 2, contains: ['Yes', 'Active'] })
-      checkCollectionContent({ rowNb: 3, contains: ['Yes', 'Active'] })
-      checkCollectionContent({ rowNb: 4, contains: ['Yes', 'Active'] })
+      cy.checkCollectionContent({ rowNb: 1, contains: ['Yes', 'Active'] })
+      cy.checkCollectionContent({ rowNb: 2, contains: ['Yes', 'Active'] })
+      cy.checkCollectionContent({ rowNb: 3, contains: ['Yes', 'Active'] })
+      cy.checkCollectionContent({ rowNb: 4, contains: ['Yes', 'Active'] })
     } else {
-      checkCollectionContent({ rowNb: 1, contains: ['Yes'] })
+      cy.checkCollectionContent({ rowNb: 1, contains: ['Yes'] })
       cy.contains('Reload needed', { timeout: 10000 })
-      checkCollectionContent({ rowNb: 2, contains: ['Yes'] })
+      cy.checkCollectionContent({ rowNb: 2, contains: ['Yes'] })
       cy.contains('Reload needed', { timeout: 10000 })
-      checkCollectionContent({ rowNb: 3, contains: ['Yes'] })
+      cy.checkCollectionContent({ rowNb: 3, contains: ['Yes'] })
       cy.contains('Reload needed', { timeout: 10000 })
-      checkCollectionContent({ rowNb: 4, contains: ['Yes'] })
+      cy.checkCollectionContent({ rowNb: 4, contains: ['Yes'] })
       cy.contains('Reload needed', { timeout: 10000 })
     }
   })
 
   it('Check for right number of documents indexed', () => {
-    checkCollectionContent({ rowNb: 1, contains: ['3 / 3'] })
-    checkCollectionContent({ rowNb: 2, contains: ['1 / 1'] })
-    checkCollectionContent({ rowNb: 3, contains: ['2 / 2'] })
-    checkCollectionContent({ rowNb: 4, contains: ['1 / 1'] })
+    cy.checkCollectionContent({ rowNb: 1, contains: ['3 / 3'] })
+    cy.checkCollectionContent({ rowNb: 2, contains: ['1 / 1'] })
+    cy.checkCollectionContent({ rowNb: 3, contains: ['2 / 2'] })
+    cy.checkCollectionContent({ rowNb: 4, contains: ['1 / 1'] })
   })
 
   // HOOKS CHECK
@@ -187,7 +158,7 @@ describe('Strapi Login flow', () => {
   })
 
   it('Restaurant should have one 3 entries', () => {
-    checkCollectionContent({ rowNb: 3, contains: ['3 / 3'] })
+    cy.checkCollectionContent({ rowNb: 3, contains: ['3 / 3'] })
   })
 
   it('Enter to restaurant collection page', () => {
@@ -208,44 +179,44 @@ describe('Strapi Login flow', () => {
   })
 
   it('Restaurant should have one 2 entries', () => {
-    checkCollectionContent({ rowNb: 3, contains: ['2 / 2'] })
+    cy.checkCollectionContent({ rowNb: 3, contains: ['2 / 2'] })
   })
 
   it('Remove Collections from MeiliSearch', () => {
-    clickAndCheckRowContent({
+    cy.clickAndCheckRowContent({
       rowNb: 1,
       contains: ['No'],
     })
-    clickAndCheckRowContent({
+    cy.clickAndCheckRowContent({
       rowNb: 2,
       contains: ['No'],
     })
-    clickAndCheckRowContent({
+    cy.clickAndCheckRowContent({
       rowNb: 3,
       contains: ['No'],
     })
-    clickAndCheckRowContent({
+    cy.clickAndCheckRowContent({
       rowNb: 4,
       contains: ['No'],
     })
     if (env === 'develop' || env === 'watch') {
-      checkCollectionContent({ rowNb: 1, contains: ['No'] })
+      cy.checkCollectionContent({ rowNb: 1, contains: ['No'] })
       cy.contains('Reload needed', { timeout: 10000 })
-      checkCollectionContent({ rowNb: 2, contains: ['No'] })
+      cy.checkCollectionContent({ rowNb: 2, contains: ['No'] })
       cy.contains('Reload needed', { timeout: 10000 })
-      checkCollectionContent({ rowNb: 3, contains: ['No'] })
+      cy.checkCollectionContent({ rowNb: 3, contains: ['No'] })
       cy.contains('Reload needed', { timeout: 10000 })
-      checkCollectionContent({ rowNb: 4, contains: ['No'] })
+      cy.checkCollectionContent({ rowNb: 4, contains: ['No'] })
       cy.contains('Reload needed', { timeout: 10000 })
     }
     reloadServer()
   })
 
   it('Check that collections are not in MeiliSearch anymore', () => {
-    checkCollectionContent({ rowNb: 1, contains: ['0 / 3'] })
-    checkCollectionContent({ rowNb: 2, contains: ['0 / 1'] })
-    checkCollectionContent({ rowNb: 3, contains: ['0 / 2'] })
-    checkCollectionContent({ rowNb: 4, contains: ['0 / 1'] })
+    cy.checkCollectionContent({ rowNb: 1, contains: ['0 / 3'] })
+    cy.checkCollectionContent({ rowNb: 2, contains: ['0 / 1'] })
+    cy.checkCollectionContent({ rowNb: 3, contains: ['0 / 2'] })
+    cy.checkCollectionContent({ rowNb: 4, contains: ['0 / 1'] })
   })
 
   it('Change Host to wrong host', () => {
@@ -255,37 +226,37 @@ describe('Strapi Login flow', () => {
       .type(wrongHost)
       .should('have.value', wrongHost)
     cy.get('.credentials_button').click()
-    removeNotifications()
+    cy.removeNotifications()
     cy.get('input[name="MSHost"]').should('have.value', wrongHost)
     const row = '.collections tbody tr:nth-child(1) input[type="checkbox"]'
     cy.get(row).click()
-    removeNotifications()
+    cy.removeNotifications()
     cy.get(row).should('not.be.checked')
     cy.get('input[name="MSHost"]').clear().type(host).should('have.value', host)
     cy.get('.credentials_button').click()
-    removeNotifications()
+    cy.removeNotifications()
     cy.get('input[name="MSHost"]').should('have.value', host)
   })
 
   it('Check that collections are still showcased', () => {
-    checkCollectionContent({ rowNb: 1, contains: ['0 / 3'] })
-    checkCollectionContent({ rowNb: 2, contains: ['0 / 1'] })
-    checkCollectionContent({ rowNb: 3, contains: ['0 / 2'] })
-    checkCollectionContent({ rowNb: 4, contains: ['0 / 1'] })
+    cy.checkCollectionContent({ rowNb: 1, contains: ['0 / 3'] })
+    cy.checkCollectionContent({ rowNb: 2, contains: ['0 / 1'] })
+    cy.checkCollectionContent({ rowNb: 3, contains: ['0 / 2'] })
+    cy.checkCollectionContent({ rowNb: 4, contains: ['0 / 1'] })
   })
   it('Change Host to empty host', () => {
     cy.get('input[name="MSHost"]').should('have.value', host)
     cy.get('input[name="MSHost"]').clear().should('have.value', '')
     cy.get('.credentials_button').click()
-    removeNotifications()
+    cy.removeNotifications()
     cy.get('input[name="MSHost"]').should('have.value', '')
     const row = '.collections tbody tr:nth-child(1) input[type="checkbox"]'
     cy.get(row).click()
-    removeNotifications()
+    cy.removeNotifications()
     cy.get(row).should('not.be.checked')
     cy.get('input[name="MSHost"]').clear().type(host).should('have.value', host)
     cy.get('.credentials_button').click()
-    removeNotifications()
+    cy.removeNotifications()
     cy.get('input[name="MSHost"]').should('have.value', host)
   })
 
@@ -296,14 +267,14 @@ describe('Strapi Login flow', () => {
       .type(wrongApiKey)
       .should('have.value', wrongApiKey)
     cy.get('.credentials_button').click()
-    removeNotifications()
+    cy.removeNotifications()
     cy.get('input[name="MSApiKey"]').should('have.value', wrongApiKey)
     cy.get('input[name="MSApiKey"]')
       .clear()
       .type(apiKey)
       .should('have.value', apiKey)
     cy.get('.credentials_button').click()
-    removeNotifications()
+    cy.removeNotifications()
     cy.get('input[name="MSApiKey"]').should('have.value', apiKey)
   })
 })
