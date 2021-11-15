@@ -10,4 +10,5 @@ module.exports = () => ({
   models: strapi.models,
   pluginConfig: strapi.config.plugins,
   services: strapi.services,
+  logger: strapi.log,
 })

@@ -1,10 +1,10 @@
 'use strict'
 
-module.exports = ({ services, models }) => {
+module.exports = ({ services, models, logger }) => {
   return {
     /**
      * @brief: Map model name into the actual index name in meilisearch instance. it
-     * uses `searchIndexName` property from model defnition
+     * uses `indexName` property from model defnition
      *
      * @param collection - Name of the Collection.
      *
@@ -12,7 +12,14 @@ module.exports = ({ services, models }) => {
      */
     getIndexName: function (collection) {
       const model = models[collection].meilisearch || {}
-      return model.searchIndexName || collection
+      const indexName = model.indexName || collection
+      if (typeof indexName !== 'string') {
+        logger.warn(
+          `[MEILISEARCH]: "indexName" setting provided in the model of the ${collection} must be a string.`
+        )
+        return collection
+      }
+      return indexName
     },
 
     /**
