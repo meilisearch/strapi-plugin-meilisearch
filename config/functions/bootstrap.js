@@ -81,19 +81,24 @@ async function initHooks({ store, plugin, models, services, logger }) {
         storeConnector: store,
       })
 
-      // Get the list of indexes in MeilISearch that are collections in Strapi.
+      // Get the list of indexes in MeiliSearch that are collections in Strapi.
       try {
-        const indexes = await meilisearch.getIndexUidsOfCollectionsInMeiliSearch(
+        const storedIndexedCollections = await store.getIndexedCollections()
+        const indexedCollections = await meilisearch.getCollectionsIndexedInMeiliSearch(
           Object.keys(models)
         )
 
+        const candidates = indexedCollections.filter(col =>
+          storedIndexedCollections.includes(col)
+        )
+
         addWatchersOnCollections({
-          collections: indexes,
+          collections: candidates,
           plugin,
           models,
           meilisearch,
         })
-        store.addWatchedCollectionToStore(indexes)
+        store.addWatchedCollectionToStore(candidates)
       } catch (e) {
         let message =
           e.name === 'MeiliSearchCommunicationError'
