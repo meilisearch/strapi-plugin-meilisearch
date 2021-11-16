@@ -181,16 +181,20 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
             await storeConnector.removeIndexedCollection(collection)
           }
 
-          const { numberOfDocuments = 0, isIndexing = false } =
-            indexesNames.includes(indexUid) ? await this.getStats(indexUid) : {}
+          const {
+            numberOfDocuments = 0,
+            isIndexing = false,
+          } = indexesNames.includes(indexUid)
+            ? await this.getStats(indexUid)
+            : {}
 
-          const collectionsWithSameIndex =
-            await collectionConnector.listCollectionsWithIndexName(indexUid)
+          const collectionsWithSameIndex = await collectionConnector.listCollectionsWithIndexName(
+            indexUid
+          )
 
-          const numberOfEntries =
-            await collectionConnector.totalNumberOfEntries(
-              collectionsWithSameIndex
-            )
+          const numberOfEntries = await collectionConnector.totalNumberOfEntries(
+            collectionsWithSameIndex
+          )
           return {
             collection,
             indexUid,
@@ -338,8 +342,9 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
       const indexUid = await collectionConnector.getIndexName(collection)
 
       // Fetch collections that has the same indexName as the provided collection
-      const collectionsWithSameIndex =
-        await collectionConnector.listCollectionsWithIndexName(indexUid)
+      const collectionsWithSameIndex = await collectionConnector.listCollectionsWithIndexName(
+        indexUid
+      )
 
       // get all collections (not indexes) indexed in MeiliSearch.
       const indexedCollections = await storeConnector.getIndexedCollections(
