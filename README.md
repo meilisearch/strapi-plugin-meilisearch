@@ -183,11 +183,29 @@ Examples can be found [this directory](./resources/custom-index-name).
 
 ### Composite Index
 
-It is possible to add multiple collections in the same index. They all have to share the same `indexName`.
+It is possible to bind multiple collections to the same index. They all have to share the same `indexName`.
+
+For example if `shoes` and `shirts` should be bind to the same index, they should have the same `indexName` in their model setting:
+
+```js
+// api/shoes/models/shoes.js
+
+module.exports = {
+  indexName: "product"
+}
+```
+
+```js
+// api/shirts/models/shirts.js
+
+module.exports = {
+  indexName: "product"
+}
+```
+
 Nonetheless, it is not possible to know how many entries from each collection is added to MeiliSearch.
 
-Example:
-Given two collections:
+For example, given two collections:
 - `Shoes`: with 300 entries and an `indexName` set to `clothes`
 - `Shirts`: 200 entries and an `indexName` set to `clothes`
 

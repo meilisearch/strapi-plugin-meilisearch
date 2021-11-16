@@ -17,6 +17,40 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
 
   return {
     store: storeConnector,
+
+    /**
+     * Add the prefix of the collection in front of the id of its entry.
+     *
+     * We do this to avoid id's conflict in case of composite indexes.
+     * It returns the id in the following format: `[collectionName]-[id]`
+     *
+     * @param  {string} collection - Collection name.
+     * @param  {number} entryId - Entry id.
+     *
+     * @returns {string} - Formated id
+     */
+    addCollectionPrefixToId: function ({ collection, entryId }) {
+      return `${collection}-${entryId}`
+    },
+
+    /**
+     * Add the prefix of the collection on a list of entries id.
+     *
+     * We do this to avoid id's conflict in case of composite indexes.
+     * The ids are transformed in the following format: `[collectionName]-[id]`
+     *
+     * @param  {string} collection - Collection name.
+     * @param  {object[]} entries - entries.
+     *
+     * @returns {object[]} - Formatted entries.
+     */
+    addCollectionPrefixToIdOfEntries: function ({ collection, entries }) {
+      return entries.map(entry => ({
+        ...entry,
+        id: this.addCollectionPrefixToId({ entryId: entry.id, collection }),
+      }))
+    },
+
     /**
      * Delete multiples entries from the collection in its index in MeiliSearch.
      *
@@ -26,8 +60,12 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
     deleteEntriesFromMeiliSearch: async function ({ collection, entriesId }) {
       const client = MeiliSearch({ apiKey, host })
       const indexUid = collectionConnector.getIndexName(collection)
-      await client.index(indexUid).deleteDocuments(entriesId)
+      const documentsIds = entriesId.map(entryId =>
+        this.addCollectionPrefixToId({ entryId, collection })
+      )
+      await client.index(indexUid).deleteDocuments(documentsIds)
     },
+
     /**
      * Wait for a number of update to be processed in MeiliSearch.
      *
@@ -87,6 +125,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
         const client = MeiliSearch({ apiKey, host })
         return await client.getIndexes()
       } catch (e) {
+        console.error(e)
         return []
       }
     },
@@ -142,20 +181,16 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
             await storeConnector.removeIndexedCollection(collection)
           }
 
-          const {
-            numberOfDocuments = 0,
-            isIndexing = false,
-          } = indexesNames.includes(indexUid)
-            ? await this.getStats(indexUid)
-            : {}
+          const { numberOfDocuments = 0, isIndexing = false } =
+            indexesNames.includes(indexUid) ? await this.getStats(indexUid) : {}
 
-          const collectionsWithSameIndex = await collectionConnector.listCollectionsWithIndexName(
-            indexUid
-          )
+          const collectionsWithSameIndex =
+            await collectionConnector.listCollectionsWithIndexName(indexUid)
 
-          const numberOfEntries = await collectionConnector.totalNumberOfEntries(
-            collectionsWithSameIndex
-          )
+          const numberOfEntries =
+            await collectionConnector.totalNumberOfEntries(
+              collectionsWithSameIndex
+            )
           return {
             collection,
             indexUid,
@@ -183,9 +218,12 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
         entry = [entry]
       }
       const indexUid = collectionConnector.getIndexName(collection)
-      const update = client
-        .index(indexUid)
-        .addDocuments(collectionConnector.transformEntries(collection, entry))
+      const entries = collectionConnector.transformEntries(collection, entry)
+      const documents = this.addCollectionPrefixToIdOfEntries({
+        collection,
+        entries,
+      })
+      const update = client.index(indexUid).addDocuments(documents)
       storeConnector.addIndexedCollection(collection)
       return update
     },
@@ -198,17 +236,15 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
      */
     addCollectionInMeiliSearch: async function (collection) {
       const indexUid = collectionConnector.getIndexName(collection)
-
       const client = MeiliSearch({ apiKey, host })
       await client.getOrCreateIndex(indexUid)
 
       const addDocuments = async (entries, collection) => {
-        let documents = collectionConnector
-          .transformEntries(collection, entries)
-          .map(document => ({
-            ...document,
-            id: `${collection}-${document.id}`,
-          }))
+        entries = collectionConnector.transformEntries(collection, entries)
+        const documents = this.addCollectionPrefixToIdOfEntries({
+          collection,
+          entries,
+        })
 
         const indexUid = collectionConnector.getIndexName(collection)
         const { updateId } = await client
@@ -226,10 +262,14 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
       const indexedColWithIndexName = await this.sameIndexCollections(
         collection
       )
+      // console.log({ indexedColWithIndexName })
       if (indexedColWithIndexName.length > 1) {
         const deleteEntries = async (entries, collection) => {
-          const entriesId = entries.map(entry => `${collection}-${entry.id}`)
-          await this.deleteEntriesFromMeiliSearch({ collection, entriesId })
+          console.log({ entriesId: entries.map(entry => entry.id) })
+          await this.deleteEntriesFromMeiliSearch({
+            collection,
+            entriesId: entries.map(entry => entry.id),
+          })
         }
         await this.actionInBatches(collection, deleteEntries)
       } else {
@@ -254,6 +294,14 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
       return this.addCollectionInMeiliSearch(collection)
     },
 
+    /**
+     * Apply an action on all the entries of the provided collection.
+     *
+     * @param  {string} collection
+     * @param  {function} callback - Function applied on each entry of the collection
+     *
+     * @returns {any[]} - List of all the returned elements from the callback.
+     */
     actionInBatches: async function (collection, callback) {
       const BATCH_SIZE = 500
       const entries_count = await collectionConnector.numberOfEntries(
@@ -273,14 +321,19 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
       }
       return response
     },
-
+    /**
+     * Search for the list of all collections that share the same index name.
+     *
+     * @param  {string} collection
+     *
+     * @returns {sring[]} - Collections names.
+     */
     sameIndexCollections: async function (collection) {
       const indexUid = await collectionConnector.getIndexName(collection)
 
       // Fetch collections that has the same indexName as the provided collection
-      const collectionsWithSameIndex = await collectionConnector.listCollectionsWithIndexName(
-        indexUid
-      )
+      const collectionsWithSameIndex =
+        await collectionConnector.listCollectionsWithIndexName(indexUid)
 
       // get all collections (not indexes) indexed in MeiliSearch.
       const indexedCollections = await storeConnector.getIndexedCollections(

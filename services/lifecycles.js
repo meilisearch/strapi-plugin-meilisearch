@@ -15,10 +15,13 @@ async function afterCreate(result, collection, connector) {
   try {
     // When index was removed from MeiliSearch but hook is still active
     // It will re-recreate the index because `addDocuments` creates the index
-    await connector.addOneEntryInMeiliSearch({
-      collection,
-      entry: result,
-    })
+    const keys = Object.keys(result)
+    if (result.published_at || !keys.includes('published_at')) {
+      await connector.addOneEntryInMeiliSearch({
+        collection,
+        entry: result,
+      })
+    }
   } catch (e) {
     console.error(e)
   }
@@ -34,7 +37,6 @@ async function afterCreate(result, collection, connector) {
 async function afterDelete(result, collection, connector) {
   try {
     let entriesId = []
-
     // works with both delete methods
     if (Array.isArray(result)) {
       entriesId = result.map(doc => doc.id)
@@ -56,10 +58,13 @@ async function afterDelete(result, collection, connector) {
  */
 async function afterUpdate(result, collection, connector) {
   try {
-    await connector.addOneEntryInMeiliSearch({
-      collection,
-      entry: result,
-    })
+    const keys = Object.keys(result)
+    if (result.published_at || !keys.includes('published_at')) {
+      await connector.addOneEntryInMeiliSearch({
+        collection,
+        entry: result,
+      })
+    }
   } catch (e) {
     console.error(e)
   }
