@@ -20,12 +20,6 @@ const removeCollectionsFromMeiliSearch = async () => {
   }
 }
 
-const reloadServer = () => {
-  const row = '.reload_button'
-  cy.get(`${row}`).click()
-  cy.wait(10000)
-}
-
 describe('Strapi Login flow', () => {
   before(() => {
     cy.clearCookies()
@@ -58,7 +52,6 @@ describe('Strapi Login flow', () => {
   })
 
   it('Enter to the plugin Home Page', () => {
-    cy.removeNotifications()
     cy.contains('MeiliSearch', { timeout: 10000 }).click()
     cy.wait(2000)
     cy.url().should('include', '/plugins/meilisearch')
@@ -104,7 +97,7 @@ describe('Strapi Login flow', () => {
       contains: ['Yes'],
     })
     cy.contains('Reload needed', { timeout: 10000 })
-    reloadServer()
+    cy.reloadServer()
   })
 
   it('Check for successfull hooks in develop mode', () => {
@@ -209,7 +202,7 @@ describe('Strapi Login flow', () => {
       cy.checkCollectionContent({ rowNb: 4, contains: ['No'] })
       cy.contains('Reload needed', { timeout: 10000 })
     }
-    reloadServer()
+    cy.reloadServer()
   })
 
   it('Check that collections are not in MeiliSearch anymore', () => {

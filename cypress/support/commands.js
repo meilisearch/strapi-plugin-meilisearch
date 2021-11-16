@@ -28,8 +28,13 @@ const reloadServer = () => {
   cy.get(`${row}`).click()
   cy.wait(10000)
 }
+const clickAndCheckRowContent = ({ rowNb, contains }) => {
+  clickCollection({ rowNb })
+  checkCollectionContent({ rowNb, contains })
+}
 
-Cypress.Commands.add('removeNotifications', removeNotifications)
 Cypress.Commands.add('clickCollection', clickCollection)
+Cypress.Commands.add('clickAndCheckRowContent', clickAndCheckRowContent)
 Cypress.Commands.add('checkCollectionContent', checkCollectionContent)
 Cypress.Commands.add('reloadServer', reloadServer)
+Cypress.Commands.add('removeNotifications', removeNotifications)
