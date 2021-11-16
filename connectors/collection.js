@@ -99,9 +99,10 @@ module.exports = ({ services, models, logger }) => {
      *
      * @return {Array<Object>} - Converted or mapped data
      */
-    transformEntries: function (collection, entries) {
+    transformEntries: function ({ collection, entries }) {
       const meilisearchConfig = models[collection].meilisearch || {}
       const { transformEntry } = meilisearchConfig
+
       if (!transformEntry) {
         return entries
       }

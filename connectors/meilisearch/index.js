@@ -217,8 +217,13 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
       if (!Array.isArray(entry)) {
         entry = [entry]
       }
+
       const indexUid = collectionConnector.getIndexName(collection)
-      const entries = collectionConnector.transformEntries(collection, entry)
+
+      const entries = collectionConnector.transformEntries({
+        collection,
+        entries: entry,
+      })
       const documents = this.addCollectionPrefixToIdOfEntries({
         collection,
         entries,
@@ -240,10 +245,13 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
       await client.getOrCreateIndex(indexUid)
 
       const addDocuments = async (entries, collection) => {
-        entries = collectionConnector.transformEntries(collection, entries)
-        const documents = this.addCollectionPrefixToIdOfEntries({
+        let transformedEntries = collectionConnector.transformEntries({
           collection,
           entries,
+        })
+        const documents = this.addCollectionPrefixToIdOfEntries({
+          collection,
+          entries: transformedEntries,
         })
 
         const indexUid = collectionConnector.getIndexName(collection)
@@ -262,10 +270,8 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
       const indexedColWithIndexName = await this.sameIndexCollections(
         collection
       )
-      // console.log({ indexedColWithIndexName })
       if (indexedColWithIndexName.length > 1) {
         const deleteEntries = async (entries, collection) => {
-          console.log({ entriesId: entries.map(entry => entry.id) })
           await this.deleteEntriesFromMeiliSearch({
             collection,
             entriesId: entries.map(entry => entry.id),

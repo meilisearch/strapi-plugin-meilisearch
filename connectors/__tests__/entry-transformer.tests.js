@@ -34,7 +34,7 @@ const servicesMock = {
     }),
   },
 }
-const transformEntryMock = jest.fn(function (entry) {
+const transformEntryMock = jest.fn(function ({ entry }) {
   const transformedEntry = {
     ...entry,
     collection: entry.collection.map(cat => cat.name),
@@ -81,7 +81,7 @@ describe('Entry transformation', () => {
     jest.restoreAllMocks()
   })
 
-  test('Test if data is transformed correctly', async () => {
+  test.only('Test if data is transformed correctly', async () => {
     const getIndexNameSpy = jest.spyOn(collectionConnector, 'getIndexName')
     const numberOfEntriesSpy = jest.spyOn(
       collectionConnector,
@@ -110,9 +110,10 @@ describe('Entry transformation', () => {
 
     expect(getEntriesBatchSpy).toHaveBeenCalledTimes(1)
     expect(transFormEntriesSpy).toHaveBeenCalledTimes(1)
-    expect(transFormEntriesSpy).toHaveBeenCalledWith('restaurant', [
-      { collection: [{ name: 'one' }, { name: 'two' }], id: '1' },
-    ])
+    expect(transFormEntriesSpy).toHaveBeenCalledWith({
+      collection: 'restaurant',
+      entries: [{ collection: [{ name: 'one' }, { name: 'two' }], id: '1' }],
+    })
     expect(transFormEntriesSpy).toHaveReturnedWith([
       { collection: ['one', 'two'], id: '1' },
     ])
@@ -124,7 +125,7 @@ describe('Entry transformation', () => {
 
     expect(addDocumentsMock).toHaveBeenCalledTimes(1)
     expect(addDocumentsMock).toHaveBeenCalledWith([
-      { collection: ['one', 'two'], id: '1' },
+      { collection: ['one', 'two'], id: 'restaurant-1' },
     ])
   })
 })

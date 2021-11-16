@@ -15,6 +15,7 @@ async function afterCreate(result, collection, connector) {
   try {
     // When index was removed from MeiliSearch but hook is still active
     // It will re-recreate the index because `addDocuments` creates the index
+
     const keys = Object.keys(result)
     if (result.published_at || !keys.includes('published_at')) {
       await connector.addOneEntryInMeiliSearch({

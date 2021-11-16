@@ -34,7 +34,7 @@ const servicesMock = {
     }),
   },
 }
-const transformEntryMock = jest.fn(function (entry) {
+const transformEntryMock = jest.fn(function ({ entry }) {
   const transformedEntry = {
     ...entry,
     collection: entry.collection.map(cat => cat.name),
