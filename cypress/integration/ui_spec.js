@@ -121,8 +121,8 @@ describe('Strapi Login flow', () => {
   it('Check for right number of documents indexed', () => {
     cy.checkCollectionContent({ rowNb: 1, contains: ['3 / 3'] })
     cy.checkCollectionContent({ rowNb: 2, contains: ['1 / 1'] })
-    cy.checkCollectionContent({ rowNb: 3, contains: ['2 / 2'] })
-    cy.checkCollectionContent({ rowNb: 4, contains: ['1 / 1'] })
+    cy.checkCollectionContent({ rowNb: 3, contains: ['3 / 3'] })
+    cy.checkCollectionContent({ rowNb: 4, contains: ['3 / 3'] })
   })
 
   // HOOKS CHECK
@@ -139,8 +139,8 @@ describe('Strapi Login flow', () => {
 
   it('Fill the creation form', () => {
     cy.get('#name')
-      .type('The squared pizza')
-      .should('have.value', 'The squared pizza')
+      .type('The slimy snail')
+      .should('have.value', 'The slimy snail')
     cy.contains('Save', { timeout: 10000 }).click()
   })
 
@@ -150,8 +150,8 @@ describe('Strapi Login flow', () => {
     cy.url().should('include', '/plugins/meilisearch')
   })
 
-  it('Restaurant should have one 3 entries', () => {
-    cy.checkCollectionContent({ rowNb: 3, contains: ['3 / 3'] })
+  it('Restaurant should have one 4 entries', () => {
+    cy.checkCollectionContent({ rowNb: 3, contains: ['4 / 4'] })
   })
 
   it('Enter to restaurant collection page', () => {
@@ -162,7 +162,9 @@ describe('Strapi Login flow', () => {
 
   it('Remove a restaurant', () => {
     cy.get('svg[data-icon="trash-alt"]').first().click()
+    cy.wait(1000)
     cy.contains('Yes, confirm', { timeout: 10000 }).click()
+    cy.wait(1000)
   })
 
   it('Go back to the plugin Home Page', () => {
@@ -171,8 +173,8 @@ describe('Strapi Login flow', () => {
     cy.url().should('include', '/plugins/meilisearch')
   })
 
-  it('Restaurant should have one 2 entries', () => {
-    cy.checkCollectionContent({ rowNb: 3, contains: ['2 / 2'] })
+  it('Restaurant should have one 3 entries', () => {
+    cy.checkCollectionContent({ rowNb: 3, contains: ['3 / 3'] })
   })
 
   it('Remove Collections from MeiliSearch', () => {
@@ -208,8 +210,8 @@ describe('Strapi Login flow', () => {
   it('Check that collections are not in MeiliSearch anymore', () => {
     cy.checkCollectionContent({ rowNb: 1, contains: ['0 / 3'] })
     cy.checkCollectionContent({ rowNb: 2, contains: ['0 / 1'] })
-    cy.checkCollectionContent({ rowNb: 3, contains: ['0 / 2'] })
-    cy.checkCollectionContent({ rowNb: 4, contains: ['0 / 1'] })
+    cy.checkCollectionContent({ rowNb: 3, contains: ['0 / 3'] })
+    cy.checkCollectionContent({ rowNb: 4, contains: ['0 / 3'] })
   })
 
   it('Change Host to wrong host', () => {
@@ -234,8 +236,8 @@ describe('Strapi Login flow', () => {
   it('Check that collections are still showcased', () => {
     cy.checkCollectionContent({ rowNb: 1, contains: ['0 / 3'] })
     cy.checkCollectionContent({ rowNb: 2, contains: ['0 / 1'] })
-    cy.checkCollectionContent({ rowNb: 3, contains: ['0 / 2'] })
-    cy.checkCollectionContent({ rowNb: 4, contains: ['0 / 1'] })
+    cy.checkCollectionContent({ rowNb: 3, contains: ['0 / 3'] })
+    cy.checkCollectionContent({ rowNb: 4, contains: ['0 / 3'] })
   })
   it('Change Host to empty host', () => {
     cy.get('input[name="MSHost"]').should('have.value', host)
