@@ -147,7 +147,7 @@ module.exports = ({ storeClient }) => {
     },
 
     /**
-     * Add indexed collection if it is not already present
+     * Add a collection to the indexed collection list if it is not already present.
      *
      * @param  {string} collection
      */
@@ -159,7 +159,7 @@ module.exports = ({ storeClient }) => {
     },
 
     /**
-     * Remove a collection the indexed collection list if it exists.
+     * Remove a collection from the indexed collection list if it exists.
      *
      * @param {string} collection
      * @returns {array} collections

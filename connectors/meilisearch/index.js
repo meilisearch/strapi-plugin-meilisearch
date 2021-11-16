@@ -17,15 +17,40 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
 
   return {
     store: storeConnector,
+
+    /**
+     * Add the prefix of the collection in front of the id of its entry.
+     *
+     * We do this to avoid id's conflict in case of composite indexes.
+     * It returns the id in the following format: `[collectionName]-[id]`
+     *
+     * @param  {string} collection - Collection name.
+     * @param  {number} entryId - Entry id.
+     *
+     * @returns {string} - Formated id
+     */
     addCollectionPrefixToId: function ({ collection, entryId }) {
       return `${collection}-${entryId}`
     },
+
+    /**
+     * Add the prefix of the collection on a list of entries id.
+     *
+     * We do this to avoid id's conflict in case of composite indexes.
+     * The ids are transformed in the following format: `[collectionName]-[id]`
+     *
+     * @param  {string} collection - Collection name.
+     * @param  {object[]} entries - entries.
+     *
+     * @returns {object[]} - Formatted entries.
+     */
     addCollectionPrefixToIdOfEntries: function ({ collection, entries }) {
       return entries.map(entry => ({
         ...entry,
         id: this.addCollectionPrefixToId({ entryId: entry.id, collection }),
       }))
     },
+
     /**
      * Delete multiples entries from the collection in its index in MeiliSearch.
      *
@@ -40,6 +65,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
       )
       await client.index(indexUid).deleteDocuments(documentsIds)
     },
+
     /**
      * Wait for a number of update to be processed in MeiliSearch.
      *
@@ -268,6 +294,14 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
       return this.addCollectionInMeiliSearch(collection)
     },
 
+    /**
+     * Apply an action on all the entries of the provided collection.
+     *
+     * @param  {string} collection
+     * @param  {function} callback - Function applied on each entry of the collection
+     *
+     * @returns {any[]} - List of all the returned elements from the callback.
+     */
     actionInBatches: async function (collection, callback) {
       const BATCH_SIZE = 500
       const entries_count = await collectionConnector.numberOfEntries(
@@ -287,7 +321,13 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
       }
       return response
     },
-
+    /**
+     * Search for the list of all collections that share the same index name.
+     *
+     * @param  {string} collection
+     *
+     * @returns {sring[]} - Collections names.
+     */
     sameIndexCollections: async function (collection) {
       const indexUid = await collectionConnector.getIndexName(collection)
 
