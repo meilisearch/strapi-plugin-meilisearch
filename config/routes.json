@@ -5,7 +5,7 @@
       "path": "/reload",
       "handler": "meilisearch.reload",
       "config": {
-        "policies": []
+        "policies": ["isAdmin"]
       }
     },
     {
@@ -13,7 +13,7 @@
       "path": "/credentials",
       "handler": "meilisearch.getClientCredentials",
       "config": {
-        "policies": []
+        "policies": ["isAdmin"]
       }
     },
     {
@@ -21,7 +21,7 @@
       "path": "/credentials",
       "handler": "meilisearch.addCredentials",
       "config": {
-        "policies": []
+        "policies": ["isAdmin"]
       }
     },
     {
@@ -29,7 +29,7 @@
       "path": "/collections",
       "handler": "meilisearch.getCollections",
       "config": {
-        "policies": []
+        "policies": ["isAdmin"]
       }
     },
     {
@@ -37,7 +37,7 @@
       "path": "/collection/:collection/update",
       "handler": "meilisearch.waitForCollectionIndexing",
       "config": {
-        "policies": []
+        "policies": ["isAdmin"]
       }
     },
     {
@@ -45,7 +45,7 @@
       "path": "/collections/:collection",
       "handler": "meilisearch.addCollection",
       "config": {
-        "policies": []
+        "policies": ["isAdmin"]
       }
     },
     {
@@ -53,7 +53,7 @@
       "path": "/collections/:collection",
       "handler": "meilisearch.updateCollections",
       "config": {
-        "policies": []
+        "policies": ["isAdmin"]
       }
     },
     {
@@ -61,7 +61,7 @@
       "path": "/collections/:collection",
       "handler": "meilisearch.removeCollection",
       "config": {
-        "policies": []
+        "policies": ["isAdmin"]
       }
     }
   ]
