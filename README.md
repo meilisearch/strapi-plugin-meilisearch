@@ -103,6 +103,12 @@ On the left-navbar, `MeiliSearch` appears under the `PLUGINS` category. If it do
 ### 🤫 Add Credentials <!-- omit in toc -->
 
 First, you need to configure credentials via the strapi config, or on the plugin page.
+The credentials are composed of:
+- The `host`: The url to your running MeiliSearch instance.
+- The `api_key`: The `master` or `private` key as the plugin requires administration permission on MeiliSearch.[More about permissions here](https://docs.meilisearch.com/reference/features/authentication.html).
+
+⚠️ The `master` or `private` key should never be used to `search` on your front end. For searching, use the `public` key available on [the `key` route](https://docs.meilisearch.com/reference/api/keys.html#get-keys).
+
 
 #### Using the plugin page
 
@@ -126,7 +132,7 @@ module.exports = () => ({
   meilisearch: {
     // Your meili host
     host: "http://localhost:7700",
-    // Your master key
+    // Your master key or private key
     api_key: "masterKey",
   }
   //...
@@ -147,7 +153,7 @@ We will use, as **example**, the collections provided by Strapi's quickstart.
 On your plugin homepage, you should have two collections appearing: `restaurant` and `category`.
 
 <p align="center">
-<img src="./assets/collections_indexed.png" alt="Indexed collections need a reload" width="600"/>
+<img src="./assets/restaurant_indexed.png" alt="Indexed collections need a reload" width="600"/>
 </p>
 
 By clicking on the left checkbox, the collection is automatically indexed in MeiliSearch. For example, if you click on the `restaurant` checkbox, all your restaurants are now available in MeiliSearch. We will see in [start searching](#-start-searching) how to try it out.
@@ -158,7 +164,7 @@ Hooks are listeners that update MeiliSearch each time you add/update/delete an e
 To activate them, you will have to reload the server. If you are in develop mode, click on the red `Reload Server` button. If not, reload the server manually!
 
 <p align="center">
-<img src="./assets/no_reload_needed.png" alt="Collections listened" width="600"/>
+<img src="./assets/restaurant_listener.png" alt="Collections listened" width="600"/>
 </p>
 
 ### Customizing search indexing
@@ -319,7 +325,8 @@ You can have a quick preview with the following code in an HTML file. Create an 
         const search = instantsearch({
             indexName: "restaurant",
             searchClient: instantMeiliSearch(
-                "http://localhost:7700"
+                "http://localhost:7700",
+                'publicKey', // Use the public key not the private or master key to search.
             )
             });
 
@@ -359,7 +366,7 @@ import { MeiliSearch } from 'meilisearch'
 ;(async () => {
   const client = new MeiliSearch({
     host: 'http://127.0.0.1:7700',
-    apiKey: 'masterKey',
+    apiKey: 'publicKey', // Use the public key not the private or master key to search.
   })
 
   // An index is where the documents are stored.
