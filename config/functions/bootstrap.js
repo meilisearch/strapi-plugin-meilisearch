@@ -16,9 +16,9 @@ const createMeiliSearchConnector = require('../../connectors/meilisearch')
 const createCollectionConnector = require('../../connectors/collection')
 
 /**
- * Add watchers on collection that are indexed in MeiliSearch.
- * Watchers updates automatically collection's in MeiliSearch.
- * A watcher is triggered with: ADD/UPDATE/DELETE actions.
+ * Add listeners on collection that are indexed in MeiliSearch.
+ * Listeners updates automatically collection's in MeiliSearch.
+ * A listener is triggered with: ADD/UPDATE/DELETE actions.
  *
  * @param  {object} strapi - Strapi Services.
  * @param  {string[]} strapi.collections - All collections present in MeiliSearch.
@@ -26,17 +26,12 @@ const createCollectionConnector = require('../../connectors/collection')
  * @param  {object} strapi.models - Collections models.
  * @param  {object} strapi.connector - Plugin connector.
  */
-function addWatchersOnCollections({
-  collections,
-  plugin,
-  models,
-  meilisearch,
-}) {
+function wrapCollectionListeners({ collections, plugin, models, meilisearch }) {
   // Iterate on all collections present in MeilISearch
   collections.map(collection => {
     const model = models[collection]
 
-    // Fetches all lifecycles that are watched by the plugin.
+    // Fetches all lifecycles that are listened by the plugin.
     const lifeCyclesNames = Object.keys(plugin.lifecycles)
 
     // Create default lifecycle empty object if no lifecycles functions are found.
@@ -54,23 +49,17 @@ function addWatchersOnCollections({
 }
 
 /**
- * Initialise hooks based on collections presence in MeiliSearch and in the hooks store.
+ * Initialise listener based on collections presence in MeiliSearch and in the listener store.
  *
  * @param  {object} connector - Plugin connector.
  * @param  {object} plugin - MeiliSearch Plugins services.
  * @param  {object} models - Collections models.
  */
-async function initHooks({ store, plugin, models, services, logger }) {
+async function addListeners({ store, plugin, models, services, logger }) {
   try {
     const credentials = await store.getCredentials()
 
-    let hookedCollections = await store.getWatchedCollections()
-
-    if (!hookedCollections) {
-      hookedCollections = await store.createWatchedCollectionsStore()
-    }
-
-    if (credentials.host && hookedCollections) {
+    if (credentials.host) {
       const collectionConnector = createCollectionConnector({
         models,
         services,
@@ -81,19 +70,34 @@ async function initHooks({ store, plugin, models, services, logger }) {
         storeConnector: store,
       })
 
-      // Get the list of indexes in MeilISearch that are collections in Strapi.
+      // Get the list of indexes in MeiliSearch that are collections in Strapi.
       try {
-        const indexes = await meilisearch.getIndexUidsOfCollectionsInMeiliSearch(
+        // When a Collection is added to MeiliSearch, it is also added in the store.
+        // this fetches the collection indexed in the store
+        const storedCollections = await store.getIndexedCollections()
+
+        // This is an union of the indexes in MeiliSearch and all the collections in Strapi.
+        const indexedCollections = await meilisearch.getCollectionsIndexedInMeiliSearch(
           Object.keys(models)
         )
 
-        addWatchersOnCollections({
-          collections: indexes,
+        // collections are the union of the indexes in MeiliSearch and the collection
+        // from the `indexed-in-meilisearch` store.
+        const collections = indexedCollections.filter(col =>
+          storedCollections.includes(col)
+        )
+
+        // Each collections that are both in MeiliSearch and in the stored collections
+        // become listened in order to update MeiliSearch on every change in the collection.
+        wrapCollectionListeners({
+          collections,
           plugin,
           models,
           meilisearch,
         })
-        store.addWatchedCollectionToStore(indexes)
+
+        // Add collection the list of listened collections in the store.
+        await store.setListenedCollections(collections)
       } catch (e) {
         let message =
           e.name === 'MeiliSearchCommunicationError'
@@ -102,8 +106,6 @@ async function initHooks({ store, plugin, models, services, logger }) {
         console.error(message)
       }
     }
-
-    // Add collections to hooked store
   } catch (e) {
     console.error(e)
   }
@@ -131,6 +133,6 @@ module.exports = async () => {
   // initialize credentials from config file.
   await store.updateStoreCredentials(config, store)
 
-  // initialize hooks
-  await initHooks({ store, plugin, models, services, logger })
+  // add listeners to collections.
+  await addListeners({ store, plugin, models, services, logger })
 }
