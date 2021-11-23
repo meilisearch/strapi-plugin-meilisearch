@@ -100,7 +100,7 @@ describe('Strapi Login flow', () => {
     cy.reloadServer()
   })
 
-  it('Check for successfull hooks in develop mode', () => {
+  it('Check for successfull listened in develop mode', () => {
     if (['develop', 'watch', 'ci'].includes(env)) {
       cy.checkCollectionContent({ rowNb: 1, contains: ['Yes', 'Active'] })
       cy.checkCollectionContent({ rowNb: 2, contains: ['Yes', 'Active'] })

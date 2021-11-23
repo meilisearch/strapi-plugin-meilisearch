@@ -3,6 +3,32 @@
 module.exports = ({ services, models, logger }) => {
   return {
     /**
+     * Apply an action on all the entries of the provided collection.
+     *
+     * @param  {string} collection
+     * @param  {function} callback - Function applied on each entry of the collection
+     *
+     * @returns {any[]} - List of all the returned elements from the callback.
+     */
+    actionInBatches: async function (collection, callback) {
+      const BATCH_SIZE = 500
+      const entries_count = await this.numberOfEntries(collection)
+      const response = []
+
+      for (let index = 0; index <= entries_count; index += BATCH_SIZE) {
+        const entries =
+          (await this.getEntriesBatch({
+            start: index,
+            limit: BATCH_SIZE,
+            collection, // Envoie restaurant
+          })) || []
+        const info = await callback(entries, collection)
+        response.push(info)
+      }
+      return response
+    },
+
+    /**
      * @brief: Map model name into the actual index name in meilisearch instance. it
      * uses `indexName` property from model defnition
      *

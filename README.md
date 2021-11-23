@@ -80,7 +80,7 @@ docker run -it --rm -p 7700:7700 getmeili/meilisearch:latest ./meilisearch --mas
 
 If you don't have a running Strapi project yet, you can either launch the [playground present in this project](#-run-the-playground) or [create a Strapi project](https://strapi.io/documentation/developer-docs/latest/getting-started/quick-start.html).
 
-We recommend adding your collections in development mode to allow the server reloads needed to apply hooks.
+We recommend adding your collections in development mode to allow the server reloads needed to apply a listener to the collections.
 
 ```bash
 strapi develop
@@ -158,7 +158,7 @@ Hooks are listeners that update MeiliSearch each time you add/update/delete an e
 To activate them, you will have to reload the server. If you are in develop mode, click on the red `Reload Server` button. If not, reload the server manually!
 
 <p align="center">
-<img src="./assets/no_reload_needed.png" alt="Indexed collections are hooked" width="600"/>
+<img src="./assets/no_reload_needed.png" alt="Collections listened" width="600"/>
 </p>
 
 ### Customizing search indexing
@@ -203,13 +203,15 @@ module.exports = {
 }
 ```
 
+Now, on each entry addition from both `shoes` and `shirts` the entry is added in the `product` index of MeiliSearch.
+
 Nonetheless, it is not possible to know how many entries from each collection is added to MeiliSearch.
 
 For example, given two collections:
-- `Shoes`: with 300 entries and an `indexName` set to `clothes`
-- `Shirts`: 200 entries and an `indexName` set to `clothes`
+- `Shoes`: with 300 entries and an `indexName` set to `product`
+- `Shirts`: 200 entries and an `indexName` set to `product`
 
-The index `clothes` has both the entries of shoes and shirts. If the index `clothes` has `350` documents in MeiliSearch, it is not possible to know how many of them are from `shoes` or `shirts`.
+The index `product` has both the entries of shoes and shirts. If the index `product` has `350` documents in MeiliSearch, it is not possible to know how many of them are from `shoes` or `shirts`.
 
 
 #### Transform sent data
@@ -230,7 +232,7 @@ const { sanitizeEntity } = require('strapi-utils')
 
 module.exports = {
   meilisearch: {
-    transformEntry(entry, model) {
+    transformEntry({ entry, model }) {
       return sanitizeEntity(entry, { model })
     },
   },

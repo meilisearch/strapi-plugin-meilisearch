@@ -153,10 +153,10 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
      */
     getCollectionsReport: async function () {
       const indexes = await this.getIndexes()
-      const indexesNames = indexes.map(index => index.uid)
+      const indexUids = indexes.map(index => index.uid)
 
-      // All watched collections
-      const watchedCollections = await storeConnector.getWatchedCollections()
+      // All listened collections
+      const listenedCollections = await storeConnector.getListenedCollections()
 
       // Is collection not single-type-collection
       const collections = collectionConnector.listAllMultiEntriesCollections()
@@ -169,32 +169,28 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
             collection
           )
 
-          const indexed =
-            indexesNames.includes(indexUid) &&
-            indexedCollections.includes(collection)
+          const indexInMeiliSearch = indexUids.includes(indexUid)
+          const collectionInIndexStore = indexedCollections.includes(collection)
+          const indexed = indexInMeiliSearch && collectionInIndexStore
 
           // safe guard in case index does not exist anymore in MeiliSearch
-          if (
-            !indexesNames.includes(indexUid) &&
-            indexedCollections.includes(collection)
-          ) {
+          if (!indexInMeiliSearch && collectionInIndexStore) {
             await storeConnector.removeIndexedCollection(collection)
           }
 
           const {
             numberOfDocuments = 0,
             isIndexing = false,
-          } = indexesNames.includes(indexUid)
-            ? await this.getStats(indexUid)
-            : {}
+          } = indexUids.includes(indexUid) ? await this.getStats(indexUid) : {}
 
-          const collectionsWithSameIndex = await collectionConnector.listCollectionsWithIndexName(
+          const collectionsWithSameIndexUid = await collectionConnector.listCollectionsWithIndexName(
             indexUid
           )
 
           const numberOfEntries = await collectionConnector.totalNumberOfEntries(
-            collectionsWithSameIndex
+            collectionsWithSameIndexUid
           )
+
           return {
             collection,
             indexUid,
@@ -202,7 +198,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
             isIndexing,
             numberOfDocuments,
             numberOfEntries,
-            hooked: watchedCollections.includes(collection),
+            listened: listenedCollections.includes(collection),
           }
         })
       )
@@ -233,7 +229,8 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
         entries,
       })
       const update = client.index(indexUid).addDocuments(documents)
-      storeConnector.addIndexedCollection(collection)
+      await storeConnector.addIndexedCollection(collection)
+
       return update
     },
 
@@ -265,13 +262,17 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
         return updateId
       }
 
-      const updateIds = await this.actionInBatches(collection, addDocuments)
-      storeConnector.addIndexedCollection(collection)
+      const updateIds = await collectionConnector.actionInBatches(
+        collection,
+        addDocuments
+      )
+      await storeConnector.addIndexedCollection(collection)
+
       return { updateIds }
     },
 
-    emptyOrDeleteCollection: async function (collection) {
-      const indexedColWithIndexName = await this.sameIndexCollections(
+    emptyOrDeleteIndex: async function (collection) {
+      const indexedColWithIndexName = await this.getCollectionsWithSameIndex(
         collection
       )
       if (indexedColWithIndexName.length > 1) {
@@ -281,7 +282,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
             entriesId: entries.map(entry => entry.id),
           })
         }
-        await this.actionInBatches(collection, deleteEntries)
+        await collectionConnector.actionInBatches(collection, deleteEntries)
       } else {
         const client = MeiliSearch({ apiKey, host })
         const indexUid = await collectionConnector.getIndexName(collection)
@@ -299,38 +300,11 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
     updateCollectionInMeiliSearch: async function (collection) {
       const indexedCollections = await storeConnector.getIndexedCollections()
       if (indexedCollections.includes(collection)) {
-        await this.emptyOrDeleteCollection(collection)
+        await this.emptyOrDeleteIndex(collection)
       }
       return this.addCollectionInMeiliSearch(collection)
     },
 
-    /**
-     * Apply an action on all the entries of the provided collection.
-     *
-     * @param  {string} collection
-     * @param  {function} callback - Function applied on each entry of the collection
-     *
-     * @returns {any[]} - List of all the returned elements from the callback.
-     */
-    actionInBatches: async function (collection, callback) {
-      const BATCH_SIZE = 500
-      const entries_count = await collectionConnector.numberOfEntries(
-        collection
-      )
-      const response = []
-
-      for (let index = 0; index <= entries_count; index += BATCH_SIZE) {
-        const entries =
-          (await collectionConnector.getEntriesBatch({
-            start: index,
-            limit: BATCH_SIZE,
-            collection, // Envoie restaurant
-          })) || []
-        const info = await callback(entries, collection)
-        response.push(info)
-      }
-      return response
-    },
     /**
      * Search for the list of all collections that share the same index name.
      *
@@ -338,7 +312,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
      *
      * @returns {sring[]} - Collections names.
      */
-    sameIndexCollections: async function (collection) {
+    getCollectionsWithSameIndex: async function (collection) {
       const indexUid = await collectionConnector.getIndexName(collection)
 
       // Fetch collections that has the same indexName as the provided collection
@@ -365,7 +339,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
      * @param  {string} collection - Collection name.
      */
     removeCollectionFromMeiliSearch: async function (collection) {
-      await this.emptyOrDeleteCollection(collection)
+      await this.emptyOrDeleteIndex(collection)
       return { message: 'ok' }
     },
 

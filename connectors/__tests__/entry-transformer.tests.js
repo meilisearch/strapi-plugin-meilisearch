@@ -81,7 +81,7 @@ describe('Entry transformation', () => {
     jest.restoreAllMocks()
   })
 
-  test.only('Test if data is transformed correctly', async () => {
+  test('Test if data is transformed correctly', async () => {
     const getIndexNameSpy = jest.spyOn(collectionConnector, 'getIndexName')
     const numberOfEntriesSpy = jest.spyOn(
       collectionConnector,

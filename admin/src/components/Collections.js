@@ -45,8 +45,8 @@ const headers = [
     value: 'numberOfDocuments',
   },
   {
-    name: 'Hooks',
-    value: 'hooked',
+    name: 'Listened',
+    value: 'listened',
   },
 ]
 
@@ -54,7 +54,7 @@ const Collections = ({ updateCredentials }) => {
   const [collectionsList, setCollectionsList] = useState([]) // All Collections
   const [updatedCollections, setUpdatedCollections] = useState(false) // Boolean that informs if collections have been updated.
   const [needReload, setNeedReload] = useState(false) // Boolean to inform that reload is requested.
-  const [watching, setWatchingCollection] = useState([false]) // Collections that are waiting for their indexation to complete.
+  const [listening, setListenedCollection] = useState([]) // Collections that are waiting for their indexation to complete.
 
   // Adds a listener that informs if collections have been updated.
   useEffect(() => {
@@ -73,8 +73,8 @@ const Collections = ({ updateCredentials }) => {
    * @param {string} collection - Collection name.
    */
   const watchUpdates = async ({ collection }) => {
-    if (!watching.includes(collection)) {
-      setWatchingCollection(prev => [...prev, collection])
+    if (!listening.includes(collection)) {
+      setListenedCollection(prev => [...prev, collection])
       const response = await request(
         `/${pluginId}/collection/${collection}/update/`,
         {
@@ -83,7 +83,7 @@ const Collections = ({ updateCredentials }) => {
       )
       if (response.error) errorNotifications(response)
 
-      setWatchingCollection(prev => prev.filter(col => col !== collection))
+      setListenedCollection(prev => prev.filter(col => col !== collection))
       setUpdatedCollections(false) // Ask for collections to be updated.
     }
   }
@@ -111,7 +111,7 @@ const Collections = ({ updateCredentials }) => {
         message: `${collection} is created!`,
         duration: 4000,
       })
-      watchUpdates({ collection }) // start watching
+      watchUpdates({ collection }) // start listening
     }
     setUpdatedCollections(false) // Ask for collections to be updated.
   }
@@ -136,7 +136,7 @@ const Collections = ({ updateCredentials }) => {
       errorNotifications(response)
     } else {
       successNotification({ message: `${collection} update started!` })
-      watchUpdates({ collection }) // start watching
+      watchUpdates({ collection }) // start listening
     }
     setUpdatedCollections(false) // Ask for collections to be updated.
   }
@@ -176,10 +176,10 @@ const Collections = ({ updateCredentials }) => {
    *
    * @returns {string} - Reload status
    */
-  const constructReloadStatus = (indexed, hooked) => {
-    if ((indexed && !hooked) || (!indexed && hooked)) {
+  const constructReloadStatus = (indexed, listened) => {
+    if ((indexed && !listened) || (!indexed && listened)) {
       return 'Reload needed'
-    } else if (indexed && hooked) {
+    } else if (indexed && listened) {
       return 'Active'
     } else {
       return ''
@@ -198,7 +198,7 @@ const Collections = ({ updateCredentials }) => {
       indexed: indexed ? 'Yes' : 'No',
       isIndexing: isIndexing ? 'Yes' : 'No',
       numberOfDocuments: `${numberOfDocuments} / ${numberOfEntries}`,
-      hooked: constructReloadStatus(col.indexed, col.hooked),
+      listened: constructReloadStatus(col.indexed, col.listened),
       _isChecked: col.indexed,
     }
   }
@@ -216,14 +216,16 @@ const Collections = ({ updateCredentials }) => {
 
     if (error) errorNotifications(res)
     else {
-      // Start watching collection that are being indexed
+      // Start listening collection that are being indexed
       collections.map(
         col => col.isIndexing && watchUpdates({ collection: col.collection })
       )
       // Create verbose text that will be showed in the table
       const verboseCols = collections.map(col => constructColRow(col))
-      // Find possible collection that needs a reload to activate its hooks
-      const reloading = verboseCols.find(col => col.hooked === 'Reload needed')
+      // Find possible collection that needs a reload to activate the listener.
+      const reloading = verboseCols.find(
+        col => col.listened === 'Reload needed'
+      )
 
       setNeedReload(reloading)
       setCollectionsList(verboseCols)

@@ -108,25 +108,30 @@ module.exports = ({ storeClient }) => {
     },
 
     /**
-     * Get hooked collections from the store.
+     * Get listened collections from the store.
      *
-     * @param  {string} key
+     * @returns {string[]} - Collection names.
      */
-    getHookedCollections: async function () {
-      return this.getStoreKey({ key: 'meilisearch_hooked' })
+    getListenedCollections: async function () {
+      return this.getStoreKey({ key: 'meilisearch_listened_collections' }) || []
     },
 
     /**
-     * Set hooked collections to the store.
+     * Set listened collections to the store.
      *
      * @param  {string} value
+     *
+     * @returns {string[]} - Collection names.
      */
-    setHookedCollections: async function (value) {
-      return this.setStoreKey({ key: 'meilisearch_hooked', value })
+    setListenedCollections: async function (value = []) {
+      return this.setStoreKey({
+        key: 'meilisearch_listened_collections',
+        value,
+      })
     },
 
     /**
-     * Get hooked collections from the store.
+     * Get listened collections from the store.
      *
      * @param  {string} key
      */
@@ -233,6 +238,32 @@ module.exports = ({ storeClient }) => {
      */
     addWatchedCollectionToStore: async function (collections) {
       return this.setHookedCollections(collections || [])
+    },
+
+    /**
+     * Add a collection to the listened collections list.
+     *
+     * @param {string[]} - Collections names that watched.
+     * @returns {string[]} - Collection names.
+     */
+    appendListenedCollection: async function (collection) {
+      const listenedCollections = await this.getListenedCollections()
+      const newSet = new Set(listenedCollections)
+      newSet.add(collection)
+      return this.setListenedCollections([...newSet])
+    },
+
+    /**
+     * Add multiple collections to the listened collections list.
+     *
+     * @param {string[]} - Collections names that watched.
+     * @returns {string[]} - Collection names.
+     */
+    appendListenedCollections: async function (collections) {
+      for (const collection of collections) {
+        await this.appendListenedCollection(collection)
+      }
+      return this.getListenedCollections()
     },
 
     /**
