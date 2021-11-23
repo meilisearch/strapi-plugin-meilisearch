@@ -113,7 +113,10 @@ module.exports = ({ storeClient }) => {
      * @returns {string[]} - Collection names.
      */
     getListenedCollections: async function () {
-      return this.getStoreKey({ key: 'meilisearch_listened_collections' }) || []
+      const collections = await this.getStoreKey({
+        key: 'meilisearch_listened_collections',
+      })
+      return collections || []
     },
 
     /**
@@ -212,38 +215,9 @@ module.exports = ({ storeClient }) => {
     },
 
     /**
-     * Get watched collections from the store
-     *
-     * @returns {string[]} - Collection names.
-     */
-    getWatchedCollections: async function () {
-      const collections = await this.getHookedCollections()
-      return collections || []
-    },
-
-    /**
-     * Create watched collections in the store
-     *
-     * @returns {[]}
-     */
-    createWatchedCollectionsStore: async function () {
-      return this.setHookedCollections([])
-    },
-
-    /**
-     * Add watched collections to the store.
-     *
-     * @param {string[]} - Collections names that watched.
-     * @returns {string[]} - Collection names.
-     */
-    addWatchedCollectionToStore: async function (collections) {
-      return this.setHookedCollections(collections || [])
-    },
-
-    /**
      * Add a collection to the listened collections list.
      *
-     * @param {string[]} - Collections names that watched.
+     * @param {string[]} - Collections names that listened.
      * @returns {string[]} - Collection names.
      */
     appendListenedCollection: async function (collection) {
@@ -256,7 +230,7 @@ module.exports = ({ storeClient }) => {
     /**
      * Add multiple collections to the listened collections list.
      *
-     * @param {string[]} - Collections names that watched.
+     * @param {string[]} - Collections names that listened.
      * @returns {string[]} - Collection names.
      */
     appendListenedCollections: async function (collections) {

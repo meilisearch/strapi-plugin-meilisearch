@@ -16,7 +16,7 @@
     "cy:run": "cypress run --env env=watch",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:e2e": "concurrently --kill-others -s first \"NODE_ENV=test yarn playground:soft_dev\" \"cypress open --env env=develop\"",
+    "test:e2e": "concurrently --kill-others -s first \"NODE_ENV=test yarn playground:soft_dev\" \"cypress run --env env=develop\"",
     "test:e2e:watch": "concurrently --kill-others -s first \"NODE_ENV=test yarn playground:dev\" \"cypress open --env env=watch\"",
     "test:production": "concurrently --kill-others -s first \"NODE_ENV=production yarn playground:production\" \"cypress run --env env=test\""
   },
