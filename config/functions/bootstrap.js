@@ -26,7 +26,7 @@ const createCollectionConnector = require('../../connectors/collection')
  * @param  {object} strapi.models - Collections models.
  * @param  {object} strapi.connector - Plugin connector.
  */
-function addListenerOnCollection({ collections, plugin, models, meilisearch }) {
+function wrapCollectionListeners({ collections, plugin, models, meilisearch }) {
   // Iterate on all collections present in MeilISearch
   collections.map(collection => {
     const model = models[collection]
@@ -89,7 +89,7 @@ async function addListeners({ store, plugin, models, services, logger }) {
 
         // Each collections that are both in MeiliSearch and in the stored collections
         // become listened in order to update MeiliSearch on every change in the collection.
-        addListenerOnCollection({
+        wrapCollectionListeners({
           collections,
           plugin,
           models,

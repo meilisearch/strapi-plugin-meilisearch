@@ -54,7 +54,7 @@ const Collections = ({ updateCredentials }) => {
   const [collectionsList, setCollectionsList] = useState([]) // All Collections
   const [updatedCollections, setUpdatedCollections] = useState(false) // Boolean that informs if collections have been updated.
   const [needReload, setNeedReload] = useState(false) // Boolean to inform that reload is requested.
-  const [listening, setListenedCollection] = useState([]) // Collections that are waiting for their indexation to complete.
+  const [listened, setListenedCollection] = useState([]) // Collections that are waiting for their indexation to complete.
 
   // Adds a listener that informs if collections have been updated.
   useEffect(() => {
@@ -73,7 +73,7 @@ const Collections = ({ updateCredentials }) => {
    * @param {string} collection - Collection name.
    */
   const watchUpdates = async ({ collection }) => {
-    if (!listening.includes(collection)) {
+    if (!listened.includes(collection)) {
       setListenedCollection(prev => [...prev, collection])
       const response = await request(
         `/${pluginId}/collection/${collection}/update/`,
