@@ -3,6 +3,32 @@
 module.exports = ({ services, models, logger }) => {
   return {
     /**
+     * Apply an action on all the entries of the provided collection.
+     *
+     * @param  {string} collection
+     * @param  {function} callback - Function applied on each entry of the collection
+     *
+     * @returns {any[]} - List of all the returned elements from the callback.
+     */
+    actionInBatches: async function (collection, callback) {
+      const BATCH_SIZE = 500
+      const entries_count = await this.numberOfEntries(collection)
+      const response = []
+
+      for (let index = 0; index <= entries_count; index += BATCH_SIZE) {
+        const entries =
+          (await this.getEntriesBatch({
+            start: index,
+            limit: BATCH_SIZE,
+            collection, // Envoie restaurant
+          })) || []
+        const info = await callback(entries, collection)
+        response.push(info)
+      }
+      return response
+    },
+
+    /**
      * @brief: Map model name into the actual index name in meilisearch instance. it
      * uses `indexName` property from model defnition
      *
@@ -23,15 +49,17 @@ module.exports = ({ services, models, logger }) => {
     },
 
     /**
-     * WIP
-     * Check wether a collection is a composite or not.
+     * Return all collections having the provided indexName setting.
      *
-     * @param  {string} collection - Name of the collection.
+     * @param  {string} indexName
      */
-    isCompositeIndex: function (collection) {
-      const model = models[collection].meilisearch || {}
-      const isCompositeIndex = !!model.isUsingCompositeIndex
-      return isCompositeIndex
+    listCollectionsWithIndexName: async function (indexName) {
+      // Is collection not single-type-collection
+      const multiRowsCollections = this.listAllMultiEntriesCollections() || []
+      const collectionsWithIndexName = multiRowsCollections.filter(
+        collection => this.getIndexName(collection) === indexName
+      )
+      return collectionsWithIndexName
     },
 
     /**
@@ -55,6 +83,20 @@ module.exports = ({ services, models, logger }) => {
       return Object.keys(services).filter(type => {
         return services[type].count
       })
+    },
+
+    /**
+     * Returns the total number of entries of the collections.
+     *
+     * @param  {string[]} collections
+     *
+     * @returns {number} Total entries number.
+     */
+    totalNumberOfEntries: async function (collections) {
+      let collectionsEntriesSize = await Promise.all(
+        collections.map(async col => await this.numberOfEntries(col))
+      )
+      return collectionsEntriesSize.reduce((acc, curr) => (acc += curr), 0)
     },
 
     /**
@@ -83,19 +125,25 @@ module.exports = ({ services, models, logger }) => {
      *
      * @return {Array<Object>} - Converted or mapped data
      */
-    transformEntries: function (collection, entries) {
+    transformEntries: function ({ collection, entries }) {
       const meilisearchConfig = models[collection].meilisearch || {}
       const { transformEntry } = meilisearchConfig
+
       if (!transformEntry) {
         return entries
       }
       try {
         if (Array.isArray(entries)) {
           return entries.map(entry =>
-            meilisearchConfig.transformEntry(entry, models[collection])
+            meilisearchConfig.transformEntry({
+              entry,
+              model: models[collection],
+              collection,
+            })
           )
         }
       } catch (e) {
+        console.log(e)
         return entries
       }
       return entries

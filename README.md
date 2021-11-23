@@ -80,7 +80,7 @@ docker run -it --rm -p 7700:7700 getmeili/meilisearch:latest ./meilisearch --mas
 
 If you don't have a running Strapi project yet, you can either launch the [playground present in this project](#-run-the-playground) or [create a Strapi project](https://strapi.io/documentation/developer-docs/latest/getting-started/quick-start.html).
 
-We recommend adding your collections in development mode to allow the server reloads needed to apply hooks.
+We recommend adding your collections in development mode to allow the server reloads needed to apply a listener to the collections.
 
 ```bash
 strapi develop
@@ -158,7 +158,7 @@ Hooks are listeners that update MeiliSearch each time you add/update/delete an e
 To activate them, you will have to reload the server. If you are in develop mode, click on the red `Reload Server` button. If not, reload the server manually!
 
 <p align="center">
-<img src="./assets/no_reload_needed.png" alt="Indexed collections are hooked" width="600"/>
+<img src="./assets/no_reload_needed.png" alt="Collections listened" width="600"/>
 </p>
 
 ### Customizing search indexing
@@ -238,7 +238,7 @@ const { sanitizeEntity } = require('strapi-utils')
 
 module.exports = {
   meilisearch: {
-    transformEntry(entry, model) {
+    transformEntry({ entry, model }) {
       return sanitizeEntity(entry, { model })
     },
   },
@@ -281,55 +281,7 @@ Resulting in `categories` being transformed like this in a `restaurant` entry.
 
 By transforming the `categories` into an array of names, it is now compatible with the [`filtering` feature](https://docs.meilisearch.com/reference/features/filtering_and_faceted_search.html#configuring-filters) in MeiliSearch.
 
-### Composite Index
 
-As per default, each collection is indexed in its own index. For example, the collection `restaurant` has its entries added in a index (default `restaurant`) and another collection `reviews` has its entried added in another index (default `review`).
-
-In some circumstances, the entries of `restaurant` and `review` should go the same index.
-
-While specifying a custom index name, if the index is shared more than one model, then this plugin need to handle statistics display, index deletion etc in a special way by considering that. so we need to specify that information by adding a optional field called `isUsingCompositeIndex` in model file
-
-
-4. If multiple models are using same index, we can not get statistics of individual models. For that to work, we need to add an flag field while sending data for index. Name of that flag field should be specified in model definition as `searchIndexTypeId` This is applicable only if we are using a composite index.
-
-For eg:
-api/mymodelname/models/mymodelname.js
-```javascript
-
-'use strict';
-
-/**
- * Read the documentation (https://strapi.io/documentation/developer-docs/latest/development/backend-customization.html#lifecycle-hooks)
- * to customize this model
- */
-
-module.exports = {
-  toSearchIndex(item) {
-    return {
-      id: 'mm'+item.id,  // simple id should not be added if the target search index is
-                         // shared by more than one models.  Id number conflicts will
-                         // cause unexpected behavior. Use a unique prefix in that case
-
-      content: extractTextFromHtml(item.content), // Only index pure text
-                                                  // content instead of indexing
-                                                  // HTML content
-
-      // I dont understand this fields naming neither the number
-      $is_mymodelname: 1  // Consider that multiple entities are using same
-                          // search index. So, Let's specify our model name here,
-                          // so that we can identify it from the search result
-    };
-  },
-  indexName: 'searchindex',
-
-  isUsingCompositeIndex: true, // the index 'searchindex' is shared with
-                               // multiple models
-  // why the $ ? Should it be crashing?
-  searchIndexTypeId: '$is_mymodelname' // We count records in by counting this field
-};
-
-
-```
 
 ### 🕵️‍♀️ Start Searching <!-- omit in toc -->
 

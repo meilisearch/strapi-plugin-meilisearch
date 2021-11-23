@@ -5,7 +5,7 @@
  */
 
 /**
- * Hook function that triggers after a collection creates an entry.
+ * Listener function that triggers after a collection creates an entry.
  *
  * @param  {object} result - Entry added.
  * @param  {string} collection - Collection name.
@@ -13,19 +13,23 @@
  */
 async function afterCreate(result, collection, connector) {
   try {
-    // When index was removed from MeiliSearch but hook is still active
+    // When index was removed from MeiliSearch but listener is still active
     // It will re-recreate the index because `addDocuments` creates the index
-    await connector.addOneEntryInMeiliSearch({
-      collection,
-      entry: result,
-    })
+
+    const keys = Object.keys(result)
+    if (result.published_at || !keys.includes('published_at')) {
+      await connector.addOneEntryInMeiliSearch({
+        collection,
+        entry: result,
+      })
+    }
   } catch (e) {
     console.error(e)
   }
 }
 
 /**
- * Hook function that triggers after a collection deletes an entry.
+ * Listener function that triggers after a collection deletes an entry.
  *
  * @param  {object} result - Entry added.
  * @param  {string} collection - Collection name.
@@ -34,7 +38,6 @@ async function afterCreate(result, collection, connector) {
 async function afterDelete(result, collection, connector) {
   try {
     let entriesId = []
-
     // works with both delete methods
     if (Array.isArray(result)) {
       entriesId = result.map(doc => doc.id)
@@ -48,7 +51,7 @@ async function afterDelete(result, collection, connector) {
 }
 
 /**
- * Hook function that triggers after a collection updates an entry.
+ * Listener function that triggers after a collection updates an entry.
  *
  * @param  {object} result - Entry added.
  * @param  {string} collection - Collection name.
@@ -56,10 +59,13 @@ async function afterDelete(result, collection, connector) {
  */
 async function afterUpdate(result, collection, connector) {
   try {
-    await connector.addOneEntryInMeiliSearch({
-      collection,
-      entry: result,
-    })
+    const keys = Object.keys(result)
+    if (result.published_at || !keys.includes('published_at')) {
+      await connector.addOneEntryInMeiliSearch({
+        collection,
+        entry: result,
+      })
+    }
   } catch (e) {
     console.error(e)
   }

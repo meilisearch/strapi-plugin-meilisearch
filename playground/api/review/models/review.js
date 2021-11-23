@@ -7,9 +7,7 @@
 
 // TODO remove example
 module.exports = {
-  // if searchIndexName is same with others
-  isUsingCompositeIndex: true,
-  // should not crash the whole server?, why the `$` ?
-  // searchIndexTypeId: 'restaurant',
-  // searchIndexName: 'restaurant'
+  meilisearch: {
+    indexName: "my_restaurant"
+  }
 };

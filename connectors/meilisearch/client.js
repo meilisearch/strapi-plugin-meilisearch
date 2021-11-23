@@ -37,6 +37,7 @@ module.exports = config => {
   try {
     return new MeiliSearch(config)
   } catch (e) {
+    console.error(e)
     throw new MeiliSearchError({
       message: 'Please provide a valid host for your MeiliSearch instance',
       link:
