@@ -175,11 +175,50 @@ In the following example, the model `restaurant` index in MeiliSearch is called 
 // api/restaurant/models/restaurant.js
 
 module.exports = {
-  indexName: "my_restaurant"
+  meilisearch: {
+    indexName: "my_restaurant"
+  }
 }
 ```
 
 Examples can be found [this directory](./resources/custom-index-name).
+
+### Composite Index
+
+It is possible to bind multiple collections to the same index. They all have to share the same `indexName`.
+
+For example if `shoes` and `shirts` should be bind to the same index, they should have the same `indexName` in their model setting:
+
+```js
+// api/shoes/models/shoes.js
+
+module.exports = {
+  meilisearch: {
+    indexName: "product"
+  }
+}
+```
+
+```js
+// api/shirts/models/shirts.js
+
+module.exports = {
+  meilisearch: {
+    indexName: "product"
+  }
+}
+```
+
+Now, on each entry addition from both `shoes` and `shirts` the entry is added in the `product` index of MeiliSearch.
+
+Nonetheless, it is not possible to know how many entries from each collection is added to MeiliSearch.
+
+For example, given two collections:
+- `Shoes`: with 300 entries and an `indexName` set to `product`
+- `Shirts`: 200 entries and an `indexName` set to `product`
+
+The index `product` has both the entries of shoes and shirts. If the index `product` has `350` documents in MeiliSearch, it is not possible to know how many of them are from `shoes` or `shirts`.
+
 
 #### Transform sent data
 
