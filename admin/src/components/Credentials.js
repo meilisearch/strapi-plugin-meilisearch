@@ -6,7 +6,7 @@
 import React, { memo, useState, useEffect } from 'react'
 import { request } from 'strapi-helper-plugin'
 import pluginId from '../pluginId'
-import { Button, InputText, Label } from '@buffetjs/core'
+import { Button, InputText, Label, Text } from '@buffetjs/core'
 import { Wrapper } from '../components/Wrapper'
 
 const Credentials = ({ setUpdatedCredentials }) => {
@@ -71,7 +71,7 @@ const Credentials = ({ setUpdatedCredentials }) => {
         />
         <Label
           htmlFor="MSApiKey"
-          message={`MeiliSearch Api Key ${
+          message={`MeiliSearch Private Key ${
             configFileApiKey ? ' from file' : ''
           }`}
         />
@@ -80,12 +80,26 @@ const Credentials = ({ setUpdatedCredentials }) => {
           onChange={({ target: { value } }) => {
             setApiKey(value)
           }}
-          placeholder="apiKey"
+          placeholder="private key"
           type="text"
           value={configFileApiKey ? '********' : msApiKey}
           disabled={configFileApiKey}
           aria-disabled={configFileApiKey}
         />
+        <Text
+          color="orange"
+          lineHeight={2}
+          fontWeight="bold"
+          fontSize="sm"
+          ellipsis
+        >
+          Do not use this api key on your front-end as it has full rights.
+          Instead, use the public key available using{' '}
+          <a href="https://docs.meilisearch.com/reference/api/keys.html#get-keys">
+            the key route
+          </a>
+          .
+        </Text>
         <Button
           color={!(configFileApiKey && configFileHost) ? 'primary' : 'cancel'}
           className="credentials_button"
@@ -94,7 +108,7 @@ const Credentials = ({ setUpdatedCredentials }) => {
           disabled={!!configFileApiKey && !!configFileHost}
           aria-disabled={configFileApiKey && configFileHost}
         >
-          {!!configFileApiKey && !!configFileHost ? 'Disabled' : 'Add'}
+          {!!configFileApiKey && !!configFileHost ? 'Disabled' : 'Update'}
         </Button>
       </Wrapper>
     </div>
