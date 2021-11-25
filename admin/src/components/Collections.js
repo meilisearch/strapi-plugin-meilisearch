@@ -45,7 +45,7 @@ const headers = [
     value: 'numberOfDocuments',
   },
   {
-    name: 'Listened',
+    name: 'Listener',
     value: 'listened',
   },
 ]
