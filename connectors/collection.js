@@ -20,10 +20,10 @@ module.exports = ({ services, models, logger }) => {
           (await this.getEntriesBatch({
             start: index,
             limit: BATCH_SIZE,
-            collection, // Envoie restaurant
+            collection,
           })) || []
         const info = await callback(entries, collection)
-        response.push(info)
+        if (info != null) response.push(info)
       }
       return response
     },
@@ -55,7 +55,7 @@ module.exports = ({ services, models, logger }) => {
      */
     listCollectionsWithIndexName: async function (indexName) {
       // Is collection not single-type-collection
-      const multiRowsCollections = this.listAllMultiEntriesCollections() || []
+      const multiRowsCollections = this.allEligbleCollections() || []
       const collectionsWithIndexName = multiRowsCollections.filter(
         collection => this.getIndexName(collection) === indexName
       )
@@ -70,7 +70,8 @@ module.exports = ({ services, models, logger }) => {
      * @returns  {number}
      */
     numberOfEntries: async function (collection) {
-      return services[collection].count && services[collection].count()
+      if (services[collection].count) return services[collection].count()
+      else 0
     },
 
     /**
@@ -79,10 +80,11 @@ module.exports = ({ services, models, logger }) => {
      *
      * @returns  {string[]} collections
      */
-    listAllMultiEntriesCollections: function () {
-      return Object.keys(services).filter(type => {
+    allEligbleCollections: function () {
+      const elligibleCollections = Object.keys(services).filter(type => {
         return services[type].count
       })
+      return elligibleCollections
     },
 
     /**
@@ -110,10 +112,12 @@ module.exports = ({ services, models, logger }) => {
      * @returns  {object[]} - Entries.
      */
     getEntriesBatch: async function ({ start, limit, collection }) {
-      return await services[collection].find({
-        _limit: limit,
-        _start: start,
-      })
+      return (
+        (await services[collection].find({
+          _limit: limit,
+          _start: start,
+        })) || []
+      )
     },
 
     /**

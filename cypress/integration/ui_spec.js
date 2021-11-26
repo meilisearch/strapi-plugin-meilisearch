@@ -120,7 +120,7 @@ describe('Strapi Login flow', () => {
 
   it('Check for right number of documents indexed', () => {
     cy.checkCollectionContent({ rowNb: 1, contains: ['3 / 3'] })
-    cy.checkCollectionContent({ rowNb: 2, contains: ['1 / 1'] })
+    cy.checkCollectionContent({ rowNb: 2, contains: ['0 / 0'] })
     cy.checkCollectionContent({ rowNb: 3, contains: ['3 / 3'] })
     cy.checkCollectionContent({ rowNb: 4, contains: ['3 / 3'] })
   })
@@ -161,7 +161,7 @@ describe('Strapi Login flow', () => {
   })
 
   it('Remove a restaurant', () => {
-    cy.get('svg[data-icon="trash-alt"]').first().click()
+    cy.get('svg[data-icon="trash-alt"]').last().click()
     cy.wait(1000)
     cy.contains('Yes, confirm', { timeout: 10000 }).click()
     cy.wait(1000)
@@ -209,7 +209,7 @@ describe('Strapi Login flow', () => {
 
   it('Check that collections are not in MeiliSearch anymore', () => {
     cy.checkCollectionContent({ rowNb: 1, contains: ['0 / 3'] })
-    cy.checkCollectionContent({ rowNb: 2, contains: ['0 / 1'] })
+    cy.checkCollectionContent({ rowNb: 2, contains: ['0 / 0'] })
     cy.checkCollectionContent({ rowNb: 3, contains: ['0 / 3'] })
     cy.checkCollectionContent({ rowNb: 4, contains: ['0 / 3'] })
   })
@@ -235,7 +235,7 @@ describe('Strapi Login flow', () => {
 
   it('Check that collections are still showcased', () => {
     cy.checkCollectionContent({ rowNb: 1, contains: ['0 / 3'] })
-    cy.checkCollectionContent({ rowNb: 2, contains: ['0 / 1'] })
+    cy.checkCollectionContent({ rowNb: 2, contains: ['0 / 0'] })
     cy.checkCollectionContent({ rowNb: 3, contains: ['0 / 3'] })
     cy.checkCollectionContent({ rowNb: 4, contains: ['0 / 3'] })
   })

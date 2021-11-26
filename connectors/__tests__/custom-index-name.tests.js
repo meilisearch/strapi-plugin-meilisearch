@@ -34,6 +34,7 @@ const servicesMock = {
     }),
   },
 }
+
 const transformEntryMock = jest.fn(function ({ entry }) {
   const transformedEntry = {
     ...entry,
@@ -49,15 +50,12 @@ const loggerMock = {
 describe('Test custom index names', () => {
   let storeConnector
   beforeEach(async () => {
-    storeConnector = createStoreConnector({
-      storeClient: storeClientMock,
-    })
-  })
-
-  afterEach(() => {
     jest.resetAllMocks()
     jest.clearAllMocks()
     jest.restoreAllMocks()
+    storeConnector = createStoreConnector({
+      storeClient: storeClientMock,
+    })
   })
 
   test('Test custom index name', async () => {
@@ -87,6 +85,7 @@ describe('Test custom index names', () => {
     expect(getIndexNameSpy).toHaveBeenCalledWith('restaurant')
     expect(getIndexNameSpy).toHaveReturnedWith('my_restaurant')
   })
+
   test('Test no custom index name', async () => {
     const modelMock = {
       restaurant: {

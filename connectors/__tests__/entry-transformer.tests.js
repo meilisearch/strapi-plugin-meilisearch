@@ -118,7 +118,7 @@ describe('Entry transformation', () => {
       { collection: ['one', 'two'], id: '1' },
     ])
 
-    expect(getIndexNameSpy).toHaveBeenCalledTimes(2)
+    expect(getIndexNameSpy).toHaveBeenCalledTimes(1)
     expect(getIndexNameSpy).toHaveBeenCalledWith('restaurant')
     // can only test returned with on sync functions
     expect(getIndexNameSpy).toHaveReturnedWith('my_restaurant')

@@ -159,7 +159,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
       const listenedCollections = await storeConnector.getListenedCollections()
 
       // Is collection not single-type-collection
-      const collections = collectionConnector.listAllMultiEntriesCollections()
+      const collections = collectionConnector.allEligbleCollections()
 
       const reports = await Promise.all(
         collections.map(async collection => {
@@ -228,7 +228,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
         collection,
         entries,
       })
-      const update = client.index(indexUid).addDocuments(documents)
+      const update = await client.index(indexUid).addDocuments(documents)
       await storeConnector.addIndexedCollection(collection)
 
       return update
@@ -241,11 +241,15 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
      * @returns {number[]} - All updates id from the batched indexation process.
      */
     addCollectionInMeiliSearch: async function (collection) {
-      const indexUid = collectionConnector.getIndexName(collection)
       const client = MeiliSearch({ apiKey, host })
-      await client.getOrCreateIndex(indexUid)
+      const indexUid = collectionConnector.getIndexName(collection)
 
+      // Callback function for batching action
       const addDocuments = async (entries, collection) => {
+        if (entries.length === 0) {
+          await client.getOrCreateIndex(indexUid)
+          return null
+        }
         let transformedEntries = collectionConnector.transformEntries({
           collection,
           entries,
@@ -255,7 +259,6 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
           entries: transformedEntries,
         })
 
-        const indexUid = collectionConnector.getIndexName(collection)
         const { updateId } = await client
           .index(indexUid)
           .addDocuments(documents)
