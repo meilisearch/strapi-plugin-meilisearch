@@ -1,8 +1,3 @@
-/**
- *
- * Block
- */
-
 import React, { memo, useState, useEffect } from 'react'
 import { request } from 'strapi-helper-plugin'
 import pluginId from '../pluginId'
@@ -22,7 +17,7 @@ import { headers } from '../utils/collection-header'
  * Collection component.
  * A table of all Strapi collections and their relation with MeiliSearch.
  *
- * @param  {object} {updateCredentials}
+ * @param  {object} - updateCredentials
  */
 const Collections = ({ updateCredentials }) => {
   const [collectionsList, setCollectionsList] = useState([]) // All Collections
