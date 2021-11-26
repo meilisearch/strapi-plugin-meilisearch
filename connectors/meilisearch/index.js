@@ -103,17 +103,15 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
      * @returns { numberOfDocumentsIndexed: number }
      */
     waitForBatchUpdates: async function ({ collection, updateIds }) {
-      console.log('waitForBatchUpdates', { collection, updateIds })
-      const statusses = []
+      const allUpdates = []
       for (const updateId of updateIds) {
         const status = await this.waitForPendingUpdate({
           collection,
           updateId,
         })
-        console.log(status)
-        statusses.push(status)
+        allUpdates.push(status)
       }
-      return statusses
+      return allUpdates
     },
 
     /**
@@ -147,6 +145,11 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
       }
     },
 
+    /**
+     * Get enqueued update ids of indexed collections.
+     *
+     * @returns { { string: number[]} } - Collections with their respective updateIds
+     */
     getUpdateIds: async function () {
       const indexes = await this.getIndexes()
       const indexUids = indexes.map(index => index.uid)
@@ -158,7 +161,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
         const indexUid = collectionConnector.getIndexName(collection)
         if (indexUids.includes(indexUid)) {
           const updateIds = await client.index(indexUid).getAllUpdateStatus()
-          console.log(updateIds)
+
           const enqueued = updateIds
             .filter(update => update.status === 'enqueued')
             .map(update => update.updateId)
@@ -268,7 +271,6 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
 
       // Callback function for batching action
       const addDocuments = async (entries, collection) => {
-        // console.log()
         if (entries.length === 0) {
           await client.getOrCreateIndex(indexUid)
           return null
@@ -285,7 +287,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
         const { updateId } = await client
           .index(indexUid)
           .addDocuments(documents)
-        console.log({ updateId })
+
         return updateId
       }
 
@@ -298,6 +300,12 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
       return updateIds
     },
 
+    /**
+     * Delete or empty an index depending if the collection is part
+     * of a composite index.
+     *
+     * @param  {string} collection - Collection name.
+     */
     emptyOrDeleteIndex: async function (collection) {
       const indexedColWithIndexName = await this.getCollectionsWithSameIndex(
         collection

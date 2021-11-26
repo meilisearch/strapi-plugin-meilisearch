@@ -16,7 +16,7 @@ import {
 } from '../utils/collections'
 import { Wrapper } from '../components/Wrapper'
 import { reload } from '../utils/reload'
-import { headers } from '../utils/collection-headers'
+import { headers } from '../utils/collection-header'
 
 const Collections = ({ updateCredentials }) => {
   const [collectionsList, setCollectionsList] = useState([]) // All Collections
@@ -25,9 +25,8 @@ const Collections = ({ updateCredentials }) => {
   const [collectionInWaitMode, setCollectionInWaitMode] = useState([]) // Collections that are waiting for their indexation to complete.
   const [collectionUpdateIds, setCollectionUpdateIds] = useState({}) // Collections that are waiting for their indexation to complete.
 
-  // Adds a listener that informs if collections have been updated.
+  // Trigger a updateId fetcher to find enqueued update ids of the indexed collections.
   useEffect(() => {
-    console.log('PAF')
     findUpdateIds()
   }, [])
 
@@ -41,6 +40,7 @@ const Collections = ({ updateCredentials }) => {
     if (!upToDateCollections) fetchCollections()
   }, [upToDateCollections, updateCredentials])
 
+  // Trigger an update watch if a collection has enqueued update id's.
   useEffect(() => {
     for (const collection in collectionUpdateIds) {
       if (collectionUpdateIds[collection].length > 0) {
@@ -49,11 +49,14 @@ const Collections = ({ updateCredentials }) => {
     }
   }, [collectionUpdateIds])
 
+  /**
+   * Find all enqueued update id's of the indexed collections.
+   * It is triggered on load.
+   */
   const findUpdateIds = async () => {
     const response = await request(`/${pluginId}/collection/update`, {
       method: 'GET',
     })
-    console.log(JSON.stringify(response, null, 2))
 
     if (response.error) errorNotifications(response)
     setCollectionUpdateIds(response.updateIds)
@@ -70,11 +73,10 @@ const Collections = ({ updateCredentials }) => {
     const updateIds = collectionUpdateIds[collection]
 
     if (!collectionInWaitMode.includes(collection) && updateIds?.length > 0) {
+      addIndexedStatus
       setCollectionInWaitMode(prev => [...prev, collection])
 
-      console.log('Start watch', collection)
       const updateIdsChunk = updateIds.splice(0, 1)
-
       const response = await request(
         `/${pluginId}/collection/${collection}/update/batch`,
         {
@@ -82,6 +84,8 @@ const Collections = ({ updateCredentials }) => {
           body: { updateIds: updateIdsChunk },
         }
       )
+      if (response.error) errorNotifications(response)
+
       const { updateStatus } = response
 
       updateStatus.map(update => {
@@ -91,7 +95,6 @@ const Collections = ({ updateCredentials }) => {
         }
       })
 
-      if (response.error) errorNotifications(response)
       setCollectionInWaitMode(prev => prev.filter(col => col !== collection))
       setCollectionUpdateIds(prev => ({
         ...prev,
@@ -118,7 +121,6 @@ const Collections = ({ updateCredentials }) => {
     createResponseNotification(response, `${collection} is created!`)
 
     if (!response.error) {
-      // watchUpdates({ collection }) // start listening
       setCollectionUpdateIds(prev => ({
         ...prev,
         [collection]: response.updateIds,
@@ -140,12 +142,6 @@ const Collections = ({ updateCredentials }) => {
     const response = await request(`/${pluginId}/collections/${collection}/`, {
       method: 'PUT',
     })
-
-    console.log(
-      'Update collection:',
-      collection,
-      JSON.stringify(response, null, 2)
-    )
 
     createResponseNotification(response, `${collection} update started!`)
 
@@ -208,13 +204,6 @@ const Collections = ({ updateCredentials }) => {
         }
       })
 
-      console.log({
-        movie: collections.find(x => x.collection === 'movies')
-          .numberOfDocuments,
-        small_movies: collections.find(x => x.collection === 'small-movie')
-          .numberOfDocuments,
-      })
-      // Transform collections parameters to verbose text.
       const renderedCols = collections.map(col => transformCollections(col))
 
       // Find possible collection that needs a reload to activate the listener.
@@ -223,7 +212,7 @@ const Collections = ({ updateCredentials }) => {
       )
 
       setNeedReload(reloading) // A reload is required for a collection to be listened or de-listened
-      setCollectionsList(renderedCols) // Store all Strapi collections
+      setCollectionsList(renderedCols) // Store all `Strapi collections
       setUpToDateCollection(true) // Collection information is up to date
     }
   }
