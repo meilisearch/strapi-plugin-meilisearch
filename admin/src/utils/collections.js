@@ -1,7 +1,7 @@
 import { errorNotifications, successNotification } from '../utils/notifications'
 
 /**
- * Add a status
+ * Add a status to the indexed column depending in the triggered action.
  *
  * @param  {string[]} previousCols
  * @param  {string} collection

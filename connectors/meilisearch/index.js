@@ -67,13 +67,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
     },
 
     /**
-     * Wait for a number of update to be processed in MeiliSearch.
-     *
-     * Because collection entries are added in batches a lot of updates are created.
-     * To avoid having to wait for all of them tobe processed, this functions watched a certain
-     * number of it at a time.
-     *
-     * This gives the possibility to the front-end to show the progress of entries indexation.
+     * Wait for an update to be processed in MeiliSearch.
      *
      * @param  {string} indexUid - Index name.
      * @param  {number} updateNbr - Number of updates to watch.
@@ -87,16 +81,16 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
         const task = await client
           .index(indexUid)
           .waitForPendingUpdate(updateId, { intervalMs: 5000 })
+
         return task
       } catch (e) {
-        console.error(updateId)
         console.error(e)
         return 0
       }
     },
 
     /**
-     * Wait for the collection to be indexed in MeiliSearch.
+     * Wait for a batch of updated ids to be processed.
      *
      * @param  {string} collection - Collection name.
      *
@@ -148,7 +142,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
     /**
      * Get enqueued update ids of indexed collections.
      *
-     * @returns { { string: number[]} } - Collections with their respective updateIds
+     * @returns { { string: number[] } } - Collections with their respective updateIds
      */
     getUpdateIds: async function () {
       const indexes = await this.getIndexes()
