@@ -159,7 +159,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
       const listenedCollections = await storeConnector.getListenedCollections()
 
       // Is collection not single-type-collection
-      const collections = collectionConnector.allElligbleCollections()
+      const collections = collectionConnector.allEligbleCollections()
 
       const reports = await Promise.all(
         collections.map(async collection => {
@@ -241,10 +241,10 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
      * @returns {number[]} - All updates id from the batched indexation process.
      */
     addCollectionInMeiliSearch: async function (collection) {
-      // Calback function for batching action
       const client = MeiliSearch({ apiKey, host })
       const indexUid = collectionConnector.getIndexName(collection)
 
+      // Callback function for batching action
       const addDocuments = async (entries, collection) => {
         if (entries.length === 0) {
           await client.getOrCreateIndex(indexUid)

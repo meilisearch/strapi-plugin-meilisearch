@@ -20,7 +20,7 @@ module.exports = ({ services, models, logger }) => {
           (await this.getEntriesBatch({
             start: index,
             limit: BATCH_SIZE,
-            collection, // Envoie restaurant
+            collection,
           })) || []
         const info = await callback(entries, collection)
         if (info != null) response.push(info)
@@ -55,7 +55,7 @@ module.exports = ({ services, models, logger }) => {
      */
     listCollectionsWithIndexName: async function (indexName) {
       // Is collection not single-type-collection
-      const multiRowsCollections = this.allElligbleCollections() || []
+      const multiRowsCollections = this.allEligbleCollections() || []
       const collectionsWithIndexName = multiRowsCollections.filter(
         collection => this.getIndexName(collection) === indexName
       )
@@ -80,7 +80,7 @@ module.exports = ({ services, models, logger }) => {
      *
      * @returns  {string[]} collections
      */
-    allElligbleCollections: function () {
+    allEligbleCollections: function () {
       const elligibleCollections = Object.keys(services).filter(type => {
         return services[type].count
       })
