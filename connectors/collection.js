@@ -23,7 +23,7 @@ module.exports = ({ services, models, logger }) => {
             collection, // Envoie restaurant
           })) || []
         const info = await callback(entries, collection)
-        response.push(info)
+        if (info != null) response.push(info)
       }
       return response
     },
@@ -55,7 +55,7 @@ module.exports = ({ services, models, logger }) => {
      */
     listCollectionsWithIndexName: async function (indexName) {
       // Is collection not single-type-collection
-      const multiRowsCollections = this.listAllMultiEntriesCollections() || []
+      const multiRowsCollections = this.allElligbleCollections() || []
       const collectionsWithIndexName = multiRowsCollections.filter(
         collection => this.getIndexName(collection) === indexName
       )
@@ -79,10 +79,11 @@ module.exports = ({ services, models, logger }) => {
      *
      * @returns  {string[]} collections
      */
-    listAllMultiEntriesCollections: function () {
-      return Object.keys(services).filter(type => {
+    allElligbleCollections: function () {
+      const elligibleCollections = Object.keys(services).filter(type => {
         return services[type].count
       })
+      return elligibleCollections
     },
 
     /**
