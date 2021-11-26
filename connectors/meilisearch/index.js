@@ -241,11 +241,11 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
      * @returns {number[]} - All updates id from the batched indexation process.
      */
     addCollectionInMeiliSearch: async function (collection) {
+      // Calback function for batching action
       const client = MeiliSearch({ apiKey, host })
+      const indexUid = collectionConnector.getIndexName(collection)
 
       const addDocuments = async (entries, collection) => {
-        const indexUid = collectionConnector.getIndexName(collection)
-        console.log({ entries })
         if (entries.length === 0) {
           await client.getOrCreateIndex(indexUid)
           return null

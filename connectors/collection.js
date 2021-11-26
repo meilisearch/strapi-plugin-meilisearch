@@ -70,7 +70,8 @@ module.exports = ({ services, models, logger }) => {
      * @returns  {number}
      */
     numberOfEntries: async function (collection) {
-      return services[collection].count && services[collection].count()
+      if (services[collection].count) return services[collection].count()
+      else 0
     },
 
     /**
@@ -111,10 +112,12 @@ module.exports = ({ services, models, logger }) => {
      * @returns  {object[]} - Entries.
      */
     getEntriesBatch: async function ({ start, limit, collection }) {
-      return await services[collection].find({
-        _limit: limit,
-        _start: start,
-      })
+      return (
+        (await services[collection].find({
+          _limit: limit,
+          _start: start,
+        })) || []
+      )
     },
 
     /**
