@@ -80,24 +80,19 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
      *
      * @returns {number} - Number of documents added.
      */
-    waitForPendingUpdates: async function ({ collection, updateNbr }) {
-      const client = MeiliSearch({ apiKey, host })
-      const indexUid = collectionConnector.getIndexName(collection)
-      const updates = (await client.index(indexUid).getAllUpdateStatus())
-        .filter(update => update.status === 'enqueued')
-        .slice(0, updateNbr)
-      let documentsAdded = 0
-      for (const update of updates) {
-        const { updateId } = update
+    waitForPendingUpdate: async function ({ collection, updateId }) {
+      try {
+        const client = MeiliSearch({ apiKey, host })
+        const indexUid = collectionConnector.getIndexName(collection)
         const task = await client
           .index(indexUid)
-          .waitForPendingUpdate(updateId, { intervalMs: 500 })
-        const {
-          type: { number },
-        } = task
-        documentsAdded += number
+          .waitForPendingUpdate(updateId, { intervalMs: 5000 })
+        return task
+      } catch (e) {
+        console.error(updateId)
+        console.error(e)
+        return 0
       }
-      return documentsAdded
     },
 
     /**
@@ -107,12 +102,18 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
      *
      * @returns { numberOfDocumentsIndexed: number }
      */
-    waitForCollectionIndexation: async function (collection) {
-      const numberOfDocumentsIndexed = await this.waitForPendingUpdates({
-        collection,
-        updateNbr: 2,
-      })
-      return { numberOfDocumentsIndexed }
+    waitForBatchUpdates: async function ({ collection, updateIds }) {
+      console.log('waitForBatchUpdates', { collection, updateIds })
+      const statusses = []
+      for (const updateId of updateIds) {
+        const status = await this.waitForPendingUpdate({
+          collection,
+          updateId,
+        })
+        console.log(status)
+        statusses.push(status)
+      }
+      return statusses
     },
 
     /**
@@ -144,6 +145,27 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
       } catch (e) {
         return {}
       }
+    },
+
+    getUpdateIds: async function () {
+      const indexes = await this.getIndexes()
+      const indexUids = indexes.map(index => index.uid)
+      const collections = collectionConnector.allEligbleCollections()
+      const client = MeiliSearch({ apiKey, host })
+
+      const collectionUpdateIds = {}
+      for (const collection of collections) {
+        const indexUid = collectionConnector.getIndexName(collection)
+        if (indexUids.includes(indexUid)) {
+          const updateIds = await client.index(indexUid).getAllUpdateStatus()
+          console.log(updateIds)
+          const enqueued = updateIds
+            .filter(update => update.status === 'enqueued')
+            .map(update => update.updateId)
+          collectionUpdateIds[collection] = enqueued
+        }
+      }
+      return collectionUpdateIds
     },
 
     /**
@@ -246,6 +268,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
 
       // Callback function for batching action
       const addDocuments = async (entries, collection) => {
+        // console.log()
         if (entries.length === 0) {
           await client.getOrCreateIndex(indexUid)
           return null
@@ -262,6 +285,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
         const { updateId } = await client
           .index(indexUid)
           .addDocuments(documents)
+        console.log({ updateId })
         return updateId
       }
 
@@ -271,7 +295,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
       )
       await storeConnector.addIndexedCollection(collection)
 
-      return { updateIds }
+      return updateIds
     },
 
     emptyOrDeleteIndex: async function (collection) {

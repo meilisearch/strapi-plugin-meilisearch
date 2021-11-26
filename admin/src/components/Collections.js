@@ -7,64 +7,57 @@ import React, { memo, useState, useEffect } from 'react'
 import { request } from 'strapi-helper-plugin'
 import pluginId from '../pluginId'
 import { Table, Button } from '@buffetjs/core'
-import { errorNotifications, successNotification } from '../utils/notifications'
+import { UpdateButton } from './Buttons'
+import { errorNotifications } from '../utils/notifications'
+import {
+  transformCollections,
+  addIndexedStatus,
+  createResponseNotification,
+} from '../utils/collections'
 import { Wrapper } from '../components/Wrapper'
-import styled from 'styled-components'
-
-export const UpdateButton = styled(Button)`
-  display: flex;
-  align-items: center;
-  color: primary;
-`
-
-export const ReloadButton = styled(Button)`
-  display: flex;
-  align-items: center;
-  color: delete;
-`
-
-const headers = [
-  {
-    name: 'Collection',
-    value: 'collection',
-  },
-  {
-    name: 'In MeiliSearch',
-    value: 'indexed',
-  },
-  {
-    name: 'Indexing',
-    value: 'isIndexing',
-  },
-  {
-    name: 'Index name',
-    value: 'indexUid',
-  },
-  {
-    name: 'Documents',
-    value: 'numberOfDocuments',
-  },
-  {
-    name: 'Listener',
-    value: 'listened',
-  },
-]
+import { reload } from '../utils/reload'
+import { headers } from '../utils/collection-headers'
 
 const Collections = ({ updateCredentials }) => {
   const [collectionsList, setCollectionsList] = useState([]) // All Collections
-  const [updatedCollections, setUpdatedCollections] = useState(false) // Boolean that informs if collections have been updated.
+  const [upToDateCollections, setUpToDateCollection] = useState(false) // Boolean that informs if collections have been updated.
   const [needReload, setNeedReload] = useState(false) // Boolean to inform that reload is requested.
-  const [listened, setListenedCollection] = useState([]) // Collections that are waiting for their indexation to complete.
+  const [collectionInWaitMode, setCollectionInWaitMode] = useState([]) // Collections that are waiting for their indexation to complete.
+  const [collectionUpdateIds, setCollectionUpdateIds] = useState({}) // Collections that are waiting for their indexation to complete.
 
   // Adds a listener that informs if collections have been updated.
   useEffect(() => {
-    setUpdatedCollections(false)
+    console.log('PAF')
+    findUpdateIds()
+  }, [])
+
+  // Adds a listener that informs if collections have been updated.
+  useEffect(() => {
+    setUpToDateCollection(false)
   }, [updateCredentials])
 
   // Adds a listener that updates collections informations when an update occured.
   useEffect(() => {
-    if (!updatedCollections) fetchCollections()
-  }, [updatedCollections, updateCredentials])
+    if (!upToDateCollections) fetchCollections()
+  }, [upToDateCollections, updateCredentials])
+
+  useEffect(() => {
+    for (const collection in collectionUpdateIds) {
+      if (collectionUpdateIds[collection].length > 0) {
+        watchUpdates({ collection })
+      }
+    }
+  }, [collectionUpdateIds])
+
+  const findUpdateIds = async () => {
+    const response = await request(`/${pluginId}/collection/update`, {
+      method: 'GET',
+    })
+    console.log(JSON.stringify(response, null, 2))
+
+    if (response.error) errorNotifications(response)
+    setCollectionUpdateIds(response.updateIds)
+  }
 
   /**
    * Watches a collection (if not already)
@@ -73,18 +66,39 @@ const Collections = ({ updateCredentials }) => {
    * @param {string} collection - Collection name.
    */
   const watchUpdates = async ({ collection }) => {
-    if (!listened.includes(collection)) {
-      setListenedCollection(prev => [...prev, collection])
+    // If collection has pending updates
+    const updateIds = collectionUpdateIds[collection]
+
+    if (!collectionInWaitMode.includes(collection) && updateIds?.length > 0) {
+      setCollectionInWaitMode(prev => [...prev, collection])
+
+      console.log('Start watch', collection)
+      const updateIdsChunk = updateIds.splice(0, 1)
+
       const response = await request(
-        `/${pluginId}/collection/${collection}/update/`,
+        `/${pluginId}/collection/${collection}/update/batch`,
         {
-          method: 'GET',
+          method: 'POST',
+          body: { updateIds: updateIdsChunk },
         }
       )
-      if (response.error) errorNotifications(response)
+      const { updateStatus } = response
 
-      setListenedCollection(prev => prev.filter(col => col !== collection))
-      setUpdatedCollections(false) // Ask for collections to be updated.
+      updateStatus.map(update => {
+        if (update.status === 'failed') {
+          update.error.message = `Some documents could not be added: \n${update.error.message}`
+          errorNotifications(update.error)
+        }
+      })
+
+      if (response.error) errorNotifications(response)
+      setCollectionInWaitMode(prev => prev.filter(col => col !== collection))
+      setCollectionUpdateIds(prev => ({
+        ...prev,
+        [collection]: updateIds,
+      }))
+
+      setUpToDateCollection(false) // Ask for collections to be updated.
     }
   }
 
@@ -94,26 +108,24 @@ const Collections = ({ updateCredentials }) => {
    * @param {string} collection - Collection name.
    */
   const addCollection = async ({ collection }) => {
-    setCollectionsList(prev =>
-      prev.map(col => {
-        if (col.collection === collection)
-          return { ...col, indexed: 'Creating..', _isChecked: true }
-        return col
-      })
+    setCollectionsList(prevCols =>
+      addIndexedStatus(prevCols, collection, 'Creating..')
     )
     const response = await request(`/${pluginId}/collections/${collection}`, {
       method: 'POST',
     })
-    if (response.error) {
-      errorNotifications(response)
-    } else {
-      successNotification({
-        message: `${collection} is created!`,
-        duration: 4000,
-      })
-      watchUpdates({ collection }) // start listening
+
+    createResponseNotification(response, `${collection} is created!`)
+
+    if (!response.error) {
+      // watchUpdates({ collection }) // start listening
+      setCollectionUpdateIds(prev => ({
+        ...prev,
+        [collection]: response.updateIds,
+      }))
     }
-    setUpdatedCollections(false) // Ask for collections to be updated.
+
+    setUpToDateCollection(false) // Ask for collections to be updated.
   }
 
   /**
@@ -122,23 +134,30 @@ const Collections = ({ updateCredentials }) => {
    * @param {string} collection - Collection name.
    */
   const updateCollections = async ({ collection }) => {
-    setCollectionsList(prev =>
-      prev.map(col => {
-        if (col.collection === collection)
-          return { ...col, indexed: 'Start update...', _isChecked: true }
-        return col
-      })
+    setCollectionsList(prevCols =>
+      addIndexedStatus(prevCols, collection, 'Start update...')
     )
     const response = await request(`/${pluginId}/collections/${collection}/`, {
       method: 'PUT',
     })
-    if (response.error) {
-      errorNotifications(response)
-    } else {
-      successNotification({ message: `${collection} update started!` })
-      watchUpdates({ collection }) // start listening
+
+    console.log(
+      'Update collection:',
+      collection,
+      JSON.stringify(response, null, 2)
+    )
+
+    createResponseNotification(response, `${collection} update started!`)
+
+    if (!response.error) {
+      setCollectionUpdateIds(prev => ({
+        ...prev,
+        [collection]: response.updateIds,
+      }))
+      // watchUpdates({ collection }) // start listening
     }
-    setUpdatedCollections(false) // Ask for collections to be updated.
+
+    setUpToDateCollection(false) // Ask for collections to be updated.
   }
 
   /**
@@ -147,16 +166,14 @@ const Collections = ({ updateCredentials }) => {
    * @param {string} collection - Collection name.
    */
   const removeCollection = async ({ collection }) => {
-    const res = await request(`/${pluginId}/collections/${collection}/`, {
+    const response = await request(`/${pluginId}/collections/${collection}/`, {
       method: 'DELETE',
     })
-    if (res.error) errorNotifications(res)
-    else
-      successNotification({
-        message: `${collection} collection is removed from MeiliSearch!`,
-        duration: 4000,
-      })
-    setUpdatedCollections(false) // Ask for collections to be updated.
+    createResponseNotification(
+      response,
+      `${collection} collection is removed from MeiliSearch!`
+    )
+    setUpToDateCollection(false) // Ask for collections to be updated.
   }
 
   /**
@@ -172,38 +189,6 @@ const Collections = ({ updateCredentials }) => {
   }
 
   /**
-   * Determine if a collection needs a server reload to be up to date.
-   *
-   * @returns {string} - Reload status
-   */
-  const constructReloadStatus = (indexed, listened) => {
-    if ((indexed && !listened) || (!indexed && listened)) {
-      return 'Reload needed'
-    } else if (indexed && listened) {
-      return 'Active'
-    } else {
-      return ''
-    }
-  }
-
-  /**
-   * Construct verbose table text.
-   *
-   * @param {string[]} col - All collumn names.
-   */
-  const constructColRow = col => {
-    const { indexed, isIndexing, numberOfDocuments, numberOfEntries } = col
-    return {
-      ...col,
-      indexed: indexed ? 'Yes' : 'No',
-      isIndexing: isIndexing ? 'Yes' : 'No',
-      numberOfDocuments: `${numberOfDocuments} / ${numberOfEntries}`,
-      listened: constructReloadStatus(col.indexed, col.listened),
-      _isChecked: col.indexed,
-    }
-  }
-
-  /**
    * Fetches extended information about collections in MeiliSearch.
    */
   const fetchCollections = async () => {
@@ -216,45 +201,30 @@ const Collections = ({ updateCredentials }) => {
 
     if (error) errorNotifications(res)
     else {
-      // Start listening collection that are being indexed
-      collections.map(
-        col => col.isIndexing && watchUpdates({ collection: col.collection })
-      )
-      // Create verbose text that will be showed in the table
-      const verboseCols = collections.map(col => constructColRow(col))
+      // Start watching collections that have pending updates
+      collections.map(col => {
+        if (col.isIndexing) {
+          watchUpdates({ collection: col.collection })
+        }
+      })
+
+      console.log({
+        movie: collections.find(x => x.collection === 'movies')
+          .numberOfDocuments,
+        small_movies: collections.find(x => x.collection === 'small-movie')
+          .numberOfDocuments,
+      })
+      // Transform collections parameters to verbose text.
+      const renderedCols = collections.map(col => transformCollections(col))
+
       // Find possible collection that needs a reload to activate the listener.
-      const reloading = verboseCols.find(
+      const reloading = renderedCols.find(
         col => col.listened === 'Reload needed'
       )
 
-      setNeedReload(reloading)
-      setCollectionsList(verboseCols)
-      setUpdatedCollections(true) // Collection information is up to date
-    }
-  }
-
-  /**
-   * Reload request of the server.
-   */
-  const reload = async () => {
-    try {
-      strapi.lockApp({ enabled: true })
-      const { error, ...res } = await request(
-        `/${pluginId}/reload`,
-        {
-          method: 'GET',
-        },
-        true
-      )
-      if (error) {
-        errorNotifications(res)
-        strapi.unlockApp()
-      } else {
-        window.location.reload()
-      }
-    } catch (err) {
-      strapi.unlockApp()
-      errorNotifications({ message: 'Could not reload the server' })
+      setNeedReload(reloading) // A reload is required for a collection to be listened or de-listened
+      setCollectionsList(renderedCols) // Store all Strapi collections
+      setUpToDateCollection(true) // Collection information is up to date
     }
   }
 

@@ -88,7 +88,7 @@ const Credentials = ({ setUpdatedCredentials }) => {
         />
         <Text
           color="orange"
-          lineHeight={2}
+          lineHeight="2"
           fontWeight="bold"
           fontSize="sm"
           ellipsis

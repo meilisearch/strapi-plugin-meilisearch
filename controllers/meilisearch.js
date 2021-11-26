@@ -82,23 +82,6 @@ async function removeCollection(ctx) {
   return connector.removeCollectionFromMeiliSearch(collection)
 }
 
-// TODO only delete when not composite
-// or if composite only has one collection
-
-/**
- * Wait for one collection to be completely indexed in MeiliSearch.
- *
- * @param  {object} ctx - Http request object.
- * @param  {object} connector - Connector between components.
- *
- * @returns { numberOfDocumentsIndexed: number }
- */
-async function waitForCollectionIndexing(ctx) {
-  const connector = await createConnector()
-  const { collection } = ctx.params
-  return connector.waitForCollectionIndexation(collection)
-}
-
 /**
  * Get extended information about collections in MeiliSearch.
  *
@@ -136,7 +119,8 @@ async function addCredentials(ctx) {
 async function updateCollections(ctx) {
   const connector = await createConnector()
   const { collection } = ctx.params
-  return connector.updateCollectionInMeiliSearch(collection)
+  const updateIds = await connector.updateCollectionInMeiliSearch(collection)
+  return { message: 'Index created', updateIds }
 }
 
 /**
@@ -150,8 +134,34 @@ async function updateCollections(ctx) {
 async function addCollection(ctx) {
   const connector = await createConnector()
   const { collection } = ctx.params
-  await connector.addCollectionInMeiliSearch(collection)
-  return { message: 'Index created' }
+  const updateIds = await connector.addCollectionInMeiliSearch(collection)
+  return { message: 'Index created', updateIds }
+}
+
+/**
+ * Wait for one collection to be completely indexed in MeiliSearch.
+ *
+ * @param  {object} ctx - Http request object.
+ * @param  {object} connector - Connector between components.
+ *
+ * @returns { numberOfDocumentsIndexed: number }
+ */
+async function waitForBatchUpdates(ctx) {
+  const connector = await createConnector()
+  const { collection } = ctx.params
+  const { updateIds } = ctx.request.body
+  const updateStatus = await connector.waitForBatchUpdates({
+    updateIds,
+    collection,
+  })
+  return { updateStatus }
+}
+
+async function getUpdateIds() {
+  const connector = await createConnector()
+  const updateIds = await connector.getUpdateIds()
+  console.log(updateIds)
+  return { updateIds }
 }
 
 /**
@@ -167,12 +177,12 @@ function reload(ctx) {
 
 module.exports = {
   getClientCredentials: async ctx => ctxWrapper(ctx, getClientCredentials),
-  waitForCollectionIndexing: async ctx =>
-    ctxWrapper(ctx, waitForCollectionIndexing),
   getCollections: async ctx => ctxWrapper(ctx, getCollections),
   addCollection: async ctx => ctxWrapper(ctx, addCollection),
   addCredentials: async ctx => ctxWrapper(ctx, addCredentials),
   removeCollection: async ctx => ctxWrapper(ctx, removeCollection),
   updateCollections: async ctx => ctxWrapper(ctx, updateCollections),
+  waitForBatchUpdates: async ctx => ctxWrapper(ctx, waitForBatchUpdates),
+  getUpdateIds: async ctx => ctxWrapper(ctx, getUpdateIds),
   reload: async ctx => ctxWrapper(ctx, reload),
 }
