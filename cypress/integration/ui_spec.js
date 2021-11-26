@@ -161,7 +161,7 @@ describe('Strapi Login flow', () => {
   })
 
   it('Remove a restaurant', () => {
-    cy.get('svg[data-icon="trash-alt"]').first().click()
+    cy.get('svg[data-icon="trash-alt"]').last().click()
     cy.wait(1000)
     cy.contains('Yes, confirm', { timeout: 10000 }).click()
     cy.wait(1000)
