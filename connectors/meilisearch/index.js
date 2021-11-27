@@ -278,6 +278,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
           entries: transformedEntries,
         })
 
+        // Add documents in MeiliSearch
         const { updateId } = await client
           .index(indexUid)
           .addDocuments(documents)
