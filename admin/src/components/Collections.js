@@ -231,9 +231,6 @@ const Collections = ({ updateCredentials }) => {
           onSelect={row => {
             addOrRemoveCollection(row)
           }}
-          onClickRow={(e, data) => {
-            addOrRemoveCollection(data)
-          }}
           rowLinks={[
             {
               icon: <UpdateButton forwardedAs="span">Update</UpdateButton>,
