@@ -6,14 +6,14 @@
 import React, { memo, useState, useEffect } from 'react'
 import { request } from 'strapi-helper-plugin'
 import pluginId from '../pluginId'
-import { Button, InputText, Label } from '@buffetjs/core'
+import { Button, InputText, Label, Text } from '@buffetjs/core'
 import { Wrapper } from '../components/Wrapper'
 
 const Credentials = ({ setUpdatedCredentials }) => {
   const [msApiKey, setApiKey] = useState('')
   const [msHost, setHost] = useState('')
-  const [configFileApiKey, setconfigFileApiKey] = useState('')
-  const [configFileHost, setconfigFileHost] = useState('')
+  const [configFileApiKey, setconfigFileApiKey] = useState(false)
+  const [configFileHost, setconfigFileHost] = useState(false)
 
   useEffect(() => {
     strapi.lockApp()
@@ -56,9 +56,7 @@ const Credentials = ({ setUpdatedCredentials }) => {
       <Wrapper>
         <Label
           htmlFor="MSHost"
-          message={`MeiliSearch Host ${
-            configFileHost ? ' loaded from config file' : ``
-          }`}
+          message={`MeiliSearch Host ${configFileHost ? ' from file' : ``}`}
         />
         <InputText
           name="MSHost"
@@ -67,14 +65,14 @@ const Credentials = ({ setUpdatedCredentials }) => {
           }}
           placeholder="Host"
           type="text"
-          value={msHost}
+          value={configFileHost ? '********' : msHost}
           disabled={configFileHost}
           aria-disabled={configFileHost}
         />
         <Label
           htmlFor="MSApiKey"
-          message={`MeiliSearch Api Key ${
-            configFileApiKey ? ' loaded from config file' : ''
+          message={`MeiliSearch Private Key ${
+            configFileApiKey ? ' from file' : ''
           }`}
         />
         <InputText
@@ -82,21 +80,35 @@ const Credentials = ({ setUpdatedCredentials }) => {
           onChange={({ target: { value } }) => {
             setApiKey(value)
           }}
-          placeholder="apiKey"
+          placeholder="private key"
           type="text"
-          value={configFileApiKey ? '****' : msApiKey}
+          value={configFileApiKey ? '********' : msApiKey}
           disabled={configFileApiKey}
           aria-disabled={configFileApiKey}
         />
+        <Text
+          color="orange"
+          lineHeight="2"
+          fontWeight="bold"
+          fontSize="sm"
+          ellipsis
+        >
+          Do not use this api key on your front-end as it has full rights.
+          Instead, use the public key available using{' '}
+          <a href="https://docs.meilisearch.com/reference/api/keys.html#get-keys">
+            the key route
+          </a>
+          .
+        </Text>
         <Button
-          color={!(configFileApiKey && configFileHost) ? 'primary' : 'disabled'}
+          color={!(configFileApiKey && configFileHost) ? 'primary' : 'cancel'}
           className="credentials_button"
           onClick={addMeilisearchCredentials}
           style={{ marginTop: '20px' }}
-          disabled={configFileApiKey && configFileHost}
+          disabled={!!configFileApiKey && !!configFileHost}
           aria-disabled={configFileApiKey && configFileHost}
         >
-          Add
+          {!!configFileApiKey && !!configFileHost ? 'Disabled' : 'Update'}
         </Button>
       </Wrapper>
     </div>

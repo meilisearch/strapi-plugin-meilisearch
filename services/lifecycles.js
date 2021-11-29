@@ -4,38 +4,68 @@
  * to customize this model
  */
 
-async function afterCreate(result, collection, httpClient) {
+/**
+ * Listener function that triggers after a collection creates an entry.
+ *
+ * @param  {object} result - Entry added.
+ * @param  {string} collection - Collection name.
+ * @param  {object} connector - Plugin's connector.
+ */
+async function afterCreate(result, collection, connector) {
   try {
-    await httpClient.addDocuments({
-      indexUid: collection,
-      data: [result],
-    })
+    // When index was removed from MeiliSearch but listener is still active
+    // It will re-recreate the index because `addDocuments` creates the index
+
+    const keys = Object.keys(result)
+    if (result.published_at || !keys.includes('published_at')) {
+      await connector.addOneEntryInMeiliSearch({
+        collection,
+        entry: result,
+      })
+    }
   } catch (e) {
     console.error(e)
   }
 }
 
-async function afterDelete(result, collection, httpClient) {
+/**
+ * Listener function that triggers after a collection deletes an entry.
+ *
+ * @param  {object} result - Entry added.
+ * @param  {string} collection - Collection name.
+ * @param  {object} connector - Plugin's connector.
+ */
+async function afterDelete(result, collection, connector) {
   try {
+    let entriesId = []
     // works with both delete methods
-    const documentIds = Array.isArray(result)
-      ? result.map(doc => doc.id)
-      : [result.id]
-    await httpClient.deleteDocuments({
-      indexUid: collection,
-      documentIds,
-    })
+    if (Array.isArray(result)) {
+      entriesId = result.map(doc => doc.id)
+    } else {
+      entriesId = [result.id]
+    }
+    await connector.deleteEntriesFromMeiliSearch({ collection, entriesId })
   } catch (e) {
     console.error(e)
   }
 }
 
-async function afterUpdate(result, collection, httpClient) {
+/**
+ * Listener function that triggers after a collection updates an entry.
+ *
+ * @param  {object} result - Entry added.
+ * @param  {string} collection - Collection name.
+ * @param  {object} connector - Plugin's connector.
+ */
+async function afterUpdate(result, collection, connector) {
   try {
-    await httpClient.addDocuments({
-      indexUid: collection,
-      data: [result],
-    })
+    const keys = Object.keys(result)
+    if (result.published_at || !keys.includes('published_at')) {
+      await connector.addOneEntryInMeiliSearch({
+        collection,
+        entry: result,
+      })
+    }
   } catch (e) {
     console.error(e)
   }

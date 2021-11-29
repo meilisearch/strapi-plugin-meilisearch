@@ -10,54 +10,29 @@ on:
       - main
 
 jobs:
-  cypress-run:
+  integration_tests:
     runs-on: ubuntu-latest
-    container: cypress/browsers:node12.18.3-chrome87-ff82
-    services:
-      meilisearch:
-        image: getmeili/meilisearch:latest
-        env:
-          MEILI_MASTER_KEY: "masterKey"
-          MEILI_NO_ANALYTICS: "true"
-        ports:
-          - "7700:7700"
+    strategy:
+      matrix:
+        # Strapi is not yet compatible with node 16
+        node: ["12", "14"]
+    name: integration-tests (Node.js ${{ matrix.node }})
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
+      - name: Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node }}
       - name: Cache dependencies
         uses: actions/cache@v2
         with:
           path: |
             ./node_modules
           key: ${{ hashFiles('yarn.lock') }}
-      - name: Setup node
-        uses: actions/setup-node@v2
-        with:
-          node-version: "12.x"
-      - name: Cache dependencies
-        uses: actions/cache@v2
-        with:
-          path: |
-            ./playground/node_modules
-          key: ${{ hashFiles('playground/yarn.lock') }}
       - name: Install dependencies
-        run: yarn --dev && yarn --cwd ./playground
-      - name: Test develop no-reload
-        uses: cypress-io/github-action@v2
-        with:
-          build: yarn playground:build
-          start: yarn playground:ci
-          env: env=ci
-      - uses: actions/upload-artifact@v2
-        if: failure()
-        with:
-          name: cypress-screenshots
-          path: cypress/screenshots
-      - uses: actions/upload-artifact@v2
-        if: failure()
-        with:
-          name: cypress-videos
-          path: cypress/videos
+        run: yarn
+      - name: Launch tests
+        run: yarn test
 
   playground_build_tests:
     runs-on: ubuntu-latest
@@ -105,3 +80,66 @@ jobs:
         uses: ibiqlik/action-yamllint@v3
         with:
           config_file: .yamllint.yml
+  cypress-run:
+    runs-on: ubuntu-latest
+    container: cypress/browsers:node12.18.3-chrome87-ff82
+    services:
+      meilisearch:
+        image: getmeili/meilisearch:latest
+        env:
+          MEILI_MASTER_KEY: "masterKey"
+          MEILI_NO_ANALYTICS: "true"
+        ports:
+          - "7700:7700"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            ./node_modules
+          key: ${{ hashFiles('yarn.lock') }}
+      - name: Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: "12.x"
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            ./playground/node_modules
+          key: ${{ hashFiles('playground/yarn.lock') }}
+      - name: Install dependencies
+        run: yarn --dev && yarn --cwd ./playground
+      - name: Remove plugin symlink
+        run: rm ./playground/plugins/meilisearch
+      - name: Move plugin inside playground
+        # Since the plugin is located at the root of the project but a symlink links
+        # to it in ./playground/plugins/meilisearch it causes a circular
+        # chaining problem.
+        # Now that we removed the symlink (see previous step), we need to move our plugin in the
+        # plugin directory of the playground.
+        run: mkdir ./playground/plugins/meilisearch &&
+          mv admin ./playground/plugins/meilisearch &&
+          mv controllers ./playground/plugins/meilisearch &&
+          mv connectors ./playground/plugins/meilisearch  &&
+          mv config ./playground/plugins/meilisearch  &&
+          mv services ./playground/plugins/meilisearch &&
+          cp package.json ./playground/plugins/meilisearch
+      - name: Test with reloads activated
+        uses: cypress-io/github-action@v2
+        with:
+          build: yarn playground:build
+          start: yarn playground:ci
+          env: env=ci
+      - uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: cypress-screenshots
+          path: cypress/screenshots
+      - uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: cypress-videos
+          path: cypress/videos

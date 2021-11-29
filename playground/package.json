@@ -7,7 +7,7 @@
     "develop": "strapi develop --watch-admin",
     "soft": "strapi develop",
     "start": "strapi start",
-    "ci": "NODE_ENV=test strapi start",
+    "ci": "NODE_ENV=test strapi develop",
     "build": "strapi build",
     "strapi": "strapi"
   },

@@ -80,7 +80,7 @@ docker run -it --rm -p 7700:7700 getmeili/meilisearch:latest ./meilisearch --mas
 
 If you don't have a running Strapi project yet, you can either launch the [playground present in this project](#-run-the-playground) or [create a Strapi project](https://strapi.io/documentation/developer-docs/latest/getting-started/quick-start.html).
 
-We recommend adding your collections in development mode to allow the server reloads needed to apply hooks.
+We recommend adding your collections in development mode to allow the server reloads needed to apply a listener to the collections.
 
 ```bash
 strapi develop
@@ -103,6 +103,12 @@ On the left-navbar, `MeiliSearch` appears under the `PLUGINS` category. If it do
 ### 🤫 Add Credentials <!-- omit in toc -->
 
 First, you need to configure credentials via the strapi config, or on the plugin page.
+The credentials are composed of:
+- The `host`: The url to your running MeiliSearch instance.
+- The `api_key`: The `master` or `private` key as the plugin requires administration permission on MeiliSearch.[More about permissions here](https://docs.meilisearch.com/reference/features/authentication.html).
+
+⚠️ The `master` or `private` key should never be used to `search` on your front end. For searching, use the `public` key available on [the `key` route](https://docs.meilisearch.com/reference/api/keys.html#get-keys).
+
 
 #### Using the plugin page
 
@@ -126,7 +132,7 @@ module.exports = () => ({
   meilisearch: {
     // Your meili host
     host: "http://localhost:7700",
-    // Your master key
+    // Your master key or private key
     api_key: "masterKey",
   }
   //...
@@ -147,7 +153,7 @@ We will use, as **example**, the collections provided by Strapi's quickstart.
 On your plugin homepage, you should have two collections appearing: `restaurant` and `category`.
 
 <p align="center">
-<img src="./assets/collections_indexed.png" alt="Indexed collections need a reload" width="600"/>
+<img src="./assets/restaurant_indexed.png" alt="Indexed collections need a reload" width="600"/>
 </p>
 
 By clicking on the left checkbox, the collection is automatically indexed in MeiliSearch. For example, if you click on the `restaurant` checkbox, all your restaurants are now available in MeiliSearch. We will see in [start searching](#-start-searching) how to try it out.
@@ -158,8 +164,130 @@ Hooks are listeners that update MeiliSearch each time you add/update/delete an e
 To activate them, you will have to reload the server. If you are in develop mode, click on the red `Reload Server` button. If not, reload the server manually!
 
 <p align="center">
-<img src="./assets/no_reload_needed.png" alt="Indexed collections are hooked" width="600"/>
+<img src="./assets/restaurant_listener.png" alt="Collections listened" width="600"/>
 </p>
+
+### Customizing search indexing
+
+#### Custom Index Name
+
+By default, when indexing a collection in MeiliSearch the index in MeiliSearch has the same name as the collection. This behavior can be changed by setting the `indexName` property in the model file of the related collection.
+
+**Example:**
+
+In the following example, the model `restaurant` index in MeiliSearch is called `my_restaurant` instead of the default `restaurant`.
+
+```js
+// api/restaurant/models/restaurant.js
+
+module.exports = {
+  meilisearch: {
+    indexName: "my_restaurant"
+  }
+}
+```
+
+Examples can be found [this directory](./resources/custom-index-name).
+
+### Composite Index
+
+It is possible to bind multiple collections to the same index. They all have to share the same `indexName`.
+
+For example if `shoes` and `shirts` should be bind to the same index, they should have the same `indexName` in their model setting:
+
+```js
+// api/shoes/models/shoes.js
+
+module.exports = {
+  meilisearch: {
+    indexName: "product"
+  }
+}
+```
+
+```js
+// api/shirts/models/shirts.js
+
+module.exports = {
+  meilisearch: {
+    indexName: "product"
+  }
+}
+```
+
+Now, on each entry addition from both `shoes` and `shirts` the entry is added in the `product` index of MeiliSearch.
+
+Nonetheless, it is not possible to know how many entries from each collection is added to MeiliSearch.
+
+For example, given two collections:
+- `Shoes`: with 300 entries and an `indexName` set to `product`
+- `Shirts`: 200 entries and an `indexName` set to `product`
+
+The index `product` has both the entries of shoes and shirts. If the index `product` has `350` documents in MeiliSearch, it is not possible to know how many of them are from `shoes` or `shirts`.
+
+
+#### Transform sent data
+
+By default, the plugin sent the data the way it is stored in your Strapi collection. It is possible to remove or transform fields before sending your entries to MeiliSearch.
+
+Create the alteration function `transformEntry` in your Collection's model. Before sending the data to MeiliSearch, every entry passes through this function where the alteration is applied.
+
+You can find a lot of examples in [this directory](./resources/entries-transformers).
+
+**Example**
+
+To remove all private fields and relations from entries before indexing them into MeiliSearch, use [`sanitizeEntity`](https://strapi.io/documentation/developer-docs/latest/development/backend-customization.html#controllers) in the `transFormEntry` function.
+
+```js
+// api/restaurant/models/restaurant.js
+const { sanitizeEntity } = require('strapi-utils')
+
+module.exports = {
+  meilisearch: {
+    transformEntry({ entry, model }) {
+      return sanitizeEntity(entry, { model })
+    },
+  },
+}
+```
+
+Another example:<br>
+
+The `restaurant` collection has a relation with the `category` collection. Inside a `restaurant` entry the `category` field contains an array of each category in an `object` format: `[{ name: "Brunch" ...}, { name: "Italian ... }]`.
+
+To change that format to an array of category names, add a map function inside the `transformEntry` function.
+
+```js
+// api/restaurant/models/restaurant.js
+
+module.exports = {
+  meilisearch: {
+    transformEntry(entry, model) {
+      return  {
+        ...entry,
+        categories: entry.categories.map(cat => cat.name)
+      };
+    },
+  }
+}
+```
+
+Resulting in `categories` being transformed like this in a `restaurant` entry.
+```json
+  {
+    "id": 2,
+    "name": "Squared Pizza",
+    "categories": [
+      "Brunch",
+      "Italian"
+    ],
+    // other fields
+  }
+```
+
+By transforming the `categories` into an array of names, it is now compatible with the [`filtering` feature](https://docs.meilisearch.com/reference/features/filtering_and_faceted_search.html#configuring-filters) in MeiliSearch.
+
+
 
 ### 🕵️‍♀️ Start Searching <!-- omit in toc -->
 
@@ -197,7 +325,8 @@ You can have a quick preview with the following code in an HTML file. Create an 
         const search = instantsearch({
             indexName: "restaurant",
             searchClient: instantMeiliSearch(
-                "http://localhost:7700"
+                "http://localhost:7700",
+                'publicKey', // Use the public key not the private or master key to search.
             )
             });
 
@@ -237,7 +366,7 @@ import { MeiliSearch } from 'meilisearch'
 ;(async () => {
   const client = new MeiliSearch({
     host: 'http://127.0.0.1:7700',
-    apiKey: 'masterKey',
+    apiKey: 'publicKey', // Use the public key not the private or master key to search.
   })
 
   // An index is where the documents are stored.

@@ -5,39 +5,15 @@
       "path": "/reload",
       "handler": "meilisearch.reload",
       "config": {
-        "policies": []
-      }
-    },
-    {
-      "method": "DELETE",
-      "path": "/indexes",
-      "handler": "meilisearch.deleteAllIndexes",
-      "config": {
-        "policies": []
-      }
-    },
-    {
-      "method": "DELETE",
-      "path": "/indexes/:indexUid",
-      "handler": "meilisearch.deleteIndex",
-      "config": {
-        "policies": []
-      }
-    },
-    {
-      "method": "GET",
-      "path": "/indexes/:indexUid/update",
-      "handler": "meilisearch.waitForDocumentsToBeIndexed",
-      "config": {
-        "policies": []
+        "policies": ["isAdmin"]
       }
     },
     {
       "method": "GET",
       "path": "/credentials",
-      "handler": "meilisearch.getCredentials",
+      "handler": "meilisearch.getClientCredentials",
       "config": {
-        "policies": []
+        "policies": ["isAdmin"]
       }
     },
     {
@@ -45,7 +21,7 @@
       "path": "/credentials",
       "handler": "meilisearch.addCredentials",
       "config": {
-        "policies": []
+        "policies": ["isAdmin"]
       }
     },
     {
@@ -53,7 +29,23 @@
       "path": "/collections",
       "handler": "meilisearch.getCollections",
       "config": {
-        "policies": []
+        "policies": ["isAdmin"]
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/collection/:collection/update/batch",
+      "handler": "meilisearch.waitForBatchUpdates",
+      "config": {
+        "policies": ["isAdmin"]
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/collection/update",
+      "handler": "meilisearch.getUpdateIds",
+      "config": {
+        "policies": ["isAdmin"]
       }
     },
     {
@@ -61,15 +53,23 @@
       "path": "/collections/:collection",
       "handler": "meilisearch.addCollection",
       "config": {
-        "policies": []
+        "policies": ["isAdmin"]
       }
     },
     {
       "method": "PUT",
       "path": "/collections/:collection",
-      "handler": "meilisearch.UpdateCollections",
+      "handler": "meilisearch.updateCollections",
       "config": {
-        "policies": []
+        "policies": ["isAdmin"]
+      }
+    },
+    {
+      "method": "DELETE",
+      "path": "/collections/:collection",
+      "handler": "meilisearch.removeCollection",
+      "config": {
+        "policies": ["isAdmin"]
       }
     }
   ]

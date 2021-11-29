@@ -4,15 +4,12 @@
  * to customize this model
  */
 
+const { sanitizeEntity } = require('strapi-utils')
+
 module.exports = {
   meilisearch: {
-    transformEntry({ entry }) {
-      const transformed = {
-        ...entry,
-        categories: entry.categories.map(cat => cat.name)
-      };
-      return transformed;
+    transformEntry(entry, model) {
+      return sanitizeEntity(entry, { model })
     },
-    indexName: "my_restaurant"
-  }
+  },
 }

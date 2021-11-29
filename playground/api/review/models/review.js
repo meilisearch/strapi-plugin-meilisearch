@@ -5,4 +5,9 @@
  * to customize this model
  */
 
-module.exports = {};
+// TODO remove example
+module.exports = {
+  meilisearch: {
+    indexName: "my_restaurant"
+  }
+};
