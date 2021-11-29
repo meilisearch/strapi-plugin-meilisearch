@@ -2054,10 +2054,10 @@ lru-cache@^6.0.0:
   dependencies:
     yallist "^4.0.0"
 
-meilisearch@^0.19.0:
-  version "0.19.0"
-  resolved "https://registry.yarnpkg.com/meilisearch/-/meilisearch-0.19.0.tgz#b94b97b30a4e62270e53860c3a6b2e25765b00f3"
-  integrity sha512-o1rKT65q09i0W/vigpGEXVTX44A8IBscNQhZ+JkAlEgpk2+mYZMQxHXcoBtWjZI/CYKoswVnUxBVB4HEJ8tJQw==
+meilisearch@^0.23.0:
+  version "0.23.0"
+  resolved "https://registry.yarnpkg.com/meilisearch/-/meilisearch-0.23.0.tgz#eed5098bd147c13658c3f92e658df9cbfb9e8953"
+  integrity sha512-bLNonPJK2pJz2akjwolcc/Eqnz/GKJ7y1I4Flg4zjL+v0yPFyIGFFdfe0dw93JWFJWj/RbLS2Q6dDTobZQ9Ehg==
   dependencies:
     cross-fetch "^3.1.4"
 
@@ -3080,16 +3080,6 @@ symbol-observable@^1.1.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/symbol-observable/-/symbol-observable-1.2.0.tgz#c22688aed4eab3cdc2dfeacbb561660560a00804"
   integrity sha512-e900nM8RRtGhlV36KGEU9k65K3mPb1WV70OdjfxlG2EAuM1noi/E/BaW/uMhL7bPEssK8QV57vN3esixjUvcXQ==
-
-table@^6.0.4:
-  version "6.0.7"
-  resolved "https://registry.yarnpkg.com/table/-/table-6.0.7.tgz#e45897ffbcc1bcf9e8a87bf420f2c9e5a7a52a34"
-  integrity sha512-rxZevLGTUzWna/qBLObOe16kB2RTnnbhciwgPbMMlazz1yZGVEgnZK762xyVdVznhqxrfCeBMmMkgOOaPwjH7g==
-  dependencies:
-    ajv "^7.0.2"
-    lodash "^4.17.20"
-    slice-ansi "^4.0.0"
-    string-width "^4.2.0"
 
 text-table@^0.2.0:
   version "0.2.0"
