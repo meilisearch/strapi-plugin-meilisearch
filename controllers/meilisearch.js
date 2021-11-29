@@ -22,7 +22,6 @@ async function createConnector() {
     models,
   })
 
-  // log.fatal('aaah')
   // Create plugin connector.
   return await createMeiliSearchConnector({
     collectionConnector,
@@ -35,6 +34,8 @@ async function createConnector() {
  *
  * @param  {Object} ctx - Http request object
  * @param  {Function} fct - Handler that will be executed
+ *
+ * @returns {ctx} - response object
  */
 async function ctxWrapper(ctx, fct) {
   try {
@@ -57,10 +58,7 @@ async function ctxWrapper(ctx, fct) {
 /**
  * Get Client Credentials from the Store.
  *
- * @param  {object} ctx - Http request object.
- * @param  {object} connector - Connector between components.
- *
- * @returns {host: string, apiKey: string}
+ * @returns {{host: string, apiKey: string}}
  */
 async function getClientCredentials() {
   const { plugin, storeClient } = strapi()
@@ -72,7 +70,6 @@ async function getClientCredentials() {
  * Remove one collection indexed in MeiliSearch.
  *
  * @param  {object} ctx - Http request object.
- * @param  {object} connector - Connector between components.
  *
  * @returns {message: 'ok'}
  */
@@ -82,28 +79,12 @@ async function removeCollection(ctx) {
   return connector.removeCollectionFromMeiliSearch(collection)
 }
 
-// TODO only delete when not composite
-// or if composite only has one collection
-
-/**
- * Wait for one collection to be completely indexed in MeiliSearch.
- *
- * @param  {object} ctx - Http request object.
- * @param  {object} connector - Connector between components.
- *
- * @returns { numberOfDocumentsIndexed: number }
- */
-async function waitForCollectionIndexing(ctx) {
-  const connector = await createConnector()
-  const { collection } = ctx.params
-  return connector.waitForCollectionIndexation(collection)
-}
-
 /**
  * Get extended information about collections in MeiliSearch.
  *
  * @param  {object} ctx - Http request object.
- * @param  {object} connector - Connector between components.
+ *
+ * @returns {object[]} - List of collections reports.
  */
 async function getCollections() {
   const connector = await createConnector()
@@ -114,7 +95,6 @@ async function getCollections() {
  * Add MeiliSearch Credentials to the Store.
  *
  * @param  {object} ctx - Http request object.
- * @param  {object} connector - Connector between components.
  *
  * @return {{ host: string, apiKey: string}} - Credentials
  */
@@ -129,36 +109,64 @@ async function addCredentials(ctx) {
  * Remove and re-index a collection in MeiliSearch.
  *
  * @param  {object} ctx - Http request object.
- * @param  {object} connector - Connector between components.
  *
- * @returns {number[]} - All updates id from the indexation process.
+ * @returns {{ message: string, updateIds: number[] }} - All updates id from the indexation process.
  */
 async function updateCollections(ctx) {
   const connector = await createConnector()
   const { collection } = ctx.params
-  return connector.updateCollectionInMeiliSearch(collection)
+  const updateIds = await connector.updateCollectionInMeiliSearch(collection)
+  return { message: 'Index created', updateIds }
 }
 
 /**
  * Add a collection to MeiliSearch.
  *
  * @param  {object} ctx - Http request object.
- * @param  {object} connector - Connector between components.
  *
  * @returns {number[]} - All updates id from the batched indexation process.
  */
 async function addCollection(ctx) {
   const connector = await createConnector()
   const { collection } = ctx.params
-  await connector.addCollectionInMeiliSearch(collection)
-  return { message: 'Index created' }
+  const updateIds = await connector.addCollectionInMeiliSearch(collection)
+  return { message: 'Index created', updateIds }
+}
+
+/**
+ * Wait for one collection to be completely indexed in MeiliSearch.
+ *
+ * @param  {object} ctx - Http request object.
+ *
+ * @returns { numberOfDocumentsIndexed: number }
+ */
+async function waitForBatchUpdates(ctx) {
+  const connector = await createConnector()
+  const { collection } = ctx.params
+  const { updateIds } = ctx.request.body
+  const updateStatus = await connector.waitForBatchUpdates({
+    updateIds,
+    collection,
+  })
+  return { updateStatus }
+}
+
+/**
+ * Wait for one collection to be completely indexed in MeiliSearch.
+ *
+ * @returns { updateIds: number[] }
+ */
+async function getUpdateIds() {
+  const connector = await createConnector()
+  const updateIds = await connector.getUpdateIds()
+
+  return { updateIds }
 }
 
 /**
  * Reloads the server. Only works in development mode.
  *
  * @param  {object} ctx - Http request object.
- * @param  {object} connector - Connector between components.
  */
 function reload(ctx) {
   ctx.send('ok')
@@ -167,12 +175,12 @@ function reload(ctx) {
 
 module.exports = {
   getClientCredentials: async ctx => ctxWrapper(ctx, getClientCredentials),
-  waitForCollectionIndexing: async ctx =>
-    ctxWrapper(ctx, waitForCollectionIndexing),
   getCollections: async ctx => ctxWrapper(ctx, getCollections),
   addCollection: async ctx => ctxWrapper(ctx, addCollection),
   addCredentials: async ctx => ctxWrapper(ctx, addCredentials),
   removeCollection: async ctx => ctxWrapper(ctx, removeCollection),
   updateCollections: async ctx => ctxWrapper(ctx, updateCollections),
+  waitForBatchUpdates: async ctx => ctxWrapper(ctx, waitForBatchUpdates),
+  getUpdateIds: async ctx => ctxWrapper(ctx, getUpdateIds),
   reload: async ctx => ctxWrapper(ctx, reload),
 }

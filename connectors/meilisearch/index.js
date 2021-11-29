@@ -67,52 +67,46 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
     },
 
     /**
-     * Wait for a number of update to be processed in MeiliSearch.
+     * Wait for an update to be processed in MeiliSearch.
      *
-     * Because collection entries are added in batches a lot of updates are created.
-     * To avoid having to wait for all of them tobe processed, this functions watched a certain
-     * number of it at a time.
+     * @param  {string} collection - Collection name.
+     * @param  {number} updateId - Update identifier.
      *
-     * This gives the possibility to the front-end to show the progress of entries indexation.
-     *
-     * @param  {string} indexUid - Index name.
-     * @param  {number} updateNbr - Number of updates to watch.
-     *
-     * @returns {number} - Number of documents added.
+     * @returns {{Record<string, string>}} - Update body returned by MeiliSearch API.
      */
-    waitForPendingUpdates: async function ({ collection, updateNbr }) {
-      const client = MeiliSearch({ apiKey, host })
-      const indexUid = collectionConnector.getIndexName(collection)
-      const updates = (await client.index(indexUid).getAllUpdateStatus())
-        .filter(update => update.status === 'enqueued')
-        .slice(0, updateNbr)
-      let documentsAdded = 0
-      for (const update of updates) {
-        const { updateId } = update
+    waitForPendingUpdate: async function ({ collection, updateId }) {
+      try {
+        const client = MeiliSearch({ apiKey, host })
+        const indexUid = collectionConnector.getIndexName(collection)
         const task = await client
           .index(indexUid)
-          .waitForPendingUpdate(updateId, { intervalMs: 500 })
-        const {
-          type: { number },
-        } = task
-        documentsAdded += number
+          .waitForPendingUpdate(updateId, { intervalMs: 5000 })
+
+        return task
+      } catch (e) {
+        console.error(e)
+        return 0
       }
-      return documentsAdded
     },
 
     /**
-     * Wait for the collection to be indexed in MeiliSearch.
+     * Wait for a batch of updated ids to be processed.
      *
      * @param  {string} collection - Collection name.
+     * @param  {number[]} updateIds - Array of update identifiers.
      *
-     * @returns { numberOfDocumentsIndexed: number }
+     * @returns { Record<string, string>[] } - List of all updates returned by MeiliSearch API.
      */
-    waitForCollectionIndexation: async function (collection) {
-      const numberOfDocumentsIndexed = await this.waitForPendingUpdates({
-        collection,
-        updateNbr: 2,
-      })
-      return { numberOfDocumentsIndexed }
+    waitForBatchUpdates: async function ({ collection, updateIds }) {
+      const allUpdates = []
+      for (const updateId of updateIds) {
+        const status = await this.waitForPendingUpdate({
+          collection,
+          updateId,
+        })
+        allUpdates.push(status)
+      }
+      return allUpdates
     },
 
     /**
@@ -144,6 +138,32 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
       } catch (e) {
         return {}
       }
+    },
+
+    /**
+     * Get enqueued update ids of indexed collections.
+     *
+     * @returns { { string: number[] } } - Collections with their respective updateIds
+     */
+    getUpdateIds: async function () {
+      const indexes = await this.getIndexes()
+      const indexUids = indexes.map(index => index.uid)
+      const collections = collectionConnector.allEligbleCollections()
+      const client = MeiliSearch({ apiKey, host })
+
+      const collectionUpdateIds = {}
+      for (const collection of collections) {
+        const indexUid = collectionConnector.getIndexName(collection)
+        if (indexUids.includes(indexUid)) {
+          const updateIds = await client.index(indexUid).getAllUpdateStatus()
+
+          const enqueued = updateIds
+            .filter(update => update.status === 'enqueued')
+            .map(update => update.updateId)
+          collectionUpdateIds[collection] = enqueued
+        }
+      }
+      return collectionUpdateIds
     },
 
     /**
@@ -262,6 +282,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
         const { updateId } = await client
           .index(indexUid)
           .addDocuments(documents)
+
         return updateId
       }
 
@@ -271,9 +292,15 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
       )
       await storeConnector.addIndexedCollection(collection)
 
-      return { updateIds }
+      return updateIds
     },
 
+    /**
+     * Delete or empty an index depending if the collection is part
+     * of a composite index.
+     *
+     * @param  {string} collection - Collection name.
+     */
     emptyOrDeleteIndex: async function (collection) {
       const indexedColWithIndexName = await this.getCollectionsWithSameIndex(
         collection

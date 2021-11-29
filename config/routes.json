@@ -33,9 +33,17 @@
       }
     },
     {
+      "method": "POST",
+      "path": "/collection/:collection/update/batch",
+      "handler": "meilisearch.waitForBatchUpdates",
+      "config": {
+        "policies": ["isAdmin"]
+      }
+    },
+    {
       "method": "GET",
-      "path": "/collection/:collection/update",
-      "handler": "meilisearch.waitForCollectionIndexing",
+      "path": "/collection/update",
+      "handler": "meilisearch.getUpdateIds",
       "config": {
         "policies": ["isAdmin"]
       }
