@@ -69,10 +69,10 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
     /**
      * Wait for an update to be processed in MeiliSearch.
      *
-     * @param  {string} indexUid - Index name.
-     * @param  {number} updateNbr - Number of updates to watch.
+     * @param  {string} collection - Collection name.
+     * @param  {number} updateId - Update identifier.
      *
-     * @returns {number} - Number of documents added.
+     * @returns {{Record<string, string>}} - Update body returned by MeiliSearch API.
      */
     waitForPendingUpdate: async function ({ collection, updateId }) {
       try {
@@ -93,8 +93,9 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
      * Wait for a batch of updated ids to be processed.
      *
      * @param  {string} collection - Collection name.
+     * @param  {number[]} updateIds - Array of update identifiers.
      *
-     * @returns { numberOfDocumentsIndexed: number }
+     * @returns { Record<string, string>[] } - List of all updates returned by MeiliSearch API.
      */
     waitForBatchUpdates: async function ({ collection, updateIds }) {
       const allUpdates = []

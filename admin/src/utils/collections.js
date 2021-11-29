@@ -18,6 +18,9 @@ export const addIndexedStatus = (previousCols, collection, message) => {
 /**
  * Determine if a collection needs a server reload to be up to date.
  *
+ * @param {boolean} - If the collection is indexed in MeiliSearch
+ * @param {boolean} - If the collection has a listener
+ *
  * @returns {string} - Reload status
  */
 export const constructReloadStatus = (indexed, listened) => {
