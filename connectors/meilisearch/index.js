@@ -69,8 +69,8 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
     /**
      * Wait for an update to be processed in MeiliSearch.
      *
-     * @param  {string} indexUid - Index name.
-     * @param  {number} updateNbr - Number of updates to watch.
+     * @param  {string} collection - Collection name.
+     * @param  {number} updateId - Update identifier.
      *
      * @returns {number} - Number of documents added.
      */
