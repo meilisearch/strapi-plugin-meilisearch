@@ -93,6 +93,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
      * Wait for a batch of updated ids to be processed.
      *
      * @param  {string} collection - Collection name.
+     * @param  {number[]} updateIds - Array of update identifiers.
      *
      * @returns { numberOfDocumentsIndexed: number }
      */
