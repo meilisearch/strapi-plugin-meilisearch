@@ -3,5 +3,5 @@
 const meilisearchController = require('./meilisearch')
 
 module.exports = {
-  meilisearchController
+  meilisearchController,
 }
