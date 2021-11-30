@@ -3,7 +3,7 @@ const path = require('path');
 module.exports = ({ env }) => ({
   'meilisearch': {
     enabled: true,
-    resolve: path.resolve(__dirname, '../../meilisearch'),
+    resolve: './src/plugins/meilisearch', // path to plugin folder
     config: {
       // additional config goes here
     }
