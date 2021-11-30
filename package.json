@@ -1,0 +1,66 @@
+{
+  "name": "strapi-plugin-meilisearch",
+  "version": "0.4.0",
+  "description": "Synchronise and search in your Strapi collections with MeiliSearch",
+  "scripts": {
+    "style": "eslint --ext .js .",
+    "style:fix": "eslint --ext .js . --fix",
+    "playground:dev": "yarn --cwd ./playground && yarn --cwd ./playground develop"
+  },
+  "strapi": {
+    "name": "meilisearch",
+    "icon": "search",
+    "description": "Strapi plugin for MeiliSearch"
+  },
+  "files": [
+    "admin",
+    "controllers",
+    "connectors",
+    "config",
+    "services"
+  ],
+  "dependencies": {
+    "meilisearch": "^0.23.0"
+  },
+  "author": {
+    "name": "Charlotte Vermandel <charlotte@meilisearch.com>"
+  },
+  "maintainers": [
+    {
+      "name": "Charlotte Vermandel <charlotte@meilisearch.com>"
+    }
+  ],
+  "engines": {
+    "node": ">=10.16.0 <=14.x.x",
+    "npm": ">=6.0.0"
+  },
+  "bugs": {
+    "url": "https://github.com/meilisearch/strapi-plugin-meilisearch/issues"
+  },
+  "keywords": [
+    "strapi",
+    "plugin",
+    "meilisearch",
+    "search"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/meilisearch/strapi-plugin-meilisearch.git"
+  },
+  "homepage": "https://github.com/meilisearch/strapi-plugin-meilisearch#readme",
+  "devDependencies": {
+    "concurrently": "^6.2.0",
+    "cypress": "^7.3.0",
+    "eslint": "^8.2.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-cypress": "^2.12.1",
+    "eslint-plugin-import": "^2.25.3",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-promise": "^4.3.1",
+    "eslint-plugin-react": "^7.27.0",
+    "jest": "^27.3.1",
+    "prettier": "2.2.1"
+  }
+}
