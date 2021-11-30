@@ -5,29 +5,29 @@
  *
  */
 
- import React from 'react'
- import { Switch, Route } from 'react-router-dom'
- import { ThemeProvider } from 'styled-components'
- // Utils
- import pluginId from '../../pluginId'
- // Containers
- import HomePage from '../HomePage'
+import React from 'react'
+import { Switch, Route } from 'react-router-dom'
+import { ThemeProvider } from 'styled-components'
+// Utils
+import pluginId from '../../pluginId'
+// Containers
+import HomePage from '../HomePage'
 
- const theme = {
-   colors: {
-     backgroundColor: '#ffffff',
-     shadows: '#e3e9f3',
-   },
- }
+const theme = {
+  colors: {
+    backgroundColor: '#ffffff',
+    shadows: '#e3e9f3',
+  },
+}
 
- const App = () => {
-   return (
-     <ThemeProvider theme={theme}>
-       <Switch>
-         <Route path={`/plugins/${pluginId}`} component={HomePage} exact />
-       </Switch>
-     </ThemeProvider>
-   )
- }
+const App = () => {
+  return (
+    <ThemeProvider theme={theme}>
+      <Switch>
+        <Route path={`/plugins/${pluginId}`} component={HomePage} exact />
+      </Switch>
+    </ThemeProvider>
+  )
+}
 
- export default App
+export default App
