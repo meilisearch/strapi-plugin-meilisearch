@@ -16,3 +16,6 @@ cd playground
 yarn
 yarn develop
 ```
+playground credentials:
+- email: jolene@doe.com
+- password: Qwertyuiop1
