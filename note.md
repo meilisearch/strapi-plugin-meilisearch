@@ -18,8 +18,16 @@ module.exports = {
     ctx.body = { message: 'HelloWorld' };
   },
 };
-
  ```
+
+ after looking [more inside the documentation](https://docs-next.strapi.io/developer-docs/latest/development/backend-customization/controllers.html#implementation), it seems that the above code might be outdated:
+
+ ```js
+ const { createCoreController } = require('@strapi/strapi').factories;
+
+  module.exports = createCoreController('api::restaurant.restaurant', ({ strapi }) =>  {
+  // Method 1: Creating an entirely custom action
+```
 
 #### Clarity
 - Not clear what is inside the `strapi` global as console log only returns fields that where not binded through `createObject`. Thus `contentType` does not appear.
@@ -39,6 +47,7 @@ console.log(Object.keys(strapi))
   'entityValidator', 'entityService'
 ]
 ```
+- `query` and `entityService`
 For example `strapi.contentTypes` is not documented (sorry if it is and that I did not see it). I wonder which other fields exists on that global that are not outputed by logging
 
 ### Hard to find:
@@ -74,3 +83,25 @@ strapi.plugin('plugin-name').middleware('middleware-name')
 
 ## Misc
 - `.env` file in playground automatically adds tokens. Wonder why
+
+
+## CLI
+
+- Could be nice to add that the best environment to develop a plugin is using `--watch-admin` after strapi develop.
+
+## Plugins and API
+
+Apparently their are ways of interacting with some api: `api::`, `plugins::`, `admin::`. Is this described somewhere?
+
+
+## APi getter
+
+```js
+strapi.api('api-name').controller('controller-name')
+```
+when i try this it throw `strapi.api is not a function`. Meanwhile it is described as such here https://docs-next.strapi.io/developer-docs/latest/developer-resources/plugin-api-reference/server.html#usage
+
+I finally found out it was not an function but an object.
+
+
+
