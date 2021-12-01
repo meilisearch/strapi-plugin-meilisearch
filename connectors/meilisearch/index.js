@@ -279,6 +279,20 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
           entries: transformedEntries,
         })
 
+        // Get MeiliSearch Index settings from model
+        const settings = collectionConnector.getSettings(collection)
+
+        // Update MeiliSearch index settings if settings not empty
+        if (settings && Object.keys(settings).length !== 0) {
+          try {
+            await client.index(indexUid).updateSettings(settings)
+          } catch (error) {
+            console.error(
+              `[MEILISEARCH]: Failed updating MeiliSearch settings for collection: ${collection}. Please check your settings.`
+            )
+          }
+        }
+
         // Add documents in MeiliSearch
         const { updateId } = await client
           .index(indexUid)
