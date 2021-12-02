@@ -291,7 +291,7 @@ By transforming the `categories` into an array of names, it is now compatible wi
 
 Each index in MeiliSearch can be customized with specific settings. It is possible to add your [MeiliSearch settings](https://docs.meilisearch.com/reference/features/settings.html#settings) configuration to the indexes you create using `settings` field in your model's config.
 
-The settings are added when either adding a whole collection to MeiliSearch or when updating a collection in MeiliSearch. The settings are not updated when documents are added through the [`listeners`](-apply-hooks).
+The settings are added when either: adding a collection to MeiliSearch or when updating a collection in MeiliSearch. The settings are not updated when documents are added through the [`listeners`](-apply-hooks).
 
 **For example**
 ```js
@@ -309,6 +309,8 @@ module.exports = {
   },
 }
 ```
+
+[See resources](./resources/meilisearch-settings) for more settings examples.
 
 ### 🕵️‍♀️ Start Searching <!-- omit in toc -->
 
