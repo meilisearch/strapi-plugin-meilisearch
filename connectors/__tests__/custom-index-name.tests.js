@@ -53,7 +53,6 @@ const loggerMock = {
 describe('Test custom index names', () => {
   let storeConnector
   beforeEach(async () => {
-    jest.resetAllMocks()
     jest.clearAllMocks()
     jest.restoreAllMocks()
     storeConnector = createStoreConnector({
