@@ -152,5 +152,26 @@ module.exports = ({ services, models, logger }) => {
       }
       return entries
     },
+
+    /**
+     * Returns MeiliSearch index settings from model definition.
+     * @param collection - Name of the Collection.
+     * @typedef Settings
+     * @type {import('meilisearch').Settings}
+     * @return {Settings} - MeiliSearch index settings
+     */
+    getSettings: function (collection) {
+      const model = models[collection].meilisearch || {}
+      const settings = model.settings || {}
+
+      if (typeof settings !== 'object') {
+        logger.warn(
+          `[MEILISEARCH]: "settings" provided in the model of the ${collection} must be an object.`
+        )
+        return {}
+      }
+
+      return settings
+    },
   }
 }
