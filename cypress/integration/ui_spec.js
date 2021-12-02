@@ -58,6 +58,7 @@ describe('Strapi Login flow', () => {
   })
 
   it('Add credentials', () => {
+    cy.removeNotifications()
     cy.get('input[name="MSHost"]').clear().type(host)
     cy.get('input[name="MSApiKey"]').clear().type(apiKey)
     cy.get('.credentials_button').click()
@@ -98,6 +99,7 @@ describe('Strapi Login flow', () => {
     })
     cy.contains('Reload needed', { timeout: 10000 })
     cy.reloadServer()
+    cy.removeNotifications()
   })
 
   it('Check for successfull listened in develop mode', () => {
@@ -205,6 +207,7 @@ describe('Strapi Login flow', () => {
       cy.contains('Reload needed', { timeout: 10000 })
     }
     cy.reloadServer()
+    cy.removeNotifications()
   })
 
   it('Check that collections are not in MeiliSearch anymore', () => {
