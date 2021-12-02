@@ -264,6 +264,10 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
       const client = MeiliSearch({ apiKey, host })
       const indexUid = collectionConnector.getIndexName(collection)
 
+      // Get MeiliSearch Index settings from model
+      const settings = collectionConnector.getSettings(collection)
+      await client.index(indexUid).updateSettings(settings)
+
       // Callback function for batching action
       const addDocuments = async (entries, collection) => {
         if (entries.length === 0) {
@@ -278,20 +282,6 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
           collection,
           entries: transformedEntries,
         })
-
-        // Get MeiliSearch Index settings from model
-        const settings = collectionConnector.getSettings(collection)
-
-        // Update MeiliSearch index settings if settings not empty
-        if (settings && Object.keys(settings).length !== 0) {
-          try {
-            await client.index(indexUid).updateSettings(settings)
-          } catch (error) {
-            console.error(
-              `[MEILISEARCH]: Failed updating MeiliSearch settings for collection: ${collection}. Please check your settings.`
-            )
-          }
-        }
 
         // Add documents in MeiliSearch
         const { updateId } = await client

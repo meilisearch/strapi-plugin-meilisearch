@@ -6,8 +6,11 @@ const createCollectionConnector = require('../collection')
 jest.mock('meilisearch')
 
 const addDocumentsMock = jest.fn(() => 10)
+const updateSettingsMock = jest.fn(() => 10)
+
 const mockIndex = jest.fn(() => ({
   addDocuments: addDocumentsMock,
+  updateSettings: updateSettingsMock,
 }))
 
 MeiliSearch.mockImplementation(() => {
@@ -76,7 +79,6 @@ describe('Entry transformation', () => {
   })
 
   afterEach(() => {
-    jest.resetAllMocks()
     jest.clearAllMocks()
     jest.restoreAllMocks()
   })

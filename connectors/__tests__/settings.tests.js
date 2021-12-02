@@ -50,10 +50,9 @@ const loggerMock = {
   warn: jest.fn(() => 'test'),
 }
 
-describe('Test custom index names', () => {
+describe('Test MeiliSearch settings', () => {
   let storeConnector
   beforeEach(async () => {
-    jest.resetAllMocks()
     jest.clearAllMocks()
     jest.restoreAllMocks()
     storeConnector = createStoreConnector({
@@ -61,7 +60,7 @@ describe('Test custom index names', () => {
     })
   })
 
-  test('Test custom index name', async () => {
+  test('Test not settings field in configuration', async () => {
     const modelMock = {
       restaurant: {
         meilisearch: {
@@ -80,6 +79,7 @@ describe('Test custom index names', () => {
       storeConnector,
     })
     const getIndexNameSpy = jest.spyOn(collectionConnector, 'getIndexName')
+    const getSettingsSpy = jest.spyOn(collectionConnector, 'getSettings')
 
     await meilisearchConnector.addCollectionInMeiliSearch('restaurant')
 
@@ -87,86 +87,17 @@ describe('Test custom index names', () => {
 
     expect(getIndexNameSpy).toHaveBeenCalledWith('restaurant')
     expect(getIndexNameSpy).toHaveReturnedWith('my_restaurant')
+    expect(getSettingsSpy).toHaveBeenCalledWith('restaurant')
+    expect(getSettingsSpy).toHaveReturnedWith({})
   })
 
-  test('Test no custom index name', async () => {
-    const modelMock = {
-      restaurant: {
-        meilisearch: {},
-      },
-    }
-    const collectionConnector = createCollectionConnector({
-      logger: loggerMock,
-      models: modelMock,
-      services: servicesMock,
-    })
-    const meilisearchConnector = await createMeiliSearchConnector({
-      collectionConnector,
-      storeConnector,
-    })
-    const getIndexNameSpy = jest.spyOn(collectionConnector, 'getIndexName')
-
-    await meilisearchConnector.addCollectionInMeiliSearch('restaurant')
-
-    expect(servicesMock.restaurant.count).toHaveBeenCalledTimes(1)
-
-    expect(getIndexNameSpy).toHaveBeenCalledWith('restaurant')
-    expect(getIndexNameSpy).toHaveReturnedWith('restaurant')
-  })
-
-  test('Test no meilisearch setting', async () => {
-    const modelMock = {
-      restaurant: {},
-    }
-    const collectionConnector = createCollectionConnector({
-      logger: loggerMock,
-      models: modelMock,
-      services: servicesMock,
-    })
-    const meilisearchConnector = await createMeiliSearchConnector({
-      collectionConnector,
-      storeConnector,
-    })
-    const getIndexNameSpy = jest.spyOn(collectionConnector, 'getIndexName')
-
-    await meilisearchConnector.addCollectionInMeiliSearch('restaurant')
-
-    expect(servicesMock.restaurant.count).toHaveBeenCalledTimes(1)
-
-    expect(getIndexNameSpy).toHaveBeenCalledWith('restaurant')
-    expect(getIndexNameSpy).toHaveReturnedWith('restaurant')
-  })
-
-  test('Test empty custom index name', async () => {
-    const modelMock = {
-      restaurant: {
-        indexName: '', // ignored
-      },
-    }
-    const collectionConnector = createCollectionConnector({
-      logger: loggerMock,
-      models: modelMock,
-      services: servicesMock,
-    })
-    const meilisearchConnector = await createMeiliSearchConnector({
-      collectionConnector,
-      storeConnector,
-    })
-    const getIndexNameSpy = jest.spyOn(collectionConnector, 'getIndexName')
-
-    await meilisearchConnector.addCollectionInMeiliSearch('restaurant')
-
-    expect(servicesMock.restaurant.count).toHaveBeenCalledTimes(1)
-
-    expect(getIndexNameSpy).toHaveBeenCalledWith('restaurant')
-    expect(getIndexNameSpy).toHaveReturnedWith('restaurant')
-  })
-
-  test('Test wrong type custom index name', async () => {
+  test('Test a empty setting object in configuration', async () => {
     const modelMock = {
       restaurant: {
         meilisearch: {
-          indexName: { id: 1 }, // ignored
+          indexName: 'my_restaurant',
+          transformEntry: transformEntryMock,
+          settings: {},
         },
       },
     }
@@ -180,17 +111,49 @@ describe('Test custom index names', () => {
       storeConnector,
     })
     const getIndexNameSpy = jest.spyOn(collectionConnector, 'getIndexName')
+    const getSettingsSpy = jest.spyOn(collectionConnector, 'getSettings')
 
     await meilisearchConnector.addCollectionInMeiliSearch('restaurant')
 
     expect(servicesMock.restaurant.count).toHaveBeenCalledTimes(1)
 
     expect(getIndexNameSpy).toHaveBeenCalledWith('restaurant')
+    expect(getIndexNameSpy).toHaveReturnedWith('my_restaurant')
+    expect(getSettingsSpy).toHaveBeenCalledWith('restaurant')
+    expect(getSettingsSpy).toHaveReturnedWith({})
+  })
 
-    // Check if warning has been raised.
-    expect(loggerMock.warn).toHaveBeenCalledTimes(1)
+  test('Test a setting object with one field in configuration', async () => {
+    const modelMock = {
+      restaurant: {
+        meilisearch: {
+          indexName: 'my_restaurant',
+          transformEntry: transformEntryMock,
+          settings: {
+            searchableAttributes: ['*'],
+          },
+        },
+      },
+    }
+    const collectionConnector = createCollectionConnector({
+      logger: loggerMock,
+      models: modelMock,
+      services: servicesMock,
+    })
+    const meilisearchConnector = await createMeiliSearchConnector({
+      collectionConnector,
+      storeConnector,
+    })
+    const getIndexNameSpy = jest.spyOn(collectionConnector, 'getIndexName')
+    const getSettingsSpy = jest.spyOn(collectionConnector, 'getSettings')
 
-    // Check if invalid indexName type is ignored.
-    expect(getIndexNameSpy).toHaveReturnedWith('restaurant')
+    await meilisearchConnector.addCollectionInMeiliSearch('restaurant')
+
+    expect(servicesMock.restaurant.count).toHaveBeenCalledTimes(1)
+
+    expect(getIndexNameSpy).toHaveBeenCalledWith('restaurant')
+    expect(getIndexNameSpy).toHaveReturnedWith('my_restaurant')
+    expect(getSettingsSpy).toHaveBeenCalledWith('restaurant')
+    expect(getSettingsSpy).toHaveReturnedWith({ searchableAttributes: ['*'] })
   })
 })
