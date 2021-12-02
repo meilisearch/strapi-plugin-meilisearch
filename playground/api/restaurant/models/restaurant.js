@@ -13,6 +13,9 @@ module.exports = {
       };
       return transformed;
     },
-    indexName: "my_restaurant"
+    indexName: "my_restaurant",
+    settings:  {
+      "searchableAttributes": ["*"]
+    }
   }
 }

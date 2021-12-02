@@ -7,7 +7,7 @@
 
 module.exports = {
   meilisearch: {
-    transformEntry(entry) {
+    transformEntry({ entry }) {
       const transformedEntry = entry
       // remove created by and updated by fields
       delete transformedEntry.created_by

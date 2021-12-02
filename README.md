@@ -287,7 +287,30 @@ Resulting in `categories` being transformed like this in a `restaurant` entry.
 
 By transforming the `categories` into an array of names, it is now compatible with the [`filtering` feature](https://docs.meilisearch.com/reference/features/filtering_and_faceted_search.html#configuring-filters) in MeiliSearch.
 
+#### 🏗 Add MeiliSearch Settings
 
+Each index in MeiliSearch can be customized with specific settings. It is possible to add your [MeiliSearch settings](https://docs.meilisearch.com/reference/features/settings.html#settings) configuration to the indexes you create using `settings` field in your model's config.
+
+The settings are added when either: adding a collection to MeiliSearch or when updating a collection in MeiliSearch. The settings are not updated when documents are added through the [`listeners`](-apply-hooks).
+
+**For example**
+```js
+module.exports = {
+  meilisearch: {
+    settings: {
+      filterableAttributes: ['genres'],
+      distinctAttribute: null,
+      searchableAttributes: ['title', 'description', 'genres'],
+      synonyms: {
+        wolverine: ['xmen', 'logan'],
+        logan: ['wolverine', 'xmen']
+      }
+    }
+  },
+}
+```
+
+[See resources](./resources/meilisearch-settings) for more settings examples.
 
 ### 🕵️‍♀️ Start Searching <!-- omit in toc -->
 

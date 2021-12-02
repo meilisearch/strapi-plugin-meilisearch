@@ -264,6 +264,10 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
       const client = MeiliSearch({ apiKey, host })
       const indexUid = collectionConnector.getIndexName(collection)
 
+      // Get MeiliSearch Index settings from model
+      const settings = collectionConnector.getSettings(collection)
+      await client.index(indexUid).updateSettings(settings)
+
       // Callback function for batching action
       const addDocuments = async (entries, collection) => {
         if (entries.length === 0) {
