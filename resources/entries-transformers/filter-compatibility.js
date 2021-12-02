@@ -7,7 +7,7 @@
 
 module.exports = {
   meilisearch: {
-    transformEntry(entry) {
+    transformEntry({ entry }) {
       const transformedEntry = {
         ...entry,
         categories: entry.categories.map(cat => cat.name), // map to only have categories name

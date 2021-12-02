@@ -13,7 +13,7 @@ function dateToTimeStamp(date) {
 
 module.exports = {
   meilisearch: {
-    transformEntry(entry) {
+    transformEntry({ entry }) {
       const transformedEntry = {
         ...entry,
         // transform date format to timestamp
