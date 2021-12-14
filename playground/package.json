@@ -10,11 +10,11 @@
     "build": "strapi build",
     "strapi": "strapi"
   },
-  "devDependencies": {},
   "dependencies": {
-    "@strapi/plugin-i18n": "4.0.0-beta.17",
-    "@strapi/plugin-users-permissions": "4.0.0-beta.17",
-    "@strapi/strapi": "4.0.0-beta.17",
+    "@strapi/plugin-i18n": "^4.0.0",
+    "@strapi/plugin-users-permissions": "^4.0.0",
+    "@strapi/strapi": "^4.0.0",
+    "@strapi/utils": "^4.0.0",
     "meilisearch": "^0.23.0",
     "sqlite3": "5.0.2"
   },

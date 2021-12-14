@@ -3,9 +3,12 @@
   "version": "0.4.0",
   "description": "Synchronise and search in your Strapi collections with MeiliSearch",
   "scripts": {
-    "style": "eslint --ext .js .",
-    "style:fix": "eslint --ext .js . --fix",
-    "playground:dev": "yarn --cwd ./playground && yarn --cwd ./playground develop"
+    "playground:dev": "yarn --cwd ./playground && yarn --cwd ./playground develop",
+    "playground:build": "yarn --cwd ./playground && yarn --cwd ./playground build",
+    "style": "eslint --ext .js,.test.js .",
+    "style:fix": "eslint --ext .js,.test.js . --fix",
+    "test": "jest --testPathPattern=tests",
+    "test:watch": "jest --watch --testPathPattern=tests"
   },
   "strapi": {
     "name": "meilisearch",
@@ -20,6 +23,7 @@
     "services"
   ],
   "dependencies": {
+    "@strapi/utils": "^4.0.0",
     "meilisearch": "^0.23.0"
   },
   "author": {
@@ -60,7 +64,7 @@
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-promise": "^4.3.1",
     "eslint-plugin-react": "^7.27.0",
-    "jest": "^27.3.1",
+    "jest": "^27.4.3",
     "prettier": "2.2.1"
   }
 }
