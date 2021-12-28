@@ -133,7 +133,7 @@ module.exports = () => ({
     // Your meili host
     host: "http://localhost:7700",
     // Your master key or private key
-    api_key: "masterKey",
+    apiKey: "masterKey",
   }
   //...
 })
