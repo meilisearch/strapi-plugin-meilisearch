@@ -110,13 +110,13 @@ async function addCredentials(ctx) {
  *
  * @param  {object} ctx - Http request object.
  *
- * @returns {{ message: string, updateIds: number[] }} - All updates id from the indexation process.
+ * @returns {{ message: string, taskUids: number[] }} - All tasks uid from the indexation process.
  */
 async function updateCollections(ctx) {
   const connector = await createConnector()
   const { collection } = ctx.params
-  const updateIds = await connector.updateCollectionInMeiliSearch(collection)
-  return { message: 'Index created', updateIds }
+  const taskUids = await connector.updateCollectionInMeiliSearch(collection)
+  return { message: 'Index created', taskUids }
 }
 
 /**
@@ -124,13 +124,13 @@ async function updateCollections(ctx) {
  *
  * @param  {object} ctx - Http request object.
  *
- * @returns {number[]} - All updates id from the batched indexation process.
+ * @returns {number[]} - All task uids from the batched indexation process.
  */
 async function addCollection(ctx) {
   const connector = await createConnector()
   const { collection } = ctx.params
-  const updateIds = await connector.addCollectionInMeiliSearch(collection)
-  return { message: 'Index created', updateIds }
+  const taskUids = await connector.addCollectionInMeiliSearch(collection)
+  return { message: 'Index created', taskUids }
 }
 
 /**
@@ -140,27 +140,27 @@ async function addCollection(ctx) {
  *
  * @returns { numberOfDocumentsIndexed: number }
  */
-async function waitForBatchUpdates(ctx) {
+async function waitForTasks(ctx) {
   const connector = await createConnector()
   const { collection } = ctx.params
-  const { updateIds } = ctx.request.body
-  const updateStatus = await connector.waitForBatchUpdates({
-    updateIds,
+  const { taskUids } = ctx.request.body
+  const tasksStatus = await connector.waitForTasks({
+    taskUids,
     collection,
   })
-  return { updateStatus }
+  return { tasksStatus }
 }
 
 /**
  * Wait for one collection to be completely indexed in MeiliSearch.
  *
- * @returns { updateIds: number[] }
+ * @returns { taskUids: number[] }
  */
-async function getUpdateIds() {
+async function getTaskUids() {
   const connector = await createConnector()
-  const updateIds = await connector.getUpdateIds()
+  const taskUids = await connector.getTaskUids()
 
-  return { updateIds }
+  return { taskUids }
 }
 
 /**
@@ -180,7 +180,7 @@ module.exports = {
   addCredentials: async ctx => ctxWrapper(ctx, addCredentials),
   removeCollection: async ctx => ctxWrapper(ctx, removeCollection),
   updateCollections: async ctx => ctxWrapper(ctx, updateCollections),
-  waitForBatchUpdates: async ctx => ctxWrapper(ctx, waitForBatchUpdates),
-  getUpdateIds: async ctx => ctxWrapper(ctx, getUpdateIds),
+  waitForTasks: async ctx => ctxWrapper(ctx, waitForTasks),
+  getTaskUids: async ctx => ctxWrapper(ctx, getTaskUids),
   reload: async ctx => ctxWrapper(ctx, reload),
 }
