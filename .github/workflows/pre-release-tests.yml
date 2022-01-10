@@ -133,7 +133,7 @@ jobs:
         with:
           build: yarn playground:build
           start: yarn playground:ci
-          env: env=ci
+          env: env=prereleaseci
       - uses: actions/upload-artifact@v2
         if: failure()
         with:
