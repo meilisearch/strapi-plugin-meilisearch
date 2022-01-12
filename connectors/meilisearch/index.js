@@ -70,7 +70,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
      * Wait for an task to be processed in MeiliSearch.
      *
      * @param  {string} collection - Collection name.
-     * @param  {number} taskUId - Task identifier.
+     * @param  {number} taskUid - Task identifier.
      *
      * @returns {{Record<string, string>}} - Task body returned by MeiliSearch API.
      */
