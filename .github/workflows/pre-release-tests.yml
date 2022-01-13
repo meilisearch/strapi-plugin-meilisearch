@@ -1,13 +1,12 @@
-name: Tests
+# Testing the code base against the MeiliSearch pre-releases
+name: Pre-Release Tests
 
+# Will only run for PRs and pushes to bump-meilisearch-v*
 on:
-  pull_request:
   push:
-    # trying and staging branches are for BORS config
-    branches:
-      - trying
-      - staging
-      - main
+    branches: [bump-meilisearch-v*]
+  pull_request:
+    branches: [bump-meilisearch-v*]
 
 jobs:
   integration_tests:
@@ -81,19 +80,8 @@ jobs:
         with:
           config_file: .yamllint.yml
   cypress-run:
-    # Will not run if the event is a PR to bump-meilisearch-v* (so a pre-release PR)
-    # Will still run for each push to bump-meilisearch-v*
-    if: github.event_name != 'pull_request' || !startsWith(github.base_ref, 'bump-meilisearch-v')
     runs-on: ubuntu-latest
     container: cypress/browsers:node12.18.3-chrome87-ff82
-    services:
-      meilisearch:
-        image: getmeili/meilisearch:latest
-        env:
-          MEILI_MASTER_KEY: "masterKey"
-          MEILI_NO_ANALYTICS: "true"
-        ports:
-          - "7700:7700"
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -113,6 +101,16 @@ jobs:
           path: |
             ./playground/node_modules
           key: ${{ hashFiles('playground/yarn.lock') }}
+      - name: Grep latest version of MeiliSearch
+        run: |
+          echo "MEILISEARCH_LATEST=$(curl https://raw.githubusercontent.com/meilisearch/integration-guides/main/scripts/get-latest-meilisearch-rc.sh | sh)" >> $GITHUB_ENV
+      - name: Download MeiliSearch
+        run: |
+          curl https://github.com/meilisearch/MeiliSearch/releases/download/${{ env.MEILISEARCH_LATEST }}/meilisearch-linux-amd64 --output meilisearch --location
+          chmod +x meilisearch
+      - name: Run MeiliSearch
+        run: |
+          ./meilisearch --master-key=masterKey --no-analytics true &
       - name: Install dependencies
         run: yarn --dev && yarn --cwd ./playground
       - name: Remove plugin symlink
@@ -135,7 +133,7 @@ jobs:
         with:
           build: yarn playground:build
           start: yarn playground:ci
-          env: env=ci
+          env: env=prereleaseci
       - uses: actions/upload-artifact@v2
         if: failure()
         with:

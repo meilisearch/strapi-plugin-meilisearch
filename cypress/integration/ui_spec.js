@@ -103,7 +103,7 @@ describe('Strapi Login flow', () => {
   })
 
   it('Check for successfull listened in develop mode', () => {
-    if (['develop', 'watch', 'ci'].includes(env)) {
+    if (['develop', 'watch', 'ci', 'prereleaseci'].includes(env)) {
       cy.checkCollectionContent({ rowNb: 1, contains: ['Yes', 'Active'] })
       cy.checkCollectionContent({ rowNb: 2, contains: ['Yes', 'Active'] })
       cy.checkCollectionContent({ rowNb: 3, contains: ['Yes', 'Active'] })

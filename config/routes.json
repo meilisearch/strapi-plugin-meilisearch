@@ -34,16 +34,16 @@
     },
     {
       "method": "POST",
-      "path": "/collection/:collection/update/batch",
-      "handler": "meilisearch.waitForBatchUpdates",
+      "path": "/collection/:collection/tasks/batch",
+      "handler": "meilisearch.waitForTasks",
       "config": {
         "policies": ["isAdmin"]
       }
     },
     {
       "method": "GET",
-      "path": "/collection/update",
-      "handler": "meilisearch.getUpdateIds",
+      "path": "/collection/tasks",
+      "handler": "meilisearch.getTaskUids",
       "config": {
         "policies": ["isAdmin"]
       }
