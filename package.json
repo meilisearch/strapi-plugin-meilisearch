@@ -1,6 +1,6 @@
 {
   "name": "strapi-plugin-meilisearch",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "Synchronise and search in your Strapi collections with MeiliSearch",
   "scripts": {
     "style": "eslint --ext .js .",
@@ -34,7 +34,7 @@
   ],
   "dependencies": {
     "@buffetjs/core": "^3.3.8",
-    "meilisearch": "^0.23.0"
+    "meilisearch": "0.24.0"
   },
   "author": {
     "name": "Charlotte Vermandel <charlotte@meilisearch.com>"

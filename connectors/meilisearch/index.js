@@ -67,20 +67,20 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
     },
 
     /**
-     * Wait for an update to be processed in MeiliSearch.
+     * Wait for an task to be processed in MeiliSearch.
      *
      * @param  {string} collection - Collection name.
-     * @param  {number} updateId - Update identifier.
+     * @param  {number} taskUid - Task identifier.
      *
-     * @returns {{Record<string, string>}} - Update body returned by MeiliSearch API.
+     * @returns {{Record<string, string>}} - Task body returned by MeiliSearch API.
      */
-    waitForPendingUpdate: async function ({ collection, updateId }) {
+    waitForTask: async function ({ collection, taskUid }) {
       try {
         const client = MeiliSearch({ apiKey, host })
         const indexUid = collectionConnector.getIndexName(collection)
         const task = await client
           .index(indexUid)
-          .waitForPendingUpdate(updateId, { intervalMs: 5000 })
+          .waitForTask(taskUid, { intervalMs: 5000 })
 
         return task
       } catch (e) {
@@ -90,23 +90,23 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
     },
 
     /**
-     * Wait for a batch of updated ids to be processed.
+     * Wait for a batch of tasks uids to be processed.
      *
      * @param  {string} collection - Collection name.
-     * @param  {number[]} updateIds - Array of update identifiers.
+     * @param  {number[]} taskUids - Array of tasks identifiers.
      *
-     * @returns { Record<string, string>[] } - List of all updates returned by MeiliSearch API.
+     * @returns { Record<string, string>[] } - List of all tasks returned by MeiliSearch API.
      */
-    waitForBatchUpdates: async function ({ collection, updateIds }) {
-      const allUpdates = []
-      for (const updateId of updateIds) {
-        const status = await this.waitForPendingUpdate({
+    waitForTasks: async function ({ collection, taskUids }) {
+      const tasks = []
+      for (const taskUid of taskUids) {
+        const status = await this.waitForTask({
           collection,
-          updateId,
+          taskUid,
         })
-        allUpdates.push(status)
+        tasks.push(status)
       }
-      return allUpdates
+      return tasks
     },
 
     /**
@@ -141,29 +141,29 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
     },
 
     /**
-     * Get enqueued update ids of indexed collections.
+     * Get enqueued tasks ids of indexed collections.
      *
-     * @returns { { string: number[] } } - Collections with their respective updateIds
+     * @returns { { string: number[] } } - Collections with their respective task uids
      */
-    getUpdateIds: async function () {
+    getTaskUids: async function () {
       const indexes = await this.getIndexes()
       const indexUids = indexes.map(index => index.uid)
       const collections = collectionConnector.allEligbleCollections()
       const client = MeiliSearch({ apiKey, host })
 
-      const collectionUpdateIds = {}
+      const collectionTaskUids = {}
       for (const collection of collections) {
         const indexUid = collectionConnector.getIndexName(collection)
         if (indexUids.includes(indexUid)) {
-          const updateIds = await client.index(indexUid).getAllUpdateStatus()
+          const { results: tasks } = await client.index(indexUid).getTasks()
 
-          const enqueued = updateIds
-            .filter(update => update.status === 'enqueued')
-            .map(update => update.updateId)
-          collectionUpdateIds[collection] = enqueued
+          const enqueueded = tasks
+            .filter(task => task.status === 'enqueued')
+            .map(task => task.uid)
+          collectionTaskUids[collection] = enqueueded
         }
       }
-      return collectionUpdateIds
+      return collectionTaskUids
     },
 
     /**
@@ -230,7 +230,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
      *
      * @param  {string} collection - Collection name.
      * @param  {string} entry - Entry from the document.
-     * @returns {{ updateId: number }} - Update information.
+     * @returns {{ taskUid: number }} - Task identifier.
      */
     addOneEntryInMeiliSearch: async function ({ collection, entry }) {
       const client = MeiliSearch({ apiKey, host })
@@ -248,17 +248,17 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
         collection,
         entries,
       })
-      const update = await client.index(indexUid).addDocuments(documents)
+      const task = await client.index(indexUid).addDocuments(documents)
       await storeConnector.addIndexedCollection(collection)
 
-      return update
+      return task
     },
 
     /**
      * Add all entries from a collection to its index in MeiliSearch.
      *
      * @param  {string} collection - Collection name.
-     * @returns {number[]} - All updates id from the batched indexation process.
+     * @returns {number[]} - All task uids from the batched indexation process.
      */
     addCollectionInMeiliSearch: async function (collection) {
       const client = MeiliSearch({ apiKey, host })
@@ -271,8 +271,8 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
       // Callback function for batching action
       const addDocuments = async (entries, collection) => {
         if (entries.length === 0) {
-          await client.getOrCreateIndex(indexUid)
-          return null
+          const task = await client.createIndex(indexUid)
+          return task.uid
         }
         let transformedEntries = collectionConnector.transformEntries({
           collection,
@@ -284,20 +284,19 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
         })
 
         // Add documents in MeiliSearch
-        const { updateId } = await client
-          .index(indexUid)
-          .addDocuments(documents)
+        const task = await client.index(indexUid).addDocuments(documents)
 
-        return updateId
+        return task.uid
       }
 
-      const updateIds = await collectionConnector.actionInBatches(
+      const tasksUids = await collectionConnector.actionInBatches(
         collection,
         addDocuments
       )
+      console.log(tasksUids)
       await storeConnector.addIndexedCollection(collection)
 
-      return updateIds
+      return tasksUids
     },
 
     /**
@@ -321,7 +320,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
       } else {
         const client = MeiliSearch({ apiKey, host })
         const indexUid = await collectionConnector.getIndexName(collection)
-        await client.index(indexUid).deleteIfExists()
+        await client.index(indexUid).delete()
       }
       await storeConnector.removeIndexedCollection(collection)
     },
@@ -330,7 +329,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
      * Update all entries from a collection to its index in MeiliSearch.
      *
      * @param  {string} collection - Collection name.
-     * @returns {number[]} - All updates id from the indexation process.
+     * @returns {number[]} - All tasks uid from the indexation process.
      */
     updateCollectionInMeiliSearch: async function (collection) {
       const indexedCollections = await storeConnector.getIndexedCollections()

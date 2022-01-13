@@ -24,11 +24,11 @@ const Collections = ({ updateCredentials }) => {
   const [upToDateCollections, setUpToDateCollection] = useState(false) // Boolean that informs if collections have been updated.
   const [needReload, setNeedReload] = useState(false) // Boolean to inform that reload is requested.
   const [collectionInWaitMode, setCollectionInWaitMode] = useState([]) // Collections that are waiting for their indexation to complete.
-  const [collectionUpdateIds, setCollectionUpdateIds] = useState({}) // List of collection's enqueued update ids.
+  const [collectionTaskUids, setCollectionTaskUids] = useState({}) // List of collection's enqueued task uids.
 
-  // Trigger a updateId fetcher to find enqueued update ids of the indexed collections.
+  // Trigger a task uids fetcher to find enqueued task of the indexed collections.
   useEffect(() => {
-    findUpdateIds()
+    findTaskUids()
   }, [])
 
   // Adds a listener that informs if collections have been updated.
@@ -36,70 +36,71 @@ const Collections = ({ updateCredentials }) => {
     setUpToDateCollection(false)
   }, [updateCredentials])
 
-  // Adds a listener that updates collections informations when an update occured.
+  // Adds a listener that updates collections informations on updates
   useEffect(() => {
     if (!upToDateCollections) fetchCollections()
   }, [upToDateCollections, updateCredentials])
 
-  // Trigger an update watch if a collection has enqueued update id's.
+  // Trigger a watch if a collection has enqueued task uid's.
   useEffect(() => {
-    for (const collection in collectionUpdateIds) {
-      if (collectionUpdateIds[collection].length > 0) {
-        watchUpdates({ collection })
+    for (const collection in collectionTaskUids) {
+      if (collectionTaskUids[collection].length > 0) {
+        watchTasks({ collection })
       }
     }
-  }, [collectionUpdateIds])
+  }, [collectionTaskUids])
 
   /**
-   * Find all enqueued update id's of the indexed collections.
+   * Find all enqueued task uid's of the indexed collections.
    * It is triggered on load.
    */
-  const findUpdateIds = async () => {
-    const response = await request(`/${pluginId}/collection/update`, {
+  const findTaskUids = async () => {
+    const response = await request(`/${pluginId}/collection/tasks`, {
       method: 'GET',
     })
 
     if (response.error) errorNotifications(response)
-    setCollectionUpdateIds(response.updateIds)
+    setCollectionTaskUids(response.taskUids)
   }
 
   /**
    * Watches a collection (if not already)
-   * For a maximum of 5 enqueued updates in MeiliSearch.
+   * For a maximum of 5 enqueued tasks in MeiliSearch.
    *
    * @param {string} collection - Collection name.
    */
-  const watchUpdates = async ({ collection }) => {
-    // If collection has pending updates
-    const updateIds = collectionUpdateIds[collection]
+  const watchTasks = async ({ collection }) => {
+    // If collection has pending tasks
+    const taskUids = collectionTaskUids[collection]
 
-    if (!collectionInWaitMode.includes(collection) && updateIds?.length > 0) {
+    if (!collectionInWaitMode.includes(collection) && taskUids?.length > 0) {
       addIndexedStatus
       setCollectionInWaitMode(prev => [...prev, collection])
 
-      const updateIdsChunk = updateIds.splice(0, 1)
+      const taskUidsIdsChunk = taskUids.splice(0, 1)
       const response = await request(
-        `/${pluginId}/collection/${collection}/update/batch`,
+        `/${pluginId}/collection/${collection}/tasks/batch`,
         {
           method: 'POST',
-          body: { updateIds: updateIdsChunk },
+          body: { taskUids: taskUidsIdsChunk },
         }
       )
+
       if (response.error) errorNotifications(response)
 
-      const { updateStatus } = response
+      const { tasksStatus } = response
 
-      updateStatus.map(update => {
-        if (update.status === 'failed') {
-          update.error.message = `Some documents could not be added: \n${update.error.message}`
-          errorNotifications(update.error)
+      tasksStatus.map(task => {
+        if (task.status === 'failed') {
+          task.error.message = `Some documents could not be added: \n${task.error.message}`
+          errorNotifications(task.error)
         }
       })
 
       setCollectionInWaitMode(prev => prev.filter(col => col !== collection))
-      setCollectionUpdateIds(prev => ({
+      setCollectionTaskUids(prev => ({
         ...prev,
-        [collection]: updateIds,
+        [collection]: taskUids,
       }))
 
       setUpToDateCollection(false) // Ask for collections to be updated.
@@ -122,9 +123,9 @@ const Collections = ({ updateCredentials }) => {
     createResponseNotification(response, `${collection} is created!`)
 
     if (!response.error) {
-      setCollectionUpdateIds(prev => ({
+      setCollectionTaskUids(prev => ({
         ...prev,
-        [collection]: response.updateIds,
+        [collection]: response.taskUids,
       }))
     }
 
@@ -147,9 +148,9 @@ const Collections = ({ updateCredentials }) => {
     createResponseNotification(response, `${collection} update started!`)
 
     if (!response.error) {
-      setCollectionUpdateIds(prev => ({
+      setCollectionTaskUids(prev => ({
         ...prev,
-        [collection]: response.updateIds,
+        [collection]: response.taskUids,
       }))
     }
 
@@ -199,10 +200,10 @@ const Collections = ({ updateCredentials }) => {
 
     if (error) errorNotifications(res)
     else {
-      // Start watching collections that have pending updates
+      // Start watching collections that have pending tasks
       collections.map(col => {
         if (col.isIndexing) {
-          watchUpdates({ collection: col.collection })
+          watchTasks({ collection: col.collection })
         }
       })
 
