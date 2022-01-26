@@ -45,7 +45,7 @@ async function ctxWrapper(ctx, fct) {
     console.error(e)
     const message =
       e.name === 'MeiliSearchCommunicationError'
-        ? `Could not connect with MeiliSearch, please check your host.`
+        ? `Could not connect with Meilisearch, please check your host.`
         : `${e.name}: \n${e.message || e.code}`
     return {
       error: true,
@@ -67,7 +67,7 @@ async function getClientCredentials() {
 }
 
 /**
- * Remove one collection indexed in MeiliSearch.
+ * Remove one collection indexed in Meilisearch.
  *
  * @param  {object} ctx - Http request object.
  *
@@ -80,7 +80,7 @@ async function removeCollection(ctx) {
 }
 
 /**
- * Get extended information about collections in MeiliSearch.
+ * Get extended information about collections in Meilisearch.
  *
  * @param  {object} ctx - Http request object.
  *
@@ -92,7 +92,7 @@ async function getCollections() {
 }
 
 /**
- * Add MeiliSearch Credentials to the Store.
+ * Add Meilisearch Credentials to the Store.
  *
  * @param  {object} ctx - Http request object.
  *
@@ -106,7 +106,7 @@ async function addCredentials(ctx) {
 }
 
 /**
- * Remove and re-index a collection in MeiliSearch.
+ * Remove and re-index a collection in Meilisearch.
  *
  * @param  {object} ctx - Http request object.
  *
@@ -120,7 +120,7 @@ async function updateCollections(ctx) {
 }
 
 /**
- * Add a collection to MeiliSearch.
+ * Add a collection to Meilisearch.
  *
  * @param  {object} ctx - Http request object.
  *
@@ -134,7 +134,7 @@ async function addCollection(ctx) {
 }
 
 /**
- * Wait for one collection to be completely indexed in MeiliSearch.
+ * Wait for one collection to be completely indexed in Meilisearch.
  *
  * @param  {object} ctx - Http request object.
  *
@@ -152,7 +152,7 @@ async function waitForTasks(ctx) {
 }
 
 /**
- * Wait for one collection to be completely indexed in MeiliSearch.
+ * Wait for one collection to be completely indexed in Meilisearch.
  *
  * @returns { taskUids: number[] }
  */

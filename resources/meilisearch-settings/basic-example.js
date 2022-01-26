@@ -1,5 +1,5 @@
 /**
- * Adds the settings specific to this collection in MeiliSearch.
+ * Adds the settings specific to this collection in Meilisearch.
  */
 
 module.exports = {

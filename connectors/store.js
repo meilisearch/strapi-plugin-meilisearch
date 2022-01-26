@@ -1,14 +1,14 @@
 'use strict'
 
 /**
- * Connector factory to communicate between Strapi, the store, and MeiliSearch
+ * Connector factory to communicate between Strapi, the store, and Meilisearch
  *
  * @param {Object} strapi - Strapi environment.
  * @param {Object} strapi.plugin - Plugins required services.
  * @param {Object} strapi.models - Strapi models.
  * @param {Object} strapi.services - Strapi services.
  * @param {Object} clients - Required clients.
- * @param {Object} clients.MeiliSearchClient - Constructor to create a MeiliSearch client.
+ * @param {Object} clients.MeiliSearchClient - Constructor to create a Meilisearch client.
  * @param {Object} clients.storeClient - Store instance.
  */
 module.exports = ({ storeClient }) => {
@@ -33,7 +33,7 @@ module.exports = ({ storeClient }) => {
     },
 
     /**
-     * Get the api key of MeiliSearch from the store.
+     * Get the api key of Meilisearch from the store.
      *
      * @param  {string} key
      */
@@ -42,7 +42,7 @@ module.exports = ({ storeClient }) => {
     },
 
     /**
-     * Set the api key of MeiliSearch to the store.
+     * Set the api key of Meilisearch to the store.
      *
      * @param  {string} value
      */
@@ -54,7 +54,7 @@ module.exports = ({ storeClient }) => {
     },
 
     /**
-     * Get host of MeiliSearch from the store.
+     * Get host of Meilisearch from the store.
      *
      * @param  {string} key
      */
@@ -63,7 +63,7 @@ module.exports = ({ storeClient }) => {
     },
 
     /**
-     * Set the host of MeiliSearch to the store.
+     * Set the host of Meilisearch to the store.
      *
      * @param  {string} value
      */
@@ -72,7 +72,7 @@ module.exports = ({ storeClient }) => {
     },
 
     /**
-     * Get apiKey stored in the config file of a MeiliSearch from the store.
+     * Get apiKey stored in the config file of a Meilisearch from the store.
      *
      * @param  {string} key
      */
@@ -81,7 +81,7 @@ module.exports = ({ storeClient }) => {
     },
 
     /**
-     * Set the api key from the config file of MeiliSearch to the store.
+     * Set the api key from the config file of Meilisearch to the store.
      *
      * @param  {string} value
      */
@@ -90,7 +90,7 @@ module.exports = ({ storeClient }) => {
     },
 
     /**
-     * Get host stored in the config file of a MeiliSearch from the store.
+     * Get host stored in the config file of a Meilisearch from the store.
      *
      * @param  {string} key
      */
@@ -99,7 +99,7 @@ module.exports = ({ storeClient }) => {
     },
 
     /**
-     * Set the host from the config file of MeiliSearch to the store.
+     * Set the host from the config file of Meilisearch to the store.
      *
      * @param  {string} value
      */

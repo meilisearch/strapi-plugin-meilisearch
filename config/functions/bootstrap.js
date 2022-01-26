@@ -16,13 +16,13 @@ const createMeiliSearchConnector = require('../../connectors/meilisearch')
 const createCollectionConnector = require('../../connectors/collection')
 
 /**
- * Add listeners on collection that are indexed in MeiliSearch.
- * Listeners updates automatically collection's in MeiliSearch.
+ * Add listeners on collection that are indexed in Meilisearch.
+ * Listeners updates automatically collection's in Meilisearch.
  * A listener is triggered with: ADD/UPDATE/DELETE actions.
  *
  * @param  {object} strapi - Strapi Services.
- * @param  {string[]} strapi.collections - All collections present in MeiliSearch.
- * @param  {object} strapi.plugin - MeiliSearch Plugins services.
+ * @param  {string[]} strapi.collections - All collections present in Meilisearch.
+ * @param  {object} strapi.plugin - Meilisearch Plugins services.
  * @param  {object} strapi.models - Collections models.
  * @param  {object} strapi.connector - Plugin connector.
  */
@@ -49,10 +49,10 @@ function wrapCollectionListeners({ collections, plugin, models, meilisearch }) {
 }
 
 /**
- * Initialise listener based on collections presence in MeiliSearch and in the listener store.
+ * Initialise listener based on collections presence in Meilisearch and in the listener store.
  *
  * @param  {object} connector - Plugin connector.
- * @param  {object} plugin - MeiliSearch Plugins services.
+ * @param  {object} plugin - Meilisearch Plugins services.
  * @param  {object} models - Collections models.
  */
 async function addListeners({ store, plugin, models, services, logger }) {
@@ -70,25 +70,25 @@ async function addListeners({ store, plugin, models, services, logger }) {
         storeConnector: store,
       })
 
-      // Get the list of indexes in MeiliSearch that are collections in Strapi.
+      // Get the list of indexes in Meilisearch that are collections in Strapi.
       try {
-        // When a Collection is added to MeiliSearch, it is also added in the store.
+        // When a Collection is added to Meilisearch, it is also added in the store.
         // this fetches the collection indexed in the store
         const storedCollections = await store.getIndexedCollections()
 
-        // This is an union of the indexes in MeiliSearch and all the collections in Strapi.
+        // This is an union of the indexes in Meilisearch and all the collections in Strapi.
         const indexedCollections = await meilisearch.getCollectionsIndexedInMeiliSearch(
           Object.keys(models)
         )
 
-        // collections are the union of the indexes in MeiliSearch and the collection
+        // collections are the union of the indexes in Meilisearch and the collection
         // from the `indexed-in-meilisearch` store.
         const collections = indexedCollections.filter(col =>
           storedCollections.includes(col)
         )
 
-        // Each collections that are both in MeiliSearch and in the stored collections
-        // become listened in order to update MeiliSearch on every change in the collection.
+        // Each collections that are both in Meilisearch and in the stored collections
+        // become listened in order to update Meilisearch on every change in the collection.
         wrapCollectionListeners({
           collections,
           plugin,
@@ -101,7 +101,7 @@ async function addListeners({ store, plugin, models, services, logger }) {
       } catch (e) {
         let message =
           e.name === 'MeiliSearchCommunicationError'
-            ? `Could not connect with MeiliSearch, please check your host.`
+            ? `Could not connect with Meilisearch, please check your host.`
             : `${e.name}: \n${e.message || e.code}`
         console.error(message)
       }

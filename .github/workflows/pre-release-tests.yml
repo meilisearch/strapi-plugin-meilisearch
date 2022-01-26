@@ -1,4 +1,4 @@
-# Testing the code base against the MeiliSearch pre-releases
+# Testing the code base against the Meilisearch pre-releases
 name: Pre-Release Tests
 
 # Will only run for PRs and pushes to bump-meilisearch-v*
@@ -101,14 +101,14 @@ jobs:
           path: |
             ./playground/node_modules
           key: ${{ hashFiles('playground/yarn.lock') }}
-      - name: Grep latest version of MeiliSearch
+      - name: Grep latest version of Meilisearch
         run: |
           echo "MEILISEARCH_LATEST=$(curl https://raw.githubusercontent.com/meilisearch/integration-guides/main/scripts/get-latest-meilisearch-rc.sh | sh)" >> $GITHUB_ENV
-      - name: Download MeiliSearch
+      - name: Download Meilisearch
         run: |
           curl https://github.com/meilisearch/MeiliSearch/releases/download/${{ env.MEILISEARCH_LATEST }}/meilisearch-linux-amd64 --output meilisearch --location
           chmod +x meilisearch
-      - name: Run MeiliSearch
+      - name: Run Meilisearch
         run: |
           ./meilisearch --master-key=masterKey --no-analytics true &
       - name: Install dependencies

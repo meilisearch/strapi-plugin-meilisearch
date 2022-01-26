@@ -7,7 +7,7 @@ export const headers = [
     value: 'collection',
   },
   {
-    name: 'In MeiliSearch',
+    name: 'In Meilisearch',
     value: 'indexed',
   },
   {
