@@ -1,11 +1,11 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/meilisearch/integration-guides/main/assets/logos/meilisearch_strapi.svg" alt="MeiliSearch-Strapi" width="200" height="200" />
+  <img src="https://raw.githubusercontent.com/meilisearch/integration-guides/main/assets/logos/meilisearch_strapi.svg" alt="Meilisearch-Strapi" width="200" height="200" />
 </p>
 
-<h1 align="center">MeiliSearch Strapi Plugin</h1>
+<h1 align="center">Meilisearch Strapi Plugin</h1>
 
 <h4 align="center">
-  <a href="https://github.com/meilisearch/MeiliSearch">MeiliSearch</a> |
+  <a href="https://github.com/meilisearch/Meilisearch">Meilisearch</a> |
   <a href="https://docs.meilisearch.com">Documentation</a> |
   <a href="https://slack.meilisearch.com">Slack</a> |
   <a href="https://roadmap.meilisearch.com/tabs/1-under-consideration">Roadmap</a> |
@@ -21,11 +21,11 @@
   <a href="https://ms-bors.herokuapp.com/repositories/7"><img src="https://bors.tech/images/badge_small.svg" alt="Bors enabled"></a>
 </p>
 
-<p align="center">⚡ The MeiliSearch plugin for Strapi</p>
+<p align="center">⚡ The Meilisearch plugin for Strapi</p>
 
-MeiliSearch is an open-source search engine. [Discover what MeiliSearch is!](https://github.com/meilisearch/meilisearch)
+Meilisearch is an open-source search engine. [Discover what Meilisearch is!](https://github.com/meilisearch/meilisearch)
 
-Add your Strapi collections into a MeiliSearch instance. The plugin listens to modifications made on your collections and updates MeiliSearch accordingly.
+Add your Strapi collections into a Meilisearch instance. The plugin listens to modifications made on your collections and updates Meilisearch accordingly.
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -33,14 +33,14 @@ Add your Strapi collections into a MeiliSearch instance. The plugin listens to m
 - [🔧 Installation](#-installation)
 - [🎬 Getting Started](#-getting-started)
 - [💡 Run the Playground](#-run-the-playground)
-- [🤖 Compatibility with MeiliSearch and Strapi](#-compatibility-with-meilisearch-and-strapi)
+- [🤖 Compatibility with Meilisearch and Strapi](#-compatibility-with-meilisearch-and-strapi)
 - [⚙️ Development Workflow and Contributing](#️-development-workflow-and-contributing)
 - [🌎 Community support](#-community-support)
 - [🤩 Just for the pleasure of the eyes](#-just-for-the-pleasure-of-the-eyes)
 
 ## 📖 Documentation
 
-To understand MeiliSearch and how it works, see the [MeiliSearch's documentation](https://docs.meilisearch.com/learn/what_is_meilisearch/).
+To understand Meilisearch and how it works, see the [Meilisearch's documentation](https://docs.meilisearch.com/learn/what_is_meilisearch/).
 
 To understand Strapi and how to create an app, see [Strapi's documentation](https://strapi.io/documentation/developer-docs/latest/getting-started/introduction.html).
 
@@ -63,16 +63,16 @@ To apply the plugin to Strapi, a re-build is needed:
 strapi build
 ```
 
-You will need both a running Strapi app and a running MeiliSearch instance. For [specific version compatibility see this section](#-compatibility-with-meilisearch).
+You will need both a running Strapi app and a running Meilisearch instance. For [specific version compatibility see this section](#-compatibility-with-meilisearch).
 
-### 🏃‍♀️ Run MeiliSearch <!-- omit in toc -->
+### 🏃‍♀️ Run Meilisearch <!-- omit in toc -->
 
-There are many easy ways to [download and run a MeiliSearch instance](https://docs.meilisearch.com/reference/features/installation.html#download-and-launch).
+There are many easy ways to [download and run a Meilisearch instance](https://docs.meilisearch.com/reference/features/installation.html#download-and-launch).
 
 For example, if you use Docker:
 
 ```bash
-docker pull getmeili/meilisearch:latest # Fetch the latest version of MeiliSearch image from Docker Hub
+docker pull getmeili/meilisearch:latest # Fetch the latest version of Meilisearch image from Docker Hub
 docker run -it --rm -p 7700:7700 getmeili/meilisearch:latest ./meilisearch --master-key=masterKey
 ```
 
@@ -90,7 +90,7 @@ yarn develop
 
 ### Run Both with Docker
 
-To run MeiliSearch and Strapi on the same server you can use Docker. A Docker configuration example can be found in the directory [`resources/docker`](resources/docker/) of this repository.
+To run Meilisearch and Strapi on the same server you can use Docker. A Docker configuration example can be found in the directory [`resources/docker`](resources/docker/) of this repository.
 
 To run the Docker script add both files `Dockerfile` and `docker-compose.yaml` at the root of your Strapi project and run it with the following command: `docker-compose up`.
 
@@ -98,23 +98,23 @@ To run the Docker script add both files `Dockerfile` and `docker-compose.yaml` a
 
 Now that you have installed the plugin, a running meiliSearch instance and, a running Strapi app, let's go to the plugin page on your admin dashboard.
 
-On the left-navbar, `MeiliSearch` appears under the `PLUGINS` category. If it does not, ensure that you have installed the plugin and re-build Strapi (see [installation](#-installation)).
+On the left-navbar, `Meilisearch` appears under the `PLUGINS` category. If it does not, ensure that you have installed the plugin and re-build Strapi (see [installation](#-installation)).
 
 ### 🤫 Add Credentials <!-- omit in toc -->
 
 First, you need to configure credentials via the strapi config, or on the plugin page.
 The credentials are composed of:
-- The `host`: The url to your running MeiliSearch instance.
-- The `api_key`: The `master` or `private` key as the plugin requires administration permission on MeiliSearch.[More about permissions here](https://docs.meilisearch.com/reference/features/authentication.html).
+- The `host`: The url to your running Meilisearch instance.
+- The `api_key`: The `master` or `private` key as the plugin requires administration permission on Meilisearch.[More about permissions here](https://docs.meilisearch.com/reference/features/authentication.html).
 
 ⚠️ The `master` or `private` key should never be used to `search` on your front end. For searching, use the `public` key available on [the `key` route](https://docs.meilisearch.com/reference/api/keys.html#get-keys).
 
 
 #### Using the plugin page
 
-You can add you MeiliSearch credentials in the upper box of the MeiliSearch plugin page.
+You can add you Meilisearch credentials in the upper box of the Meilisearch plugin page.
 
-For example, using the credentials from the section above: [`Run MeiliSearch`](#-run-meilisearch), the following screen shows where the information should be.
+For example, using the credentials from the section above: [`Run Meilisearch`](#-run-meilisearch), the following screen shows where the information should be.
 
 <p align="center">
 <img src="./assets/credentials.png" alt="Add your credentials" width="600"/>
@@ -144,7 +144,7 @@ Using `config/env/[NODE_ENV]/plugin.js`, it is possible to have a config file fo
 Note that if you use both method, the config file overwrites the credentials added through the plugin page.
 
 
-### 🚛 Add your collections to MeiliSearch <!-- omit in toc -->
+### 🚛 Add your collections to Meilisearch <!-- omit in toc -->
 
 If you don't have any collection yet in your Strapi Plugin, please follow [Strapi quickstart](https://strapi.io/documentation/developer-docs/latest/getting-started/quick-start.html).
 
@@ -156,11 +156,11 @@ On your plugin homepage, you should have two collections appearing: `restaurant`
 <img src="./assets/restaurant_indexed.png" alt="Indexed collections need a reload" width="600"/>
 </p>
 
-By clicking on the left checkbox, the collection is automatically indexed in MeiliSearch. For example, if you click on the `restaurant` checkbox, all your restaurants are now available in MeiliSearch. We will see in [start searching](#-start-searching) how to try it out.
+By clicking on the left checkbox, the collection is automatically indexed in Meilisearch. For example, if you click on the `restaurant` checkbox, all your restaurants are now available in Meilisearch. We will see in [start searching](#-start-searching) how to try it out.
 
 ### 🪝 Apply Hooks <!-- omit in toc -->
 
-Hooks are listeners that update MeiliSearch each time you add/update/delete an entry in your collections.
+Hooks are listeners that update Meilisearch each time you add/update/delete an entry in your collections.
 To activate them, you will have to reload the server. If you are in develop mode, click on the red `Reload Server` button. If not, reload the server manually!
 
 <p align="center">
@@ -171,11 +171,11 @@ To activate them, you will have to reload the server. If you are in develop mode
 
 #### Custom Index Name
 
-By default, when indexing a collection in MeiliSearch the index in MeiliSearch has the same name as the collection. This behavior can be changed by setting the `indexName` property in the model file of the related collection.
+By default, when indexing a collection in Meilisearch the index in Meilisearch has the same name as the collection. This behavior can be changed by setting the `indexName` property in the model file of the related collection.
 
 **Example:**
 
-In the following example, the model `restaurant` index in MeiliSearch is called `my_restaurant` instead of the default `restaurant`.
+In the following example, the model `restaurant` index in Meilisearch is called `my_restaurant` instead of the default `restaurant`.
 
 ```js
 // api/restaurant/models/restaurant.js
@@ -215,28 +215,28 @@ module.exports = {
 }
 ```
 
-Now, on each entry addition from both `shoes` and `shirts` the entry is added in the `product` index of MeiliSearch.
+Now, on each entry addition from both `shoes` and `shirts` the entry is added in the `product` index of Meilisearch.
 
-Nonetheless, it is not possible to know how many entries from each collection is added to MeiliSearch.
+Nonetheless, it is not possible to know how many entries from each collection is added to Meilisearch.
 
 For example, given two collections:
 - `Shoes`: with 300 entries and an `indexName` set to `product`
 - `Shirts`: 200 entries and an `indexName` set to `product`
 
-The index `product` has both the entries of shoes and shirts. If the index `product` has `350` documents in MeiliSearch, it is not possible to know how many of them are from `shoes` or `shirts`.
+The index `product` has both the entries of shoes and shirts. If the index `product` has `350` documents in Meilisearch, it is not possible to know how many of them are from `shoes` or `shirts`.
 
 
 #### Transform sent data
 
-By default, the plugin sent the data the way it is stored in your Strapi collection. It is possible to remove or transform fields before sending your entries to MeiliSearch.
+By default, the plugin sent the data the way it is stored in your Strapi collection. It is possible to remove or transform fields before sending your entries to Meilisearch.
 
-Create the alteration function `transformEntry` in your Collection's model. Before sending the data to MeiliSearch, every entry passes through this function where the alteration is applied.
+Create the alteration function `transformEntry` in your Collection's model. Before sending the data to Meilisearch, every entry passes through this function where the alteration is applied.
 
 You can find a lot of examples in [this directory](./resources/entries-transformers).
 
 **Example**
 
-To remove all private fields and relations from entries before indexing them into MeiliSearch, use [`sanitizeEntity`](https://strapi.io/documentation/developer-docs/latest/development/backend-customization.html#controllers) in the `transFormEntry` function.
+To remove all private fields and relations from entries before indexing them into Meilisearch, use [`sanitizeEntity`](https://strapi.io/documentation/developer-docs/latest/development/backend-customization.html#controllers) in the `transFormEntry` function.
 
 ```js
 // api/restaurant/models/restaurant.js
@@ -285,13 +285,13 @@ Resulting in `categories` being transformed like this in a `restaurant` entry.
   }
 ```
 
-By transforming the `categories` into an array of names, it is now compatible with the [`filtering` feature](https://docs.meilisearch.com/reference/features/filtering_and_faceted_search.html#configuring-filters) in MeiliSearch.
+By transforming the `categories` into an array of names, it is now compatible with the [`filtering` feature](https://docs.meilisearch.com/reference/features/filtering_and_faceted_search.html#configuring-filters) in Meilisearch.
 
-#### 🏗 Add MeiliSearch Settings
+#### 🏗 Add Meilisearch Settings
 
-Each index in MeiliSearch can be customized with specific settings. It is possible to add your [MeiliSearch settings](https://docs.meilisearch.com/reference/features/settings.html#settings) configuration to the indexes you create using `settings` field in your model's config.
+Each index in Meilisearch can be customized with specific settings. It is possible to add your [Meilisearch settings](https://docs.meilisearch.com/reference/features/settings.html#settings) configuration to the indexes you create using `settings` field in your model's config.
 
-The settings are added when either: adding a collection to MeiliSearch or when updating a collection in MeiliSearch. The settings are not updated when documents are added through the [`listeners`](-apply-hooks).
+The settings are added when either: adding a collection to Meilisearch or when updating a collection in Meilisearch. The settings are not updated when documents are added through the [`listeners`](-apply-hooks).
 
 **For example**
 ```js
@@ -314,9 +314,9 @@ module.exports = {
 
 ### 🕵️‍♀️ Start Searching <!-- omit in toc -->
 
-Once you have a collection containing documents indexed in MeiliSearch, you can [start searching](https://docs.meilisearch.com/learn/getting_started/quick_start.html#search).
+Once you have a collection containing documents indexed in Meilisearch, you can [start searching](https://docs.meilisearch.com/learn/getting_started/quick_start.html#search).
 
-To search in MeiliSearch, you can use the [instant-meilisearch](https://github.com/meilisearch/instant-meilisearch) library that integrates a whole search interface, or our [meilisearch-js](https://github.com/meilisearch/meilisearch-js) SDK.
+To search in Meilisearch, you can use the [instant-meilisearch](https://github.com/meilisearch/instant-meilisearch) library that integrates a whole search interface, or our [meilisearch-js](https://github.com/meilisearch/meilisearch-js) SDK.
 
 #### ⚡️ Using Instant meiliSearch <!-- omit in toc -->
 
@@ -326,7 +326,7 @@ You can have a front up and running in record time with [instant-meilisearch](ht
 <img src="./assets/obrigado.gif" alt="Restaurant demo" width="600"/>
 </p>
 
-In Instant MeiliSearch, you only have to provide your credentials and index name (_uid_). `restaurant` is the index name in our example.
+In Instant Meilisearch, you only have to provide your credentials and index name (_uid_). `restaurant` is the index name in our example.
 
 You can have a quick preview with the following code in an HTML file. Create an HTML file, copy-paste the code below and open the file in your browser (or find it in `/front_examples/restaurant.html`).
 
@@ -347,7 +347,7 @@ You can have a quick preview with the following code in an HTML file. Create an 
     <script>
         const search = instantsearch({
             indexName: "restaurant",
-            searchClient: instantMeiliSearch(
+            searchClient: instantMeilisearch(
                 "http://localhost:7700",
                 'publicKey', // Use the public key not the private or master key to search.
             )
@@ -377,17 +377,17 @@ You can have a quick preview with the following code in an HTML file. Create an 
 </html>
 ```
 
-#### 💛 Using MeiliSearch for JS <!-- omit in toc -->
+#### 💛 Using Meilisearch for JS <!-- omit in toc -->
 
-You can also use [meilisearch-js](https://github.com/meilisearch/meilisearch-js) to communicate with MeiliSearch.
+You can also use [meilisearch-js](https://github.com/meilisearch/meilisearch-js) to communicate with Meilisearch.
 
 The following code is a setup that will output a restaurant after a search.
 
 ```javascript
-import { MeiliSearch } from 'meilisearch'
+import { Meilisearch } from 'meilisearch'
 
 ;(async () => {
-  const client = new MeiliSearch({
+  const client = new Meilisearch({
     host: 'http://127.0.0.1:7700',
     apiKey: 'publicKey', // Use the public key not the private or master key to search.
   })
@@ -428,7 +428,7 @@ yarn playground:dev
 
 This command will install the required dependencies and launch the app in development mode. You should be able to reach it on the [port 8000 of your localhost](http://localhost:8000/admin/).
 
-## 🤖 Compatibility with MeiliSearch and Strapi
+## 🤖 Compatibility with Meilisearch and Strapi
 
 **Supported Strapi versions**:
 
@@ -438,9 +438,9 @@ Complete installation requirements are the same as for Strapi itself and can be 
 
 (This plugin may work with the older Strapi versions, but these are not tested nor officially supported at this time.)
 
-**Supported MeiliSearch versions**:
+**Supported Meilisearch versions**:
 
-This package only guarantees the compatibility with the [version v0.25.0 of MeiliSearch](https://github.com/meilisearch/MeiliSearch/releases/tag/v0.25.0).
+This package only guarantees the compatibility with the [version v0.25.0 of Meilisearch](https://github.com/meilisearch/Meilisearch/releases/tag/v0.25.0).
 
 **Node / NPM versions**:
 
@@ -457,8 +457,8 @@ If you want to know more about the development workflow or want to contribute, p
 
 ## 🌎 Community support
 
-- For general help using **MeiliSearch**, please refer to [the official MeiliSearch documentation](https://docs.meilisearch.com).
-- Contact the [MeiliSearch support](https://docs.meilisearch.com/learn/what_is_meilisearch/contact.html)
+- For general help using **Meilisearch**, please refer to [the official Meilisearch documentation](https://docs.meilisearch.com).
+- Contact the [Meilisearch support](https://docs.meilisearch.com/learn/what_is_meilisearch/contact.html)
 - Strapi [community Slack](https://slack.strapi.io/)
 - For general help using **Strapi**, please refer to [the official Strapi documentation](https://strapi.io/documentation/).
 
