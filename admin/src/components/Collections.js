@@ -15,7 +15,7 @@ import { headers } from '../utils/collection-header'
 
 /**
  * Collection component.
- * A table of all Strapi collections and their relation with MeiliSearch.
+ * A table of all Strapi collections and their relation with Meilisearch.
  *
  * @param  {object} - updateCredentials
  */
@@ -65,7 +65,7 @@ const Collections = ({ updateCredentials }) => {
 
   /**
    * Watches a collection (if not already)
-   * For a maximum of 5 enqueued tasks in MeiliSearch.
+   * For a maximum of 5 enqueued tasks in Meilisearch.
    *
    * @param {string} collection - Collection name.
    */
@@ -108,7 +108,7 @@ const Collections = ({ updateCredentials }) => {
   }
 
   /**
-   * Add a collection to MeiliSearch
+   * Add a collection to Meilisearch
    *
    * @param {string} collection - Collection name.
    */
@@ -158,7 +158,7 @@ const Collections = ({ updateCredentials }) => {
   }
 
   /**
-   * Remove a collection from MeiliSearch.
+   * Remove a collection from Meilisearch.
    *
    * @param {string} collection - Collection name.
    */
@@ -169,7 +169,7 @@ const Collections = ({ updateCredentials }) => {
 
     createResponseNotification(
       response,
-      `${collection} collection is removed from MeiliSearch!`
+      `${collection} collection is removed from Meilisearch!`
     )
 
     setUpToDateCollection(false) // Ask for collections to be updated.
@@ -177,8 +177,8 @@ const Collections = ({ updateCredentials }) => {
 
   /**
    * Depending on the checkbox states will either:
-   * - Add the collection to MeiliSearch
-   * - Remove the collection from MeiliSearch
+   * - Add the collection to Meilisearch
+   * - Remove the collection from Meilisearch
    *
    * @param {object} row - One row information from the table.
    */
@@ -188,7 +188,7 @@ const Collections = ({ updateCredentials }) => {
   }
 
   /**
-   * Fetches extended information about collections in MeiliSearch.
+   * Fetches extended information about collections in Meilisearch.
    */
   const fetchCollections = async () => {
     const { collections, error, ...res } = await request(

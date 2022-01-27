@@ -2,13 +2,13 @@
 const { MeiliSearch } = require('meilisearch')
 
 /**
- * Custom MeiliSearch Error class more suited to Strapi environment.
+ * Custom Meilisearch Error class more suited to Strapi environment.
  */
 class MeiliSearchError extends Error {
   constructor(
     {
-      message = 'Something went wrong with MeiliSearch',
-      title = 'Operation on MeiliSearch failed',
+      message = 'Something went wrong with Meilisearch',
+      title = 'Operation on Meilisearch failed',
       link,
     },
     ...params
@@ -39,7 +39,7 @@ module.exports = config => {
   } catch (e) {
     console.error(e)
     throw new MeiliSearchError({
-      message: 'Please provide a valid host for your MeiliSearch instance',
+      message: 'Please provide a valid host for your Meilisearch instance',
       link:
         'https://docs.meilisearch.com/learn/getting_started/installation.html#download-and-launch',
     })

@@ -2,14 +2,14 @@
 const MeiliSearch = require('./client')
 
 /**
- * Connector factory to communicate between Strapi, the store, and MeiliSearch
+ * Connector factory to communicate between Strapi, the store, and Meilisearch
  *
  * @param {Object} strapi - Strapi environment.
  * @param {Object} strapi.plugin - Plugins required services.
  * @param {Object} strapi.models - Strapi models.
  * @param {Object} strapi.services - Strapi services.
  * @param {Object} clients - Required clients.
- * @param {Object} clients.MeiliSearchClient - Constructor to create a MeiliSearch client.
+ * @param {Object} clients.MeiliSearchClient - Constructor to create a Meilisearch client.
  * @param {Object} clients.storeClient - Store instance.
  */
 module.exports = async ({ storeConnector, collectionConnector }) => {
@@ -52,7 +52,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
     },
 
     /**
-     * Delete multiples entries from the collection in its index in MeiliSearch.
+     * Delete multiples entries from the collection in its index in Meilisearch.
      *
      * @param  {string} collection - Collection name.
      * @param  {number[]} entriesId - Entries id.
@@ -67,12 +67,12 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
     },
 
     /**
-     * Wait for an task to be processed in MeiliSearch.
+     * Wait for an task to be processed in Meilisearch.
      *
      * @param  {string} collection - Collection name.
      * @param  {number} taskUid - Task identifier.
      *
-     * @returns {{Record<string, string>}} - Task body returned by MeiliSearch API.
+     * @returns {{Record<string, string>}} - Task body returned by Meilisearch API.
      */
     waitForTask: async function ({ collection, taskUid }) {
       try {
@@ -95,7 +95,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
      * @param  {string} collection - Collection name.
      * @param  {number[]} taskUids - Array of tasks identifiers.
      *
-     * @returns { Record<string, string>[] } - List of all tasks returned by MeiliSearch API.
+     * @returns { Record<string, string>[] } - List of all tasks returned by Meilisearch API.
      */
     waitForTasks: async function ({ collection, taskUids }) {
       const tasks = []
@@ -167,7 +167,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
     },
 
     /**
-     * Information about collections in MeiliSearch.
+     * Information about collections in Meilisearch.
      *
      * @returns {object[]} - List of collections reports.
      */
@@ -193,7 +193,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
           const collectionInIndexStore = indexedCollections.includes(collection)
           const indexed = indexInMeiliSearch && collectionInIndexStore
 
-          // safe guard in case index does not exist anymore in MeiliSearch
+          // safe guard in case index does not exist anymore in Meilisearch
           if (!indexInMeiliSearch && collectionInIndexStore) {
             await storeConnector.removeIndexedCollection(collection)
           }
@@ -226,7 +226,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
     },
 
     /**
-     * Add one entry from a collection to its index in MeiliSearch.
+     * Add one entry from a collection to its index in Meilisearch.
      *
      * @param  {string} collection - Collection name.
      * @param  {string} entry - Entry from the document.
@@ -255,7 +255,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
     },
 
     /**
-     * Add all entries from a collection to its index in MeiliSearch.
+     * Add all entries from a collection to its index in Meilisearch.
      *
      * @param  {string} collection - Collection name.
      * @returns {number[]} - All task uids from the batched indexation process.
@@ -264,7 +264,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
       const client = MeiliSearch({ apiKey, host })
       const indexUid = collectionConnector.getIndexName(collection)
 
-      // Get MeiliSearch Index settings from model
+      // Get Meilisearch Index settings from model
       const settings = collectionConnector.getSettings(collection)
       await client.index(indexUid).updateSettings(settings)
 
@@ -283,7 +283,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
           entries: transformedEntries,
         })
 
-        // Add documents in MeiliSearch
+        // Add documents in Meilisearch
         const task = await client.index(indexUid).addDocuments(documents)
 
         return task.uid
@@ -326,7 +326,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
     },
 
     /**
-     * Update all entries from a collection to its index in MeiliSearch.
+     * Update all entries from a collection to its index in Meilisearch.
      *
      * @param  {string} collection - Collection name.
      * @returns {number[]} - All tasks uid from the indexation process.
@@ -354,7 +354,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
         indexUid
       )
 
-      // get all collections (not indexes) indexed in MeiliSearch.
+      // get all collections (not indexes) indexed in Meilisearch.
       const indexedCollections = await storeConnector.getIndexedCollections(
         collection
       )
@@ -368,7 +368,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
     },
 
     /**
-     * Remove or empty a collection from MeiliSearch
+     * Remove or empty a collection from Meilisearch
      *
      * @param  {string} collection - Collection name.
      */
@@ -378,7 +378,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
     },
 
     /**
-     * Get list of index uids in MeiliSearch instance.
+     * Get list of index uids in Meilisearch instance.
      *
      * @returns {number[]} - Index uids
      */

@@ -43,7 +43,7 @@ const Credentials = ({ setUpdatedCredentials }) => {
     })
     strapi.notification.toggle({
       type: 'success',
-      message: 'MeiliSearch Credentials Updated!',
+      message: 'Meilisearch Credentials Updated!',
       timeout: 4000,
     })
     setApiKey(apiKey)
@@ -56,7 +56,7 @@ const Credentials = ({ setUpdatedCredentials }) => {
       <Wrapper>
         <Label
           htmlFor="MSHost"
-          message={`MeiliSearch Host ${configFileHost ? ' from file' : ``}`}
+          message={`Meilisearch Host ${configFileHost ? ' from file' : ``}`}
         />
         <InputText
           name="MSHost"
@@ -71,7 +71,7 @@ const Credentials = ({ setUpdatedCredentials }) => {
         />
         <Label
           htmlFor="MSApiKey"
-          message={`MeiliSearch Private Key ${
+          message={`Meilisearch Private Key ${
             configFileApiKey ? ' from file' : ''
           }`}
         />

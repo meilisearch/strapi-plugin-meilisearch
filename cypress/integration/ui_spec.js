@@ -52,7 +52,7 @@ describe('Strapi Login flow', () => {
   })
 
   it('Enter to the plugin Home Page', () => {
-    cy.contains('MeiliSearch', { timeout: 10000 }).click()
+    cy.contains('Meilisearch', { timeout: 10000 }).click()
     cy.wait(2000)
     cy.url().should('include', '/plugins/meilisearch')
   })
@@ -77,7 +77,7 @@ describe('Strapi Login flow', () => {
     cy.contains('review', { timeout: 10000 })
   })
 
-  it('Add Collections to MeiliSearch', () => {
+  it('Add Collections to Meilisearch', () => {
     cy.clickAndCheckRowContent({
       rowNb: 1,
       contains: ['Yes'],
@@ -147,7 +147,7 @@ describe('Strapi Login flow', () => {
   })
 
   it('Go back to the plugin Home Page', () => {
-    cy.contains('MeiliSearch', { timeout: 10000 }).click()
+    cy.contains('Meilisearch', { timeout: 10000 }).click()
     cy.wait(2000)
     cy.url().should('include', '/plugins/meilisearch')
   })
@@ -170,7 +170,7 @@ describe('Strapi Login flow', () => {
   })
 
   it('Go back to the plugin Home Page', () => {
-    cy.contains('MeiliSearch', { timeout: 10000 }).click()
+    cy.contains('Meilisearch', { timeout: 10000 }).click()
     cy.wait(2000)
     cy.url().should('include', '/plugins/meilisearch')
   })
@@ -179,7 +179,7 @@ describe('Strapi Login flow', () => {
     cy.checkCollectionContent({ rowNb: 3, contains: ['3 / 3'] })
   })
 
-  it('Remove Collections from MeiliSearch', () => {
+  it('Remove Collections from Meilisearch', () => {
     cy.clickAndCheckRowContent({
       rowNb: 1,
       contains: ['No'],
@@ -210,7 +210,7 @@ describe('Strapi Login flow', () => {
     cy.removeNotifications()
   })
 
-  it('Check that collections are not in MeiliSearch anymore', () => {
+  it('Check that collections are not in Meilisearch anymore', () => {
     cy.checkCollectionContent({ rowNb: 1, contains: ['0 / 3'] })
     cy.checkCollectionContent({ rowNb: 2, contains: ['0 / 0'] })
     cy.checkCollectionContent({ rowNb: 3, contains: ['0 / 3'] })

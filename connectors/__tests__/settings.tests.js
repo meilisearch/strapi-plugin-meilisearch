@@ -50,7 +50,7 @@ const loggerMock = {
   warn: jest.fn(() => 'test'),
 }
 
-describe('Test MeiliSearch settings', () => {
+describe('Test Meilisearch settings', () => {
   let storeConnector
   beforeEach(async () => {
     jest.clearAllMocks()

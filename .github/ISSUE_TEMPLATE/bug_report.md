@@ -22,7 +22,7 @@ If applicable, add screenshots or logs to help explain your problem.
 
 **Environment (please complete the following information):**
 - OS: [e.g. Debian GNU/Linux]
-- MeiliSearch version: [e.g. v.0.20.0]
+- Meilisearch version: [e.g. v.0.20.0]
 - strapi-plugin-meilisearch version: [e.g v0.3.1]
 - Browser: [e.g. Chrome version 90.0]
 - Strapi version: [e.g. v3.6.2]

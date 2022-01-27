@@ -121,7 +121,7 @@ module.exports = ({ services, models, logger }) => {
     },
 
     /**
-     * Transform collection entries before indexation in MeiliSearch.
+     * Transform collection entries before indexation in Meilisearch.
      *
      * @param {string} collection - Collection name.
      * @param {Array<Object>} data  - The data to convert. Conversion will use
