@@ -347,7 +347,7 @@ You can have a quick preview with the following code in an HTML file. Create an 
     <script>
         const search = instantsearch({
             indexName: "restaurant",
-            searchClient: instantMeilisearch(
+            searchClient: instantMeiliSearch(
                 "http://localhost:7700",
                 'publicKey', // Use the public key not the private or master key to search.
             )
@@ -384,10 +384,10 @@ You can also use [meilisearch-js](https://github.com/meilisearch/meilisearch-js)
 The following code is a setup that will output a restaurant after a search.
 
 ```javascript
-import { Meilisearch } from 'meilisearch'
+import { MeiliSearch } from 'meilisearch'
 
 ;(async () => {
-  const client = new Meilisearch({
+  const client = new MeiliSearch({
     host: 'http://127.0.0.1:7700',
     apiKey: 'publicKey', // Use the public key not the private or master key to search.
   })
