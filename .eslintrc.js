@@ -41,6 +41,7 @@ module.exports = {
         quoteProps: 'consistent',
         semi: false,
         arrowParens: 'avoid',
+        singleQuote: true,
       },
     ],
   },
