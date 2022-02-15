@@ -78,7 +78,7 @@ module.exports = ({ strapi }) => {
       return settings
     },
 
-    getAPIsConfig: function () {
+    getAllAPIConfiguration: function () {
       const apis = strapi
         .plugin('meilisearch')
         .service('contentTypes')

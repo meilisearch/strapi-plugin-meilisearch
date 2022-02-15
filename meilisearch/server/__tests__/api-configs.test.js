@@ -357,7 +357,7 @@ describe('Test API configurations', () => {
       strapi: customStrapi,
     })
 
-    const confs = contentTypeServices.getAPIsConfig()
+    const confs = contentTypeServices.getAllAPIConfiguration()
 
     expect(confs.map(config => Object.keys(config)[0])).toEqual([
       'restaurant',
