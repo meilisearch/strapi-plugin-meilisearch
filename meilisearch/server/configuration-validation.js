@@ -48,7 +48,7 @@ function validateConfiguration(config) {
   }
 }
 
-function validateApiConfigs({ strapi }) {
+function validateAllConfigurations({ strapi }) {
   const apis = strapi
     .plugin('meilisearch')
     .service('contentTypes')
@@ -122,6 +122,6 @@ function validateApiConfig({ strapi, apiName }) {
 
 module.exports = {
   validateConfiguration,
-  validateApiConfigs,
+  validateAllConfigurations,
   validateApiConfig,
 }

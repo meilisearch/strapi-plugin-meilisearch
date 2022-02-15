@@ -1,6 +1,6 @@
 const {
   validateConfiguration,
-  validateApiConfigs,
+  validateAllConfigurations,
   validateApiConfig,
 } = require('../configuration-validation')
 
@@ -117,7 +117,7 @@ describe('Test API configurations', () => {
   })
 
   test('Tests all APIs', async () => {
-    validateApiConfigs({ strapi: fakeStrapi })
+    validateAllConfigurations({ strapi: fakeStrapi })
 
     expect(fakeStrapi.plugin().service().getApisName).toHaveBeenCalledTimes(1)
     expect(
