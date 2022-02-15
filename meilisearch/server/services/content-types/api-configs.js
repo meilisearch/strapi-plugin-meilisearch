@@ -14,9 +14,10 @@ module.exports = ({ strapi }) => {
      * @return {String} - Index name
      */
     getIndexName: function ({ apiName }) {
-      const config = strapi?.api[apiName]?.services[apiName]?.meilisearch || {}
+      const pluginConfig = strapi.config.get('plugin.meilisearch') || {}
+      const apiConfig = pluginConfig[apiName] || {}
 
-      const indexName = config.indexName || apiName
+      const indexName = apiConfig.indexName || apiName
       return indexName
     },
 
@@ -30,7 +31,8 @@ module.exports = ({ strapi }) => {
      * @return {Array<Object>} - Converted or mapped data
      */
     transformEntries: function ({ apiName, entries = [] }) {
-      const conf = strapi?.api[apiName]?.services[apiName]?.meilisearch || {}
+      const pluginConfig = strapi.config.get('plugin.meilisearch') || {}
+      const apiConfig = pluginConfig[apiName] || {}
 
       const aborted = () => {
         strapi.log.error(
@@ -42,10 +44,10 @@ module.exports = ({ strapi }) => {
       try {
         if (
           Array.isArray(entries) &&
-          typeof conf?.transformEntry === 'function'
+          typeof apiConfig?.transformEntry === 'function'
         ) {
           const transformed = entries.map(entry =>
-            conf.transformEntry({
+            apiConfig.transformEntry({
               entry,
               apiName,
             })
@@ -72,13 +74,14 @@ module.exports = ({ strapi }) => {
      * @return {Settings} - MeiliSearch index settings
      */
     getSettings: function ({ apiName }) {
-      const config = strapi?.api[apiName]?.services[apiName]?.meilisearch || {}
+      const pluginConfig = strapi.config.get('plugin.meilisearch') || {}
+      const apiConfig = pluginConfig[apiName] || {}
 
-      const settings = config.settings || {}
+      const settings = apiConfig.settings || {}
       return settings
     },
 
-    getAllAPIConfiguration: function () {
+    getAllAPIservices: function () {
       const apis = strapi
         .plugin('meilisearch')
         .service('contentTypes')
@@ -89,7 +92,7 @@ module.exports = ({ strapi }) => {
       })
     },
 
-    getAPIConfig: function ({ apiName }) {
+    getAPIServices: function ({ apiName }) {
       return strapi.api[apiName]?.services[apiName] || {}
     },
 

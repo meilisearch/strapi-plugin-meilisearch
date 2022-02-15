@@ -1,10 +1,6 @@
-const {
-  validateConfiguration,
-  validateAllConfigurations,
-  validateApiConfig,
-} = require('../configuration-validation')
+const { validateConfiguration } = require('../configuration-validation')
 
-const { createFakeStrapi, apis } = require('./utils/fakes')
+const { createFakeStrapi } = require('./utils/fakes')
 
 const fakeStrapi = createFakeStrapi({})
 global.strapi = fakeStrapi
@@ -40,10 +36,10 @@ describe('Test plugin configuration', () => {
     validateConfiguration({
       hello: 0,
     })
-    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(1)
-    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
-    expect(fakeStrapi.log.warn).toHaveBeenCalledWith(
-      'The field "hello" in the MeiliSearch plugin config is not a valid parameter'
+    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
+    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(1)
+    expect(fakeStrapi.log.error).toHaveBeenCalledWith(
+      'The collection "hello" should be of type object'
     )
   })
 
@@ -108,225 +104,124 @@ describe('Test plugin configuration', () => {
     expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
     expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
   })
-})
 
-describe('Test API configurations', () => {
-  beforeEach(async () => {
-    jest.clearAllMocks()
-    jest.restoreAllMocks()
+  test('Test configuration with string apiKey', async () => {
+    validateConfiguration({
+      apiKey: 'test',
+    })
+    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
+    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
   })
 
-  test('Tests all APIs', async () => {
-    validateAllConfigurations({ strapi: fakeStrapi })
-
-    expect(fakeStrapi.plugin().service().getApisName).toHaveBeenCalledTimes(1)
-    expect(
-      fakeStrapi.plugin().service().getApisName.mock.results[0].value
-    ).toEqual(['restaurant', 'about'])
-  })
-
-  test('Test with no meilisearch configurations', async () => {
-    const customStrapi = createFakeStrapi({})
-    validateApiConfig({
-      strapi: customStrapi,
-      apiName: apis.restaurant,
+  test('Test indexName with empty string', async () => {
+    validateConfiguration({
+      restaurant: {
+        indexName: '',
+      },
     })
-
-    expect(customStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(customStrapi.log.error).toHaveBeenCalledTimes(0)
-    expect(customStrapi.plugin().service().getAPIConfig).toHaveBeenCalledWith({
-      apiName: apis.restaurant,
-    })
-  })
-
-  test('Test with empty meilisearch configurations', async () => {
-    const customStrapi = createFakeStrapi({
-      restaurantConfig: { meilisearch: {} },
-    })
-    validateApiConfig({
-      strapi: customStrapi,
-      apiName: apis.restaurant,
-    })
-
-    expect(customStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(customStrapi.log.error).toHaveBeenCalledTimes(0)
-  })
-
-  test('Test with wrong type meilisearch configurations', async () => {
-    const customStrapi = createFakeStrapi({
-      restaurantConfig: { meilisearch: 0 },
-    })
-    validateApiConfig({
-      strapi: customStrapi,
-      apiName: apis.restaurant,
-    })
-
-    expect(customStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(customStrapi.log.error).toHaveBeenCalledTimes(1)
-    expect(customStrapi.log.error).toHaveBeenCalledWith(
-      'The "meilisearch" configuration in the restaurant service should be of type object'
+    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
+    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(1)
+    expect(fakeStrapi.log.error).toHaveBeenCalledWith(
+      'the "indexName" param of "restaurant" should be a non-empty string'
     )
   })
 
-  test('Test api with empty string indexName parameter', async () => {
-    const customStrapi = createFakeStrapi({
-      restaurantConfig: {
-        meilisearch: {
-          indexName: '',
-        },
+  test('Test indexName with non-empty string', async () => {
+    validateConfiguration({
+      restaurant: {
+        indexName: 'hello',
       },
     })
-    validateApiConfig({
-      strapi: customStrapi,
-      apiName: apis.restaurant,
-    })
-    expect(customStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(customStrapi.log.error).toHaveBeenCalledTimes(1)
+    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
+    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
   })
 
-  test('Test configuration with wrong type indexName', async () => {
-    const customStrapi = createFakeStrapi({
-      restaurantConfig: {
-        meilisearch: {
-          indexName: 0,
-        },
+  test('Test indexName with undefined', async () => {
+    validateConfiguration({
+      restaurant: {
+        indexName: undefined,
       },
     })
-    validateApiConfig({
-      strapi: customStrapi,
-      apiName: apis.restaurant,
-    })
-    expect(customStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(customStrapi.log.error).toHaveBeenCalledTimes(1)
+    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
+    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
   })
 
-  test('Test configuration with non-empty type indexName', async () => {
-    const customStrapi = createFakeStrapi({
-      restaurantConfig: {
-        meilisearch: {
-          indexName: 'hello',
-        },
+  test('Test transformEntry with wrong type', async () => {
+    validateConfiguration({
+      restaurant: {
+        transformEntry: 0,
       },
     })
-    validateApiConfig({
-      strapi: customStrapi,
-      apiName: apis.restaurant,
-    })
-    expect(customStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(customStrapi.log.error).toHaveBeenCalledTimes(0)
+    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
+    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(1)
+    expect(fakeStrapi.log.error).toHaveBeenCalledWith(
+      'the "transformEntry" param of "restaurant" should be a function'
+    )
   })
 
-  test('Test configuration with undefined transformEntry ', async () => {
-    const customStrapi = createFakeStrapi({
-      restaurantConfig: {
-        meilisearch: {
-          transformEntry: undefined,
-        },
+  test('Test transformEntry with function', async () => {
+    validateConfiguration({
+      restaurant: {
+        transformEntry: () => {},
       },
     })
-    validateApiConfig({
-      strapi: customStrapi,
-      apiName: apis.restaurant,
-    })
-    expect(customStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(customStrapi.log.error).toHaveBeenCalledTimes(0)
+    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
+    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
   })
 
-  test('Test configuration with wrong type transformEntry ', async () => {
-    const customStrapi = createFakeStrapi({
-      restaurantConfig: {
-        meilisearch: {
-          transformEntry: 0,
-        },
+  test('Test transformEntry with undefined', async () => {
+    validateConfiguration({
+      restaurant: {
+        transformEntry: undefined,
       },
     })
-    validateApiConfig({
-      strapi: customStrapi,
-      apiName: apis.restaurant,
-    })
-    expect(customStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(customStrapi.log.error).toHaveBeenCalledTimes(1)
+    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
+    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
   })
 
-  test('Test configuration with function type transformEntry ', async () => {
-    const customStrapi = createFakeStrapi({
-      restaurantConfig: {
-        meilisearch: {
-          transformEntry: () => {},
-        },
+  test('Test settings with wrong type', async () => {
+    validateConfiguration({
+      restaurant: {
+        settings: 0,
       },
     })
-    validateApiConfig({
-      strapi: customStrapi,
-      apiName: apis.restaurant,
-    })
-    expect(customStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(customStrapi.log.error).toHaveBeenCalledTimes(0)
+    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
+    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(1)
+    expect(fakeStrapi.log.error).toHaveBeenCalledWith(
+      'the "settings" param of "restaurant" should be an object'
+    )
   })
 
-  test('Test configuration with undefined settings ', async () => {
-    const customStrapi = createFakeStrapi({
-      restaurantConfig: {
-        meilisearch: {
-          settings: undefined,
-        },
+  test('Test settings with function', async () => {
+    validateConfiguration({
+      restaurant: {
+        settings: {},
       },
     })
-    validateApiConfig({
-      strapi: customStrapi,
-      apiName: apis.restaurant,
-    })
-    expect(customStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(customStrapi.log.error).toHaveBeenCalledTimes(0)
+    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
+    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
   })
 
-  test('Test configuration with wrong type settings ', async () => {
-    const customStrapi = createFakeStrapi({
-      restaurantConfig: {
-        meilisearch: {
-          settings: 0,
-        },
+  test('Test settings with undefined', async () => {
+    validateConfiguration({
+      restaurant: {
+        settings: undefined,
       },
     })
-    validateApiConfig({
-      strapi: customStrapi,
-      apiName: apis.restaurant,
-    })
-    expect(customStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(customStrapi.log.error).toHaveBeenCalledTimes(1)
+    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
+    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
   })
 
-  test('Test configuration with object type settings ', async () => {
-    const customStrapi = createFakeStrapi({
-      restaurantConfig: {
-        meilisearch: {
-          settings: {},
-        },
+  test('Test configuration with random field ', async () => {
+    validateConfiguration({
+      restaurant: {
+        random: undefined,
       },
     })
-    validateApiConfig({
-      strapi: customStrapi,
-      apiName: apis.restaurant,
-    })
-
-    expect(customStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(customStrapi.log.error).toHaveBeenCalledTimes(0)
-  })
-
-  test('Test configuration with none supported field ', async () => {
-    const customStrapi = createFakeStrapi({
-      restaurantConfig: {
-        meilisearch: {
-          transformEntry: () => {},
-          wrongField: 0,
-        },
-      },
-    })
-    validateApiConfig({
-      strapi: customStrapi,
-      apiName: apis.restaurant,
-    })
-    expect(customStrapi.log.warn).toHaveBeenCalledTimes(1)
-    expect(customStrapi.log.error).toHaveBeenCalledTimes(0)
+    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(1)
+    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
+    expect(fakeStrapi.log.warn).toHaveBeenCalledWith(
+      'The attribute "random" of "restaurant" is not a known parameter'
+    )
   })
 })
