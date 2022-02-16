@@ -110,7 +110,7 @@ jobs:
           chmod +x meilisearch
       - name: Run Meilisearch
         run: |
-          ./meilisearch --master-key=masterKey --no-analytics true &
+          ./meilisearch --master-key=masterKey --no-analytics &
       - name: Install dependencies
         run: yarn --dev && yarn --cwd ./playground
       - name: Remove plugin symlink
