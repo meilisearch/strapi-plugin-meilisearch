@@ -113,6 +113,9 @@ module.exports = ({ strapi }) => ({
       populate,
       publicationState: publicationState || 'live',
     })
+    // Safe guard in case the content-type is a single type.
+    // In which case it is wrapped in an array for consistency.
+    if (entries && !Array.isArray(entries)) return [entries]
     return entries || []
   },
 
