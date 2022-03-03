@@ -16,9 +16,9 @@ module.exports = ({ env }) => ({
         settings:  {
           "searchableAttributes": ["*"]
         }
-      }
-      // host: string
-      // apiKey : string
+      },
+      host: "http://localhost:7700",
+      apiKey: "masterKey"
     }
   }
 });

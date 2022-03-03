@@ -1,31 +1,31 @@
 'use strict'
 
-module.exports = ({ store }) => ({
+module.exports = ({ store, strapi }) => ({
   /**
-   * Get the api key of MeiliSearch from the store.
+   * Get the API key of MeiliSearch from the store.
    *
-   * @param  {string} key
+   * @returns {Promise<string>} API key of Meilisearch instance.
    */
   getApiKey: async function () {
     return store.getStoreKey({ key: 'meilisearch_api_key' })
   },
 
   /**
-   * Set the api key of MeiliSearch to the store.
+   * Set the API key of MeiliSearch to the store.
    *
-   * @param  {string} value
+   * @param  {string} apiKey - API key of Meilisearch instance.
    */
-  setApiKey: async function (value) {
+  setApiKey: async function (apiKey) {
     return store.setStoreKey({
       key: 'meilisearch_api_key',
-      value: value || '',
+      value: apiKey || '',
     })
   },
 
   /**
    * Get host of MeiliSearch from the store.
    *
-   * @param  {string} key
+   * @returns {Promise<string>} Host of Meilisearch instance.
    */
   getHost: async function () {
     return store.getStoreKey({ key: 'meilisearch_host' })
@@ -47,15 +47,23 @@ module.exports = ({ store }) => ({
    * @param  {string} credentials.host - Host of the searchClient.
    * @param  {string} credentials.apiKey - ApiKey of the searchClient.
    *
-   * @return {{ host: string, apiKey: string}} - Credentials
+   * @return {Promise<{
+   *  host: string,
+   *  apiKey: string,
+   *  ApiKeyIsFromConfigFile: boolean,
+   *  HostIsFromConfigFile: boolean
+   * }>} Extended Credentials information
    */
   addCredentials: async function ({ host, apiKey }) {
-    const { configFileApiKey, configFileHost } = await this.getCredentials()
+    const {
+      ApiKeyIsFromConfigFile,
+      HostIsFromConfigFile,
+    } = await this.getCredentials()
 
-    if (!configFileApiKey) {
+    if (!ApiKeyIsFromConfigFile) {
       await this.setApiKey(apiKey || '')
     }
-    if (!configFileHost) {
+    if (!HostIsFromConfigFile) {
       await this.setHost(host || '')
     }
     return this.getCredentials()
@@ -64,77 +72,105 @@ module.exports = ({ store }) => ({
   /**
    * Get credentials from the store and from the config file.
    *
-   * @return {{ host: string, apiKey: string, configFileHost: string, configFileApiKey: string}}
+   * @return {Promise<{
+   *  host: string,
+   *  apiKey: string,
+   *  ApiKeyIsFromConfigFile: boolean,
+   *  HostIsFromConfigFile: boolean
+   * }>} Extended Credentials information
    */
   getCredentials: async function () {
     const apiKey = await this.getApiKey()
-
     const host = await this.getHost()
-    const configFileApiKey = (await this.getConfigApiKey()) || false
-    const configFileHost = (await this.getConfigHost()) || false
-    return { apiKey, host, configFileApiKey, configFileHost }
+
+    const ApiKeyIsFromConfigFile =
+      !!(await this.getApiKeyIsFromConfigFile()) || false
+    const HostIsFromConfigFile =
+      !!(await this.getHostIsFromConfigFile()) || false
+    return { apiKey, host, ApiKeyIsFromConfigFile, HostIsFromConfigFile }
   },
+
   /**
    * Update clients credentials in the store
    *
    * @param  {Object} config - Credentials
+   *
+   * @return {Promise<{
+   *  host: string,
+   *  apiKey: string,
+   *  ApiKeyIsFromConfigFile: boolean,
+   *  HostIsFromConfigFile: boolean
+   * }>} Extended Credentials information
+   *
+   * FIXME: wont work with credentials provided in the front-end
    */
-  updateStoreCredentials: async function (config) {
+  syncCredentials: async function (config) {
     // optional chaining is not natively supported by node 12.
-    let apiKey = false
-    let host = false
+    let apiKey = ''
+    let host = ''
 
-    config = strapi.config.plugins
-    if (config && config.meilisearch) {
-      apiKey = config.meilisearch.apiKey
-      host = config.meilisearch.host
+    config = strapi.config.get('plugin.meilisearch')
+
+    if (config && config) {
+      apiKey = config.apiKey
+      host = config.host
     }
 
     if (apiKey) {
       await this.setApiKey(apiKey)
     }
-    await this.setConfigApiKey(!!apiKey)
+    const ApiKeyIsFromConfigFile = await this.setApiKeyIsFromConfigFile(
+      !!apiKey
+    )
 
     if (host) {
       await this.setHost(host)
     }
-    await this.setConfigHost(!!host)
+    const HostIsFromConfigFile = await this.setHostIsFromConfigFile(!!host)
 
-    return { apiKey, host }
+    return { apiKey, host, ApiKeyIsFromConfigFile, HostIsFromConfigFile }
   },
   /**
-   * Get apiKey stored in the config file of a MeiliSearch from the store.
+   * True if the host is defined in the configuration file of the plugin.
+   * False otherwise
    *
-   * @param  {string} key
+   * @returns  {Promise<boolean>} APIKeyCameFromConfigFile
    */
-  getConfigApiKey: async function () {
+  getApiKeyIsFromConfigFile: async function () {
     return store.getStoreKey({ key: 'meilisearch_api_key_config' })
   },
 
   /**
-   * Set the api key from the config file of MeiliSearch to the store.
+   * Set to true if the API key is defined in the configuration file of the plugin.
+   * False otherwise
    *
-   * @param  {string} value
+   * @param  {boolean} value - Whether the API key came from the configuration file
+   *
+   * @returns {Promise<boolean>} APIKeyCameFromConfigFile
    */
-  setConfigApiKey: async function (value) {
+  setApiKeyIsFromConfigFile: async function (value) {
     return store.setStoreKey({ key: 'meilisearch_api_key_config', value })
   },
 
   /**
-   * Get host stored in the config file of a MeiliSearch from the store.
+   * True if the host is defined in the configuration file of the plugin.
+   * False otherwise
    *
-   * @param  {string} key
+   * @returns {Promise<boolean>} HostCameFromConfigFile
    */
-  getConfigHost: async function () {
+  getHostIsFromConfigFile: async function () {
     return store.getStoreKey({ key: 'meilisearch_host_config' })
   },
 
   /**
-   * Set the host from the config file of MeiliSearch to the store.
+   * Set to true if the host is defined in the configuration file of the plugin.
+   * False otherwise
    *
-   * @param  {string} value
+   * @param  {string} value - Whether the host came from the configuration file
+   *
+   * @returns {Promise<boolean>} HostCameFromConfigFile
    */
-  setConfigHost: async function (value) {
+  setHostIsFromConfigFile: async function (value) {
     return store.setStoreKey({ key: 'meilisearch_host_config', value })
   },
 })

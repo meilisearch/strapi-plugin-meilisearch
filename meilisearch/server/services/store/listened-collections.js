@@ -4,7 +4,7 @@ module.exports = ({ store }) => ({
   /**
    * Get listened collections from the store.
    *
-   * @returns {string[]} - Collection names.
+   * @returns {Promise<string[]>} - Collection names.
    */
   getListenedCollections: async function () {
     const collections = await store.getStoreKey({
@@ -16,14 +16,14 @@ module.exports = ({ store }) => ({
   /**
    * Set listened collections to the store.
    *
-   * @param  {string} value
+   * @param  {string[]} collections
    *
-   * @returns {string[]} - Collection names.
+   * @returns {Promise<string[]>} - Collection names.
    */
-  setListenedCollections: async function (value = []) {
+  setListenedCollections: async function (collections = []) {
     return store.setStoreKey({
       key: 'meilisearch_listened_collections',
-      value,
+      collections,
     })
   },
 })

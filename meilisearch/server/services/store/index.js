@@ -6,7 +6,7 @@ const listenedCollections = require('./listened-collections')
 module.exports = ({ strapi }) => {
   const store = createStoreConnector({ strapi })
   return {
-    ...credentials({ store }),
+    ...credentials({ store, strapi }),
     ...indexedCollections({ store }),
     ...listenedCollections({ store }),
   }

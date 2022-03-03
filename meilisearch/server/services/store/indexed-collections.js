@@ -4,7 +4,8 @@ module.exports = ({ store }) => ({
   /**
    * Get listened collections from the store.
    *
-   * @param  {string} key
+   * TODO: should become content type
+   * @returns {Promise<string[]>} List of collections indexed in Meilisearch.
    */
   getIndexedCollections: async function () {
     const collections = await store.getStoreKey({
@@ -16,16 +17,23 @@ module.exports = ({ store }) => ({
   /**
    * Set indexed collections to the store.
    *
-   * @param  {string} value
+   * @param  {string[]} collections
+   *
+   * @returns {Promise<string[]>} List of collections indexed in Meilisearch.
    */
-  setIndexedCollections: async function (value = {}) {
-    return store.setStoreKey({ key: 'meilisearch_indexed_collections', value })
+  setIndexedCollections: async function (collections) {
+    return store.setStoreKey({
+      key: 'meilisearch_indexed_collections',
+      collections,
+    })
   },
 
   /**
    * Add a collection to the indexed collection list if it is not already present.
    *
-   * @param  {string} collection
+   * @param {string} collection
+   *
+   * @returns {Promise<string[]>} List of collections indexed in Meilisearch.
    */
   addIndexedCollection: async function (collection) {
     const indexedCollections = await this.getIndexedCollections()
@@ -38,7 +46,7 @@ module.exports = ({ store }) => ({
    * Remove a collection from the indexed collection list if it exists.
    *
    * @param {string} collection
-   * @returns {array} collections
+   * @returns {Promise<string[]>} List of collections indexed in Meilisearch.
    */
   removeIndexedCollection: async function (collection) {
     const indexedCollections = await this.getIndexedCollections()
@@ -50,8 +58,9 @@ module.exports = ({ store }) => ({
   /**
    * Add a collection to the listened collections list.
    *
-   * @param {string[]} - Collections names that listened.
-   * @returns {string[]} - Collection names.
+   * @param {string} collection - Collection name that is being listened.
+   *
+   * @returns {Promise<string[]>} - Collection names.
    */
   appendListenedCollection: async function (collection) {
     const listenedCollections = await this.getListenedCollections()
@@ -63,8 +72,9 @@ module.exports = ({ store }) => ({
   /**
    * Add multiple collections to the listened collections list.
    *
-   * @param {string[]} - Collections names that listened.
-   * @returns {string[]} - Collection names.
+   * @param {string[]} collections - Collections names that listened.
+   *
+   * @returns {Promise<string[]>} - Collection names.
    */
   appendListenedCollections: async function (collections) {
     for (const collection of collections) {
