@@ -1,3 +1,7 @@
+const configurations = require('./config')
+
 module.exports = ({ strapi }) => {
-  return {}
+  return {
+    ...configurations({ strapi }),
+  }
 }

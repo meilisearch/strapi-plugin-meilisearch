@@ -26,10 +26,6 @@ function createFakeStrapi({
     service: fakePluginService,
   }))
 
-  const fakeGetApiFunction = jest.fn(() => {
-    return ['restaurant', 'about']
-  })
-
   const fakeGetAPIServices = jest.fn(({ apiName }) => {
     if (apiName == 'restaurant') {
       return {
@@ -43,7 +39,6 @@ function createFakeStrapi({
   })
 
   const fakePluginService = jest.fn(() => ({
-    getApisName: fakeGetApiFunction,
     getAPIServices: fakeGetAPIServices,
   }))
 
@@ -75,6 +70,24 @@ function createFakeStrapi({
       }
     }),
   }
+
+  const fakeFindWithCount = jest.fn(() => {
+    return 1
+  })
+  const fakeDb = {
+    query: jest.fn(() => ({
+      count: fakeFindWithCount,
+    })),
+  }
+
+  const fakeFindMany = jest.fn(() => {
+    return [{ id: 1 }]
+  })
+
+  const fakeEntityService = {
+    findMany: fakeFindMany,
+  }
+
   const fakeStrapi = {
     log: fakeLogger,
     service: fakeService,
@@ -82,6 +95,8 @@ function createFakeStrapi({
     contentTypes,
     api: fakeApi,
     config: fakeConfig,
+    db: fakeDb,
+    entityService: fakeEntityService,
   }
   return fakeStrapi
 }

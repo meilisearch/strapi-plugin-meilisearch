@@ -13,12 +13,15 @@ module.exports = ({ strapi }) => {
      *
      * @return {String} - Index name
      */
-    getIndexName: function ({ apiName }) {
-      const pluginConfig = strapi.config.get('plugin.meilisearch') || {}
-      const apiConfig = pluginConfig[apiName] || {}
-
-      const indexName = apiConfig.indexName || apiName
-      return indexName
+    getIndexNameOfCollection: function ({ collection }) {
+      const meilisearchConfig = strapi.config.get('plugin.meilisearch') || {}
+      console.log({ meilisearchConfig, collection })
+      const collectionConfig = meilisearchConfig[collection] || {}
+      console.log(
+        { collectionConfig },
+        collectionConfig.indexName || collection
+      )
+      return collectionConfig.indexName || collection
     },
 
     /**
@@ -81,23 +84,33 @@ module.exports = ({ strapi }) => {
       return settings
     },
 
-    getAllAPIservices: function () {
-      const apis = strapi
-        .plugin('meilisearch')
-        .service('contentTypes')
-        .getApisName()
-
-      return apis.map(apiName => {
-        return strapi.api[apiName]?.services || {}
-      })
-    },
-
     getAPIServices: function ({ apiName }) {
       return strapi.api[apiName]?.services[apiName] || {}
     },
 
     changeConfigurations: function ({ configuration, apiName }) {
       return (strapi.api[apiName].services[apiName] = configuration)
+    },
+
+    /**
+     * Return all collections having the provided indexName setting.
+     *
+     * @param  {string} indexName
+     */
+    listCollectionsWithCustomIndexName: async function ({ indexName }) {
+      console.log({ indexName })
+
+      const contentTypes = this.getContentTypesName() || []
+      console.log({ contentTypes })
+
+      const contentTypeWithIndexName = contentTypes.filter(contentType => {
+        const name = strapi
+          .plugin('meilisearch')
+          .service('meilisearch')
+          .getIndexNameOfCollection({ collection: contentType })
+        return name === indexName
+      })
+      return contentTypeWithIndexName
     },
   }
 }
