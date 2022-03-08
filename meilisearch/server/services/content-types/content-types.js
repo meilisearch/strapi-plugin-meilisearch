@@ -36,77 +36,99 @@ module.exports = ({ strapi }) => ({
   },
 
   /**
-   * Wether the content type exists or not.
+   * Get the content type uid in this format: "type::service.contentType".
    *
-   * @param  {string} contentType - Name of the content type.
+   * If it is already an uid it returns it. If not it searches for it
    *
-   * @returns  {number}
+   * @param  {object} options
+   * @param  {string} options.contentType - Name of the contentType.
+   *
+   * @returns  {string | undefined} Returns the contentType uid
    */
-  contentTypeExists({ contentType }) {
-    return !!Object.keys(strapi.contentTypes).includes(contentType)
+  getContentTypeUid({ contentType }) {
+    const contentTypes = strapi.contentTypes
+    const contentTypeUids = Object.keys(contentTypes)
+    if (contentTypeUids.includes(contentType)) return contentType
+
+    const contentTypdUid = contentTypeUids.find(uid => {
+      return contentTypes[uid].modelName === contentType
+    })
+
+    return contentTypdUid
   },
 
   /**
    * Number of entries in a content type.
    *
-   * @param  {string} contentType - Name of the contentType.
+   * @param  {object} options
+   * @param  {string} options.contentType - Name of the contentType.
+   * @param  {object} [options.where] - Filter condition
    *
-   * @returns  {number} number of entries in the content type.
+   * @returns  {Promise<number>} number of entries in the content type.
    */
   numberOfEntries: async function ({ contentType, where = {} }) {
-    if (!this.contentTypeExists({ contentType })) return 0
+    const contentTypeUid = this.getContentTypeUid({ contentType })
+    if (contentTypeUid === undefined) return 0
 
-    const count = await strapi.db.query(contentType).count({ where })
-    return count
+    try {
+      const count = await strapi.db.query(contentTypeUid).count({ where })
+      return count
+    } catch (e) {
+      strapi.log.warn(e)
+      return 0
+    }
   },
 
   /**
    * Returns the total number of entries of the content types.
    *
-   * @param  {string[]} contentTypes List of the content types.
+   * @param  {object} options
+   * @param  {string[]} options.contentTypes - Names of the contentType.
+   * @param  {object} [options.where] - Filter condition
    *
-   * @returns {number} Total entries number of the content types.
+   * @returns {Promise<number>} Total entries number of the content types.
    */
-  totalNumberOfEntries: async function ({ contentTypes }) {
+  totalNumberOfEntries: async function ({ contentTypes, where = {} }) {
     let numberOfEntries = await Promise.all(
       contentTypes.map(async contentType =>
-        this.numberOfEntries({ contentType })
+        this.numberOfEntries({ contentType, where })
       )
     )
-
     const entriesSum = numberOfEntries.reduce((acc, curr) => (acc += curr), 0)
-
     return entriesSum
   },
 
   /**
    * Returns a batch of entries of a given content type.
    * More information: https://docs.strapi.io/developer-docs/latest/developer-resources/database-apis-reference/entity-service/crud.html#findmany
+   * @param  {object} options
+   * @param  {string | string[]} [options.fields] - Fields present in the returned entry.
+   * @param  {number} [options.start] - Pagination start.
+   * @param  {number} [options.limit] - Number of entries to return.
+   * @param  {object} [options.filters] - Filters to use.
+   * @param  {object} [options.sort] - Order definition.
+   * @param  {object} [options.populate] - Relations, components and dynamic zones to populate.
+   * @param  {object} [options.publicationState] - Publication state: live or preview.
+   * @param  {string} [options.contentType] - Content type.
    *
-   * @param  {number} fields - Fields present in the returned entry.
-   * @param  {number} start - Pagination start.
-   * @param  {number} limit - Number of entries to return.
-   * @param  {object} filters - Filters to use.
-   * @param  {object} sort - Order definition.
-   * @param  {object} populate - Relations, components and dynamic zones to populate.
-   * @param  {object} publicationState - Publication state: live or preview.
-   * @param  {string} contentType - Content type.
-   *
-   * @returns  {object[]} - Entries.
+   * @returns  {Promise<object[]>} - Entries.
    */
   async getContentTypeEntries({
     contentType,
     fields = '*',
+    start = 0,
     limit = 500,
     filters = {},
     sort = {},
     populate = {},
     publicationState,
   }) {
-    if (!this.contentTypeExists({ contentType })) return []
+    const contentTypeUid = this.getContentTypeUid({ contentType })
+    if (contentTypeUid === undefined) return []
 
-    const entries = await strapi.entityService.findMany(contentType, {
+    const entries = await strapi.entityService.findMany(contentTypeUid, {
       fields: fields || '*',
+      start,
       limit,
       filters,
       sort,
@@ -122,26 +144,31 @@ module.exports = ({ strapi }) => ({
   /**
    * Apply an action on all the entries of the provided content type.
    *
-   * @param  {string} contentType - Name of the content type.
-   * @param  {function} callback - Function applied on each entry of the contentType.
+   * @param  {object} options
+   * @param  {string} options.collection - Name of the content type.
+   * @param  {function} options.callback - Function applied on each entry of the contentType.
    *
-   * @returns {any[]} - List of all the returned elements from the callback.
+   * @returns {Promise<any[]>} - List of all the returned elements from the callback.
    */
-  actionInBatches: async function ({ contentType, callback = () => {} }) {
+  actionInBatches: async function ({ collection, callback = () => {} }) {
     const BATCH_SIZE = 500
+    const contentType = collection
+
     // Need total number of entries in collection
-    const entries_count = await this.numberOfEntries({ contentType })
+    const entries_count = await this.numberOfEntries({
+      contentType,
+    })
     const cbResponse = []
 
     for (let index = 0; index <= entries_count; index += BATCH_SIZE) {
       const entries =
         (await this.getContentTypeEntries({
-          offset: index,
+          start: index,
           limit: BATCH_SIZE,
           contentType,
         })) || []
 
-      const info = await callback(entries, contentType)
+      const info = await callback({ entries, contentType })
       if (Array.isArray(info)) cbResponse.push(...info)
     }
     return cbResponse

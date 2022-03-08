@@ -17,6 +17,9 @@ module.exports = ({ env }) => ({
           "searchableAttributes": ["*"]
         }
       },
+      about: {
+        indexName: "my_restaurant",
+      },
       host: "http://localhost:7700",
       apiKey: "masterKey"
     }

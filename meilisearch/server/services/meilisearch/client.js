@@ -34,15 +34,4 @@ class MeiliSearchError extends Error {
  *
  * @returns { object } - MeiliSearch client instance.
  */
-module.exports = config => {
-  try {
-    return new MeiliSearch(config)
-  } catch (e) {
-    console.error(e)
-    throw new MeiliSearchError({
-      message: 'Please provide a valid host for your Meilisearch instance',
-      link:
-        'https://docs.meilisearch.com/learn/getting_started/installation.html#download-and-launch',
-    })
-  }
-}
+module.exports = config => new MeiliSearch(config)

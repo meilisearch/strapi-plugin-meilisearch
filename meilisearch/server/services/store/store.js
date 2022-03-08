@@ -10,9 +10,9 @@ module.exports = ({ strapi }) => {
     /**
      * Get value of a given key from the store.
      *
-     * @param  {string} key
+     * @param  {object} options
+     * @param  {string} options.key
      */
-    // DOES NOT WORK
     getStoreKey: async function ({ key }) {
       return strapiStore.get({ key })
     },
@@ -20,8 +20,9 @@ module.exports = ({ strapi }) => {
     /**
      * Set value of a given key to the store.
      *
-     * @param  {string} key
-     * @param  {any} value
+     * @param  {object} options
+     * @param  {string} options.key
+     * @param  {any} options.value
      */
     // WORK
     setStoreKey: async function ({ key, value }) {

@@ -74,6 +74,16 @@ function validateCollectionConfiguration({ configuration, collection }) {
   }
 
   if (
+    configuration.filteredEntry !== undefined &&
+    typeof configuration.filteredEntry !== 'function'
+  ) {
+    strapi.log.error(
+      `the "filteredEntry" param of "${collection}" should be a function`
+    )
+    delete configuration.filteredEntry
+  }
+
+  if (
     configuration.settings !== undefined &&
     !isObject(configuration.settings)
   ) {

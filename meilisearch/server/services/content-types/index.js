@@ -1,6 +1,8 @@
 'use strict'
-const contentTypes = require('./content-types')
+const contentTypeService = require('./content-types')
 
-module.exports = ({ strapi }) => ({
-  ...contentTypes({ strapi }),
-})
+module.exports = ({ strapi }) => {
+  return {
+    ...contentTypeService({ strapi }),
+  }
+}

@@ -55,6 +55,7 @@
   },
   "homepage": "https://github.com/meilisearch/strapi-plugin-meilisearch#readme",
   "devDependencies": {
+    "@types/jest": "^27.4.1",
     "concurrently": "^6.2.0",
     "cypress": "^7.3.0",
     "eslint": "^8.2.0",

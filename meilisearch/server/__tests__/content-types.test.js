@@ -85,11 +85,11 @@ describe('Tests content types', () => {
       strapi: fakeStrapi,
     })
 
-    const exists = contentTypeServices.contentTypeExists({
+    const exists = contentTypeServices.getContentTypeUid({
       contentType: 'api::restaurant.restaurant',
     })
 
-    expect(exists).toEqual(true)
+    expect(exists).toEqual('api::restaurant.restaurant')
   })
 
   test('Test number of entries', async () => {
@@ -151,8 +151,8 @@ describe('Tests content types', () => {
 
     const contentType = 'api::restaurant.restaurant'
     const entries = await contentTypeServices.actionInBatches({
-      contentType,
-      callback: (entries, contentType) =>
+      collection: contentType,
+      callback: ({ entries, contentType }) =>
         entries.map(entry => ({
           id: entry.id + 1,
           contentType,
@@ -170,7 +170,7 @@ describe('Tests content types', () => {
 
     const contentType = 'api::restaurant.restaurant'
     const entries = await contentTypeServices.actionInBatches({
-      contentType,
+      collection: contentType,
       callback: () => {},
     })
 
