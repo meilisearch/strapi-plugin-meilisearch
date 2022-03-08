@@ -376,11 +376,10 @@ module.exports = ({ strapi, adapter, config }) => {
      * @param  {object} options
      * @param  {string} options.collection - Collection name.
      *
-     * @returns {Promise<{ message: string }>} - All tasks uid from the indexation process.
+     * @returns {Promise<void>} - All tasks uid from the indexation process.
      */
     removeCollectionFromMeiliSearch: async function ({ collection }) {
       await this.emptyOrDeleteIndex({ collection })
-      return { message: 'ok' }
     },
 
     /**

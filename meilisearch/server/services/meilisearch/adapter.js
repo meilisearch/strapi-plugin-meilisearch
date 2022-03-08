@@ -1,5 +1,5 @@
 'use strict'
-module.exports = ({ strapi }) => {
+module.exports = () => {
   return {
     /**
      * Add the prefix of the collection in front of the id of its entry.
