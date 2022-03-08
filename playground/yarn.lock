@@ -65,7 +65,7 @@
     jsesc "^2.5.1"
     source-map "^0.5.0"
 
-"@babel/helper-annotate-as-pure@^7.0.0", "@babel/helper-annotate-as-pure@^7.16.0":
+"@babel/helper-annotate-as-pure@^7.16.0":
   version "7.16.0"
   resolved "https://registry.yarnpkg.com/@babel/helper-annotate-as-pure/-/helper-annotate-as-pure-7.16.0.tgz#9a1f0ebcda53d9a2d00108c4ceace6a5d5f1f08d"
   integrity sha512-ItmYF9vR4zA8cByDocY05o0LGUkp1zhbTQOH1NFyl5xXEqlTJQCEJjieriw+aFpxo16swMxUnUiKS7a/r4vtHg==
@@ -1709,34 +1709,6 @@
     plop "2.7.6"
     pluralize "8.0.0"
 
-"@strapi/helper-plugin@4.0.0":
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/@strapi/helper-plugin/-/helper-plugin-4.0.0.tgz#b8b502451c0fc9ef6f40b0f2377e6547828d3857"
-  integrity sha512-73J7vTXnABAiS188INcah8zTLSZSICNxxgrUVALPaPcc65awRA9T6UenlHA1vX7Ldg+CQ/+owMiromSPo4AVyQ==
-  dependencies:
-    "@fortawesome/fontawesome-free" "^5.15.2"
-    "@fortawesome/fontawesome-svg-core" "^1.2.35"
-    "@fortawesome/free-brands-svg-icons" "^5.15.2"
-    "@fortawesome/free-solid-svg-icons" "^5.15.3"
-    "@fortawesome/react-fontawesome" "^0.1.14"
-    axios "0.24.0"
-    babel-plugin-styled-components "1.12.0"
-    classnames "^2.3.1"
-    formik "2.2.9"
-    immutable "^3.8.2"
-    invariant "^2.2.1"
-    lodash "4.17.21"
-    match-sorter "^4.0.2"
-    moment "^2.29.1"
-    react "^17.0.2"
-    react-dom "^17.0.2"
-    react-helmet "^6.1.0"
-    react-intl "5.20.2"
-    react-router "^5.2.0"
-    react-router-dom "5.2.0"
-    styled-components "^5.2.3"
-    whatwg-fetch "^3.6.2"
-
 "@strapi/helper-plugin@4.1.2":
   version "4.1.2"
   resolved "https://registry.yarnpkg.com/@strapi/helper-plugin/-/helper-plugin-4.1.2.tgz#302560249fddc6784474af003000c5f691e6d107"
@@ -1849,14 +1821,14 @@
     react-router-dom "5.2.0"
     sharp "0.30.1"
 
-"@strapi/plugin-users-permissions@^4.0.0":
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/@strapi/plugin-users-permissions/-/plugin-users-permissions-4.0.0.tgz#2f8c1cb6f270fb06c0e8e139ab3c29e7a0cde867"
-  integrity sha512-e+0gI/od9TDaYnAZl1QeNLvpuGPNLQnAiu6gzBRG3CBb+UlIDGeXfaJhO0bDdEa7q3ZRNpzGiUfn08pMNPPnxg==
+"@strapi/plugin-users-permissions@^4.1.2":
+  version "4.1.2"
+  resolved "https://registry.yarnpkg.com/@strapi/plugin-users-permissions/-/plugin-users-permissions-4.1.2.tgz#403b28d1e02ba0a684685afc840ccc10fd5d21cc"
+  integrity sha512-9rejnRWqXqmTkDqZ6sFE2TsiAvy3W5puVXEo375/8Qt1QQ3rvv/3m278qjtDbqZOL5M9s6XhCWC6AAVnDh79UA==
   dependencies:
     "@purest/providers" "^1.0.2"
-    "@strapi/helper-plugin" "4.0.0"
-    "@strapi/utils" "4.0.0"
+    "@strapi/helper-plugin" "4.1.2"
+    "@strapi/utils" "4.1.2"
     bcryptjs "2.4.3"
     grant-koa "5.4.8"
     jsonwebtoken "^8.1.0"
@@ -1944,17 +1916,6 @@
     semver "7.3.5"
     statuses "2.0.1"
     uuid "^3.3.2"
-
-"@strapi/utils@4.0.0":
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/@strapi/utils/-/utils-4.0.0.tgz#0fde18f332111e4db0b1f5b389018e33396a81b7"
-  integrity sha512-EsSRq3oOsm3oUXWkd3wUKFpv/hTcsB7frcZyuz7Ab9bp2fp5R6yYglJROoB/3m59ROOP6WzOCQ4/wMQfWFuqvw==
-  dependencies:
-    "@sindresorhus/slugify" "1.1.0"
-    date-fns "2.24.0"
-    http-errors "1.8.0"
-    lodash "4.17.21"
-    yup "0.32.9"
 
 "@strapi/utils@4.1.2", "@strapi/utils@^4.0.7":
   version "4.1.2"
@@ -2785,16 +2746,6 @@ babel-plugin-polyfill-regenerator@^0.3.0:
   dependencies:
     "@babel/helper-define-polyfill-provider" "^0.3.1"
 
-babel-plugin-styled-components@1.12.0:
-  version "1.12.0"
-  resolved "https://registry.yarnpkg.com/babel-plugin-styled-components/-/babel-plugin-styled-components-1.12.0.tgz#1dec1676512177de6b827211e9eda5a30db4f9b9"
-  integrity sha512-FEiD7l5ZABdJPpLssKXjBUJMYqzbcNzBowfXDCdJhOpbhWiewapUaY+LZGT8R4Jg2TwOjGjG4RKeyrO5p9sBkA==
-  dependencies:
-    "@babel/helper-annotate-as-pure" "^7.0.0"
-    "@babel/helper-module-imports" "^7.0.0"
-    babel-plugin-syntax-jsx "^6.18.0"
-    lodash "^4.17.11"
-
 babel-plugin-styled-components@2.0.2, "babel-plugin-styled-components@>= 1.12.0":
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/babel-plugin-styled-components/-/babel-plugin-styled-components-2.0.2.tgz#0fac11402dc9db73698b55847ab1dc73f5197c54"
@@ -3378,11 +3329,6 @@ class-utils@^0.3.5:
     define-property "^0.2.5"
     isobject "^3.0.0"
     static-extend "^0.1.1"
-
-classnames@^2.3.1:
-  version "2.3.1"
-  resolved "https://registry.yarnpkg.com/classnames/-/classnames-2.3.1.tgz#dfcfa3891e306ec1dad105d0e88f4417b8535e8e"
-  integrity sha512-OlQdbZ7gLfGarSqxesMesDa5uz7KFbID8Kpq/SxIoNGDqY8lSYs0D+hhtBXhcdB3rcbXArFr7vlHheLk1voeNA==
 
 clean-css@^5.2.2:
   version "5.2.4"
@@ -5576,11 +5522,6 @@ immer@9.0.6:
   version "9.0.6"
   resolved "https://registry.yarnpkg.com/immer/-/immer-9.0.6.tgz#7a96bf2674d06c8143e327cbf73539388ddf1a73"
   integrity sha512-G95ivKpy+EvVAnAab4fVa4YGYn24J1SpEktnJX7JJ45Bd7xqME/SCplFzYFmTbrkwZbQ4xJK1xMTUYBkN6pWsQ==
-
-immutable@^3.8.2:
-  version "3.8.2"
-  resolved "https://registry.yarnpkg.com/immutable/-/immutable-3.8.2.tgz#c2439951455bb39913daf281376f1530e104adf3"
-  integrity sha1-wkOZUUVbs5kT2vKBN28VMOEErfM=
 
 import-local@^3.0.2:
   version "3.0.3"
