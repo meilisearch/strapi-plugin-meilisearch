@@ -1,38 +1,46 @@
 'use strict'
-module.exports = () => {
+module.exports = ({ strapi }) => {
+  const contentTypeService = strapi.plugin('meilisearch').service('contentType')
   return {
     /**
-     * Add the prefix of the collection in front of the id of its entry.
+     * Add the prefix of the contentType in front of the id of its entry.
      *
      * We do this to avoid id's conflict in case of composite indexes.
      * It returns the id in the following format: `[collectionName]-[id]`
      *
      * @param  {object} options
-     * @param  {string} options.collection - Collection name.
+     * @param  {string} options.contentType - ContentType name.
      * @param  {number} options.entryId - Entry id.
      *
      * @returns {string} - Formated id
      */
-    addCollectionPrefixToId: function ({ collection, entryId }) {
-      return `${collection}-${entryId}`
+    addCollectionNamePrefixToId: function ({ contentType, entryId }) {
+      const collectionName = contentTypeService.getCollectionName({
+        contentType,
+      })
+
+      return `${collectionName}-${entryId}`
     },
 
     /**
-     * Add the prefix of the collection on a list of entries id.
+     * Add the prefix of the contentType on a list of entries id.
      *
      * We do this to avoid id's conflict in case of composite indexes.
      * The ids are transformed in the following format: `[collectionName]-[id]`
      *
      * @param  {object} options
-     * @param  {string} options.collection - Collection name.
+     * @param  {string} options.contentType - ContentType name.
      * @param  {object[]} options.entries - entries.
      *
      * @returns {object[]} - Formatted entries.
      */
-    addCollectionPrefixToIdOfEntries: function ({ collection, entries }) {
+    addCollectionNamePrefix: function ({ contentType, entries }) {
       return entries.map(entry => ({
         ...entry,
-        id: this.addCollectionPrefixToId({ entryId: entry.id, collection }),
+        id: this.addCollectionNamePrefixToId({
+          entryId: entry.id,
+          contentType,
+        }),
       }))
     },
   }

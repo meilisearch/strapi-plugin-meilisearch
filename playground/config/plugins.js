@@ -6,9 +6,13 @@ module.exports = ({ env }) => ({
     resolve: path.resolve(__dirname, '../src/plugins/meilisearch'),
     config: {
       restaurant: {
+        filterEntry({ entry }) {
+          return entry.id !== 2
+        },
         transformEntry({ entry }) {
           const transformed = {
-            id: entry.id + 1
+            ...entry,
+            name: entry.title
           };
           return transformed;
         },

@@ -1,95 +1,103 @@
 'use strict'
 const { isObject } = require('../../../utils')
 /**
- * Log an error message on a failed action on a collection.
+ * Log an error message on a failed action on a contentType.
  *
  * @param  {object} options
- * @param  {String} options.collection - Name of the collection.
+ * @param  {String} options.contentType - Name of the contentType.
  * @param  {String} options.action - Action that failed.
  *
  * @returns {[]}
  */
-const aborted = ({ collection, action }) => {
+const aborted = ({ contentType, action }) => {
   strapi.log.error(
-    `Indexing of ${collection} aborted as the data could not be ${action}`
+    `Indexing of ${contentType} aborted as the data could not be ${action}`
   )
   return [] // return empty array to avoid indexing entries that might contain sensitive data
 }
 
 module.exports = ({ strapi }) => {
   const meilisearchConfig = strapi.config.get('plugin.meilisearch') || {}
+  const contentTypeService = strapi.plugin('meilisearch').service('contentType')
   return {
     /**
-     * Get the name of the index from Meilisearch in which the collection content is added.
+     * Get the name of the index from Meilisearch in which the contentType content is added.
      *
-     * @param collection - Name of the collection.
+     * @param contentType - Name of the contentType.
      *
      * @return {String} - Index name
      */
-    getIndexNameOfCollection: function ({ collection }) {
-      const collectionConfig = meilisearchConfig[collection] || {}
-      return collectionConfig.indexName || collection
+    getIndexNameOfContentType: function ({ contentType }) {
+      const collection = contentTypeService.getCollectionName({ contentType })
+
+      const contentTypeConfig = meilisearchConfig[collection] || {}
+      return contentTypeConfig.indexName || collection
     },
 
     /**
-     * Transform collections entries before indexation in MeiliSearch.
+     * Transform contentTypes entries before indexation in MeiliSearch.
      *
      * @param {object} options
-     * @param {string} options.collection - Collection name.
+     * @param {string} options.contentType - ContentType name.
      * @param {Array<Object>} options.entries  - The data to convert. Conversion will use
      * the static method `toSearchIndex` defined in the model definition
      *
      * @return {Array<Object>} - Converted or mapped data
      */
-    transformEntries: function ({ collection, entries = [] }) {
-      const apiConfig = meilisearchConfig[collection] || {}
+    transformEntries: function ({ contentType, entries = [] }) {
+      const collection = contentTypeService.getCollectionName({ contentType })
+      const contentTypeConfig = meilisearchConfig[collection] || {}
 
       try {
         if (
           Array.isArray(entries) &&
-          typeof apiConfig?.transformEntry === 'function'
+          typeof contentTypeConfig?.transformEntry === 'function'
         ) {
           const transformed = entries.map(entry =>
-            apiConfig.transformEntry({
+            contentTypeConfig.transformEntry({
               entry,
-              collection,
+              contentType,
             })
           )
 
           if (transformed.length > 0 && !isObject(transformed[0])) {
-            return aborted({ collection, action: 'transformed' })
+            return aborted({ contentType, action: 'transformed' })
           }
           return transformed
         }
       } catch (e) {
         strapi.log.error(e)
-        return aborted({ collection, action: 'transformed' })
+        return aborted({ contentType, action: 'transformed' })
       }
       return entries
     },
 
     /**
-     * Filter collections entries before indexation in MeiliSearch.
+     * Filter contentTypes entries before indexation in MeiliSearch.
      *
      * @param {object} options
-     * @param {string} options.collection - Collection name.
+     * @param {string} options.contentType - ContentType name.
      * @param {Array<Object>} options.entries  - The data to convert. Conversion will use
      * the static method `toSearchIndex` defined in the model definition
      *
      * @return {Array<Object>} - Converted or mapped data
      */
-    filterEntries: function ({ collection, entries = [] }) {
-      const collectionConfig = meilisearchConfig[collection] || {}
+    filterEntries: function ({ contentType, entries = [] }) {
+      const collection = contentTypeService.getCollectionName({ contentType })
+      const contentTypeConfig = meilisearchConfig[collection] || {}
+
+      console.log(contentTypeConfig)
 
       try {
         if (
           Array.isArray(entries) &&
-          typeof collectionConfig?.filterEntry === 'function'
+          typeof contentTypeConfig?.filterEntry === 'function'
         ) {
+          console.log('bh lors')
           const filtered = entries.filter(entry =>
-            collectionConfig.filterEntry({
+            contentTypeConfig.filterEntry({
               entry,
-              collection,
+              contentType,
             })
           )
 
@@ -97,7 +105,7 @@ module.exports = ({ strapi }) => {
         }
       } catch (e) {
         strapi.log.error(e)
-        return aborted({ collection, action: 'filtered' })
+        return aborted({ contentType, action: 'filtered' })
       }
       return entries
     },
@@ -106,37 +114,42 @@ module.exports = ({ strapi }) => {
      * Returns MeiliSearch index settings from model definition.
      *
      * @param {object} options
-     * @param {string} options.collection - Collection name.
+     * @param {string} options.contentType - ContentType name.
      * @param {Array<Object>} [options.entries]  - The data to convert. Conversion will use
 
      * @typedef Settings
      * @type {import('meilisearch').Settings}
      * @return {Settings} - MeiliSearch index settings
      */
-    getSettings: function ({ collection }) {
-      const apiConfig = meilisearchConfig[collection] || {}
+    getSettings: function ({ contentType }) {
+      const collection = contentTypeService.getCollectionName({ contentType })
+      const contentTypeConfig = meilisearchConfig[collection] || {}
 
-      const settings = apiConfig.settings || {}
+      const settings = contentTypeConfig.settings || {}
       return settings
     },
 
     /**
-     * Return all collections having the provided indexName setting.
+     * Return all contentTypes having the provided indexName setting.
      *
      * @param {object} options
      * @param {string} options.indexName - Index in Meilisearch.
      *
-     * @returns {string[]} List of collections storing its data in the provided indexName
+     * @returns {string[]} List of contentTypes storing its data in the provided indexName
      */
-    listCollectionsWithCustomIndexName: function ({ indexName }) {
+    listContentTypesWithCustomIndexName: function ({ indexName }) {
       const contentTypes =
         strapi
           .plugin('meilisearch')
           .service('contentType')
-          .getContentTypesName() || []
-
-      const contentTypeWithIndexName = contentTypes.filter(contentType => {
-        const name = this.getIndexNameOfCollection({ collection: contentType })
+          .getContentTypesUid() || []
+      const collectionNames = contentTypes.map(contentType =>
+        contentTypeService.getCollectionName({ contentType })
+      )
+      const contentTypeWithIndexName = collectionNames.filter(contentType => {
+        const name = this.getIndexNameOfContentType({
+          contentType,
+        })
         return name === indexName
       })
       return contentTypeWithIndexName

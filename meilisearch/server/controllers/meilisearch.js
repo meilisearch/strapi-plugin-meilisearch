@@ -5,24 +5,24 @@ module.exports = ({ strapi }) => {
   const meilisearch = strapi.plugin('meilisearch').service('meilisearch')
   return {
     /**
-     * Wait for one collection to be completely indexed in Meilisearch.
+     * Wait for one contentType to be completely indexed in Meilisearch.
      *
      * @param  {object} ctx - Http request object.
      *
      */
     async waitForTasks(ctx) {
-      const { collection } = ctx.params
+      const { contentType } = ctx.params
       const { taskUids } = ctx.request.body
       const tasks = await meilisearch.waitForTasks({
         taskUids,
-        collection,
+        contentType,
       })
 
       ctx.body = { data: tasks }
     },
 
     /**
-     * Get all the tasks with an enqueued status of the collections that
+     * Get all the tasks with an enqueued status of the contentTypes that
      * are indexed in Meilisearch.
      */
     async getEnqueuedTaskUids(ctx) {

@@ -42,7 +42,12 @@ function validateConfiguration(config) {
 }
 
 function validateCollectionConfiguration({ configuration, collection }) {
-  const validApiFields = ['indexName', 'transformEntry', 'settings']
+  const validApiFields = [
+    'indexName',
+    'transformEntry',
+    'settings',
+    'filterEntry',
+  ]
 
   if (configuration === undefined) {
     return
@@ -74,13 +79,13 @@ function validateCollectionConfiguration({ configuration, collection }) {
   }
 
   if (
-    configuration.filteredEntry !== undefined &&
-    typeof configuration.filteredEntry !== 'function'
+    configuration.filterEntry !== undefined &&
+    typeof configuration.filterEntry !== 'function'
   ) {
     strapi.log.error(
-      `the "filteredEntry" param of "${collection}" should be a function`
+      `the "filterEntry" param of "${collection}" should be a function`
     )
-    delete configuration.filteredEntry
+    delete configuration.filterEntry
   }
 
   if (

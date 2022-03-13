@@ -59,7 +59,7 @@ describe('Tests content types', () => {
     jest.restoreAllMocks()
   })
 
-  test('Test get all collection types', async () => {
+  test('Test get all contentTypes types', async () => {
     const customStrapi = createFakeStrapi({})
 
     const meilisearchService = createMeilisearchService({
@@ -83,7 +83,7 @@ describe('Tests content types', () => {
     })
 
     const tasks = await meilisearchService.deleteEntriesFromMeiliSearch({
-      collection: 'restaurant',
+      contentType: 'restaurant',
       entriesId: [1, 2],
     })
     expect(deleteDocuments).toHaveBeenCalledTimes(1)
@@ -103,7 +103,7 @@ describe('Tests content types', () => {
     })
 
     const task = await meilisearchService.waitForTask({
-      collection: 'restaurant',
+      contentType: 'restaurant',
       taskUid: 1,
     })
     expect(waitForTask).toHaveBeenCalledTimes(1)
@@ -119,7 +119,7 @@ describe('Tests content types', () => {
     })
 
     const tasks = await meilisearchService.waitForTasks({
-      collection: 'restaurant',
+      contentType: 'restaurant',
       taskUids: [1, 2],
     })
     expect(waitForTask).toHaveBeenCalledTimes(2)

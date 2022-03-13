@@ -18,7 +18,8 @@ function createFakeStrapi({
   }))
 
   const fakePluginService = jest.fn(() => ({
-    getContentTypesName: () => ['restaurant', 'about'],
+    getContentTypesUid: () => ['restaurant', 'about'],
+    getCollectionName: ({ contentType }) => contentType,
     getCredentials: () => ({
       host: 'http://localhost:7700',
       apiKey: 'masterKey',

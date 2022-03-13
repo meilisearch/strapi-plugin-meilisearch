@@ -1,5 +1,27 @@
 'use strict'
 
+const IGNORED_PLUGINS = ['admin', 'upload', 'i18n']
+const IGNORED_CONTENT_TYPES = [
+  'plugin::users-permissions.permission',
+  'plugin::users-permissions.role',
+]
+
+const removeIgnoredAPIs = ({ contentTypes }) => {
+  const contentTypeUids = Object.keys(contentTypes)
+
+  return contentTypeUids.reduce((sanitized, contentType) => {
+    if (
+      !(
+        IGNORED_PLUGINS.includes(contentTypes[contentType].plugin) ||
+        IGNORED_CONTENT_TYPES.includes(contentType)
+      )
+    ) {
+      sanitized[contentType] = contentTypes[contentType]
+    }
+    return sanitized
+  }, {})
+}
+
 module.exports = ({ strapi }) => ({
   /**
    * Get all content types being plugins or API's existing in Strapi instance.
@@ -7,14 +29,18 @@ module.exports = ({ strapi }) => ({
    * @returns {string[]} - list of all content types's.
    */
   getContentTypes() {
-    const contentTypes = Object.keys(strapi.contentTypes)
-      .filter(contentType => !contentType.startsWith('admin::'))
-      .reduce((contentTypes, contentType) => {
+    const contentTypes = removeIgnoredAPIs({
+      contentTypes: strapi.contentTypes,
+    })
+
+    const tmp = Object.keys(contentTypes).reduce(
+      (contentTypes, contentType) => {
         contentTypes[contentType] = strapi.contentTypes[contentType]
         return contentTypes
-      }, [])
-
-    return contentTypes
+      },
+      []
+    )
+    return tmp
   },
 
   /**
@@ -24,15 +50,12 @@ module.exports = ({ strapi }) => ({
    *
    * @returns {string[]} - list of all content types name.
    */
-  getContentTypesName() {
-    const contentTypesName = Object.keys(strapi.contentTypes)
-      .filter(contentType => !contentType.startsWith('admin::'))
-      .reduce((names, contentType) => {
-        const name = contentType.split(/[(::).]/g)
-        names.push(name[name.length - 1])
-        return names
-      }, [])
-    return contentTypesName
+  getContentTypesUid() {
+    const contentTypes = removeIgnoredAPIs({
+      contentTypes: strapi.contentTypes,
+    })
+
+    return Object.keys(contentTypes)
   },
 
   /**
@@ -55,6 +78,47 @@ module.exports = ({ strapi }) => ({
     })
 
     return contentTypdUid
+  },
+
+  /**
+   * Get the content type uid in this format: "type::service.contentType".
+   *
+   * If it is already an uid it returns it. If not it searches for it
+   *
+   * @param  {object} options
+   * @param  {string} options.contentType - Name of the contentType.
+   *
+   * @returns  {string | undefined} Returns the contentType uid
+   */
+  getCollectionName({ contentType }) {
+    const contentTypes = strapi.contentTypes
+    const contentTypeUids = Object.keys(contentTypes)
+    if (contentTypeUids.includes(contentType))
+      return contentTypes[contentType].modelName
+
+    return contentType
+  },
+
+  /**
+   * Get the content type uid in this format: "type::service.contentType".
+   *
+   * If it is already an uid it returns it. If not it searches for it
+   *
+   *
+   * @returns  {string[]} Returns the contentType uid
+   */
+  getCollectionNames() {
+    const contentTypes = removeIgnoredAPIs({
+      contentTypes: strapi.contentTypes,
+    })
+    const collectionNames = Object.keys(contentTypes).reduce(
+      (collections, contentType) => {
+        collections.push(contentTypes[contentType].modelName)
+        return collections
+      },
+      []
+    )
+    return collectionNames
   },
 
   /**
@@ -145,21 +209,19 @@ module.exports = ({ strapi }) => ({
    * Apply an action on all the entries of the provided content type.
    *
    * @param  {object} options
-   * @param  {string} options.collection - Name of the content type.
+   * @param  {string} options.contentType - Name of the content type.
    * @param  {function} options.callback - Function applied on each entry of the contentType.
    *
    * @returns {Promise<any[]>} - List of all the returned elements from the callback.
    */
-  actionInBatches: async function ({ collection, callback = () => {} }) {
+  actionInBatches: async function ({ contentType, callback = () => {} }) {
     const BATCH_SIZE = 500
-    const contentType = collection
 
-    // Need total number of entries in collection
+    // Need total number of entries in contentType
     const entries_count = await this.numberOfEntries({
       contentType,
     })
     const cbResponse = []
-
     for (let index = 0; index <= entries_count; index += BATCH_SIZE) {
       const entries =
         (await this.getContentTypeEntries({

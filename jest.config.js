@@ -10,7 +10,7 @@ module.exports = {
   // An array of glob patterns indicating a set of files for which coverage information should be collected
   // collectCoverageFrom: undefined,
 
-  // An array of regexp pattern strings used to skip coverage collection
+  // An array of regexp pattern strings used to skip coverage
   coveragePathIgnorePatterns: ['/node_modules/', '__tests__'],
 
   // An object that configures minimum threshold enforcement for coverage results

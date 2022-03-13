@@ -11,21 +11,12 @@ describe('Tests content types', () => {
     jest.restoreAllMocks()
   })
 
-  test('Test get all collection types', async () => {
+  test('Test get all collection names', async () => {
     const contentTypeServices = createContentTypeService({ strapi: fakeStrapi })
-    const collectionTypes = contentTypeServices.getContentTypesName()
+    const collectionNames = contentTypeServices.getCollectionNames()
 
-    expect(collectionTypes.sort()).toEqual(
-      [
-        'about',
-        'movie',
-        'restaurant',
-        'file',
-        'locale',
-        'role',
-        'user',
-        'permission',
-      ].sort()
+    expect(collectionNames.sort()).toEqual(
+      ['about', 'movie', 'restaurant', 'user'].sort()
     )
   })
 
@@ -35,24 +26,20 @@ describe('Tests content types', () => {
       strapi: customStrapi,
     })
 
-    const apiNames = contentTypeServices.getContentTypes()
+    const apiNames = contentTypeServices.getContentTypesUid()
 
     expect(apiNames).toEqual([])
   })
 
   test('Test all content types', async () => {
     const contentTypeServices = createContentTypeService({ strapi: fakeStrapi })
-    const contentTypes = contentTypeServices.getContentTypes()
+    const contentTypes = contentTypeServices.getContentTypesUid()
 
-    expect(Object.keys(contentTypes).sort()).toEqual(
+    expect(contentTypes.sort()).toEqual(
       [
         'api::about.about',
         'api::movie.movie',
         'api::restaurant.restaurant',
-        'plugin::upload.file',
-        'plugin::i18n.locale',
-        'plugin::users-permissions.permission',
-        'plugin::users-permissions.role',
         'plugin::users-permissions.user',
       ].sort()
     )
@@ -64,7 +51,7 @@ describe('Tests content types', () => {
       strapi: customStrapi,
     })
 
-    const contentTypes = contentTypeServices.getContentTypesName()
+    const contentTypes = contentTypeServices.getContentTypesUid()
 
     expect(contentTypes).toEqual([])
   })
@@ -75,7 +62,7 @@ describe('Tests content types', () => {
       strapi: customStrapi,
     })
 
-    const contentTypes = contentTypeServices.getContentTypesName()
+    const contentTypes = contentTypeServices.getContentTypesUid()
 
     expect(Object.keys(contentTypes)).toEqual([])
   })
@@ -151,7 +138,7 @@ describe('Tests content types', () => {
 
     const contentType = 'api::restaurant.restaurant'
     const entries = await contentTypeServices.actionInBatches({
-      collection: contentType,
+      contentType: contentType,
       callback: ({ entries, contentType }) =>
         entries.map(entry => ({
           id: entry.id + 1,
@@ -170,7 +157,7 @@ describe('Tests content types', () => {
 
     const contentType = 'api::restaurant.restaurant'
     const entries = await contentTypeServices.actionInBatches({
-      collection: contentType,
+      contentType: contentType,
       callback: () => {},
     })
 
