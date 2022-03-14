@@ -8,8 +8,8 @@ module.exports = ({ strapi }) => {
      *
      */
     async getCredentials(ctx) {
-      console.log(ctx)
       const credentials = await store.getCredentials()
+
       ctx.body = { data: credentials }
     },
 

@@ -8,11 +8,12 @@ import {
   TabPanel,
 } from '@strapi/design-system/Tabs'
 import { CollectionTable } from '../Collection'
+import { Settings } from '../Settings'
 
 const PluginTabs = () => {
   useEffect(() => {})
   return (
-    <Box padding={8} margin={10}>
+    <Box padding={8} margin={10} background="neutral">
       <TabGroup
         label="Some stuff for the label"
         id="tabs"
@@ -30,7 +31,7 @@ const PluginTabs = () => {
           </TabPanel>
           <TabPanel>
             <Box color="neutral800" padding={4} background="neutral0">
-              Second panel
+              <Settings />
             </Box>
           </TabPanel>
         </TabPanels>

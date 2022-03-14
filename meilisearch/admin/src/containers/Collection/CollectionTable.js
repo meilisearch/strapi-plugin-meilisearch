@@ -1,11 +1,11 @@
+import React, { memo, useEffect, useState } from 'react'
 import { Table, Tbody } from '@strapi/design-system/Table'
 import { Box } from '@strapi/design-system/Box'
 import { Button } from '@strapi/design-system/Button'
-import React, { memo, useEffect, useState } from 'react'
+import { request, useAutoReloadOverlayBlocker } from '@strapi/helper-plugin'
 import CollectionTableHeader from './CollectionTableHeader'
 import CollectionColumn from './CollectionColumn'
 import useCollectionReloader from '../Hooks/useCollectionReloader'
-import { request, useAutoReloadOverlayBlocker } from '@strapi/helper-plugin'
 import pluginId from '../../pluginId'
 
 const Collection = () => {
@@ -67,14 +67,12 @@ const Collection = () => {
           ))}
         </Tbody>
       </Table>
-      <Box padding={5} textAlign="right">
-        {/* TODO: align right */}
-        {reloadNeeded ? (
+      {/* TODO: align right */}
+      {reloadNeeded && (
+        <Box padding={5} textAlign="right">
           <Button onClick={() => setReload(true)}>Reload server</Button>
-        ) : (
-          ''
-        )}
-      </Box>
+        </Box>
+      )}
     </Box>
   )
 }
