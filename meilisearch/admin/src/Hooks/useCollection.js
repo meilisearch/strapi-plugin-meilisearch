@@ -71,6 +71,11 @@ export function useCollection() {
       })
     } else {
       refetchCollection()
+      handleNotification({
+        type: 'success',
+        message: 'Request to delete content-type is succesfull',
+        blockTransition: false,
+      })
     }
   }
 
@@ -89,6 +94,11 @@ export function useCollection() {
       })
     } else {
       refetchCollection()
+      handleNotification({
+        type: 'success',
+        message: 'Request to add a content-type is succesfull',
+        blockTransition: false,
+      })
     }
   }
 
@@ -107,6 +117,11 @@ export function useCollection() {
       })
     } else {
       refetchCollection()
+      handleNotification({
+        type: 'success',
+        message: 'Request to update content-type is succesfull',
+        blockTransition: false,
+      })
     }
   }
 

@@ -34,6 +34,11 @@ export function useCredential() {
       })
     } else {
       refetchCredentials()
+      handleNotification({
+        type: 'success',
+        message: 'Credentials sucessfully updated!',
+        blockTransition: false,
+      })
     }
   }
 

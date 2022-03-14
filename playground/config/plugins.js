@@ -22,10 +22,13 @@ module.exports = ({ env }) => ({
         }
       },
       about: {
-        indexName: "my_restaurant",
+        indexName: "my_content",
       },
-      host: "http://localhost:7700",
-      apiKey: "masterKey"
+      homepage: {
+        indexName: "my_content",
+      },
+      // host: "http://localhost:7700",
+      // apiKey: "masterKey"
     }
   }
 });

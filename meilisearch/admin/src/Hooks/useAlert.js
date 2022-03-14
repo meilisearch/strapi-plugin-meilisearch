@@ -7,11 +7,13 @@ export function useAlert() {
    * @param  {string} [options.type='info']
    * @param  {string} [options.message='SomethingoccuredinMeilisearch']
    * @param  {object} [options.link]
+   * @param  {boolean} [options.blockTransition]
    */
   const handleNotification = ({
     type = 'info',
     message = 'Something occured in Meilisearch',
     link,
+    blockTransition = true,
   }) => {
     toggleNotification({
       // required
@@ -25,7 +27,7 @@ export function useAlert() {
       // optional
       link,
       // optional: default = false
-      blockTransition: true,
+      blockTransition,
       // optional
       onClose: () => localStorage.setItem('STRAPI_UPDATE_NOTIF', true),
     })
