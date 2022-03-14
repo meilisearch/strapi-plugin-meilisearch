@@ -146,6 +146,8 @@ describe('Tests content types', () => {
         })),
     })
 
+    console.log(entries)
+
     expect(entries[0].id).toEqual(2)
     expect(entries[0].contentType).toEqual(contentType)
   })

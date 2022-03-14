@@ -36,7 +36,7 @@ module.exports = ({ strapi }) => {
         },
         afterCreateMany() {
           strapi.log.error(
-            `Meilisearch could not find an example on how to access the \`afterCreateMany\` hook. Please consider making an issue to explain your use case`
+            `Meilisearch does not work with \`afterCreateMany\` hook as the entries are provided without their id`
           )
         },
         afterUpdate(event) {

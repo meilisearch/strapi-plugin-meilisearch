@@ -35,8 +35,8 @@ module.exports = ({ strapi }) => {
         .addContentTypeInMeiliSearch({
           contentType,
         })
-        .then(contentTypes => {
-          ctx.body = { data: contentTypes }
+        .then(taskUids => {
+          ctx.body = { data: taskUids }
         })
         .catch(async e => {
           ctx.body = await error.createError(e)
@@ -55,8 +55,8 @@ module.exports = ({ strapi }) => {
         .updateContentTypeInMeiliSearch({
           contentType,
         })
-        .then(updateContentType => {
-          ctx.body = { data: updateContentType }
+        .then(taskUids => {
+          ctx.body = { data: taskUids }
         })
         .catch(async e => {
           ctx.body = await error.createError(e)
