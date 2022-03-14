@@ -9,5 +9,6 @@ module.exports = ({ strapi }) => {
     ...credential({ store, strapi }),
     ...listenedContentTypes({ store }),
     ...indexedContentTypes({ store }),
+    ...createStoreConnector({ strapi }),
   }
 }

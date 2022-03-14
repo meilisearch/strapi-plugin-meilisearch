@@ -1,4 +1,3 @@
-// strapi-server.js
 'use strict'
 
 const bootstrap = require('./server/bootstrap')

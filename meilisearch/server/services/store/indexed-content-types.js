@@ -40,7 +40,10 @@ module.exports = ({ store }) => ({
     const indexedContentTypes = await this.getIndexedContentTypes()
     const newSet = new Set(indexedContentTypes)
     newSet.add(contentType)
-    return this.setIndexedContentTypes({ contentTypes: [...newSet] })
+
+    return this.setIndexedContentTypes({
+      contentTypes: [...newSet],
+    })
   },
 
   /**

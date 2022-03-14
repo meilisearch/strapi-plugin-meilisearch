@@ -4,10 +4,11 @@
   "info": {
     "singularName": "movie",
     "pluralName": "movies",
-    "displayName": "movies"
+    "displayName": "movies",
+    "description": ""
   },
   "options": {
-    "draftAndPublish": false
+    "draftAndPublish": true
   },
   "pluginOptions": {},
   "attributes": {

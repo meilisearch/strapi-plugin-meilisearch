@@ -24,11 +24,23 @@ module.exports = ({ strapi }) => {
      * @param  {string} options.key
      * @param  {any} options.value
      */
-    // WORK
     setStoreKey: async function ({ key, value }) {
       return strapiStore.set({
         key,
         value,
+      })
+    },
+
+    /**
+     * Delete a store
+     *
+     * @param  {object} options
+     * @param  {string} options.key
+     * @param  {any} options.value
+     */
+    deleteStore: async function ({ key }) {
+      return strapiStore.delete({
+        key,
       })
     },
   }

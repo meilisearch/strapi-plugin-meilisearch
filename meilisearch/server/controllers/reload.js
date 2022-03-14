@@ -28,7 +28,7 @@ module.exports = ({ strapi }) => {
      * @param  {object} ctx - Http request object.
      */
     reload(ctx) {
-      ctx.send('ok')
+      ctx.send({ message: 'ok' })
       return reloadServer({ strapi })
     },
   }

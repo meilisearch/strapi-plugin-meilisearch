@@ -1,43 +1,106 @@
 module.exports = ({ strapi }) => {
   // const store = strapi.plugin('meilisearch').service('store')
   const contentTypeService = strapi.plugin('meilisearch').service('contentType')
+  const store = strapi.plugin('meilisearch').service('store')
   return {
-    addLifecyclesToContentType({ contentType }) {
+    /**
+     * Subscribe the content type to all required lifecycles
+     *
+     * @param  {object} options
+     * @param  {string} options.contentType
+     *
+     * @returns {Promise<object>}
+     */
+    async subscribeContentType({ contentType }) {
       const contentTypeUid = contentTypeService.getContentTypeUid({
         contentType: contentType,
       })
-      console.log(`add life cycles to ${contentTypeUid}`)
-
-      strapi.db.lifecycles.subscribe({
-        models: [contentTypeUid], // Add all the models a user wants to index in Meilisearch,
+      await strapi.db.lifecycles.subscribe({
+        models: [contentTypeUid],
         afterCreate(event) {
-          const { result, params } = event
-          let data = params.data
-          console.log({ result, params })
-          // const meilisearch = strapi
-          //   .plugin('meilisearch')
-          //   .service('meilisearch')
-          if (!Array.isArray(data)) data = [data]
-          console.log({ contentTypeUid })
+          console.log('AFTER CREATE')
+          const { result } = event
+          const meilisearch = strapi
+            .plugin('meilisearch')
+            .service('meilisearch')
 
-          // meilisearch.addOneEntryInMeiliSearch({ contentType: })
-          console.log('afterCreate')
+          meilisearch
+            .addOneEntryInMeiliSearch({
+              contentType: contentTypeUid,
+              entry: result,
+            })
+            .catch(e => {
+              strapi.log.error(
+                `Meilisearch could not add entry with id: ${result.id}: ${e.message}`
+              )
+            })
         },
         afterCreateMany() {
-          console.log('afterCreateMany')
+          strapi.log.error(
+            `Meilisearch could not find an example on how to access the \`afterCreateMany\` hook. Please consider making an issue to explain your use case`
+          )
         },
-        afterUpdate() {
-          console.log('afterUpdate')
+        afterUpdate(event) {
+          const { result } = event
+          const meilisearch = strapi
+            .plugin('meilisearch')
+            .service('meilisearch')
+
+          meilisearch
+            .updateEntriesInMeilisearch({
+              contentType: contentTypeUid,
+              entries: [result],
+            })
+            .catch(e => {
+              strapi.log.error(
+                `Meilisearch could not update entry with id: ${result.id}: ${e.message}`
+              )
+            })
         },
         afterUpdateMany() {
-          console.log('afterUpdateMany')
+          strapi.log.error(
+            `Meilisearch could not find an example on how to access the \`afterUpdateMany\` hook. Please consider making an issue to explain your use case`
+          )
         },
-        afterDelete() {
-          console.log('afterDelete')
+        afterDelete(event) {
+          console.log('AFTER DELETE')
+          const { result, params } = event
+          const meilisearch = strapi
+            .plugin('meilisearch')
+            .service('meilisearch')
+
+          let entriesId = []
+          // Different ways of accessing the id's depending on the number of entries being deleted
+          // In case of multiple deletes:
+          if (
+            params?.where?.$and &&
+            params?.where?.$and[0] &&
+            params?.where?.$and[0].id?.$in
+          )
+            entriesId = params?.where?.$and[0].id.$in
+          // In case there is only one entry being deleted
+          else entriesId = [result.id]
+
+          meilisearch
+            .deleteEntriesFromMeiliSearch({
+              contentType: contentTypeUid,
+              entriesId: entriesId,
+            })
+            .catch(e => {
+              strapi.log.error(
+                `Meilisearch could not delete entry with id: ${result.id}: ${e.message}`
+              )
+            })
         },
         afterDeleteMany() {
-          console.log('afterDeleteMany')
+          strapi.log.error(
+            `Meilisearch could not find an example on how to access the \`afterDeleteMany\` hook. Please consider making an issue to explain your use case`
+          )
         },
+      })
+
+      return store.addListenedContentType({
+        contentType: contentTypeUid,
       })
     },
   }

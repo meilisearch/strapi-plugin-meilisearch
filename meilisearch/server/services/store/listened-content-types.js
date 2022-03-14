@@ -16,14 +16,14 @@ module.exports = ({ store }) => ({
   /**
    * Set listened contentTypes to the store.
    * @param  {object} options
-   * @param  {string[]} options.contentTypes
+   * @param  {string[]} [options.contentTypes]
    *
    * @returns {Promise<string[]>} - ContentType names.
    */
   setListenedContentTypes: async function ({ contentTypes = [] }) {
     return store.setStoreKey({
       key: 'meilisearch_listened_content_types',
-      contentTypes,
+      value: contentTypes,
     })
   },
 
@@ -35,11 +35,14 @@ module.exports = ({ store }) => ({
    *
    * @returns {Promise<string[]>} - ContentType names.
    */
-  appendListenedContentType: async function ({ contentType }) {
+  addListenedContentType: async function ({ contentType }) {
     const listenedContentTypes = await this.getListenedContentTypes()
     const newSet = new Set(listenedContentTypes)
     newSet.add(contentType)
-    return this.setListenedContentTypes({ contentTypes: [...newSet] })
+
+    return this.setListenedContentTypes({
+      contentTypes: [...newSet],
+    })
   },
 
   /**
@@ -50,10 +53,21 @@ module.exports = ({ store }) => ({
    *
    * @returns {Promise<string[]>} - ContentType names.
    */
-  appendListenedContentTypes: async function ({ contentTypes }) {
+  addListenedContentTypes: async function ({ contentTypes }) {
     for (const contentType of contentTypes) {
-      await this.appendListenedContentType({ contentType })
+      await this.addListenedContentType({ contentType })
     }
+    return this.getListenedContentTypes()
+  },
+
+  /**
+   * Add multiple contentTypes to the listened contentTypes list.
+   *
+   * @returns {Promise<string[]>} - ContentType names.
+   */
+  emptyListenedContentTypes: async function () {
+    const empty = await this.setListenedContentTypes({})
+    console.log({ empty })
     return this.getListenedContentTypes()
   },
 })

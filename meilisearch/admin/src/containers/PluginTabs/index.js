@@ -19,7 +19,7 @@ const PluginTabs = () => {
         onTabChange={selected => console.log(selected)}
       >
         <Tabs>
-          <Tab>Indexes</Tab>
+          <Tab>Collections</Tab>
           <Tab>Settings</Tab>
         </Tabs>
         <TabPanels>

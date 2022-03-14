@@ -9,7 +9,7 @@ const MeiliSearch = require('./client')
  * @param  {object} options.adapter - Adapter utililites.
  * @param  {string} options.contentType - ContentType name.
  * @param  {object[] | object} options.entries - Entries to sanitize.
- * @returns {object[] | object} - Sanitized entries.
+ * @returns {Promise<object[] | object>} - Sanitized entries.
  */
 const sanitizeEntries = async function ({
   contentType,
@@ -27,10 +27,12 @@ const sanitizeEntries = async function ({
     contentType,
     entries,
   })
+  entries = await config.removeSensitiveFields({ entries })
   entries = await adapter.addCollectionNamePrefix({
     contentType,
     entries,
   })
+
   return entries
 }
 
@@ -76,6 +78,41 @@ module.exports = ({ strapi, adapter, config }) => {
       )
 
       return await client.index(indexUid).deleteDocuments(documentsIds)
+    },
+
+    /**
+     * Update entries from the contentType in its index in Meilisearch.
+     *
+     * @param  {object} options
+     * @param  {string} options.contentType - ContentType name.
+     * @param  {object[]} options.entries - Entries to update.
+     *
+     * @returns  { Promise<void> }
+     */
+    updateEntriesInMeilisearch: async function ({ contentType, entries }) {
+      const { apiKey, host } = await store.getCredentials()
+      const client = MeiliSearch({ apiKey, host })
+
+      const indexUid = config.getIndexNameOfContentType({ contentType })
+
+      await entries.forEach(async entry => {
+        const sanitized = await sanitizeEntries({
+          entries: [entry],
+          contentType,
+          config,
+          adapter,
+        })
+        if (entry.publishedAt === null || sanitized.length === 0) {
+          return client.index(indexUid).deleteDocument(
+            adapter.addCollectionNamePrefixToId({
+              contentType,
+              entryId: entry.id,
+            })
+          )
+        } else {
+          return client.index(indexUid).updateDocuments(sanitized)
+        }
+      })
     },
 
     /**
@@ -204,13 +241,15 @@ module.exports = ({ strapi, adapter, config }) => {
             contentType,
           })
           const indexUid = config.getIndexNameOfContentType({ contentType })
-          const indexed = indexUids.includes(indexUid)
+          const indexInMeiliSearch = indexUids.includes(indexUid)
+
           const contentTypeInIndexStore = indexedContentTypes.includes(
             contentType
           )
+          const indexed = indexInMeiliSearch && contentTypeInIndexStore
 
           // safe guard in case index does not exist anymore in Meilisearch
-          if (!indexed && contentTypeInIndexStore) {
+          if (!indexInMeiliSearch && contentTypeInIndexStore) {
             await store.removeIndexedContentType({ contentType })
           }
 
@@ -229,7 +268,6 @@ module.exports = ({ strapi, adapter, config }) => {
               contentTypes: contentTypesWithSameIndexUid,
             }
           )
-          // TODO remove ifgnored collections
           return {
             collection: collectionName,
             contentType: contentType,
@@ -271,6 +309,7 @@ module.exports = ({ strapi, adapter, config }) => {
       const { apiKey, host } = await store.getCredentials()
       const client = MeiliSearch({ apiKey, host })
 
+      if (!Array.isArray(entries)) entries = [entries]
       const indexUid = config.getIndexNameOfContentType({ contentType })
       const documents = await sanitizeEntries({
         contentType,
@@ -281,7 +320,7 @@ module.exports = ({ strapi, adapter, config }) => {
 
       const task = await client.index(indexUid).addDocuments(documents)
       await store.addIndexedContentType({ contentType })
-      await lifecycle.addLifecyclesToContentType({ contentType })
+      await lifecycle.subscribeContentType({ contentType })
 
       return task
     },
@@ -325,7 +364,7 @@ module.exports = ({ strapi, adapter, config }) => {
       })
 
       await store.addIndexedContentType({ contentType })
-      await lifecycle.addLifecyclesToContentType({ contentType })
+      await lifecycle.subscribeContentType({ contentType })
 
       return tasksUids
     },
@@ -382,6 +421,7 @@ module.exports = ({ strapi, adapter, config }) => {
           callback: deleteEntries,
         })
       } else {
+        console.log('DELETE INDEX')
         const { apiKey, host } = await store.getCredentials()
         const client = MeiliSearch({ apiKey, host })
 

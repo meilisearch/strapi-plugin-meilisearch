@@ -86,14 +86,11 @@ module.exports = ({ strapi }) => {
       const collection = contentTypeService.getCollectionName({ contentType })
       const contentTypeConfig = meilisearchConfig[collection] || {}
 
-      console.log(contentTypeConfig)
-
       try {
         if (
           Array.isArray(entries) &&
           typeof contentTypeConfig?.filterEntry === 'function'
         ) {
-          console.log('bh lors')
           const filtered = entries.filter(entry =>
             contentTypeConfig.filterEntry({
               entry,
@@ -153,6 +150,14 @@ module.exports = ({ strapi }) => {
         return name === indexName
       })
       return contentTypeWithIndexName
+    },
+
+    removeSensitiveFields: function ({ entries }) {
+      return entries.map(entry => {
+        delete entry.createdBy
+        delete entry.updatedBy
+        return entry
+      })
     },
   }
 }
