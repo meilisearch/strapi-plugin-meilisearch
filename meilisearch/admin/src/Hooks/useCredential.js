@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
 import { request } from '@strapi/helper-plugin'
-import pluginId from '../../pluginId'
+import pluginId from '../pluginId'
+import useAlert from './useAlert'
 
-export function useCredentialReloader() {
+export function useCredential() {
   const [credentials, setCredentials] = useState({
     host: '',
     apiKey: '',
@@ -12,28 +13,46 @@ export function useCredentialReloader() {
   const [refetchIndex, setRefetchIndex] = useState(true)
   const [host, setHost] = useState('')
   const [apiKey, setApiKey] = useState('')
+  const { handleNotification } = useAlert()
 
   const refetchCredentials = () =>
     setRefetchIndex(prevRefetchIndex => !prevRefetchIndex)
 
   const updateCredentials = async () => {
-    await request(`/${pluginId}/credential`, {
+    const { error } = await request(`/${pluginId}/credential`, {
       method: 'POST',
       body: {
         apiKey: apiKey,
         host: host,
       },
     })
-    refetchCredentials()
+    if (error) {
+      handleNotification({
+        type: 'warning',
+        message: error.message,
+        link: error.link,
+      })
+    } else {
+      refetchCredentials()
+    }
   }
 
   const fetchCredentials = async () => {
-    const credentials = await request(`/${pluginId}/credential`, {
+    const { data, error } = await request(`/${pluginId}/credential`, {
       method: 'GET',
     })
-    setCredentials(credentials.data)
-    setHost(credentials.data.host)
-    setApiKey(credentials.data.apiKey)
+
+    if (error) {
+      handleNotification({
+        type: 'warning',
+        message: error.message,
+        link: error.link,
+      })
+    } else {
+      setCredentials(data)
+      setHost(data.host)
+      setApiKey(data.apiKey)
+    }
   }
 
   useEffect(() => {
@@ -49,3 +68,4 @@ export function useCredentialReloader() {
     apiKey,
   }
 }
+export default useCredential

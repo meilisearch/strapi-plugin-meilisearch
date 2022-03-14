@@ -1,4 +1,4 @@
-import React, { memo, useEffect } from 'react'
+import React, { memo } from 'react'
 import { Box } from '@strapi/design-system/Box'
 import {
   Tabs,
@@ -11,14 +11,9 @@ import { CollectionTable } from '../Collection'
 import { Settings } from '../Settings'
 
 const PluginTabs = () => {
-  useEffect(() => {})
   return (
     <Box padding={8} margin={10} background="neutral">
-      <TabGroup
-        label="Some stuff for the label"
-        id="tabs"
-        onTabChange={selected => console.log(selected)}
-      >
+      <TabGroup label="Some stuff for the label" id="tabs">
         <Tabs>
           <Tab>Collections</Tab>
           <Tab>Settings</Tab>

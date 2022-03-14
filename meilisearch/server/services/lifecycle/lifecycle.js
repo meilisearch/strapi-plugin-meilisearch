@@ -18,7 +18,6 @@ module.exports = ({ strapi }) => {
       await strapi.db.lifecycles.subscribe({
         models: [contentTypeUid],
         afterCreate(event) {
-          console.log('AFTER CREATE')
           const { result } = event
           const meilisearch = strapi
             .plugin('meilisearch')
@@ -63,7 +62,6 @@ module.exports = ({ strapi }) => {
           )
         },
         afterDelete(event) {
-          console.log('AFTER DELETE')
           const { result, params } = event
           const meilisearch = strapi
             .plugin('meilisearch')

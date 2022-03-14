@@ -2,6 +2,8 @@
 
 module.exports = ({ strapi }) => {
   const meilisearch = strapi.plugin('meilisearch').service('meilisearch')
+  const error = strapi.plugin('meilisearch').service('error')
+
   return {
     /**
      * Get extended information about contentTypes.
@@ -10,9 +12,14 @@ module.exports = ({ strapi }) => {
      *
      */
     async getContentTypes(ctx) {
-      const contentTypes = await meilisearch.getContentTypesReport()
-
-      ctx.body = { data: contentTypes }
+      await meilisearch
+        .getContentTypesReport()
+        .then(contentTypes => {
+          ctx.body = { data: contentTypes }
+        })
+        .catch(e => {
+          ctx.body(error.createError(e))
+        })
     },
 
     /**
@@ -24,10 +31,16 @@ module.exports = ({ strapi }) => {
     async addContentType(ctx) {
       const { contentType } = ctx.request.body
 
-      const contentTypes = await meilisearch.updateContentTypeInMeiliSearch({
-        contentType,
-      })
-      ctx.body = { data: contentTypes }
+      await meilisearch
+        .addContentTypeInMeiliSearch({
+          contentType,
+        })
+        .then(contentTypes => {
+          ctx.body = { data: contentTypes }
+        })
+        .catch(async e => {
+          ctx.body = await error.createError(e)
+        })
     },
 
     /**
@@ -38,12 +51,16 @@ module.exports = ({ strapi }) => {
      */
     async updateContentType(ctx) {
       const { contentType } = ctx.request.body
-      const updateContentType = await meilisearch.updateContentTypeInMeiliSearch(
-        {
+      await meilisearch
+        .updateContentTypeInMeiliSearch({
           contentType,
-        }
-      )
-      ctx.body = { data: updateContentType }
+        })
+        .then(updateContentType => {
+          ctx.body = { data: updateContentType }
+        })
+        .catch(async e => {
+          ctx.body = await error.createError(e)
+        })
     },
 
     /**
@@ -55,10 +72,16 @@ module.exports = ({ strapi }) => {
     async removeContentType(ctx) {
       const { contentType } = ctx.request.params
 
-      await meilisearch.removeContentTypeFromMeiliSearch({
-        contentType,
-      })
-      ctx.body = { data: 'ok' }
+      await meilisearch
+        .removeContentTypeFromMeiliSearch({
+          contentType,
+        })
+        .then(() => {
+          ctx.body = { data: 'ok' }
+        })
+        .catch(async e => {
+          ctx.body = await error.createError(e)
+        })
     },
   }
 }

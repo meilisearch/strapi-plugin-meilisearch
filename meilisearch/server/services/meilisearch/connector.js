@@ -54,7 +54,7 @@ module.exports = ({ strapi, adapter, config }) => {
         const indexes = await client.getIndexes()
         return indexes
       } catch (e) {
-        strapi.log.warn(e)
+        strapi.log.error(`meilisearch: ${e.message}`)
         return []
       }
     },
@@ -421,7 +421,6 @@ module.exports = ({ strapi, adapter, config }) => {
           callback: deleteEntries,
         })
       } else {
-        console.log('DELETE INDEX')
         const { apiKey, host } = await store.getCredentials()
         const client = MeiliSearch({ apiKey, host })
 

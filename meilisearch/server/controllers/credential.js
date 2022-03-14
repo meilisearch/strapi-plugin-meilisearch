@@ -8,9 +8,19 @@ module.exports = ({ strapi }) => {
      *
      */
     async getCredentials(ctx) {
-      const credentials = await store.getCredentials()
-
-      ctx.body = { data: credentials }
+      await store
+        .getCredentials()
+        .then(credentials => {
+          ctx.body = { data: credentials }
+        })
+        .catch(e => {
+          const message = e.message
+          ctx.body = {
+            error: {
+              message: message,
+            },
+          }
+        })
     },
 
     /**
@@ -20,9 +30,19 @@ module.exports = ({ strapi }) => {
      */
     async addCredentials(ctx) {
       const { host, apiKey } = ctx.request.body
-      const credentials = await store.addCredentials({ host, apiKey })
-
-      ctx.body = { data: credentials }
+      await store
+        .addCredentials({ host, apiKey })
+        .then(credentials => {
+          ctx.body = { data: credentials }
+        })
+        .catch(e => {
+          const message = e.message
+          ctx.body = {
+            error: {
+              message: message,
+            },
+          }
+        })
     },
   }
 }

@@ -2,7 +2,7 @@ import { Box } from '@strapi/design-system/Box'
 import React, { memo } from 'react'
 import { TextInput } from '@strapi/design-system/TextInput'
 import { Button } from '@strapi/design-system/Button'
-import { useCredentialReloader } from '../Hooks/useCredentialReloader'
+import { useCredential } from '../../Hooks/useCredential'
 
 const Credentials = () => {
   const {
@@ -12,7 +12,7 @@ const Credentials = () => {
     setHost,
     setApiKey,
     updateCredentials,
-  } = useCredentialReloader()
+  } = useCredential()
 
   return (
     <Box>

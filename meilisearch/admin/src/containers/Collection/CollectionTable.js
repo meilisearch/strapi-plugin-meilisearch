@@ -5,7 +5,7 @@ import { Button } from '@strapi/design-system/Button'
 import { request, useAutoReloadOverlayBlocker } from '@strapi/helper-plugin'
 import CollectionTableHeader from './CollectionTableHeader'
 import CollectionColumn from './CollectionColumn'
-import useCollectionReloader from '../Hooks/useCollectionReloader'
+import useCollection from '../../Hooks/useCollection'
 import pluginId from '../../pluginId'
 
 const Collection = () => {
@@ -16,7 +16,7 @@ const Collection = () => {
     updateCollection,
     reloadNeeded,
     refetchCollection,
-  } = useCollectionReloader()
+  } = useCollection()
   const {
     lockAppWithAutoreload,
     unlockAppWithAutoreload,

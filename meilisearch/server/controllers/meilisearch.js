@@ -3,6 +3,7 @@
 
 module.exports = ({ strapi }) => {
   const meilisearch = strapi.plugin('meilisearch').service('meilisearch')
+  const error = strapi.plugin('meilisearch').service('error')
   return {
     /**
      * Wait for one contentType to be completely indexed in Meilisearch.
@@ -13,12 +14,17 @@ module.exports = ({ strapi }) => {
     async waitForTasks(ctx) {
       const { contentType } = ctx.params
       const { taskUids } = ctx.request.body
-      const tasks = await meilisearch.waitForTasks({
-        taskUids,
-        contentType,
-      })
-
-      ctx.body = { data: tasks }
+      await meilisearch
+        .waitForTasks({
+          taskUids,
+          contentType,
+        })
+        .then(tasks => {
+          ctx.body = { data: tasks }
+        })
+        .catch(async e => {
+          ctx.body = await error.createError(e)
+        })
     },
 
     /**
@@ -26,9 +32,14 @@ module.exports = ({ strapi }) => {
      * are indexed in Meilisearch.
      */
     async getEnqueuedTaskUids(ctx) {
-      const taskUids = await meilisearch.getEnqueuedTaskUids()
-
-      ctx.body = { data: taskUids }
+      await meilisearch
+        .getEnqueuedTaskUids()
+        .then(taskUids => {
+          ctx.body = { data: taskUids }
+        })
+        .catch(async e => {
+          ctx.body = await error.createError(e)
+        })
     },
   }
 }
