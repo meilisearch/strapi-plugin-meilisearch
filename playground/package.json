@@ -13,7 +13,7 @@
   },
   "devDependencies": {},
   "dependencies": {
-    "knex": "^0.95.6",
+    "knex": "^1.0.4",
     "sqlite3": "^5.0.2",
     "strapi": "^3.6.8",
     "strapi-admin": "^3.6.8",
