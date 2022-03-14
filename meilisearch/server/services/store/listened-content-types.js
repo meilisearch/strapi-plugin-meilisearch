@@ -66,8 +66,7 @@ module.exports = ({ store }) => ({
    * @returns {Promise<string[]>} - ContentType names.
    */
   emptyListenedContentTypes: async function () {
-    const empty = await this.setListenedContentTypes({})
-    console.log({ empty })
+    await this.setListenedContentTypes({})
     return this.getListenedContentTypes()
   },
 })
