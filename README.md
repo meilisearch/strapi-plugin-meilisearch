@@ -46,16 +46,20 @@ To understand Strapi and how to create an app, see [Strapi's documentation](http
 
 ## 🔧 Installation
 
+This package version works with the [v3 of Strapi](https://github.com/strapi/strapi/tree/v3.6.9).
+If you are using [Strapi v4](https://github.com/strapi/strapi/tree/v4.1.3), please refer to [this README](https://github.com/meilisearch/strapi-plugin-meilisearch/tree/main).
+
+
 Inside your Strapi app, add the package:
 
 With `npm`:
 ```bash
-npm install strapi-plugin-meilisearch
+npm install strapi-plugin-meilisearch@strapi_v3
 ```
 
 With `yarn`:
 ```bash
-yarn add strapi-plugin-meilisearch
+yarn add strapi-plugin-meilisearch@strapi_v3
 ```
 
 To apply the plugin to Strapi, a re-build is needed:
@@ -434,9 +438,9 @@ This command will install the required dependencies and launch the app in develo
 
 Complete installation requirements are the same as for Strapi itself and can be found in the documentation under [installation Requirements](https://strapi.io/documentation/v3.x/installation/cli.html#step-1-make-sure-requirements-are-met).
 
-- Strapi v3.6.x
+- Strapi `>=v3.6.x <v4.x.x`
 
-(This plugin may work with the older Strapi versions, but these are not tested nor officially supported at this time.)
+(This plugin **may work** with the older Strapi versions, but these are not tested nor officially supported at this time.)
 
 **Supported Meilisearch versions**:
 
