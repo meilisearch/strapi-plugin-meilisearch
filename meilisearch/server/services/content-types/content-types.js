@@ -142,7 +142,7 @@ module.exports = ({ strapi }) => ({
     limit = 500,
     filters = {},
     sort = {},
-    populate = {},
+    populate = '*',
     publicationState,
   }) {
     const contentTypeUid = this.getContentTypeUid({ contentType })

@@ -1,6 +1,6 @@
 # Contributing <!-- omit in toc -->
 
-First of all, thank you for contributing to MeiliSearch! The goal of this document is to provide everything you need to know in order to contribute to MeiliSearch and its different integrations.
+First of all, thank you for contributing to Meilisearch! The goal of this document is to provide everything you need to know in order to contribute to Meilisearch and its different integrations.
 
 - [Assumptions](#assumptions)
 - [How to Contribute](#how-to-contribute)
@@ -8,12 +8,11 @@ First of all, thank you for contributing to MeiliSearch! The goal of this docume
 - [Git Guidelines](#git-guidelines)
 - [Release Process (for internal team only)](#release-process-for-internal-team-only)
 
-
 ## Assumptions
 
 1. **You're familiar with [GitHub](https://github.com) and the [Pull Request](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/about-pull-requests)(PR) workflow.**
-2. **You've read the MeiliSearch [documentation](https://docs.meilisearch.com) and the [README](/README.md).**
-3. **You know about the [MeiliSearch community](https://docs.meilisearch.com/learn/what_is_meilisearch/contact.html). Please use this for help.**
+2. **You've read the Meilisearch [documentation](https://docs.meilisearch.com) and the [README](/README.md).**
+3. **You know about the [Meilisearch community](https://docs.meilisearch.com/learn/what_is_meilisearch/contact.html). Please use this for help.**
 
 ## How to Contribute
 
@@ -40,26 +39,16 @@ yarn
 Each PR should pass the tests and the linter to be accepted.
 
 ```bash
-# Run a MeiliSearch instance
-docker pull getmeili/meilisearch:latest # Fetch the latest version of MeiliSearch image from Docker Hub
-docker run -p 7700:7700 getmeili/meilisearch:latest ./meilisearch --master-key=masterKey --no-analytics=true
+# Run a Meilisearch instance
+docker pull getmeili/meilisearch:latest # Fetch the latest version of Meilisearch image from Docker Hub
+docker run -p 7700:7700 getmeili/meilisearch:latest ./meilisearch --master-key=masterKey --no-analytics
 
 # Integration tests
 yarn test
-# Tests the admin page in a browser
-yarn test:e2e
-# Tests the admin page in a browser in watch mode
-yarn test:e2e:watch
 # Linter
 yarn style
 # Linter with fixing
 yarn style:fix
-```
-
-If you already have a running Strapi app in local, testing is possible with the following command:
-
-```bash
-yarn cy:open
 ```
 
 ### Run Playground
@@ -73,7 +62,7 @@ yarn playground:dev
 
 This command will install required dependencies and launch the app in development mode. You should be able to reach it on the [port 8000 of your localhost](http://localhost:8000/admin/).
 
-Once on the admin panel, you are required to log-in. Here are the credentials: 
+Once on the admin panel, you are required to log-in. Here are the credentials:
 - email: `jolene@doe.com`
 - password: `Qwertyuiop1`
 
@@ -106,7 +95,7 @@ Some notes on GitHub PRs:
 
 ## Release Process (for internal team only)
 
-MeiliSearch tools follow the [Semantic Versioning Convention](https://semver.org/).
+Meilisearch tools follow the [Semantic Versioning Convention](https://semver.org/).
 
 ### Automation to Rebase and Merge the PRs <!-- omit in toc -->
 

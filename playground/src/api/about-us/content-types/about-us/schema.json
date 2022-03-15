@@ -1,20 +1,20 @@
 {
   "kind": "singleType",
-  "collectionName": "abouts",
+  "collectionName": "about_uses",
   "info": {
-    "singularName": "about",
-    "pluralName": "abouts",
-    "displayName": "about"
+    "singularName": "about-us",
+    "pluralName": "about-uses",
+    "displayName": "About us"
   },
   "options": {
     "draftAndPublish": false
   },
   "pluginOptions": {},
   "attributes": {
-    "name": {
+    "title": {
       "type": "string"
     },
-    "description": {
+    "content": {
       "type": "richtext"
     }
   }

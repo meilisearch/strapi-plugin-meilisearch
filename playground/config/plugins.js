@@ -10,22 +10,21 @@ module.exports = ({ env }) => ({
           return entry.id !== 2
         },
         transformEntry({ entry }) {
-          const transformed = {
+          return {
             ...entry,
-            name: entry.title
+            categories: entry.categories.map(category => category.name)
           };
-          return transformed;
         },
         indexName: "my_restaurant",
         settings:  {
           "searchableAttributes": ["*"]
         }
       },
-      about: {
-        indexName: "my_content",
+      "about-us": {
+        indexName: "content",
       },
       homepage: {
-        indexName: "my_content",
+        indexName: "content",
       },
       // host: "http://localhost:7700",
       // apiKey: "masterKey"

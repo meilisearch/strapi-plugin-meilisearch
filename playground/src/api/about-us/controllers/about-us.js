@@ -1,9 +1,9 @@
 'use strict';
 
 /**
- *  movie controller
+ *  about-us controller
  */
 
 const { createCoreController } = require('@strapi/strapi').factories;
 
-module.exports = createCoreController('api::movie.movie');
+module.exports = createCoreController('api::about-us.about-us');
