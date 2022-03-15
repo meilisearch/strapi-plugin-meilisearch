@@ -1,5 +1,5 @@
 'use strict'
-const { isObject } = require('../../../utils')
+const { isObject } = require('../../utils')
 /**
  * Log an error message on a failed action on a contentType.
  *
