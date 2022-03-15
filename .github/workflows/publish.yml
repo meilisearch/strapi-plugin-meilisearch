@@ -1,0 +1,26 @@
+name: publish to npm
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish-npm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 12
+          registry-url: https://registry.npmjs.org/
+      - name: Check release validity
+        run: sh .github/scripts/check-release.sh
+      - name: Publish with latest tag
+        if: "!github.event.release.prerelease"
+        run: npm publish .
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+      - name: Publish with strapi_v3 tag
+        if: "github.event.release.prerelease"
+        run: npm publish . --tag strapi_v3
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}

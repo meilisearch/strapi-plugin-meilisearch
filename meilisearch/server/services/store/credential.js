@@ -102,10 +102,8 @@ module.exports = ({ store, strapi }) => ({
    *  HostIsFromConfigFile: boolean
    * }>} Extended Credentials information
    *
-   * FIXME: wont work with credentials provided in the front-end
    */
   syncCredentials: async function (config) {
-    // optional chaining is not natively supported by node 12.
     let apiKey = ''
     let host = ''
 

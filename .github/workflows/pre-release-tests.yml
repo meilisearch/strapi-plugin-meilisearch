@@ -1,19 +1,15 @@
-name: Tests
+# Testing the code base against the Meilisearch pre-releases
+name: Pre-Release Tests
 
+# Will only run for PRs and pushes to bump-meilisearch-v*
 on:
-  pull_request:
   push:
-    # trying and staging branches are for BORS config
-    branches:
-      - trying
-      - staging
-      - main
+    branches: [bump-meilisearch-v*]
+  pull_request:
+    branches: [bump-meilisearch-v*]
 
 jobs:
   integration_tests:
-    # Will not run if the event is a PR to bump-meilisearch-v* (so a pre-release PR)
-    # Will still run for each push to bump-meilisearch-v*
-    if: github.event_name != 'pull_request' || !startsWith(github.base_ref, 'bump-meilisearch-v')
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -55,17 +51,10 @@ jobs:
           path: |
             ./node_modules
           key: ${{ hashFiles('yarn.lock') }}
-      - name: Cache dependencies
-        uses: actions/cache@v2
-        with:
-          path: |
-            ./playground/node_modules
-          key: ${{ hashFiles('playground/yarn.lock') }}
       - name: Install dependencies
         run: yarn --dev && yarn --cwd ./playground
       - name: Build Strapi playground
         run: yarn playground:build
-
   linter_check:
     runs-on: ubuntu-latest
     name: style-check
