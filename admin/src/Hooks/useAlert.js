@@ -1,7 +1,7 @@
 import { useNotification } from '@strapi/helper-plugin'
 
 export function useAlert() {
-  const toggleNotification = useNotification()
+  const toggleNotification = useNotification() // HERE
   /**
    * @param  {object} options
    * @param  {string} [options.type='info']

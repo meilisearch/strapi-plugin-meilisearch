@@ -1,7 +1,7 @@
 {
   "name": "strapi-plugin-meilisearch",
   "version": "0.6.0",
-  "description": "Synchronise and search in your Strapi collections with MeiliSearch",
+  "description": "Synchronise and search in your Strapi content-types with MeiliSearch",
   "scripts": {
     "playground:dev": "yarn --cwd ./playground && yarn --cwd ./playground develop",
     "playground:build": "yarn --cwd ./playground && yarn --cwd ./playground build",
@@ -13,7 +13,8 @@
   "strapi": {
     "name": "meilisearch",
     "icon": "search",
-    "description": "Strapi plugin for MeiliSearch"
+    "description": "Search in your content-types with the MeiliSearch plugin",
+    "kind": "plugin"
   },
   "files": [
     "admin",
@@ -23,10 +24,10 @@
     "services"
   ],
   "dependencies": {
-    "@strapi/strapi": "^4.1.3",
     "@strapi/utils": "^4.1.3",
     "meilisearch": "^0.25.0"
   },
+  "peerDependencies": {},
   "author": {
     "name": "Charlotte Vermandel <charlotte@meilisearch.com>"
   },
