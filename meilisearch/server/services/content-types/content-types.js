@@ -24,26 +24,6 @@ const removeIgnoredAPIs = ({ contentTypes }) => {
 
 module.exports = ({ strapi }) => ({
   /**
-   * Get all content types being plugins or API's existing in Strapi instance.
-   *
-   * @returns {string[]} - list of all content types's.
-   */
-  getContentTypes() {
-    const contentTypes = removeIgnoredAPIs({
-      contentTypes: strapi.contentTypes,
-    })
-
-    const tmp = Object.keys(contentTypes).reduce(
-      (contentTypes, contentType) => {
-        contentTypes[contentType] = strapi.contentTypes[contentType]
-        return contentTypes
-      },
-      []
-    )
-    return tmp
-  },
-
-  /**
    * Get all content types name being plugins or API's existing in Strapi instance.
    *
    * Content Types are formated like this: `type::apiName.contentType`.
@@ -97,28 +77,6 @@ module.exports = ({ strapi }) => ({
       return contentTypes[contentType].modelName
 
     return contentType
-  },
-
-  /**
-   * Get the content type uid in this format: "type::service.contentType".
-   *
-   * If it is already an uid it returns it. If not it searches for it
-   *
-   *
-   * @returns  {string[]} Returns the contentType uid
-   */
-  getCollectionNames() {
-    const contentTypes = removeIgnoredAPIs({
-      contentTypes: strapi.contentTypes,
-    })
-    const collectionNames = Object.keys(contentTypes).reduce(
-      (collections, contentType) => {
-        collections.push(contentTypes[contentType].modelName)
-        return collections
-      },
-      []
-    )
-    return collectionNames
   },
 
   /**

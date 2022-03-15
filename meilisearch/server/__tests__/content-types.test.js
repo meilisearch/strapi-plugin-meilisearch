@@ -11,15 +11,6 @@ describe('Tests content types', () => {
     jest.restoreAllMocks()
   })
 
-  test('Test get all collection names', async () => {
-    const contentTypeServices = createContentTypeService({ strapi: fakeStrapi })
-    const collectionNames = contentTypeServices.getCollectionNames()
-
-    expect(collectionNames.sort()).toEqual(
-      ['about', 'movie', 'restaurant', 'user'].sort()
-    )
-  })
-
   test('Test all api names of an empty content type', async () => {
     const customStrapi = createFakeStrapi({ contentTypes: [] })
     const contentTypeServices = createContentTypeService({

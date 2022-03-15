@@ -48,22 +48,6 @@ module.exports = [
     },
   },
   {
-    method: 'POST',
-    path: '/meilisearch/wait-for-tasks',
-    handler: 'meilisearchController.waitForTasks',
-    config: {
-      policies: ['isAdmin'],
-    },
-  },
-  {
-    method: 'GET',
-    path: '/meilisearch/enqueued-tasks',
-    handler: 'meilisearchController.getEnqueuedTaskUids',
-    config: {
-      policies: ['isAdmin'],
-    },
-  },
-  {
     method: 'GET',
     path: '/reload',
     handler: 'reloadController.reload',

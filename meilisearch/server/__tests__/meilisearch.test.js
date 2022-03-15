@@ -12,9 +12,6 @@ const updateSettingsMock = jest.fn(() => 10)
 const deleteDocuments = jest.fn(() => {
   return [{ uid: 1 }, { uid: 2 }]
 })
-const waitForTask = jest.fn(() => {
-  return { uid: 1 }
-})
 const getIndexes = jest.fn(() => {
   return [{ uid: 'my_restaurant' }, { uid: 'restaurant' }]
 })
@@ -37,7 +34,6 @@ const mockIndex = jest.fn(() => ({
   addDocuments: addDocumentsMock,
   updateSettings: updateSettingsMock,
   deleteDocuments,
-  waitForTask,
   getStats,
 }))
 
@@ -93,50 +89,6 @@ describe('Tests content types', () => {
     ])
     expect(mockIndex).toHaveBeenCalledWith('customIndex')
     expect(tasks).toEqual([{ uid: 1 }, { uid: 2 }])
-  })
-
-  test('Test to wait for task', async () => {
-    const customStrapi = createFakeStrapi({})
-
-    const meilisearchService = createMeilisearchService({
-      strapi: customStrapi,
-    })
-
-    const task = await meilisearchService.waitForTask({
-      contentType: 'restaurant',
-      taskUid: 1,
-    })
-    expect(waitForTask).toHaveBeenCalledTimes(1)
-    expect(waitForTask).toHaveBeenCalledWith(1, { intervalMs: 5000 })
-    expect(task).toEqual({ uid: 1 })
-  })
-
-  test('Test to wait for multiple tasks', async () => {
-    const customStrapi = createFakeStrapi({})
-
-    const meilisearchService = createMeilisearchService({
-      strapi: customStrapi,
-    })
-
-    const tasks = await meilisearchService.waitForTasks({
-      contentType: 'restaurant',
-      taskUids: [1, 2],
-    })
-    expect(waitForTask).toHaveBeenCalledTimes(2)
-    expect(waitForTask).toHaveBeenCalledWith(1, { intervalMs: 5000 })
-    expect(tasks).toEqual([{ uid: 1 }, { uid: 1 }])
-  })
-
-  test('Test to get task uid', async () => {
-    const customStrapi = createFakeStrapi({})
-
-    const meilisearchService = createMeilisearchService({
-      strapi: customStrapi,
-    })
-
-    const taskUids = await meilisearchService.getEnqueuedTaskUids()
-    expect(getIndexes).toHaveBeenCalledTimes(1)
-    expect(taskUids).toEqual({ restaurant: [1] })
   })
 
   test('Test to get stats', async () => {

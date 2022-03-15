@@ -116,80 +116,6 @@ module.exports = ({ strapi, adapter, config }) => {
     },
 
     /**
-     * Wait for an task to be processed in Meilisearch.
-     *
-     * @param  {object} options
-     * @param  {string} options.contentType - ContentType name.
-     * @param  {number} options.taskUid - Task identifier.
-     *
-     * @returns  { Promise<import("meilisearch").Task  | number>} p - Task body returned by Meilisearch API.
-     */
-    waitForTask: async function ({ contentType, taskUid }) {
-      try {
-        const { apiKey, host } = await store.getCredentials()
-        const client = MeiliSearch({ apiKey, host })
-        const indexUid = config.getIndexNameOfContentType({ contentType })
-        const task = await client
-          .index(indexUid)
-          .waitForTask(taskUid, { intervalMs: 5000 })
-
-        return task
-      } catch (e) {
-        strapi.log.warn(e)
-        return 0
-      }
-    },
-
-    /**
-     * Wait for a batch of tasks uids to be processed.
-     *
-     * @param  {object} options
-     * @param  {string} options.contentType - ContentType name.
-     * @param  {number[]} options.taskUids - Array of tasks identifiers.
-     *
-     * @returns  { Promise<(import("meilisearch").Task| number)[]> } p - Task body returned by Meilisearch API.
-     */
-    waitForTasks: async function ({ contentType, taskUids }) {
-      const tasks = []
-      for (const taskUid of taskUids) {
-        const status = await this.waitForTask({
-          contentType,
-          taskUid,
-        })
-        tasks.push(status)
-      }
-      return tasks
-    },
-
-    /**
-     * Get enqueued tasks ids of indexed contentTypes.
-     *
-     * @returns { Promise<Record<string, number[]> | {}> } - ContentTypes with their respective task uids
-     */
-    getEnqueuedTaskUids: async function () {
-      const indexes = await this.getIndexes()
-      const indexUids = indexes.map(index => index.uid)
-      const contentTypes = contentTypeService.getContentTypesUid()
-      const { apiKey, host } = await store.getCredentials()
-      const client = MeiliSearch({ apiKey, host })
-
-      const contentTypeTaskUids = {}
-      const { results: tasks } = await client.getTasks()
-      for (const contentType of contentTypes) {
-        const indexUid = config.getIndexNameOfContentType({ contentType })
-        if (indexUids.includes(indexUid)) {
-          const enqueueded = tasks
-            .filter(
-              task => task.status === 'enqueued' && task.indexUid === indexUid
-            )
-            .map(task => task.uid)
-          contentTypeTaskUids[contentType] = enqueueded
-        }
-      }
-      return contentTypeTaskUids
-    },
-
-    /**
      * Get stats of an index with a safe guard in case of error.
      *
      * @param  {object} options
@@ -445,35 +371,6 @@ module.exports = ({ strapi, adapter, config }) => {
         await this.emptyOrDeleteIndex({ contentType })
       }
       return this.addContentTypeInMeiliSearch({ contentType })
-    },
-
-    /**
-     * Remove or empty a contentType from Meilisearch
-     *
-     * @param  {object} options
-     * @param  {string} options.contentType - ContentType name.
-     *
-     * @returns {Promise<void>} - All tasks uid from the indexation process.
-     */
-    removeContentTypeFromMeiliSearch: async function ({ contentType }) {
-      await this.emptyOrDeleteIndex({ contentType })
-    },
-
-    /**
-     * Get list of index uids in Meilisearch instance.
-     *
-     * @returns {Promise<string[]>} - Index uids
-     */
-    getContentTypesIndexedInMeiliSearch: async function ({ contentTypes }) {
-      const { apiKey, host } = await store.getCredentials()
-      const client = MeiliSearch({ apiKey, host })
-
-      let indexes = await client.getIndexes()
-
-      indexes = indexes.map(index => index.uid)
-      return contentTypes.filter(contentType =>
-        indexes.includes(config.getIndexNameOfContentType({ contentType }))
-      )
     },
   }
 }

@@ -73,7 +73,7 @@ module.exports = ({ strapi }) => {
       const { contentType } = ctx.request.params
 
       await meilisearch
-        .removeContentTypeFromMeiliSearch({
+        .emptyOrDeleteIndex({
           contentType,
         })
         .then(() => {
