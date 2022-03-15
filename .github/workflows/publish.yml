@@ -2,7 +2,7 @@ name: publish to npm
 on:
   push:
     tags:
-      - v*
+      - v0.5.*
 
 jobs:
   publish-npm:
@@ -16,6 +16,6 @@ jobs:
       - name: Check release validity
         run: sh .github/scripts/check-release.sh
       - name: Publish
-        run: npm publish .
+        run: npm publish . --tag strapi_v3
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
