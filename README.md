@@ -444,7 +444,7 @@ This package only guarantees the compatibility with the [version v0.26.0 of Meil
 
 **Node / NPM versions**:
 
-- NodeJS 14.x
+- NodeJS >= 12.10 <= 14
 - NPM >= 6.x
 
 **We recommend always using the latest version of Strapi to start your new projects**.
