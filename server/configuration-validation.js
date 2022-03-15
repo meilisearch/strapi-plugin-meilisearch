@@ -1,4 +1,4 @@
-const { isObject } = require('../utils')
+const { isObject } = require('./utils')
 
 /**
  * Validates the plugin configuration provided in `plugins/config.js` of the users plugin configuration.
