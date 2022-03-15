@@ -18,10 +18,11 @@
   },
   "files": [
     "admin",
-    "controllers",
-    "connectors",
-    "config",
-    "services"
+    "server",
+    "strapi-admin.js",
+    "strapi-server.js",
+    "LICENSE",
+    "README.md"
   ],
   "dependencies": {
     "@strapi/utils": "^4.1.3",
