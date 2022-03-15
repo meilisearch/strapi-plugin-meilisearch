@@ -2,6 +2,7 @@ import { Box } from '@strapi/design-system/Box'
 import React, { memo } from 'react'
 import { TextInput } from '@strapi/design-system/TextInput'
 import { Button } from '@strapi/design-system/Button'
+import { Typography } from '@strapi/design-system/Typography'
 import { useCredential } from '../../Hooks/useCredential'
 
 const Credentials = () => {
@@ -32,13 +33,23 @@ const Credentials = () => {
           placeholder="API key"
           label="Meilisearch API Key"
           name="apiKey"
-          hint="Your secret key. ⚠️ This key is not meant to be used for searching!"
+          hint="A valid API key with enough permission to create indexes (or the master key)."
           onChange={e => setApiKey(e.target.value)}
           value={apiKey}
           disabled={credentials.ApiKeyIsFromConfigFile}
           aria-label="Password"
           type="password"
         />
+      </Box>
+      <Box paddingTop={1} paddingLeft={2}>
+        <Typography variant="pi" style={{ color: 'red' }}>
+          Do not use this API key on your front-end as it has too much rights.
+          Instead, use the public key available using{' '}
+          <a href="https://docs.meilisearch.com/reference/api/keys.html#get-keys">
+            the key route
+          </a>
+          .
+        </Typography>
       </Box>
       <Box paddingTop={2} paddingLeft={2} paddingRight={2} paddingBottom={2}>
         <Button

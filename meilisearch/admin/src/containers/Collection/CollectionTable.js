@@ -67,9 +67,8 @@ const Collection = () => {
           ))}
         </Tbody>
       </Table>
-      {/* TODO: align right */}
       {reloadNeeded && (
-        <Box padding={5} textAlign="right">
+        <Box padding={5}>
           <Button onClick={() => setReload(true)}>Reload server</Button>
         </Box>
       )}

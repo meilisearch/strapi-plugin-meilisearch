@@ -22,7 +22,11 @@ const PluginActions = () => {
         </Typography>
       </Box>
       <Box paddingTop={2} paddingLeft={2} paddingRight={2} paddingBottom={2}>
-        <Button variant="danger-light" onClick={() => console.log('coucou')}>
+        <Button
+          disabled
+          variant="danger-light"
+          onClick={() => console.log('coucou')}
+        >
           Disable plugin
         </Button>
       </Box>
@@ -38,7 +42,7 @@ const PluginActions = () => {
         </Typography>
       </Box>
       <Box paddingTop={2} paddingLeft={2} paddingRight={2} paddingBottom={2}>
-        <Button variant="danger" onClick={() => console.log('coucou')}>
+        <Button disabled variant="danger" onClick={() => console.log('coucou')}>
           Disable plugin
         </Button>
       </Box>

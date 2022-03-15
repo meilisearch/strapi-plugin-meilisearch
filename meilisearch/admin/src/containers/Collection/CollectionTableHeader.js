@@ -1,6 +1,5 @@
 import React, { memo } from 'react'
 import { Thead, Tr, Th } from '@strapi/design-system/Table'
-import { BaseCheckbox } from '@strapi/design-system/BaseCheckbox'
 import { Typography } from '@strapi/design-system/Typography'
 import { VisuallyHidden } from '@strapi/design-system/VisuallyHidden'
 
@@ -9,7 +8,7 @@ const CollectionTableHeader = () => {
     <Thead>
       <Tr>
         <Th>
-          <BaseCheckbox aria-label="Select all entries" />
+          <VisuallyHidden>INDEX</VisuallyHidden>
         </Th>
         <Th>
           <Typography variant="sigma">NAME</Typography>
