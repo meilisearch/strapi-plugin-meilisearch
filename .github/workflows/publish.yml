@@ -1,8 +1,7 @@
 name: publish to npm
 on:
-  push:
-    tags:
-      - v*
+  release:
+    types: [published]
 
 jobs:
   publish-npm:
@@ -15,7 +14,13 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - name: Check release validity
         run: sh .github/scripts/check-release.sh
-      - name: Publish
+      - name: Publish with latest tag
+        if: "!github.event.release.prerelease"
         run: npm publish .
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+      - name: Publish with strapi_v3 tag
+        if: "github.event.release.prerelease"
+        run: npm publish . --tag strapi_v3
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
