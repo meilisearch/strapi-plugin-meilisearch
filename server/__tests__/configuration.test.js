@@ -47,7 +47,7 @@ describe('Test Meilisearch plugin configurations', () => {
     const indexName = meilisearchService.getIndexNameOfContentType({
       contentType,
     })
-    const entries = meilisearchService.transformEntries({
+    const entries = await meilisearchService.transformEntries({
       contentType,
       entries: [{ id: 1 }],
     })
@@ -72,7 +72,7 @@ describe('Test Meilisearch plugin configurations', () => {
     const indexName = meilisearchService.getIndexNameOfContentType({
       contentType,
     })
-    const entries = meilisearchService.transformEntries({
+    const entries = await meilisearchService.transformEntries({
       contentType,
       entries: [{ id: 1 }],
     })
@@ -98,7 +98,7 @@ describe('Test Meilisearch plugin configurations', () => {
       contentType,
     })
 
-    const entries = meilisearchService.transformEntries({
+    const entries = await meilisearchService.transformEntries({
       contentType,
       entries: [{ id: 1 }],
     })
@@ -126,7 +126,7 @@ describe('Test Meilisearch plugin configurations', () => {
       contentType,
     })
 
-    const entries = meilisearchService.transformEntries({
+    const entries = await meilisearchService.transformEntries({
       contentType,
       entries: [{ id: 1 }],
     })
@@ -153,7 +153,7 @@ describe('Test Meilisearch plugin configurations', () => {
     const indexName = meilisearchService.getIndexNameOfContentType({
       contentType,
     })
-    const entries = meilisearchService.transformEntries({
+    const entries = await meilisearchService.transformEntries({
       contentType,
       entries: [{ id: 1 }],
     })
@@ -185,7 +185,7 @@ describe('Test Meilisearch plugin configurations', () => {
     const indexName = meilisearchService.getIndexNameOfContentType({
       contentType,
     })
-    const entries = meilisearchService.transformEntries({
+    const entries = await meilisearchService.transformEntries({
       contentType,
       entries: [{ id: 1 }, { id: 2 }],
     })
@@ -250,7 +250,7 @@ describe('Test Meilisearch plugin configurations', () => {
     const indexName = meilisearchService.getIndexNameOfContentType({
       contentType,
     })
-    const entries = meilisearchService.transformEntries({
+    const entries = await meilisearchService.transformEntries({
       contentType,
       entries: [{ id: 1 }, { id: 2 }],
     })
@@ -277,7 +277,7 @@ describe('Test Meilisearch plugin configurations', () => {
     const indexName = meilisearchService.getIndexNameOfContentType({
       contentType,
     })
-    const entries = meilisearchService.transformEntries({
+    const entries = await meilisearchService.transformEntries({
       contentType,
       entries: [{ id: 1 }, { id: 2 }],
     })
@@ -304,7 +304,7 @@ describe('Test Meilisearch plugin configurations', () => {
     const indexName = meilisearchService.getIndexNameOfContentType({
       contentType,
     })
-    const entries = meilisearchService.transformEntries({
+    const entries = await meilisearchService.transformEntries({
       contentType,
       entries: [{ id: 1 }, { id: 2 }],
     })
@@ -331,7 +331,7 @@ describe('Test Meilisearch plugin configurations', () => {
     const indexName = meilisearchService.getIndexNameOfContentType({
       contentType,
     })
-    const entries = meilisearchService.transformEntries({
+    const entries = await meilisearchService.transformEntries({
       contentType,
       entries: [{ id: 1 }, { id: 2 }],
     })
@@ -360,7 +360,7 @@ describe('Test Meilisearch plugin configurations', () => {
     const indexName = meilisearchService.getIndexNameOfContentType({
       contentType,
     })
-    const entries = meilisearchService.transformEntries({
+    const entries = await meilisearchService.transformEntries({
       contentType,
       entries: [{ id: 1 }, { id: 2 }],
     })
