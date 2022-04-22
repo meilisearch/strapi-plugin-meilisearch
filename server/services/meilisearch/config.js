@@ -44,7 +44,7 @@ module.exports = ({ strapi }) => {
      *
      * @return {Array<Object>} - Converted or mapped data
      */
-    transformEntries: function ({ contentType, entries = [] }) {
+    transformEntries: async function ({ contentType, entries = [] }) {
       const collection = contentTypeService.getCollectionName({ contentType })
       const contentTypeConfig = meilisearchConfig[collection] || {}
 
@@ -53,12 +53,12 @@ module.exports = ({ strapi }) => {
           Array.isArray(entries) &&
           typeof contentTypeConfig?.transformEntry === 'function'
         ) {
-          const transformed = entries.map(entry =>
-            contentTypeConfig.transformEntry({
+          const transformed = await Promise.all(entries.map(async entry =>
+            await contentTypeConfig.transformEntry({
               entry,
               contentType,
             })
-          )
+          ))
 
           if (transformed.length > 0 && !isObject(transformed[0])) {
             return aborted({ contentType, action: 'transformed' })
