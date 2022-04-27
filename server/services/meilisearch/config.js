@@ -54,11 +54,12 @@ module.exports = ({ strapi }) => {
           typeof contentTypeConfig?.transformEntry === 'function'
         ) {
           const transformed = await Promise.all(
-            entries.map(async entry =>
-              await contentTypeConfig.transformEntry({
-                entry,
-                contentType,
-              })
+            entries.map(
+              async entry =>
+                await contentTypeConfig.transformEntry({
+                  entry,
+                  contentType,
+                })
             )
           )
 
