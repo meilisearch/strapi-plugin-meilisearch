@@ -217,7 +217,7 @@ describe('Test Meilisearch plugin configurations', () => {
     const indexName = meilisearchService.getIndexNameOfContentType({
       contentType,
     })
-    const entries = meilisearchService.filterEntries({
+    const entries = await meilisearchService.filterEntries({
       contentType,
       entries: [
         { id: 1, name: 'one' },
