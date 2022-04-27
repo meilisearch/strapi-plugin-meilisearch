@@ -457,7 +457,8 @@ Instead of adding the plugin to an existing project, you can try it out using th
 
 ```bash
 # Root of repository
-yarn playground:dev
+yarn playground:build # Build the playground
+yarn playground:dev # Start the development server
 ```
 
 This command will install the required dependencies and launch the app in development mode. You should be able to reach it on the [port 8000 of your localhost](http://localhost:8000/admin/).
