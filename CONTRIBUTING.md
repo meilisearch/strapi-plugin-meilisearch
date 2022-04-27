@@ -57,7 +57,8 @@ To test directly your changes on the plugin in Strapi, you can run the Strapi pl
 
 ```bash
 # Root of repository
-yarn playground:dev
+yarn playground:build # Build the playground
+yarn playground:dev # Start the development server
 ```
 
 This command will install required dependencies and launch the app in development mode. You should be able to reach it on the [port 8000 of your localhost](http://localhost:8000/admin/).
