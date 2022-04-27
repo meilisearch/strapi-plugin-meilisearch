@@ -127,5 +127,5 @@ cypress/fixtures
 
 playground/src/plugins
 
-// 
-data.ms
+# Sqlite Database from the playground
+data.db
