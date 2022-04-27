@@ -256,6 +256,8 @@ By default, the plugin sent the data the way it is stored in your Strapi content
 
 Create the alteration function `transformEntry` in the plugin's configuration file. Before sending the data to Meilisearch, every entry passes through this function where the alteration is applied.
 
+`transformEntry` can be `synchronous` or `asynchronous`.
+
 You can find a lot of examples in [this directory](./resources/entries-transformers).
 
 **Example**
@@ -271,7 +273,7 @@ module.exports = {
   meilisearch: {
     config: {
       restaurant: {
-        transformEntry({ entry }) {
+        transformEntry({ entry }) { // can also be async
           return {
             ...entry,
             categories: entry.categories.map(category => category.name)
