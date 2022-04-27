@@ -53,12 +53,14 @@ module.exports = ({ strapi }) => {
           Array.isArray(entries) &&
           typeof contentTypeConfig?.transformEntry === 'function'
         ) {
-          const transformed = await Promise.all(entries.map(async entry =>
-            await contentTypeConfig.transformEntry({
-              entry,
-              contentType,
-            })
-          ))
+          const transformed = await Promise.all(
+            entries.map(async entry =>
+              await contentTypeConfig.transformEntry({
+                entry,
+                contentType,
+              })
+            )
+          )
 
           if (transformed.length > 0 && !isObject(transformed[0])) {
             return aborted({ contentType, action: 'transformed' })
