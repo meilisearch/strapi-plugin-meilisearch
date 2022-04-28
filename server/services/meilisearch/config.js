@@ -94,15 +94,21 @@ module.exports = ({ strapi }) => {
           Array.isArray(entries) &&
           typeof contentTypeConfig?.filterEntry === 'function'
         ) {
-          const filtered = await entries.reduce(async (memo, entry) => {
-            const result = await contentTypeConfig.filterEntry({
-              entry,
-              contentType,
-            })
-            if (!result) return memo
-            return [...(await memo), entry]
-          }, [])
+          const filtered = await entries.reduce(
+            async (filteredEntries, entry) => {
+              const isValid = await contentTypeConfig.filterEntry({
+                entry,
+                contentType,
+              })
 
+              // If the entry does not answers the predicate
+              if (!isValid) return filteredEntries
+
+              const syncFilteredEntries = await filteredEntries
+              return [...syncFilteredEntries, entry]
+            },
+            []
+          )
           return filtered
         }
       } catch (e) {
