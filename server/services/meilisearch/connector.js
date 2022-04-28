@@ -246,7 +246,6 @@ module.exports = ({ strapi, adapter, config }) => {
 
       const task = await client.index(indexUid).addDocuments(documents)
       await store.addIndexedContentType({ contentType })
-      await lifecycle.subscribeContentType({ contentType })
 
       return task
     },
