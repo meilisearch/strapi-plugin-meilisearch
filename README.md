@@ -302,6 +302,8 @@ By transforming the `categories` into an array of names, it is now compatible wi
 
 You might want to filter out some entries. This is possible with the `filterEntry`. Imagine you don't like `Alfredo's` restaurant. You can filter out this specific entry.
 
+`filterEntry` can be `synchronous` or `asynchronous`.
+
 ```js
 // config/plugins.js
 
@@ -309,7 +311,7 @@ module.exports = {
   meilisearch: {
     config: {
       restaurant: {
-        filterEntry({ entry }) {
+        filterEntry({ entry }) { // can also be async 
           return entry.title !== `Alfredo`
         },
       },
