@@ -19,15 +19,27 @@ const sanitizeEntries = async function ({
 }) {
   if (!Array.isArray(entries)) entries = [entries]
 
+  // remove un-published entries
+  entries = await config.removeUnpublishedArticles({
+    entries,
+  })
+
+  // Apply filterEntry plugin config.
   entries = await config.filterEntries({
     contentType,
     entries,
   })
+
+  // Apply transformEntry plugin config.
   entries = await config.transformEntries({
     contentType,
     entries,
   })
+
+  // Remove nested
   entries = await config.removeSensitiveFields({ entries })
+
+  // Add content-type prefix to id
   entries = await adapter.addCollectionNamePrefix({
     contentType,
     entries,
