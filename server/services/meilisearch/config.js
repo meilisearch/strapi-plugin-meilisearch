@@ -85,7 +85,7 @@ module.exports = ({ strapi }) => {
      *
      * @return {Array<Object>} - Converted or mapped data
      */
-    filterEntries: function ({ contentType, entries = [] }) {
+    filterEntries: async function ({ contentType, entries = [] }) {
       const collection = contentTypeService.getCollectionName({ contentType })
       const contentTypeConfig = meilisearchConfig[collection] || {}
 
@@ -94,13 +94,21 @@ module.exports = ({ strapi }) => {
           Array.isArray(entries) &&
           typeof contentTypeConfig?.filterEntry === 'function'
         ) {
-          const filtered = entries.filter(entry =>
-            contentTypeConfig.filterEntry({
-              entry,
-              contentType,
-            })
-          )
+          const filtered = await entries.reduce(
+            async (filteredEntries, entry) => {
+              const isValid = await contentTypeConfig.filterEntry({
+                entry,
+                contentType,
+              })
 
+              // If the entry does not answers the predicate
+              if (!isValid) return filteredEntries
+
+              const syncFilteredEntries = await filteredEntries
+              return [...syncFilteredEntries, entry]
+            },
+            []
+          )
           return filtered
         }
       } catch (e) {
