@@ -13,7 +13,7 @@ function validateConfiguration(config) {
 
   if (!isObject(config)) {
     strapi.log.error(
-      'The `config` field in the MeiliSearch plugin configuration must be of type object'
+      'The `config` field in the Meilisearch plugin configuration must be of type object'
     )
     config = {}
   }
@@ -22,14 +22,14 @@ function validateConfiguration(config) {
   // Validate the `host` parameter
   if ((host !== undefined && typeof host !== 'string') || config.host === '') {
     strapi.log.error(
-      '`host` should be a non-empty string in MeiliSearch configuration'
+      '`host` should be a non-empty string in Meilisearch configuration'
     )
     delete config.host
   }
 
   // Validate the `apikey` parameter
   if (apiKey !== undefined && typeof apiKey !== 'string') {
-    strapi.log.error('`apiKey` should be a string in MeiliSearch configuration')
+    strapi.log.error('`apiKey` should be a string in Meilisearch configuration')
     delete config.apiKey
   }
 

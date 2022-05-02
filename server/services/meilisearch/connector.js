@@ -1,5 +1,5 @@
 'use strict'
-const MeiliSearch = require('./client')
+const Meilisearch = require('./client')
 
 /**
  * Add one entry from a contentType to its index in Meilisearch.
@@ -50,7 +50,7 @@ module.exports = ({ strapi, adapter, config }) => {
     getIndexes: async function () {
       try {
         const { apiKey, host } = await store.getCredentials()
-        const client = MeiliSearch({ apiKey, host })
+        const client = Meilisearch({ apiKey, host })
         const indexes = await client.getIndexes()
         return indexes
       } catch (e) {
@@ -70,7 +70,7 @@ module.exports = ({ strapi, adapter, config }) => {
      */
     deleteEntriesFromMeiliSearch: async function ({ contentType, entriesId }) {
       const { apiKey, host } = await store.getCredentials()
-      const client = MeiliSearch({ apiKey, host })
+      const client = Meilisearch({ apiKey, host })
 
       const indexUid = config.getIndexNameOfContentType({ contentType })
       const documentsIds = entriesId.map(entryId =>
@@ -91,7 +91,7 @@ module.exports = ({ strapi, adapter, config }) => {
      */
     updateEntriesInMeilisearch: async function ({ contentType, entries }) {
       const { apiKey, host } = await store.getCredentials()
-      const client = MeiliSearch({ apiKey, host })
+      const client = Meilisearch({ apiKey, host })
 
       const indexUid = config.getIndexNameOfContentType({ contentType })
 
@@ -126,7 +126,7 @@ module.exports = ({ strapi, adapter, config }) => {
     getStats: async function ({ indexUid }) {
       try {
         const { apiKey, host } = await store.getCredentials()
-        const client = MeiliSearch({ apiKey, host })
+        const client = Meilisearch({ apiKey, host })
         return await client.index(indexUid).getStats()
       } catch (e) {
         return {
@@ -233,7 +233,7 @@ module.exports = ({ strapi, adapter, config }) => {
      */
     addMultipleEntriesToMeilisearch: async function ({ contentType, entries }) {
       const { apiKey, host } = await store.getCredentials()
-      const client = MeiliSearch({ apiKey, host })
+      const client = Meilisearch({ apiKey, host })
 
       if (!Array.isArray(entries)) entries = [entries]
       const indexUid = config.getIndexNameOfContentType({ contentType })
@@ -261,7 +261,7 @@ module.exports = ({ strapi, adapter, config }) => {
      */
     addContentTypeInMeiliSearch: async function ({ contentType }) {
       const { apiKey, host } = await store.getCredentials()
-      const client = MeiliSearch({ apiKey, host })
+      const client = Meilisearch({ apiKey, host })
       const indexUid = config.getIndexNameOfContentType({ contentType })
 
       // Get Meilisearch Index settings from model
@@ -348,7 +348,7 @@ module.exports = ({ strapi, adapter, config }) => {
         })
       } else {
         const { apiKey, host } = await store.getCredentials()
-        const client = MeiliSearch({ apiKey, host })
+        const client = Meilisearch({ apiKey, host })
 
         const indexUid = config.getIndexNameOfContentType({ contentType })
         await client.index(indexUid).delete()

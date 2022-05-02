@@ -1,7 +1,7 @@
 const createMeilisearchService = require('../services/meilisearch')
 
 const { createFakeStrapi } = require('./utils/fakes')
-const { MeiliSearch } = require('meilisearch')
+const { MeiliSearch: Meilisearch } = require('meilisearch')
 
 jest.mock('meilisearch')
 
@@ -38,7 +38,7 @@ const mockIndex = jest.fn(() => ({
 }))
 
 // @ts-ignore
-MeiliSearch.mockImplementation(() => {
+Meilisearch.mockImplementation(() => {
   return {
     getIndexes,
     index: mockIndex,

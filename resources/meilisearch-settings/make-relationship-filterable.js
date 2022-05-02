@@ -2,7 +2,7 @@
  * Imagine if you have a content-type restaurant with a categories field.
  * Category is a content-type of its own. They have a many-to-many relationship.
  *
- * In MeiliSearch you can use filters to for example in our case, only find italian restaurants.
+ * In Meilisearch you can use filters to for example in our case, only find italian restaurants.
  * To be able to do that, you need to provide a list of values and add in the settings the field in `filterableAttributes`.
  * See guide: https://docs.meilisearch.com/reference/features/filtering_and_faceted_search.html#configuring-filters
  *
@@ -17,7 +17,7 @@
  *   ]
  * }
  *
- * Since MeiliSearch is expecting `category: ["Italian", "french"]` and
+ * Since Meilisearch is expecting `category: ["Italian", "french"]` and
  * also `category` to be in `filterableAttributes` we can use the model configuration file to provide all these informations.
  */
 
