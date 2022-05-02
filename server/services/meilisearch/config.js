@@ -163,12 +163,34 @@ module.exports = ({ strapi }) => {
       return contentTypeWithIndexName
     },
 
+    /**
+     * Remove sensitive fields (password, author, etc, ..) from entry.
+     *
+     * @param {object} options
+     * @param {Array<Object>} options.entries - The entries to sanitize
+     *
+     *
+     * @return {Array<Object>} - Entries
+     */
     removeSensitiveFields: function ({ entries }) {
       return entries.map(entry => {
         delete entry.createdBy
         delete entry.updatedBy
         return entry
       })
+    },
+
+    /**
+     * Remove unpublished entries from array of entries.
+     *
+     * @param {object} options
+     * @param {Array<Object>} options.entries - The entries to filter.
+     *
+     *
+     * @return {Array<Object>} - Published entries.
+     */
+    removeUnpublishedArticles: function ({ entries }) {
+      return entries.filter(entry => !(entry.publishedAt === null))
     },
   }
 }
