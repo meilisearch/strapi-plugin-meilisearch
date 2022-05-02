@@ -24,9 +24,9 @@ module.exports = ({ strapi }) => {
             .service('meilisearch')
 
           meilisearch
-            .addOneEntryInMeiliSearch({
+            .addEntriesInMeilisearch({
               contentType: contentTypeUid,
-              entry: result,
+              entries: result,
             })
             .catch(e => {
               strapi.log.error(

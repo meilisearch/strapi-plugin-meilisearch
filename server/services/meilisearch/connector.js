@@ -93,8 +93,9 @@ module.exports = ({ strapi, adapter, config }) => {
       const { apiKey, host } = await store.getCredentials()
       const client = MeiliSearch({ apiKey, host })
 
-      const indexUid = config.getIndexNameOfContentType({ contentType })
+      if (!Array.isArray(entries)) entries = [entries]
 
+      const indexUid = config.getIndexNameOfContentType({ contentType })
       await entries.forEach(async entry => {
         const sanitized = await sanitizeEntries({
           entries: [entry],
@@ -210,32 +211,19 @@ module.exports = ({ strapi, adapter, config }) => {
     },
 
     /**
-     * Add one entry from a contentType to its index in Meilisearch.
-     *
-     * @param  {object} options
-     * @param  {string} options.contentType - ContentType name.
-     * @param  {object[] | object} options.entry - Entry from the document.
-     * @returns {Promise<{ taskUid: number }>} - Task identifier.
-     */
-    addOneEntryInMeiliSearch: async function ({ contentType, entry }) {
-      let entries = entry
-      if (!Array.isArray(entries)) entries = [entries]
-      return this.addMultipleEntriesToMeilisearch({ contentType, entries })
-    },
-
-    /**
-     * Add one entry from a contentType to its index in Meilisearch.
+     * Add entries from a contentType to its index in Meilisearch.
      *
      * @param  {object} options
      * @param  {string} options.contentType - ContentType name.
      * @param  {object[] | object} options.entries - Entry from the document.
      * @returns {Promise<{ taskUid: number }>} - Task identifier.
      */
-    addMultipleEntriesToMeilisearch: async function ({ contentType, entries }) {
+    addEntriesInMeilisearch: async function ({ contentType, entries }) {
       const { apiKey, host } = await store.getCredentials()
       const client = MeiliSearch({ apiKey, host })
 
       if (!Array.isArray(entries)) entries = [entries]
+
       const indexUid = config.getIndexNameOfContentType({ contentType })
       const documents = await sanitizeEntries({
         contentType,
