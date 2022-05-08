@@ -17,16 +17,20 @@ module.exports = ({ strapi }) => {
       })
       await strapi.db.lifecycles.subscribe({
         models: [contentTypeUid],
-        afterCreate(event) {
+        async afterCreate(event) {
           const { result } = event
           const meilisearch = strapi
             .plugin('meilisearch')
             .service('meilisearch')
-
+          const fullEntry = await strapi.entityService.findOne(
+            contentTypeUid,
+            result.id,
+            { populate: '*' }
+          )
           meilisearch
             .addEntriesToMeilisearch({
               contentType: contentTypeUid,
-              entries: result,
+              entries: [fullEntry],
             })
             .catch(e => {
               strapi.log.error(
@@ -39,16 +43,20 @@ module.exports = ({ strapi }) => {
             `Meilisearch does not work with \`afterCreateMany\` hook as the entries are provided without their id`
           )
         },
-        afterUpdate(event) {
+        async afterUpdate(event) {
           const { result } = event
           const meilisearch = strapi
             .plugin('meilisearch')
             .service('meilisearch')
-
+          const fullEntry = await strapi.entityService.findOne(
+            contentTypeUid,
+            result.id,
+            { populate: '*' }
+          )
           meilisearch
             .updateEntriesInMeilisearch({
               contentType: contentTypeUid,
-              entries: [result],
+              entries: [fullEntry],
             })
             .catch(e => {
               strapi.log.error(
