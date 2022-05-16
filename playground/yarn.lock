@@ -1918,10 +1918,21 @@
     statuses "2.0.1"
     uuid "^3.3.2"
 
-"@strapi/utils@4.1.8", "@strapi/utils@^4.0.7":
+"@strapi/utils@4.1.8":
   version "4.1.8"
   resolved "https://registry.yarnpkg.com/@strapi/utils/-/utils-4.1.8.tgz#22c5b10b145f0ce005aefdb5611552ac73d02b23"
   integrity sha512-FMC9gNQ+cXQNRkOaIiom6NlMIqqzo1gA9W/MkR/qezKIsivp+2nC+RsY4amS70D58yU/kjr1BdN5FtnwuyzOLQ==
+  dependencies:
+    "@sindresorhus/slugify" "1.1.0"
+    date-fns "2.24.0"
+    http-errors "1.8.0"
+    lodash "4.17.21"
+    yup "0.32.9"
+
+"@strapi/utils@^4.1.11":
+  version "4.1.11"
+  resolved "https://registry.yarnpkg.com/@strapi/utils/-/utils-4.1.11.tgz#6d54d4a3f6d29a487e741f6846ff0fd2a14a199d"
+  integrity sha512-BiYYn4Er1VQhFXdqtSPScHS5Pbc8H2sjK1K5MKnI0ri7ckAeEOUUISU6G0HHEZPiN5EGRbxup5igtizOFoaROA==
   dependencies:
     "@sindresorhus/slugify" "1.1.0"
     date-fns "2.24.0"
