@@ -22,11 +22,15 @@ module.exports = ({ strapi }) => {
           const meilisearch = strapi
             .plugin('meilisearch')
             .service('meilisearch')
+
+          // Fetch complete entry instead of using result that is possibly
+          // partial.
           const fullEntry = await strapi.entityService.findOne(
             contentTypeUid,
             result.id,
             { populate: '*' }
           )
+
           meilisearch
             .addEntriesToMeilisearch({
               contentType: contentTypeUid,
@@ -48,11 +52,15 @@ module.exports = ({ strapi }) => {
           const meilisearch = strapi
             .plugin('meilisearch')
             .service('meilisearch')
+
+          // Fetch complete entry instead of using result that is possibly
+          // partial.
           const fullEntry = await strapi.entityService.findOne(
             contentTypeUid,
             result.id,
             { populate: '*' }
           )
+
           meilisearch
             .updateEntriesInMeilisearch({
               contentType: contentTypeUid,
