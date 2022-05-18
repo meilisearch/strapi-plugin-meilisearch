@@ -19,15 +19,27 @@ const sanitizeEntries = async function ({
 }) {
   if (!Array.isArray(entries)) entries = [entries]
 
+  // remove un-published entries
+  entries = await config.removeUnpublishedArticles({
+    entries,
+  })
+
+  // Apply filterEntry plugin config.
   entries = await config.filterEntries({
     contentType,
     entries,
   })
+
+  // Apply transformEntry plugin config.
   entries = await config.transformEntries({
     contentType,
     entries,
   })
+
+  // Remove nested
   entries = await config.removeSensitiveFields({ entries })
+
+  // Add content-type prefix to id
   entries = await adapter.addCollectionNamePrefix({
     contentType,
     entries,
@@ -93,8 +105,9 @@ module.exports = ({ strapi, adapter, config }) => {
       const { apiKey, host } = await store.getCredentials()
       const client = Meilisearch({ apiKey, host })
 
-      const indexUid = config.getIndexNameOfContentType({ contentType })
+      if (!Array.isArray(entries)) entries = [entries]
 
+      const indexUid = config.getIndexNameOfContentType({ contentType })
       await entries.forEach(async entry => {
         const sanitized = await sanitizeEntries({
           entries: [entry],
@@ -210,32 +223,19 @@ module.exports = ({ strapi, adapter, config }) => {
     },
 
     /**
-     * Add one entry from a contentType to its index in Meilisearch.
-     *
-     * @param  {object} options
-     * @param  {string} options.contentType - ContentType name.
-     * @param  {object[] | object} options.entry - Entry from the document.
-     * @returns {Promise<{ taskUid: number }>} - Task identifier.
-     */
-    addOneEntryInMeiliSearch: async function ({ contentType, entry }) {
-      let entries = entry
-      if (!Array.isArray(entries)) entries = [entries]
-      return this.addMultipleEntriesToMeilisearch({ contentType, entries })
-    },
-
-    /**
-     * Add one entry from a contentType to its index in Meilisearch.
+     * Add entries from a contentType to its index in Meilisearch.
      *
      * @param  {object} options
      * @param  {string} options.contentType - ContentType name.
      * @param  {object[] | object} options.entries - Entry from the document.
      * @returns {Promise<{ taskUid: number }>} - Task identifier.
      */
-    addMultipleEntriesToMeilisearch: async function ({ contentType, entries }) {
+    addEntriesToMeilisearch: async function ({ contentType, entries }) {
       const { apiKey, host } = await store.getCredentials()
       const client = Meilisearch({ apiKey, host })
 
       if (!Array.isArray(entries)) entries = [entries]
+
       const indexUid = config.getIndexNameOfContentType({ contentType })
       const documents = await sanitizeEntries({
         contentType,
@@ -246,7 +246,6 @@ module.exports = ({ strapi, adapter, config }) => {
 
       const task = await client.index(indexUid).addDocuments(documents)
       await store.addIndexedContentType({ contentType })
-      await lifecycle.subscribeContentType({ contentType })
 
       return task
     },

@@ -41,7 +41,7 @@ Each PR should pass the tests and the linter to be accepted.
 ```bash
 # Run a Meilisearch instance
 docker pull getmeili/meilisearch:latest # Fetch the latest version of Meilisearch image from Docker Hub
-docker run -p 7700:7700 getmeili/meilisearch:latest ./meilisearch --master-key=masterKey --no-analytics
+docker run -p 7700:7700 getmeili/meilisearch:latest meilisearch --master-key=masterKey --no-analytics
 
 # Integration tests
 yarn test
@@ -121,6 +121,39 @@ Make a PR modifying the file [`package.json`](/package.json) with the right vers
 Once the changes are merged on `main`, you can publish the current draft release via the [GitHub interface](https://github.com/meilisearch/strapi-plugin-meilisearch/releases): on this page, click on `Edit` (related to the draft release) > update the description (be sure you apply [these recommandations](https://github.com/meilisearch/integration-guides/blob/main/resources/integration-release.md#writting-the-release-description)) > when you are ready, click on `Publish release`.
 
 GitHub Actions will be triggered and push the package to [npm](https://www.npmjs.com/package/strapi-plugin-meilisearch).
+
+#### Release a `beta` Version
+
+Here are the steps to release a beta version of this package:
+
+- Create a new branch originating the branch containing the "beta" changes. For example, if during the Meilisearch pre-release, create a branch originating `bump-meilisearch-v*.*.*`.<br>
+`vX.X.X` is the next version of the package, NOT the version of Meilisearch!
+
+```bash
+git checkout bump-meilisearch-v*.*.*
+git pull origin bump-meilisearch-v*.*.*
+git checkout -b vX.X.X-beta.0
+```
+
+- Change the version in `package.json` by `vX.X.X-beta.0` and commit it to the `vX.X.X-beta.0` branch
+
+- Go to the [GitHub interface for releasing](https://github.com/meilisearch/strapi-plugin-meilisearch/releases): on this page, click on `Draft a new release`.
+
+- Create a GitHub pre-release:
+  - Fill the description with the detailed changelogs
+  - Fill the title with `vX.X.X-beta.0`
+  - Fill the tag with `vX.X.X-beta.0`
+  - ⚠️ Select the `vX.X.X-beta.0` branch and NOT `main`
+  - ⚠️ Click on the "This is a pre-release" checkbox
+  - Click on "Publish release"
+
+GitHub Actions will be triggered and push the beta version to [npm](https://www.npmjs.com/package/meilisearch).
+
+💡 If you need to release a new beta for the same version (i.e. `vX.X.X-beta.1`):
+- merge the change into `bump-meilisearch-v*.*.*`
+- rebase the `vX.X.X-beta.0` branch
+- change the version name in `package.json`
+- creata a pre-release via the GitHub interface
 
 <hr>
 
