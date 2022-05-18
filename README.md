@@ -313,7 +313,7 @@ module.exports = {
   meilisearch: {
     config: {
       restaurant: {
-        filterEntry({ entry }) { // can also be async 
+        filterEntry({ entry }) { // can also be async
           return entry.title !== `Alfredo`
         },
       },

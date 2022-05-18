@@ -2,7 +2,7 @@
 
 module.exports = ({ store, strapi }) => ({
   /**
-   * Get the API key of MeiliSearch from the store.
+   * Get the API key of Meilisearch from the store.
    *
    * @returns {Promise<string>} API key of Meilisearch instance.
    */
@@ -11,7 +11,7 @@ module.exports = ({ store, strapi }) => ({
   },
 
   /**
-   * Set the API key of MeiliSearch to the store.
+   * Set the API key of Meilisearch to the store.
    *
    * @param  {string} apiKey - API key of Meilisearch instance.
    */
@@ -23,7 +23,7 @@ module.exports = ({ store, strapi }) => ({
   },
 
   /**
-   * Get host of MeiliSearch from the store.
+   * Get host of Meilisearch from the store.
    *
    * @returns {Promise<string>} Host of Meilisearch instance.
    */
@@ -32,7 +32,7 @@ module.exports = ({ store, strapi }) => ({
   },
 
   /**
-   * Set the host of MeiliSearch to the store.
+   * Set the host of Meilisearch to the store.
    *
    * @param  {string} value
    */

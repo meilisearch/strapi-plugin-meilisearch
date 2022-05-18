@@ -35,7 +35,7 @@ module.exports = ({ strapi }) => {
     },
 
     /**
-     * Transform contentTypes entries before indexation in MeiliSearch.
+     * Transform contentTypes entries before indexation in Meilisearch.
      *
      * @param {object} options
      * @param {string} options.contentType - ContentType name.
@@ -76,7 +76,7 @@ module.exports = ({ strapi }) => {
     },
 
     /**
-     * Filter contentTypes entries before indexation in MeiliSearch.
+     * Filter contentTypes entries before indexation in Meilisearch.
      *
      * @param {object} options
      * @param {string} options.contentType - ContentType name.
@@ -119,7 +119,7 @@ module.exports = ({ strapi }) => {
     },
 
     /**
-     * Returns MeiliSearch index settings from model definition.
+     * Returns Meilisearch index settings from model definition.
      *
      * @param {object} options
      * @param {string} options.contentType - ContentType name.
@@ -127,7 +127,7 @@ module.exports = ({ strapi }) => {
 
      * @typedef Settings
      * @type {import('meilisearch').Settings}
-     * @return {Settings} - MeiliSearch index settings
+     * @return {Settings} - Meilisearch index settings
      */
     getSettings: function ({ contentType }) {
       const collection = contentTypeService.getCollectionName({ contentType })

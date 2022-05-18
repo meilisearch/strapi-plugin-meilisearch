@@ -1,11 +1,11 @@
 'use strict'
-const { MeiliSearch } = require('meilisearch')
+const { MeiliSearch: Meilisearch } = require('meilisearch')
 
 /**
- * Create a MeiliSearch client instance.
+ * Create a Meilisearch client instance.
  *
  * @param  {object} config - Information to pass to the constructor.
  *
- * @returns { object } - MeiliSearch client instance.
+ * @returns { object } - Meilisearch client instance.
  */
-module.exports = config => new MeiliSearch(config)
+module.exports = config => new Meilisearch(config)
