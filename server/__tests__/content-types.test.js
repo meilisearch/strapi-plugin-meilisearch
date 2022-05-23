@@ -103,7 +103,7 @@ describe('Tests content types', () => {
       strapi: fakeStrapi,
     })
 
-    const count = await contentTypeServices.getContentTypeEntries({
+    const count = await contentTypeServices.getEntries({
       contentType: 'api::restaurant.restaurant',
     })
 
@@ -115,7 +115,7 @@ describe('Tests content types', () => {
       strapi: fakeStrapi,
     })
 
-    const count = await contentTypeServices.getContentTypeEntries({
+    const count = await contentTypeServices.getEntries({
       contentType: 'api::test.test',
     })
 
