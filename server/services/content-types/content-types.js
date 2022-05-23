@@ -145,7 +145,7 @@ module.exports = ({ strapi }) => ({
       strapi.log.error(`Could not find entry with id ${id} in ${contentType}`)
     }
 
-    return entry
+    return entry || {}
   },
 
   /**
