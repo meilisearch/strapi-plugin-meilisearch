@@ -125,7 +125,7 @@ module.exports = ({ strapi }) => ({
    * More information: https://docs.strapi.io/developer-docs/latest/developer-resources/database-apis-reference/entity-service/crud.html#findone
    *
    * @param  {object} options
-   * @param  {string} [options.id] - Id of the entry.
+   * @param  {string | number} [options.id] - Id of the entry.
    * @param  {string | string[]} [options.fields] - Fields present in the returned entry.
    * @param  {object} [options.populate] - Relations, components and dynamic zones to populate.
    * @param  {string} [options.contentType] - Content type.
@@ -172,7 +172,7 @@ module.exports = ({ strapi }) => ({
     filters = {},
     sort = {},
     populate = '*',
-    publicationState,
+    publicationState = 'live',
   }) {
     const contentTypeUid = this.getContentTypeUid({ contentType })
     if (contentTypeUid === undefined) return []
@@ -184,7 +184,7 @@ module.exports = ({ strapi }) => ({
       filters,
       sort,
       populate,
-      publicationState: publicationState || 'live',
+      publicationState: publicationState,
     })
     // Safe guard in case the content-type is a single type.
     // In which case it is wrapped in an array for consistency.
