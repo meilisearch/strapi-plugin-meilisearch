@@ -98,15 +98,60 @@ describe('Tests content types', () => {
     expect(count).toEqual(2)
   })
 
-  test('Test fetching entries of content type', async () => {
+  test('Test fetching entries of a content type with default parameters', async () => {
     const contentTypeServices = createContentTypeService({
       strapi: fakeStrapi,
     })
 
-    const count = await contentTypeServices.getContentTypeEntries({
+    const count = await contentTypeServices.getEntries({
       contentType: 'api::restaurant.restaurant',
     })
 
+    expect(fakeStrapi.entityService.findMany).toHaveBeenCalledWith(
+      'api::restaurant.restaurant',
+      {
+        fields: '*',
+        start: 0,
+        limit: 500,
+        filters: {},
+        sort: {},
+        populate: '*',
+        publicationState: 'live',
+      }
+    )
+    expect(fakeStrapi.entityService.findMany).toHaveBeenCalledTimes(1)
+    expect(count).toEqual([{ id: 1 }])
+  })
+
+  test('Test fetching entries of a content type with custom parameters', async () => {
+    const contentTypeServices = createContentTypeService({
+      strapi: fakeStrapi,
+    })
+
+    const count = await contentTypeServices.getEntries({
+      contentType: 'api::restaurant.restaurant',
+      fields: 'title',
+      start: 1,
+      limit: 2,
+      filters: { where: { title: 'hello' } },
+      sort: 'id',
+      populate: {},
+      publicationState: 'preview',
+    })
+
+    expect(fakeStrapi.entityService.findMany).toHaveBeenCalledWith(
+      'api::restaurant.restaurant',
+      {
+        fields: 'title',
+        start: 1,
+        limit: 2,
+        filters: { where: { title: 'hello' } },
+        sort: 'id',
+        populate: {},
+        publicationState: 'preview',
+      }
+    )
+    expect(fakeStrapi.entityService.findMany).toHaveBeenCalledTimes(1)
     expect(count).toEqual([{ id: 1 }])
   })
 
@@ -115,11 +160,75 @@ describe('Tests content types', () => {
       strapi: fakeStrapi,
     })
 
-    const count = await contentTypeServices.getContentTypeEntries({
+    const entry = await contentTypeServices.getEntries({
       contentType: 'api::test.test',
     })
 
-    expect(count).toEqual([])
+    expect(fakeStrapi.entityService.findMany).toHaveBeenCalledTimes(0)
+    expect(entry).toEqual([])
+  })
+
+  test('Test fetching an entry of a content type with default parameters', async () => {
+    const contentTypeServices = createContentTypeService({
+      strapi: fakeStrapi,
+    })
+
+    const entry = await contentTypeServices.getEntry({
+      contentType: 'api::restaurant.restaurant',
+      id: 200,
+    })
+
+    expect(fakeStrapi.entityService.findOne).toHaveBeenCalledWith(
+      'api::restaurant.restaurant',
+      200,
+      {
+        fields: '*',
+        populate: '*',
+      }
+    )
+    expect(fakeStrapi.entityService.findOne).toHaveBeenCalledTimes(1)
+    expect(entry).toEqual([{ id: 1 }])
+  })
+
+  test('Test fetching an entry of a content type with custom parameters', async () => {
+    const contentTypeServices = createContentTypeService({
+      strapi: fakeStrapi,
+    })
+
+    const entry = await contentTypeServices.getEntry({
+      contentType: 'api::restaurant.restaurant',
+      id: 200,
+      fields: ['title'],
+      populate: {
+        subClass: true,
+      },
+    })
+
+    expect(fakeStrapi.entityService.findOne).toHaveBeenCalledWith(
+      'api::restaurant.restaurant',
+      200,
+      {
+        fields: ['title'],
+        populate: {
+          subClass: true,
+        },
+      }
+    )
+    expect(fakeStrapi.entityService.findOne).toHaveBeenCalledTimes(1)
+    expect(entry).toEqual([{ id: 1 }])
+  })
+
+  test('Test fetching an entry on a non existing content type', async () => {
+    const contentTypeServices = createContentTypeService({
+      strapi: fakeStrapi,
+    })
+
+    const count = await contentTypeServices.getEntry({
+      contentType: 'api::test.test',
+    })
+
+    expect(fakeStrapi.entityService.findOne).toHaveBeenCalledTimes(0)
+    expect(count).toEqual({})
   })
 
   test('Test operation in batches on entries', async () => {
@@ -136,8 +245,6 @@ describe('Tests content types', () => {
           contentType,
         })),
     })
-
-    console.log(entries)
 
     expect(entries[0].id).toEqual(2)
     expect(entries[0].contentType).toEqual(contentType)

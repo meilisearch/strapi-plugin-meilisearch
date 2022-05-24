@@ -55,8 +55,13 @@ function createFakeStrapi({
     return [{ id: 1 }]
   })
 
+  const fakeFindOne = jest.fn(() => {
+    return [{ id: 1 }]
+  })
+
   const fakeEntityService = {
     findMany: fakeFindMany,
+    findOne: fakeFindOne,
   }
 
   const fakeStrapi = {

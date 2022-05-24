@@ -121,8 +121,37 @@ module.exports = ({ strapi }) => ({
   },
 
   /**
+   * Find an entry of a given content type.
+   * More information: https://docs.strapi.io/developer-docs/latest/developer-resources/database-apis-reference/entity-service/crud.html#findone
+   *
+   * @param  {object} options
+   * @param  {string | number} [options.id] - Id of the entry.
+   * @param  {string | string[]} [options.fields] - Fields present in the returned entry.
+   * @param  {object} [options.populate] - Relations, components and dynamic zones to populate.
+   * @param  {string} [options.contentType] - Content type.
+   *
+   * @returns  {Promise<object>} - Entries.
+   */
+  async getEntry({ contentType, id, fields = '*', populate = '*' }) {
+    const contentTypeUid = this.getContentTypeUid({ contentType })
+    if (contentTypeUid === undefined) return {}
+
+    const entry = await strapi.entityService.findOne(contentTypeUid, id, {
+      fields,
+      populate,
+    })
+
+    if (entry == null) {
+      strapi.log.error(`Could not find entry with id ${id} in ${contentType}`)
+    }
+
+    return entry || {}
+  },
+
+  /**
    * Returns a batch of entries of a given content type.
    * More information: https://docs.strapi.io/developer-docs/latest/developer-resources/database-apis-reference/entity-service/crud.html#findmany
+   *
    * @param  {object} options
    * @param  {string | string[]} [options.fields] - Fields present in the returned entry.
    * @param  {number} [options.start] - Pagination start.
@@ -135,7 +164,7 @@ module.exports = ({ strapi }) => ({
    *
    * @returns  {Promise<object[]>} - Entries.
    */
-  async getContentTypeEntries({
+  async getEntries({
     contentType,
     fields = '*',
     start = 0,
@@ -143,7 +172,7 @@ module.exports = ({ strapi }) => ({
     filters = {},
     sort = {},
     populate = '*',
-    publicationState,
+    publicationState = 'live',
   }) {
     const contentTypeUid = this.getContentTypeUid({ contentType })
     if (contentTypeUid === undefined) return []
@@ -155,7 +184,7 @@ module.exports = ({ strapi }) => ({
       filters,
       sort,
       populate,
-      publicationState: publicationState || 'live',
+      publicationState: publicationState,
     })
     // Safe guard in case the content-type is a single type.
     // In which case it is wrapped in an array for consistency.
@@ -182,7 +211,7 @@ module.exports = ({ strapi }) => ({
     const cbResponse = []
     for (let index = 0; index <= entries_count; index += BATCH_SIZE) {
       const entries =
-        (await this.getContentTypeEntries({
+        (await this.getEntries({
           start: index,
           limit: BATCH_SIZE,
           contentType,

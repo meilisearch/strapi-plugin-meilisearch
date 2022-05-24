@@ -42,7 +42,7 @@ module.exports = ({ strapi }) => {
      * @param {Array<Object>} options.entries  - The data to convert. Conversion will use
      * the static method `toSearchIndex` defined in the model definition
      *
-     * @return {Array<Object>} - Converted or mapped data
+     * @return {Promise<Array<Object>>} - Converted or mapped data
      */
     transformEntries: async function ({ contentType, entries = [] }) {
       const collection = contentTypeService.getCollectionName({ contentType })
