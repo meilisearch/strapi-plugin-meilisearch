@@ -42,7 +42,7 @@ module.exports = ({ strapi }) => {
               )
             })
         },
-        afterCreateMany() {
+        async afterCreateMany() {
           strapi.log.error(
             `Meilisearch does not work with \`afterCreateMany\` hook as the entries are provided without their id`
           )
@@ -72,12 +72,12 @@ module.exports = ({ strapi }) => {
               )
             })
         },
-        afterUpdateMany() {
+        async afterUpdateMany() {
           strapi.log.error(
             `Meilisearch could not find an example on how to access the \`afterUpdateMany\` hook. Please consider making an issue to explain your use case`
           )
         },
-        afterDelete(event) {
+        async afterDelete(event) {
           const { result, params } = event
           const meilisearch = strapi
             .plugin('meilisearch')
@@ -106,7 +106,7 @@ module.exports = ({ strapi }) => {
               )
             })
         },
-        afterDeleteMany() {
+        async afterDeleteMany() {
           strapi.log.error(
             `Meilisearch could not find an example on how to access the \`afterDeleteMany\` hook. Please consider making an issue to explain your use case`
           )
