@@ -352,7 +352,7 @@ module.exports = {
 
 #### 👥 Populate entry rule
 
-Content-types in Strapi may have relationships with other content-types. To ensure that these links are fetched and added to an entry correctly from your Strapi database, the correct populate rule must be provided ([see documentation](https://docs-next.strapi.io/developer-docs/latest/developer-resources/database-apis-reference/entity-service/populate.html#basic-populating)).
+Content-types in Strapi may have relationships with other content-types (ex: `restaurant` can have a many-to-many relation with `category`). To ensure that these links are fetched and added to an entry correctly from your Strapi database, the correct populate rule must be provided ([see documentation](https://docs-next.strapi.io/developer-docs/latest/developer-resources/database-apis-reference/entity-service/populate.html#basic-populating)).
 
 To communicate the populate rule, use the `populateEntryRule` setting on the according content-type in the plugin's settings.
 
@@ -374,7 +374,7 @@ module.exports = {
 }
 ```
 
-by provinding this, the following is indexed in Meilisearch:
+by providing this, the following is indexed in Meilisearch:
 
 ```json
   {
