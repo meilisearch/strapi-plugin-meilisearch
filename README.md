@@ -350,11 +350,11 @@ module.exports = {
 
 [See resources](./resources/meilisearch-settings) for more settings examples.
 
-#### 👥 Populate
+#### 👥 Populate entry rule
 
 Content-types in Strapi may have relationships with other content-types. To ensure that these links are fetched and added to an entry correctly from your Strapi database, the correct populate rule must be provided ([see documentation](https://docs-next.strapi.io/developer-docs/latest/developer-resources/database-apis-reference/entity-service/populate.html#basic-populating)).
 
-To communicate the populate rule, use the `populate` setting on the according content-type in the plugin's settings.
+To communicate the populate rule, use the `populateEntryRule` setting on the according content-type in the plugin's settings.
 
 **For example**
 
@@ -367,7 +367,7 @@ module.exports = {
   meilisearch: {
     config: {
       restaurant: {
-        populate: ['repeatableComponent.categories', 'categories'],
+        populateEntryRule: ['repeatableComponent.categories', 'categories'],
       }
     }
   },

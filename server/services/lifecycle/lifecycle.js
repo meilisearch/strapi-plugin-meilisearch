@@ -28,7 +28,7 @@ module.exports = ({ strapi }) => {
           const entry = await contentTypeService.getEntry({
             contentType: contentTypeUid,
             id: result.id,
-            populate: meilisearch.populateRule({ contentType }),
+            populate: meilisearch.populateEntryRule({ contentType }),
           })
 
           meilisearch
@@ -58,7 +58,7 @@ module.exports = ({ strapi }) => {
           const entry = await contentTypeService.getEntry({
             contentType: contentTypeUid,
             id: result.id,
-            populate: meilisearch.populateRule({ contentType }),
+            populate: meilisearch.populateEntryRule({ contentType }),
           })
 
           meilisearch

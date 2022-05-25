@@ -212,46 +212,46 @@ describe('Test plugin configuration', () => {
     expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
   })
 
-  test('Test populate with wrong type', async () => {
+  test('Test populateEntryRule with wrong type', async () => {
     validateConfiguration({
       restaurant: {
-        populate: 0,
+        populateEntryRule: 0,
       },
     })
     expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
     expect(fakeStrapi.log.error).toHaveBeenCalledTimes(1)
     expect(fakeStrapi.log.error).toHaveBeenCalledWith(
-      'the "populate" param of "restaurant" should be an object/array/string'
+      'the "populateEntryRule" param of "restaurant" should be an object/array/string'
     )
   })
 
-  test('Test populate with function', async () => {
+  test('Test populateEntryRule with function', async () => {
     validateConfiguration({
       restaurant: {
-        populate: () => {},
+        populateEntryRule: () => {},
       },
     })
     expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
     expect(fakeStrapi.log.error).toHaveBeenCalledTimes(1)
     expect(fakeStrapi.log.error).toHaveBeenCalledWith(
-      'the "populate" param of "restaurant" should be an object/array/string'
+      'the "populateEntryRule" param of "restaurant" should be an object/array/string'
     )
   })
 
-  test('Test populate with empty object', async () => {
+  test('Test populateEntryRule with empty object', async () => {
     validateConfiguration({
       restaurant: {
-        populate: {},
+        populateEntryRule: {},
       },
     })
     expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
     expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
   })
 
-  test('Test populate with undefined', async () => {
+  test('Test populateEntryRule with undefined', async () => {
     validateConfiguration({
       restaurant: {
-        populate: undefined,
+        populateEntryRule: undefined,
       },
     })
     expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
