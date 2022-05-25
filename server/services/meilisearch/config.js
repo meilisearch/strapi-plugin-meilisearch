@@ -23,7 +23,8 @@ module.exports = ({ strapi }) => {
     /**
      * Get the name of the index from Meilisearch in which the contentType content is added.
      *
-     * @param contentType - Name of the contentType.
+     * @param {object} options
+     * @param {string} options.contentType - ContentType name.
      *
      * @return {String} - Index name
      */
@@ -32,6 +33,21 @@ module.exports = ({ strapi }) => {
 
       const contentTypeConfig = meilisearchConfig[collection] || {}
       return contentTypeConfig.indexName || collection
+    },
+
+    /**
+     * Get the populate rule of a content-type that is applied when fetching entries in the Strapi database.
+     *
+     * @param {object} options
+     * @param {string} options.contentType - ContentType name.
+     *
+     * @return {String} - Populate rule.
+     */
+    populateEntryRule: function ({ contentType }) {
+      const collection = contentTypeService.getCollectionName({ contentType })
+      const contentTypeConfig = meilisearchConfig[collection] || {}
+
+      return contentTypeConfig.populate || '*'
     },
 
     /**
@@ -83,7 +99,7 @@ module.exports = ({ strapi }) => {
      * @param {Array<Object>} options.entries  - The data to convert. Conversion will use
      * the static method `toSearchIndex` defined in the model definition
      *
-     * @return {Array<Object>} - Converted or mapped data
+     * @return {Promise<Array<Object>>} - Converted or mapped data
      */
     filterEntries: async function ({ contentType, entries = [] }) {
       const collection = contentTypeService.getCollectionName({ contentType })

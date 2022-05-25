@@ -47,6 +47,7 @@ function validateCollectionConfiguration({ configuration, collection }) {
     'transformEntry',
     'settings',
     'filterEntry',
+    'populateEntryRule',
   ]
 
   if (configuration === undefined) {
@@ -96,6 +97,18 @@ function validateCollectionConfiguration({ configuration, collection }) {
       `the "settings" param of "${collection}" should be an object`
     )
     delete configuration.settings
+  }
+
+  if (
+    configuration.populateEntryRule !== undefined &&
+    !isObject(configuration.populateEntryRule) &&
+    !Array.isArray(configuration.populateEntryRule) &&
+    typeof configuration.populateEntryRule !== 'string'
+  ) {
+    strapi.log.error(
+      `the "populateEntryRule" param of "${collection}" should be an object/array/string`
+    )
+    delete configuration.populateEntryRule
   }
 
   Object.keys(configuration).forEach(attribute => {

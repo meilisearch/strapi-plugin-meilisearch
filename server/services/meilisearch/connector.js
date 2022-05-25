@@ -286,6 +286,7 @@ module.exports = ({ strapi, adapter, config }) => {
       const tasksUids = await contentTypeService.actionInBatches({
         contentType,
         callback: addDocuments,
+        populate: config.populateEntryRule({ contentType }),
       })
 
       await store.addIndexedContentType({ contentType })
@@ -344,6 +345,7 @@ module.exports = ({ strapi, adapter, config }) => {
         await contentTypeService.actionInBatches({
           contentType,
           callback: deleteEntries,
+          populate: config.populateEntryRule({ contentType }),
         })
       } else {
         const { apiKey, host } = await store.getCredentials()

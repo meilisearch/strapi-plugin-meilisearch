@@ -195,17 +195,63 @@ describe('Test plugin configuration', () => {
   test('Test settings with function', async () => {
     validateConfiguration({
       restaurant: {
-        settings: {},
+        settings: () => {},
       },
     })
     expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
+    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(1)
   })
 
   test('Test settings with undefined', async () => {
     validateConfiguration({
       restaurant: {
         settings: undefined,
+      },
+    })
+    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
+    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
+  })
+
+  test('Test populateEntryRule with wrong type', async () => {
+    validateConfiguration({
+      restaurant: {
+        populateEntryRule: 0,
+      },
+    })
+    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
+    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(1)
+    expect(fakeStrapi.log.error).toHaveBeenCalledWith(
+      'the "populateEntryRule" param of "restaurant" should be an object/array/string'
+    )
+  })
+
+  test('Test populateEntryRule with function', async () => {
+    validateConfiguration({
+      restaurant: {
+        populateEntryRule: () => {},
+      },
+    })
+    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
+    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(1)
+    expect(fakeStrapi.log.error).toHaveBeenCalledWith(
+      'the "populateEntryRule" param of "restaurant" should be an object/array/string'
+    )
+  })
+
+  test('Test populateEntryRule with empty object', async () => {
+    validateConfiguration({
+      restaurant: {
+        populateEntryRule: {},
+      },
+    })
+    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
+    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
+  })
+
+  test('Test populateEntryRule with undefined', async () => {
+    validateConfiguration({
+      restaurant: {
+        populateEntryRule: undefined,
       },
     })
     expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
