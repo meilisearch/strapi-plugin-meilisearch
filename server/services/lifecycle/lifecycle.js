@@ -25,16 +25,16 @@ module.exports = ({ strapi }) => {
 
           // Fetch complete entry instead of using result that is possibly
           // partial.
-          const fullEntry = await strapi.entityService.findOne(
-            contentTypeUid,
-            result.id,
-            { populate: '*' }
-          )
+          const entry = await contentTypeService.getEntry({
+            contentType: contentTypeUid,
+            id: result.id,
+            populate: meilisearch.populateRule({ contentType }),
+          })
 
           meilisearch
             .addEntriesToMeilisearch({
               contentType: contentTypeUid,
-              entries: [fullEntry],
+              entries: [entry],
             })
             .catch(e => {
               strapi.log.error(
@@ -55,16 +55,16 @@ module.exports = ({ strapi }) => {
 
           // Fetch complete entry instead of using result that is possibly
           // partial.
-          const fullEntry = await strapi.entityService.findOne(
-            contentTypeUid,
-            result.id,
-            { populate: '*' }
-          )
+          const entry = await contentTypeService.getEntry({
+            contentType: contentTypeUid,
+            id: result.id,
+            populate: meilisearch.populateRule({ contentType }),
+          })
 
           meilisearch
             .updateEntriesInMeilisearch({
               contentType: contentTypeUid,
-              entries: [fullEntry],
+              entries: [entry],
             })
             .catch(e => {
               strapi.log.error(

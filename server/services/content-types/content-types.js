@@ -197,11 +197,16 @@ module.exports = ({ strapi }) => ({
    *
    * @param  {object} options
    * @param  {string} options.contentType - Name of the content type.
+   * @param  {object} [options.populate] - Relations, components and dynamic zones to populate.
    * @param  {function} options.callback - Function applied on each entry of the contentType.
    *
    * @returns {Promise<any[]>} - List of all the returned elements from the callback.
    */
-  actionInBatches: async function ({ contentType, callback = () => {} }) {
+  actionInBatches: async function ({
+    contentType,
+    callback = () => {},
+    populate = '*',
+  }) {
     const BATCH_SIZE = 500
 
     // Need total number of entries in contentType
@@ -215,6 +220,7 @@ module.exports = ({ strapi }) => ({
           start: index,
           limit: BATCH_SIZE,
           contentType,
+          populate,
         })) || []
 
       const info = await callback({ entries, contentType })
