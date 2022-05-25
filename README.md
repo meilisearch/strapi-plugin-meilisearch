@@ -360,7 +360,7 @@ To communicate the populate rule, use the `populate` setting on the according co
 
 Imagine my `restaurant` content-type has a relation with a repeatable-component `repeatableComponent` that itself has a relationship with the content-type `categories`.
 
-The following population will ensure that a `restaurant` entry contains even the most nested.
+The following population will ensure that a `restaurant` entry contains even the most nested relation.
 
 ```js
 module.exports = {
