@@ -14,7 +14,7 @@
     "@strapi/plugin-i18n": "^4.1.11",
     "@strapi/plugin-users-permissions": "^4.1.11",
     "@strapi/strapi": "^4.1.11",
-    "@strapi/utils": "^4.1.11",
+    "@strapi/utils": "^4.1.12",
     "meilisearch": "^0.25.1",
     "sqlite3": "5.0.8"
   },
