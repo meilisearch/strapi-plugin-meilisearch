@@ -47,7 +47,7 @@ module.exports = ({ strapi }) => {
       const collection = contentTypeService.getCollectionName({ contentType })
       const contentTypeConfig = meilisearchConfig[collection] || {}
 
-      return contentTypeConfig.populate || '*'
+      return contentTypeConfig.populateEntryRule || '*'
     },
 
     /**
