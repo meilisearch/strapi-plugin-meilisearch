@@ -28,10 +28,17 @@ First of all, thank you for contributing to Meilisearch! The goal of this docume
 
 ### Setup <!-- omit in toc -->
 
-We suggest using `yarn` as the lock file is in yarn and thus we ensure a working dev environment.
+You can set up your local environment natively or using `docker`, check out the [`docker-compose.yml`](/docker-compose.yml).
+
+Example of running all the checks with docker:
+```bash
+docker-compose run --rm package bash -c "yarn install && yarn test && yarn playground:build && yarn style"
+```
+
+To install dependencies:
 
 ```bash
-yarn
+yarn --dev
 ```
 
 ### Tests and Linter <!-- omit in toc -->
