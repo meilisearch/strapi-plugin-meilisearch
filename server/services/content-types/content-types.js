@@ -185,6 +185,7 @@ module.exports = ({ strapi }) => ({
       sort,
       populate,
       publicationState: publicationState,
+      locale: 'all',
     })
     // Safe guard in case the content-type is a single type.
     // In which case it is wrapped in an array for consistency.
