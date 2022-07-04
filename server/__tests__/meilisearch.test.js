@@ -13,7 +13,7 @@ const deleteDocuments = jest.fn(() => {
   return [{ uid: 1 }, { uid: 2 }]
 })
 const getIndexes = jest.fn(() => {
-  return [{ uid: 'my_restaurant' }, { uid: 'restaurant' }]
+  return { results: [{ uid: 'my_restaurant' }, { uid: 'restaurant' }] }
 })
 
 const getTasks = jest.fn(() => {
