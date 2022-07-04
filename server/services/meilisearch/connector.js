@@ -63,7 +63,7 @@ module.exports = ({ strapi, adapter, config }) => {
       try {
         const { apiKey, host } = await store.getCredentials()
         const client = Meilisearch({ apiKey, host })
-        const indexes = await client.getIndexes()
+        const { results: indexes } = await client.getIndexes()
         return indexes
       } catch (e) {
         strapi.log.error(`meilisearch: ${e.message}`)
@@ -280,7 +280,7 @@ module.exports = ({ strapi, adapter, config }) => {
         // Add documents in Meilisearch
         const task = await client.index(indexUid).addDocuments(documents)
 
-        return task.uid
+        return task.taskUid
       }
 
       const tasksUids = await contentTypeService.actionInBatches({
