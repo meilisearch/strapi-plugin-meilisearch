@@ -1,4 +1,4 @@
-const lifecycleService = require('./lifecycle')
+const lifecycleService = require('./subscription')
 
 module.exports = ({ strapi }) => {
   return {

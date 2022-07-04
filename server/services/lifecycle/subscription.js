@@ -1,7 +1,10 @@
+const lifeCycles = require('./lifecycles')
+
 module.exports = ({ strapi }) => {
   // const store = strapi.plugin('meilisearch').service('store')
   const contentTypeService = strapi.plugin('meilisearch').service('contentType')
   const store = strapi.plugin('meilisearch').service('store')
+
   return {
     /**
      * Subscribe the content type to all required lifecycles
@@ -15,6 +18,7 @@ module.exports = ({ strapi }) => {
       const contentTypeUid = contentTypeService.getContentTypeUid({
         contentType: contentType,
       })
+      console.log(lifeCycles({ contentType, strapi }))
       await strapi.db.lifecycles.subscribe({
         models: [contentTypeUid],
         async afterCreate(event) {
