@@ -12,7 +12,5 @@ const packageJson = require('../../../package.json')
 module.exports = config =>
   new Meilisearch({
     ...config,
-    clientAgents: [
-      `Meilisearch strapi-plugin-meilisearch ${packageJson.version}`,
-    ],
+    clientAgents: [`Meilisearch Strapi ${packageJson.version}`],
   })
