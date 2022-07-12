@@ -1,5 +1,6 @@
 'use strict'
 const { MeiliSearch: Meilisearch } = require('meilisearch')
+const packageJson = require('../../../package.json')
 
 /**
  * Create a Meilisearch client instance.
@@ -8,4 +9,8 @@ const { MeiliSearch: Meilisearch } = require('meilisearch')
  *
  * @returns { object } - Meilisearch client instance.
  */
-module.exports = config => new Meilisearch(config)
+module.exports = config =>
+  new Meilisearch({
+    ...config,
+    clientAgents: [`Meilisearch Strapi ${packageJson.version}`],
+  })
