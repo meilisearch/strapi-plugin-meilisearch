@@ -25,7 +25,7 @@
     "README.md"
   ],
   "dependencies": {
-    "@strapi/utils": "^4.1.9",
+    "@strapi/utils": "^4.2.2",
     "meilisearch": "^0.27.0-beta.1"
   },
   "peerDependencies": {},
