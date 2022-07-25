@@ -40,7 +40,7 @@ Add your Strapi content-types into a Meilisearch instance. The plugin listens to
 
 ## 📖 Documentation
 
-To understand Meilisearch and how it works, see the [Meilisearch's documentation](https://docs.meilisearch.com/learn/what_is_meilisearch/).
+To understand Meilisearch and how it works, see the [Meilisearch's documentation](https://docs.meilisearch.com/learn/getting_started/quick_start.html).
 
 To understand Strapi and how to create an app, see [Strapi's documentation](https://strapi.io/documentation/developer-docs/latest/getting-started/introduction.html).
 
