@@ -106,10 +106,8 @@ module.exports = ({ strapi }) => {
               )
             })
         },
-        async afterDeleteMany() {
-          strapi.log.error(
-            `Meilisearch could not find an example on how to access the \`afterDeleteMany\` hook. Please consider making an issue to explain your use case`
-          )
+        async afterDeleteMany(event) {
+          this.afterDelete(event)
         },
       })
 
