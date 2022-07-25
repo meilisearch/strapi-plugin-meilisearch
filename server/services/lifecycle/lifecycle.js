@@ -72,10 +72,26 @@ module.exports = ({ strapi }) => {
               )
             })
         },
-        async afterUpdateMany() {
-          strapi.log.error(
-            `Meilisearch could not find an example on how to access the \`afterUpdateMany\` hook. Please consider making an issue to explain your use case`
-          )
+        async afterUpdateMany(event) {
+          const meilisearch = strapi
+            .plugin('meilisearch')
+            .service('meilisearch')
+
+          const entries = await contentTypeService.getEntries({
+            contentType: contentTypeUid,
+            filters: event.params.where,
+          })
+
+          meilisearch
+            .updateEntriesInMeilisearch({
+              contentType: contentTypeUid,
+              entries: entries,
+            })
+            .catch(e => {
+              strapi.log.error(
+                `Meilisearch could not update the entries: ${e.message}`
+              )
+            })
         },
         async afterDelete(event) {
           const { result, params } = event
