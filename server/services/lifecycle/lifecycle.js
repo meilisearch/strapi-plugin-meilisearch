@@ -77,10 +77,23 @@ module.exports = ({ strapi }) => {
             .plugin('meilisearch')
             .service('meilisearch')
 
-          const entries = await contentTypeService.getEntries({
+          const nbrEntries = await contentTypeService.numberOfEntries({
             contentType: contentTypeUid,
-            filters: event.params.where,
+            where: event.params.where,
           })
+
+          const entries = []
+          const BATCH_SIZE = 500
+
+          for (let pos = 0; pos < nbrEntries; pos += BATCH_SIZE) {
+            const batch = await contentTypeService.getEntries({
+              contentType: contentTypeUid,
+              filters: event.params.where,
+              start: pos,
+              limit: BATCH_SIZE,
+            })
+            entries.push(...batch)
+          }
 
           meilisearch
             .updateEntriesInMeilisearch({
