@@ -72,10 +72,39 @@ module.exports = ({ strapi }) => {
               )
             })
         },
-        async afterUpdateMany() {
-          strapi.log.error(
-            `Meilisearch could not find an example on how to access the \`afterUpdateMany\` hook. Please consider making an issue to explain your use case`
-          )
+        async afterUpdateMany(event) {
+          const meilisearch = strapi
+            .plugin('meilisearch')
+            .service('meilisearch')
+
+          const nbrEntries = await contentTypeService.numberOfEntries({
+            contentType: contentTypeUid,
+            where: event.params.where,
+          })
+
+          const entries = []
+          const BATCH_SIZE = 500
+
+          for (let pos = 0; pos < nbrEntries; pos += BATCH_SIZE) {
+            const batch = await contentTypeService.getEntries({
+              contentType: contentTypeUid,
+              filters: event.params.where,
+              start: pos,
+              limit: BATCH_SIZE,
+            })
+            entries.push(...batch)
+          }
+
+          meilisearch
+            .updateEntriesInMeilisearch({
+              contentType: contentTypeUid,
+              entries: entries,
+            })
+            .catch(e => {
+              strapi.log.error(
+                `Meilisearch could not update the entries: ${e.message}`
+              )
+            })
         },
         async afterDelete(event) {
           const { result, params } = event
@@ -106,10 +135,8 @@ module.exports = ({ strapi }) => {
               )
             })
         },
-        async afterDeleteMany() {
-          strapi.log.error(
-            `Meilisearch could not find an example on how to access the \`afterDeleteMany\` hook. Please consider making an issue to explain your use case`
-          )
+        async afterDeleteMany(event) {
+          this.afterDelete(event)
         },
       })
 
