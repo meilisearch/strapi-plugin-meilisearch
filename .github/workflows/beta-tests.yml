@@ -1,0 +1,64 @@
+# Testing the code base against a specific Meilisearch feature
+name: Beta tests
+
+# Will only run for PRs and pushes to *-beta
+on:
+  push:
+    branches: ['!bump-meilisearch-v*.*.*-beta', '**-beta']
+  pull_request:
+    branches: ['!bump-meilisearch-v*.*.*-beta', '**-beta']
+
+jobs:
+  integration_tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # Strapi is not yet compatible with node 16
+        node: ['14', '16']
+    name: integration-tests (Node.js ${{ matrix.node }})
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          cache: yarn
+          node-version: ${{ matrix.node }}
+      - name: Install dependencies
+        run: yarn
+      - name: Launch tests
+        run: yarn test
+  playground_build_tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: ['14', '16']
+    name: playground-build (Node.js ${{ matrix.node }})
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          cache: yarn
+          node-version: ${{ matrix.node }}
+      - name: Install dependencies
+        run: yarn --dev && yarn --cwd ./playground
+      - name: Build Strapi playground
+        run: yarn playground:build
+  style_tests:
+    runs-on: ubuntu-latest
+    name: style-check
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          cache: yarn
+          node-version: ${{ matrix.node }}
+      - name: Install dependencies
+        run: yarn --dev
+      - name: Run style check
+        run: yarn style
+      - name: Yaml Style
+        uses: ibiqlik/action-yamllint@v3
+        with:
+          config_file: .yamllint.yml
