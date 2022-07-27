@@ -14,62 +14,46 @@ jobs:
     strategy:
       matrix:
         # Strapi is not yet compatible with node 16
-        node: ["14", "16"]
+        node: ['14', '16']
     name: integration-tests (Node.js ${{ matrix.node }})
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Setup node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
+          cache: yarn
           node-version: ${{ matrix.node }}
-      - name: Cache dependencies
-        uses: actions/cache@v2
-        with:
-          path: |
-            ./node_modules
-          key: ${{ hashFiles('yarn.lock') }}
       - name: Install dependencies
         run: yarn
       - name: Launch tests
         run: yarn test
-
   playground_build_tests:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: ["14", "16"]
+        node: ['14', '16']
     name: playground-build (Node.js ${{ matrix.node }})
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Setup node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
+          cache: yarn
           node-version: ${{ matrix.node }}
-      - name: Cache dependencies
-        uses: actions/cache@v2
-        with:
-          path: |
-            ./node_modules
-          key: ${{ hashFiles('yarn.lock') }}
       - name: Install dependencies
         run: yarn --dev && yarn --cwd ./playground
       - name: Build Strapi playground
         run: yarn playground:build
-  linter_check:
+  style_tests:
     runs-on: ubuntu-latest
     name: style-check
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Setup node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
-          node-version: "14.x"
-      - name: Cache dependencies
-        uses: actions/cache@v2
-        with:
-          path: |
-            ./node_modules
-          key: ${{ hashFiles('yarn.lock') }}
+          cache: yarn
+          node-version: ${{ matrix.node }}
       - name: Install dependencies
         run: yarn --dev
       - name: Run style check
