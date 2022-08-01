@@ -10,7 +10,7 @@
     "strapi": "strapi"
   },
   "dependencies": {
-    "@strapi/plugin-i18n": "^4.2.3",
+    "@strapi/plugin-i18n": "^4.3.0",
     "@strapi/plugin-users-permissions": "^4.2.3",
     "@strapi/strapi": "^4.2.3",
     "@strapi/utils": "^4.2.2",
