@@ -142,7 +142,8 @@ git pull origin bump-meilisearch-v*.*.*
 git checkout -b vX.X.X-beta.0
 ```
 
-- Change the version in `package.json` by `vX.X.X-beta.0` and commit it to the `vX.X.X-beta.0` branch
+- Change the version in [`package.json`](/package.json) and commit it to the `beta` branch.
+
 
 - Go to the [GitHub interface for releasing](https://github.com/meilisearch/strapi-plugin-meilisearch/releases): on this page, click on `Draft a new release`.
 
