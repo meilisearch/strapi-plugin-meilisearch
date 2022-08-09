@@ -66,7 +66,7 @@ strapi build
 ```
 
 
-You will need both a running Strapi app and a running Meilisearch instance. For [specific version compatibility see this section](#-compatibility-with-meilisearch).
+You will need both a running Strapi app and a running Meilisearch instance. For [specific version compatibility see this section](#-compatibility-with-meilisearch-and-strapi).
 
 ### 🏃‍♀️ Run Meilisearch <!-- omit in toc -->
 
@@ -299,6 +299,8 @@ Result:
 ```
 
 By transforming the `categories` into an array of names, it is now compatible with the [`filtering` feature](https://docs.meilisearch.com/reference/features/filtering_and_faceted_search.html#configuring-filters) in Meilisearch.
+
+**Important**: You should always return the id of the entry without any transformation to [allow sync](https://github.com/meilisearch/strapi-plugin-meilisearch/issues/487) when unpublished or deleting some entries in Strapi.
 
 ### Filter entries
 
