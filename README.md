@@ -66,7 +66,7 @@ strapi build
 ```
 
 
-You will need both a running Strapi app and a running Meilisearch instance. For [specific version compatibility see this section](#-compatibility-with-meilisearch).
+You will need both a running Strapi app and a running Meilisearch instance. For [specific version compatibility see this section](#-compatibility-with-meilisearch-and-strapi).
 
 ### 🏃‍♀️ Run Meilisearch <!-- omit in toc -->
 
