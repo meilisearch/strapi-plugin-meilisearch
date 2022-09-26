@@ -1936,12 +1936,12 @@
     "@strapi/utils" "4.3.2"
     lodash "4.17.21"
 
-"@strapi/plugin-i18n@^4.3.2":
-  version "4.3.2"
-  resolved "https://registry.yarnpkg.com/@strapi/plugin-i18n/-/plugin-i18n-4.3.2.tgz#fccb960d01a4cfebce765ba468fe60ce7e134820"
-  integrity sha512-0Kb8JF4nXzXQBInobRzfVpVsMlJQWd7gvqhKW953vTKqWH6V/oSyd5LbcEk3ppmo6pIBKxz76TfOuj1j37MFdw==
+"@strapi/plugin-i18n@^4.3.9":
+  version "4.3.9"
+  resolved "https://registry.yarnpkg.com/@strapi/plugin-i18n/-/plugin-i18n-4.3.9.tgz#ad22755cb72bd9d6a68867751d8cdbba32f8295d"
+  integrity sha512-7iS28X+TaqHwfih4FqOlHecIBj2bmfPHjFRxAU+kBgxwVBqTOnayogDnJsG0BuQ0CfnMUtapEGrWFrmuTCMU/w==
   dependencies:
-    "@strapi/utils" "4.3.2"
+    "@strapi/utils" "4.3.9"
     lodash "4.17.21"
 
 "@strapi/plugin-upload@4.3.2":
@@ -2079,13 +2079,24 @@
     prettier "2.7.1"
     typescript "4.6.2"
 
-"@strapi/utils@4.3.2", "@strapi/utils@^4.3.2":
+"@strapi/utils@4.3.2":
   version "4.3.2"
   resolved "https://registry.yarnpkg.com/@strapi/utils/-/utils-4.3.2.tgz#df4ae10bff89d3fd13495a3bde10da16f6fd4597"
   integrity sha512-7MsXcGFSbKsKUFiegzy1kL6PHTAWyJ0kxfT4xAywkXMN7GOkA3x9ld0Ds4+a3MBohA2ZOiVj7Nil3IF7tQwdpQ==
   dependencies:
     "@sindresorhus/slugify" "1.1.0"
     date-fns "2.28.0"
+    http-errors "1.8.1"
+    lodash "4.17.21"
+    yup "0.32.9"
+
+"@strapi/utils@4.3.9", "@strapi/utils@^4.3.2":
+  version "4.3.9"
+  resolved "https://registry.yarnpkg.com/@strapi/utils/-/utils-4.3.9.tgz#21bff4ad63a133e3e8c1bfb50f393f3a83b58e3d"
+  integrity sha512-EcvLprbMO7tMKJLvDZ4on9GlIkwP8aMVjs2o7oXa4xK1ngSUTIri8C1mvjGsgGcdoLBzqgR1/L+u04OXKBmdvQ==
+  dependencies:
+    "@sindresorhus/slugify" "1.1.0"
+    date-fns "2.29.2"
     http-errors "1.8.1"
     lodash "4.17.21"
     yup "0.32.9"
@@ -4095,6 +4106,11 @@ date-fns@2.28.0:
   version "2.28.0"
   resolved "https://registry.yarnpkg.com/date-fns/-/date-fns-2.28.0.tgz#9570d656f5fc13143e50c975a3b6bbeb46cd08b2"
   integrity sha512-8d35hViGYx/QH0icHYCeLmsLmMUheMmTyV9Fcm6gvNwdw31yXXH+O85sOBJ+OLnLQMKZowvpKb6FgMIQjcpvQw==
+
+date-fns@2.29.2:
+  version "2.29.2"
+  resolved "https://registry.yarnpkg.com/date-fns/-/date-fns-2.29.2.tgz#0d4b3d0f3dff0f920820a070920f0d9662c51931"
+  integrity sha512-0VNbwmWJDS/G3ySwFSJA3ayhbURMTJLtwM2DTxf9CWondCnh6DTNlO9JgRSq6ibf4eD0lfMJNBxUdEAHHix+bA==
 
 debug@2.6.9, debug@^2.2.0, debug@^2.3.3:
   version "2.6.9"
