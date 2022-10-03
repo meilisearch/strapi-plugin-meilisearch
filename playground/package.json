@@ -10,12 +10,12 @@
     "strapi": "strapi"
   },
   "dependencies": {
-    "@strapi/plugin-i18n": "^4.3.2",
-    "@strapi/plugin-users-permissions": "^4.3.2",
-    "@strapi/strapi": "^4.3.2",
-    "@strapi/utils": "^4.3.2",
+    "@strapi/plugin-i18n": "^4.4.1",
+    "@strapi/plugin-users-permissions": "^4.4.1",
+    "@strapi/strapi": "^4.4.1",
+    "@strapi/utils": "^4.4.1",
     "meilisearch": "^0.27.0",
-    "sqlite3": "5.0.10"
+    "sqlite3": "^5.1.2"
   },
   "author": {
     "name": "A Strapi developer"
