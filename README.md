@@ -441,7 +441,7 @@ You can have a quick preview with the following code in an HTML file. Create an 
     <script>
         const search = instantsearch({
             indexName: "restaurant",
-            searchClient: instantMeilisearch(
+            searchClient: instantMeiliSearch(
                 "http://localhost:7700",
                 'publicKey', // Use the public key not the private or master key to search.
             )
