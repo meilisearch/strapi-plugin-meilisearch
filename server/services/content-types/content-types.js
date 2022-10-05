@@ -157,7 +157,7 @@ module.exports = ({ strapi }) => ({
    * @param  {number} [options.start] - Pagination start.
    * @param  {number} [options.limit] - Number of entries to return.
    * @param  {object} [options.filters] - Filters to use.
-   * @param  {object} [options.sort] - Order definition.
+   * @param  {object|string} [options.sort] - Order definition.
    * @param  {object} [options.populate] - Relations, components and dynamic zones to populate.
    * @param  {object} [options.publicationState] - Publication state: live or preview.
    * @param  {string} [options.contentType] - Content type.
@@ -170,7 +170,7 @@ module.exports = ({ strapi }) => ({
     start = 0,
     limit = 500,
     filters = {},
-    sort = {},
+    sort = 'id',
     populate = '*',
     publicationState = 'live',
   }) {

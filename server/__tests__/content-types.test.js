@@ -114,7 +114,7 @@ describe('Tests content types', () => {
         start: 0,
         limit: 500,
         filters: {},
-        sort: {},
+        sort: 'id',
         populate: '*',
         publicationState: 'live',
       }
