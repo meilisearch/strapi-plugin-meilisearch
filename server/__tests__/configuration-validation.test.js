@@ -179,6 +179,39 @@ describe('Test plugin configuration', () => {
     expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
   })
 
+  test('Test filterEntry with wrong type', async () => {
+    validateConfiguration({
+      restaurant: {
+        filterEntry: 0,
+      },
+    })
+    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
+    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(1)
+    expect(fakeStrapi.log.error).toHaveBeenCalledWith(
+      'the "filterEntry" option of "restaurant" should be a function'
+    )
+  })
+
+  test('Test filterEntry with function', async () => {
+    validateConfiguration({
+      restaurant: {
+        filterEntry: () => {},
+      },
+    })
+    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
+    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
+  })
+
+  test('Test filterEntry with undefined', async () => {
+    validateConfiguration({
+      restaurant: {
+        filterEntry: undefined,
+      },
+    })
+    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
+    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
+  })
+
   test('Test settings with wrong type', async () => {
     validateConfiguration({
       restaurant: {
