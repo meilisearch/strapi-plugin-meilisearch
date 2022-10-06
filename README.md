@@ -32,7 +32,7 @@ Add your Strapi content-types into a Meilisearch instance. The plugin listens to
 - [📖 Documentation](#-documentation)
 - [🔧 Installation](#-installation)
 - [🎬 Getting Started](#-getting-started)
-- [🎬 Customization](#💅-customization)
+- [💅 Customization](#-customization)
 - [💡 Run the Playground](#-run-the-playground)
 - [🤖 Compatibility with Meilisearch and Strapi](#-compatibility-with-meilisearch-and-strapi)
 - [⚙️ Development Workflow and Contributing](#️-development-workflow-and-contributing)
