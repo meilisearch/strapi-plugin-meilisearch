@@ -14,6 +14,7 @@ function CollectionOptions(name, configuration) {
 
   return {
     validateConfiguration() {
+      // Configuration is either undefined or an object
       if (configuration !== undefined && !isObject(configuration)) {
         log.error(`The collection "${name}" should be of type object`)
       }
@@ -21,6 +22,7 @@ function CollectionOptions(name, configuration) {
       return this
     },
     validateIndexName() {
+      // indexName is either undefined or a none empty string
       if (
         (indexName !== undefined && typeof indexName !== 'string') ||
         indexName === ''
@@ -35,7 +37,7 @@ function CollectionOptions(name, configuration) {
       return this
     },
     validateTransformEntry() {
-      // Validate the `transformEntry` option
+      // transformEntry is either undefined or a function
       if (
         transformEntry !== undefined &&
         typeof transformEntry !== 'function'
@@ -50,7 +52,7 @@ function CollectionOptions(name, configuration) {
       return this
     },
     validateFilterEntry() {
-      // Validate the `filterEntry` option
+      // filterEntry is either undefined or a function
       if (filterEntry !== undefined && typeof filterEntry !== 'function') {
         log.error(`the "filterEntry" option of "${name}" should be a function`)
       } else if (filterEntry !== undefined) {
@@ -60,7 +62,7 @@ function CollectionOptions(name, configuration) {
       return this
     },
     validateMeilisearchSettings() {
-      // Validate the `settings` option
+      // Settings is either undefined or an object
       if (settings !== undefined && !isObject(settings)) {
         log.error(`the "settings" option of "${name}" should be an object`)
       } else if (settings !== undefined) {
@@ -70,7 +72,7 @@ function CollectionOptions(name, configuration) {
       return this
     },
     validatePopulateEntryRule() {
-      // Validate the `populateEntryRule` option
+      // PopulateEntry is either undefined or an object/array/string`
       if (
         populateEntryRule !== undefined &&
         !isObject(populateEntryRule) &&
@@ -87,6 +89,7 @@ function CollectionOptions(name, configuration) {
       return this
     },
     validateNoInvalidKeys() {
+      // Keys that should not be present in the configuration
       Object.keys(excedent).map(key => {
         log.warn(`The attribute "${key}" of "${name}" is not a known option`)
       })
@@ -115,7 +118,9 @@ function PluginOptions(configuration) {
 
       return this
     },
+
     validateApiKey() {
+      // apiKey is either undefined or a string
       if (apiKey !== undefined && typeof apiKey !== 'string') {
         log.error(
           '`apiKey` should be a string in Meilisearch plugin configuration'
@@ -125,8 +130,9 @@ function PluginOptions(configuration) {
       }
       return this
     },
+
     validateHost() {
-      // Validate the `host` option
+      // // apiKey is either undefined or a none empty string
       if ((host !== undefined && typeof host !== 'string') || host === '') {
         log.error(
           '`host` should be a non-empty string in Meilisearch plugin configuration'
@@ -136,7 +142,9 @@ function PluginOptions(configuration) {
       }
       return this
     },
+
     validateCollectionConfigurations() {
+      // Itterate over all collections to validate their configuration
       for (const collection in collections) {
         options[collection] = CollectionOptions(
           collection,
