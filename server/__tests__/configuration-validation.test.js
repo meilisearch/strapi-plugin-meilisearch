@@ -122,7 +122,7 @@ describe('Test plugin configuration', () => {
     expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
     expect(fakeStrapi.log.error).toHaveBeenCalledTimes(1)
     expect(fakeStrapi.log.error).toHaveBeenCalledWith(
-      'the "indexName" param of "restaurant" should be a non-empty string'
+      'the "indexName" option of "restaurant" should be a non-empty string'
     )
   })
 
@@ -155,7 +155,7 @@ describe('Test plugin configuration', () => {
     expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
     expect(fakeStrapi.log.error).toHaveBeenCalledTimes(1)
     expect(fakeStrapi.log.error).toHaveBeenCalledWith(
-      'the "transformEntry" param of "restaurant" should be a function'
+      'the "transformEntry" option of "restaurant" should be a function'
     )
   })
 
@@ -188,7 +188,7 @@ describe('Test plugin configuration', () => {
     expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
     expect(fakeStrapi.log.error).toHaveBeenCalledTimes(1)
     expect(fakeStrapi.log.error).toHaveBeenCalledWith(
-      'the "settings" param of "restaurant" should be an object'
+      'the "settings" option of "restaurant" should be an object'
     )
   })
 
@@ -221,7 +221,7 @@ describe('Test plugin configuration', () => {
     expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
     expect(fakeStrapi.log.error).toHaveBeenCalledTimes(1)
     expect(fakeStrapi.log.error).toHaveBeenCalledWith(
-      'the "populateEntryRule" param of "restaurant" should be an object/array/string'
+      'the "populateEntryRule" option of "restaurant" should be an object/array/string'
     )
   })
 
@@ -234,7 +234,7 @@ describe('Test plugin configuration', () => {
     expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
     expect(fakeStrapi.log.error).toHaveBeenCalledTimes(1)
     expect(fakeStrapi.log.error).toHaveBeenCalledWith(
-      'the "populateEntryRule" param of "restaurant" should be an object/array/string'
+      'the "populateEntryRule" option of "restaurant" should be an object/array/string'
     )
   })
 
@@ -267,7 +267,7 @@ describe('Test plugin configuration', () => {
     expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(1)
     expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
     expect(fakeStrapi.log.warn).toHaveBeenCalledWith(
-      'The attribute "random" of "restaurant" is not a known parameter'
+      'The attribute "random" of "restaurant" is not a known option'
     )
   })
 })
