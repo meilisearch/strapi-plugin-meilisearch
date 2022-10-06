@@ -58,7 +58,7 @@ describe('Test plugin configuration', () => {
     expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
     expect(fakeStrapi.log.error).toHaveBeenCalledTimes(1)
     expect(fakeStrapi.log.error).toHaveBeenCalledWith(
-      '`host` should be a non-empty string in Meilisearch configuration'
+      '`host` should be a non-empty string in Meilisearch plugin configuration'
     )
   })
 
@@ -85,7 +85,7 @@ describe('Test plugin configuration', () => {
     expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
     expect(fakeStrapi.log.error).toHaveBeenCalledTimes(1)
     expect(fakeStrapi.log.error).toHaveBeenCalledWith(
-      '`apiKey` should be a string in Meilisearch configuration'
+      '`apiKey` should be a string in Meilisearch plugin configuration'
     )
   })
 
