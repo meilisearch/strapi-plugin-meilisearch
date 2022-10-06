@@ -183,7 +183,27 @@ The reload is only possible in develop mode; click on the `Reload Server` button
 
 ## Customisation
 
-### Custom Index Name
+It is possible to add settings for every collection. Start by creating a sub-object with the name of the collection inside your `plugin.json` file.
+
+```js
+// config/plugins.js
+
+module.exports = () => ({
+  //...
+  meilisearch: {
+    restaurant: {}
+  }
+})
+```
+
+Settings:
+- [Custom index name](#custom-index-name)
+- [Transform entries](#transform-entries)
+- [Filter entries](#filter-entries)
+- [Add Meilisearch settings](#-add-meilisearch-settings)
+- [Populate entry rule](#-populate-entry-rule)
+
+### Custom index name
 
 By default, when indexing a content-type in Meilisearch, the index in Meilisearch has the same name as the content-type. This behavior can be changed by setting the `indexName` property in the configuration file of the plugin.
 
@@ -250,7 +270,7 @@ When removing `shoes` or `shirts` from Meilisearch, both are removed as it would
 
 Examples can be found [this directory](./resources/custom-index-name).
 
-#### Transform entries
+### Transform entries
 
 By default, the plugin sent the data the way it is stored in your Strapi content-type. It is possible to remove or transform fields before sending your entries to Meilisearch.
 
@@ -326,7 +346,7 @@ module.exports = {
 
 `Alfredo's` restaurant is not added to Meilisearch.
 
-#### 🏗 Add Meilisearch Settings
+### 🏗 Add Meilisearch Settings
 
 Each index in Meilisearch can be customized with specific settings. It is possible to add your [Meilisearch settings](https://docs.meilisearch.com/reference/features/settings.html#settings) configuration to the indexes you create using the `settings` field in the plugin configuration file.
 
@@ -352,7 +372,7 @@ module.exports = {
 
 [See resources](./resources/meilisearch-settings) for more settings examples.
 
-#### 👥 Populate entry rule
+### 👥 Populate entry rule
 
 Content-types in Strapi may have relationships with other content-types (ex: `restaurant` can have a many-to-many relation with `category`). To ensure that these links are fetched and added to an entry correctly from your Strapi database, the correct populate rule must be provided ([see documentation](https://docs-next.strapi.io/developer-docs/latest/developer-resources/database-apis-reference/entity-service/populate.html#basic-populating)).
 
