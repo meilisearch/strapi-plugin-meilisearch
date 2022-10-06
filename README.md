@@ -32,6 +32,7 @@ Add your Strapi content-types into a Meilisearch instance. The plugin listens to
 - [📖 Documentation](#-documentation)
 - [🔧 Installation](#-installation)
 - [🎬 Getting Started](#-getting-started)
+- [🎬 Customization](#💅-customization)
 - [💡 Run the Playground](#-run-the-playground)
 - [🤖 Compatibility with Meilisearch and Strapi](#-compatibility-with-meilisearch-and-strapi)
 - [⚙️ Development Workflow and Contributing](#️-development-workflow-and-contributing)
@@ -181,7 +182,7 @@ The reload is only possible in develop mode; click on the `Reload Server` button
 </p>
 
 
-## Customisation
+## 💅 Customization
 
 It is possible to add settings for every collection. Start by creating a sub-object with the name of the collection inside your `plugin.json` file.
 
@@ -197,13 +198,13 @@ module.exports = () => ({
 ```
 
 Settings:
-- [Custom index name](#custom-index-name)
-- [Transform entries](#transform-entries)
-- [Filter entries](#filter-entries)
-- [Add Meilisearch settings](#-add-meilisearch-settings)
-- [Populate entry rule](#-populate-entry-rule)
+- [🏷 Custom index name](#-custom-index-name)
+- [🪄 Transform entries](#-transform-entries)
+- [🤚 Filter entries](#-filter-entries)
+- [🏗 Add Meilisearch settings](#-add-meilisearch-settings)
+- [👥 Populate entry rule](#-populate-entry-rule)
 
-### Custom index name
+### 🏷 Custom index name
 
 By default, when indexing a content-type in Meilisearch, the index in Meilisearch has the same name as the content-type. This behavior can be changed by setting the `indexName` property in the configuration file of the plugin.
 
@@ -270,7 +271,7 @@ When removing `shoes` or `shirts` from Meilisearch, both are removed as it would
 
 Examples can be found [this directory](./resources/custom-index-name).
 
-### Transform entries
+### 🪄 Transform entries
 
 By default, the plugin sent the data the way it is stored in your Strapi content-type. It is possible to remove or transform fields before sending your entries to Meilisearch.
 
@@ -322,7 +323,7 @@ By transforming the `categories` into an array of names, it is now compatible wi
 
 **Important**: You should always return the id of the entry without any transformation to [allow sync](https://github.com/meilisearch/strapi-plugin-meilisearch/issues/487) when unpublished or deleting some entries in Strapi.
 
-### Filter entries
+### 🤚 Filter entries
 
 You might want to filter out some entries. This is possible with the `filterEntry`. Imagine you don't like `Alfredo's` restaurant. You can filter out this specific entry.
 
@@ -346,7 +347,7 @@ module.exports = {
 
 `Alfredo's` restaurant is not added to Meilisearch.
 
-### 🏗 Add Meilisearch Settings
+### 🏗 Add Meilisearch settings
 
 Each index in Meilisearch can be customized with specific settings. It is possible to add your [Meilisearch settings](https://docs.meilisearch.com/reference/features/settings.html#settings) configuration to the indexes you create using the `settings` field in the plugin configuration file.
 
