@@ -171,7 +171,7 @@ function PluginOptions(configuration) {
  * Validates the plugin configuration provided in `plugins/config.js` of the users plugin configuration.
  * Modifies the value of config on place.
  *
- * @param  {object} config - configurations
+ * @param  {object} configuration - configurations
  */
 function validateConfiguration(configuration) {
   // If no configuration, return
