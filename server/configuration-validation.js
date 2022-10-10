@@ -122,7 +122,7 @@ function PluginConfig(configuration) {
     },
 
     validateHost() {
-      // // apiKey is either undefined or a none empty string
+      // apiKey is either undefined or a none empty string
       if ((host !== undefined && typeof host !== 'string') || host === '') {
         log.error('The "host" option should be a non-empty string')
       } else if (host !== undefined) {
