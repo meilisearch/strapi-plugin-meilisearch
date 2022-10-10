@@ -1,6 +1,6 @@
 const { isObject } = require('./utils')
 
-function CollectionOptions(name, configuration) {
+function CollectionConfig(collectionName, configuration) {
   const log = strapi.log // has to be inside a scope
   const {
     indexName,
@@ -13,14 +13,6 @@ function CollectionOptions(name, configuration) {
   const options = {}
 
   return {
-    validateConfiguration() {
-      // Configuration is either undefined or an object
-      if (configuration !== undefined && !isObject(configuration)) {
-        log.error(`The collection "${name}" should be of type object`)
-      }
-
-      return this
-    },
     validateIndexName() {
       // indexName is either undefined or a none empty string
       if (
@@ -28,7 +20,7 @@ function CollectionOptions(name, configuration) {
         indexName === ''
       ) {
         log.error(
-          `the "indexName" option of "${name}" should be a non-empty string`
+          `The "indexName" option of "${collectionName}" should be a non-empty string`
         )
       } else if (indexName !== undefined) {
         options.indexName = indexName
@@ -36,6 +28,7 @@ function CollectionOptions(name, configuration) {
 
       return this
     },
+
     validateTransformEntry() {
       // transformEntry is either undefined or a function
       if (
@@ -43,7 +36,7 @@ function CollectionOptions(name, configuration) {
         typeof transformEntry !== 'function'
       ) {
         log.error(
-          `the "transformEntry" option of "${name}" should be a function`
+          `The "transformEntry" option of "${collectionName}" should be a function`
         )
       } else if (transformEntry !== undefined) {
         options.transformEntry = transformEntry
@@ -51,28 +44,35 @@ function CollectionOptions(name, configuration) {
 
       return this
     },
+
     validateFilterEntry() {
       // filterEntry is either undefined or a function
       if (filterEntry !== undefined && typeof filterEntry !== 'function') {
-        log.error(`the "filterEntry" option of "${name}" should be a function`)
+        log.error(
+          `The "filterEntry" option of "${collectionName}" should be a function`
+        )
       } else if (filterEntry !== undefined) {
         options.filterEntry = filterEntry
       }
 
       return this
     },
+
     validateMeilisearchSettings() {
       // Settings is either undefined or an object
       if (settings !== undefined && !isObject(settings)) {
-        log.error(`the "settings" option of "${name}" should be an object`)
+        log.error(
+          `The "settings" option of "${collectionName}" should be an object`
+        )
       } else if (settings !== undefined) {
         options.settings = settings
       }
 
       return this
     },
+
     validatePopulateEntryRule() {
-      // PopulateEntry is either undefined or an object/array/string`
+      // PopulateEntry is either undefined or an object/array/string
       if (
         populateEntryRule !== undefined &&
         !isObject(populateEntryRule) &&
@@ -80,7 +80,7 @@ function CollectionOptions(name, configuration) {
         typeof populateEntryRule !== 'string'
       ) {
         log.error(
-          `the "populateEntryRule" option of "${name}" should be an object/array/string`
+          `The "populateEntryRule" option of "${collectionName}" should be an object/array/string`
         )
       } else if (populateEntryRule !== undefined) {
         options.populateEntryRule = populateEntryRule
@@ -88,10 +88,13 @@ function CollectionOptions(name, configuration) {
 
       return this
     },
+
     validateNoInvalidKeys() {
       // Keys that should not be present in the configuration
       Object.keys(excedent).map(key => {
-        log.warn(`The attribute "${key}" of "${name}" is not a known option`)
+        log.warn(
+          `The "${key}" option of "${collectionName}" is not a known option`
+        )
       })
 
       return this
@@ -102,29 +105,16 @@ function CollectionOptions(name, configuration) {
   }
 }
 
-function PluginOptions(configuration) {
+function PluginConfig(configuration) {
   const log = strapi.log // has to be inside a scope
   const { apiKey, host, ...collections } = configuration
   const options = {}
 
   return {
-    validateConfiguration() {
-      // Configuration must be an object
-      if (!isObject(configuration)) {
-        log.error(
-          'The `config` field in the Meilisearch plugin configuration must be of type object'
-        )
-      }
-
-      return this
-    },
-
     validateApiKey() {
       // apiKey is either undefined or a string
       if (apiKey !== undefined && typeof apiKey !== 'string') {
-        log.error(
-          '`apiKey` should be a string in Meilisearch plugin configuration'
-        )
+        log.error('The "apiKey" option should be a string')
       } else if (apiKey !== undefined) {
         options.apiKey = apiKey
       }
@@ -134,33 +124,38 @@ function PluginOptions(configuration) {
     validateHost() {
       // // apiKey is either undefined or a none empty string
       if ((host !== undefined && typeof host !== 'string') || host === '') {
-        log.error(
-          '`host` should be a non-empty string in Meilisearch plugin configuration'
-        )
+        log.error('The "host" option should be a non-empty string')
       } else if (host !== undefined) {
         options.host = host
       }
       return this
     },
 
-    validateCollectionConfigurations() {
+    validateCollections() {
       // Itterate over all collections to validate their configuration
       for (const collection in collections) {
-        options[collection] = CollectionOptions(
-          collection,
-          collections[collection]
-        )
-          .validateConfiguration()
-          .validateIndexName()
-          .validateFilterEntry()
-          .validateTransformEntry()
-          .validateMeilisearchSettings()
-          .validatePopulateEntryRule()
-          .validateNoInvalidKeys()
-          .get()
+        if (!isObject(collections[collection])) {
+          log.error(
+            `The collection "${collection}" configuration should be of type object`
+          )
+          options[collection] = {}
+        } else {
+          options[collection] = CollectionConfig(
+            collection,
+            collections[collection]
+          )
+            .validateIndexName()
+            .validateFilterEntry()
+            .validateTransformEntry()
+            .validateMeilisearchSettings()
+            .validatePopulateEntryRule()
+            .validateNoInvalidKeys()
+            .get()
+        }
       }
       return this
     },
+
     get() {
       return options
     },
@@ -171,24 +166,30 @@ function PluginOptions(configuration) {
  * Validates the plugin configuration provided in `plugins/config.js` of the users plugin configuration.
  * Modifies the value of config on place.
  *
- * @param  {object} configuration - configurations
+ * @param  {object} config - The plugin configuration
  */
-function validateConfiguration(configuration) {
+function validatePluginConfig(config) {
+  const log = strapi.log
+
   // If no configuration, return
-  if (configuration === undefined) {
+  if (config === undefined) {
+    return
+  } else if (config !== undefined && !isObject(config)) {
+    log.error(
+      'The "config" field in the Meilisearch plugin configuration should be an object'
+    )
     return
   }
 
-  const options = PluginOptions(configuration)
-    .validateConfiguration()
+  const options = PluginConfig(config)
     .validateApiKey()
     .validateHost()
-    .validateCollectionConfigurations()
+    .validateCollections()
     .get()
 
-  Object.assign(configuration, options)
+  Object.assign(config, options)
 }
 
 module.exports = {
-  validateConfiguration,
+  validatePluginConfig,
 }
