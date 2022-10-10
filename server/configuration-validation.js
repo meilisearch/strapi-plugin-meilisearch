@@ -1,6 +1,6 @@
 const { isObject } = require('./utils')
 
-function CollectionConfig(collectionName, configuration) {
+function CollectionConfig({ collectionName, configuration }) {
   const log = strapi.log // has to be inside a scope
   const {
     indexName,
@@ -105,7 +105,7 @@ function CollectionConfig(collectionName, configuration) {
   }
 }
 
-function PluginConfig(configuration) {
+function PluginConfig({ configuration }) {
   const log = strapi.log // has to be inside a scope
   const { apiKey, host, ...collections } = configuration
   const options = {}
@@ -140,10 +140,10 @@ function PluginConfig(configuration) {
           )
           options[collection] = {}
         } else {
-          options[collection] = CollectionConfig(
-            collection,
-            collections[collection]
-          )
+          options[collection] = CollectionConfig({
+            collectionName: collection,
+            configuration: collections[collection],
+          })
             .validateIndexName()
             .validateFilterEntry()
             .validateTransformEntry()
@@ -166,28 +166,28 @@ function PluginConfig(configuration) {
  * Validates the plugin configuration provided in `plugins/config.js` of the users plugin configuration.
  * Modifies the value of config on place.
  *
- * @param  {object} config - The plugin configuration
+ * @param  {object} configuration - The plugin configuration
  */
-function validatePluginConfig(config) {
+function validatePluginConfig(configuration) {
   const log = strapi.log
 
   // If no configuration, return
-  if (config === undefined) {
+  if (configuration === undefined) {
     return
-  } else if (config !== undefined && !isObject(config)) {
+  } else if (configuration !== undefined && !isObject(configuration)) {
     log.error(
       'The "config" field in the Meilisearch plugin configuration should be an object'
     )
     return
   }
 
-  const options = PluginConfig(config)
+  const options = PluginConfig({ configuration })
     .validateApiKey()
     .validateHost()
     .validateCollections()
     .get()
 
-  Object.assign(config, options)
+  Object.assign(configuration, options)
 }
 
 module.exports = {
