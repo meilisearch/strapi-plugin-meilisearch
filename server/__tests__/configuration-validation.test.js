@@ -1,4 +1,4 @@
-const { validateConfiguration } = require('../configuration-validation')
+const { validatePluginConfig } = require('../configuration-validation')
 
 const { createFakeStrapi } = require('./utils/fakes')
 
@@ -12,39 +12,39 @@ describe('Test plugin configuration', () => {
   })
 
   test('Test empty configuration', async () => {
-    validateConfiguration()
+    validatePluginConfig()
     expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
     expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
   })
 
   test('Test wrong type config configuration', async () => {
-    validateConfiguration(1)
+    validatePluginConfig(1)
     expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
     expect(fakeStrapi.log.error).toHaveBeenCalledTimes(1)
     expect(fakeStrapi.log.error).toHaveBeenCalledWith(
-      'The `config` field in the Meilisearch plugin configuration must be of type object'
+      'The "config" field in the Meilisearch plugin configuration should be an object'
     )
   })
 
   test('Test wrong object configuration', async () => {
-    validateConfiguration({})
+    validatePluginConfig({})
     expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
     expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
   })
 
   test('Test configuration with not used attribute', async () => {
-    validateConfiguration({
+    validatePluginConfig({
       hello: 0,
     })
     expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
     expect(fakeStrapi.log.error).toHaveBeenCalledTimes(1)
     expect(fakeStrapi.log.error).toHaveBeenCalledWith(
-      'The collection "hello" should be of type object'
+      'The collection "hello" configuration should be of type object'
     )
   })
 
   test('Test configuration with empty host', async () => {
-    validateConfiguration({
+    validatePluginConfig({
       host: undefined,
     })
     expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
@@ -52,18 +52,18 @@ describe('Test plugin configuration', () => {
   })
 
   test('Test configuration with empty string host', async () => {
-    validateConfiguration({
+    validatePluginConfig({
       host: '',
     })
     expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
     expect(fakeStrapi.log.error).toHaveBeenCalledTimes(1)
     expect(fakeStrapi.log.error).toHaveBeenCalledWith(
-      '`host` should be a non-empty string in Meilisearch configuration'
+      'The "host" option should be a non-empty string'
     )
   })
 
   test('Test configuration with string host', async () => {
-    validateConfiguration({
+    validatePluginConfig({
       host: 'test',
     })
     expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
@@ -71,7 +71,7 @@ describe('Test plugin configuration', () => {
   })
 
   test('Test configuration with empty apiKey', async () => {
-    validateConfiguration({
+    validatePluginConfig({
       apiKey: undefined,
     })
     expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
@@ -79,18 +79,18 @@ describe('Test plugin configuration', () => {
   })
 
   test('Test configuration with wrong time apiKey', async () => {
-    validateConfiguration({
+    validatePluginConfig({
       apiKey: 0,
     })
     expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
     expect(fakeStrapi.log.error).toHaveBeenCalledTimes(1)
     expect(fakeStrapi.log.error).toHaveBeenCalledWith(
-      '`apiKey` should be a string in Meilisearch configuration'
+      'The "apiKey" option should be a string'
     )
   })
 
   test('Test configuration with empty string apiKey', async () => {
-    validateConfiguration({
+    validatePluginConfig({
       apiKey: '',
     })
     expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
@@ -98,7 +98,7 @@ describe('Test plugin configuration', () => {
   })
 
   test('Test configuration with string apiKey', async () => {
-    validateConfiguration({
+    validatePluginConfig({
       apiKey: 'test',
     })
     expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
@@ -106,7 +106,7 @@ describe('Test plugin configuration', () => {
   })
 
   test('Test configuration with string apiKey', async () => {
-    validateConfiguration({
+    validatePluginConfig({
       apiKey: 'test',
     })
     expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
@@ -114,7 +114,7 @@ describe('Test plugin configuration', () => {
   })
 
   test('Test indexName with empty string', async () => {
-    validateConfiguration({
+    validatePluginConfig({
       restaurant: {
         indexName: '',
       },
@@ -122,12 +122,12 @@ describe('Test plugin configuration', () => {
     expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
     expect(fakeStrapi.log.error).toHaveBeenCalledTimes(1)
     expect(fakeStrapi.log.error).toHaveBeenCalledWith(
-      'the "indexName" param of "restaurant" should be a non-empty string'
+      'The "indexName" option of "restaurant" should be a non-empty string'
     )
   })
 
   test('Test indexName with non-empty string', async () => {
-    validateConfiguration({
+    validatePluginConfig({
       restaurant: {
         indexName: 'hello',
       },
@@ -137,7 +137,7 @@ describe('Test plugin configuration', () => {
   })
 
   test('Test indexName with undefined', async () => {
-    validateConfiguration({
+    validatePluginConfig({
       restaurant: {
         indexName: undefined,
       },
@@ -147,7 +147,7 @@ describe('Test plugin configuration', () => {
   })
 
   test('Test transformEntry with wrong type', async () => {
-    validateConfiguration({
+    validatePluginConfig({
       restaurant: {
         transformEntry: 0,
       },
@@ -155,12 +155,12 @@ describe('Test plugin configuration', () => {
     expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
     expect(fakeStrapi.log.error).toHaveBeenCalledTimes(1)
     expect(fakeStrapi.log.error).toHaveBeenCalledWith(
-      'the "transformEntry" param of "restaurant" should be a function'
+      'The "transformEntry" option of "restaurant" should be a function'
     )
   })
 
   test('Test transformEntry with function', async () => {
-    validateConfiguration({
+    validatePluginConfig({
       restaurant: {
         transformEntry: () => {},
       },
@@ -170,7 +170,7 @@ describe('Test plugin configuration', () => {
   })
 
   test('Test transformEntry with undefined', async () => {
-    validateConfiguration({
+    validatePluginConfig({
       restaurant: {
         transformEntry: undefined,
       },
@@ -179,8 +179,41 @@ describe('Test plugin configuration', () => {
     expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
   })
 
+  test('Test filterEntry with wrong type', async () => {
+    validatePluginConfig({
+      restaurant: {
+        filterEntry: 0,
+      },
+    })
+    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
+    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(1)
+    expect(fakeStrapi.log.error).toHaveBeenCalledWith(
+      'The "filterEntry" option of "restaurant" should be a function'
+    )
+  })
+
+  test('Test filterEntry with function', async () => {
+    validatePluginConfig({
+      restaurant: {
+        filterEntry: () => {},
+      },
+    })
+    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
+    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
+  })
+
+  test('Test filterEntry with undefined', async () => {
+    validatePluginConfig({
+      restaurant: {
+        filterEntry: undefined,
+      },
+    })
+    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
+    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
+  })
+
   test('Test settings with wrong type', async () => {
-    validateConfiguration({
+    validatePluginConfig({
       restaurant: {
         settings: 0,
       },
@@ -188,12 +221,12 @@ describe('Test plugin configuration', () => {
     expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
     expect(fakeStrapi.log.error).toHaveBeenCalledTimes(1)
     expect(fakeStrapi.log.error).toHaveBeenCalledWith(
-      'the "settings" param of "restaurant" should be an object'
+      'The "settings" option of "restaurant" should be an object'
     )
   })
 
   test('Test settings with function', async () => {
-    validateConfiguration({
+    validatePluginConfig({
       restaurant: {
         settings: () => {},
       },
@@ -203,7 +236,7 @@ describe('Test plugin configuration', () => {
   })
 
   test('Test settings with undefined', async () => {
-    validateConfiguration({
+    validatePluginConfig({
       restaurant: {
         settings: undefined,
       },
@@ -213,7 +246,7 @@ describe('Test plugin configuration', () => {
   })
 
   test('Test populateEntryRule with wrong type', async () => {
-    validateConfiguration({
+    validatePluginConfig({
       restaurant: {
         populateEntryRule: 0,
       },
@@ -221,12 +254,12 @@ describe('Test plugin configuration', () => {
     expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
     expect(fakeStrapi.log.error).toHaveBeenCalledTimes(1)
     expect(fakeStrapi.log.error).toHaveBeenCalledWith(
-      'the "populateEntryRule" param of "restaurant" should be an object/array/string'
+      'The "populateEntryRule" option of "restaurant" should be an object/array/string'
     )
   })
 
   test('Test populateEntryRule with function', async () => {
-    validateConfiguration({
+    validatePluginConfig({
       restaurant: {
         populateEntryRule: () => {},
       },
@@ -234,12 +267,12 @@ describe('Test plugin configuration', () => {
     expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
     expect(fakeStrapi.log.error).toHaveBeenCalledTimes(1)
     expect(fakeStrapi.log.error).toHaveBeenCalledWith(
-      'the "populateEntryRule" param of "restaurant" should be an object/array/string'
+      'The "populateEntryRule" option of "restaurant" should be an object/array/string'
     )
   })
 
   test('Test populateEntryRule with empty object', async () => {
-    validateConfiguration({
+    validatePluginConfig({
       restaurant: {
         populateEntryRule: {},
       },
@@ -249,7 +282,7 @@ describe('Test plugin configuration', () => {
   })
 
   test('Test populateEntryRule with undefined', async () => {
-    validateConfiguration({
+    validatePluginConfig({
       restaurant: {
         populateEntryRule: undefined,
       },
@@ -259,7 +292,7 @@ describe('Test plugin configuration', () => {
   })
 
   test('Test configuration with random field ', async () => {
-    validateConfiguration({
+    validatePluginConfig({
       restaurant: {
         random: undefined,
       },
@@ -267,7 +300,7 @@ describe('Test plugin configuration', () => {
     expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(1)
     expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
     expect(fakeStrapi.log.warn).toHaveBeenCalledWith(
-      'The attribute "random" of "restaurant" is not a known parameter'
+      'The "random" option of "restaurant" is not a known option'
     )
   })
 })
