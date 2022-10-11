@@ -747,7 +747,7 @@ describe('Test entriesQuery configuration', () => {
     })
 
     expect(fakeStrapi.log.error).toHaveBeenCalledWith(
-      'The "random" option in "queryOptions" of "restaurant" is not a known option. Skipping.'
+      'The "random" option in "queryOptions" of "restaurant" is not a known option. Check the "findMany" API references in the Strapi Documentation.'
     )
 
     expect(configuration.restaurant.entriesQuery.random).toBeUndefined()

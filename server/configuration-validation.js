@@ -154,7 +154,7 @@ function EntriesQuery({ configuration, collectionName }) {
       // Unknown fields
       Object.keys(unknownKeys).map(key => {
         log.error(
-          `The "${key}" option in "queryOptions" of "${collectionName}" is not a known option. Skipping.`
+          `The "${key}" option in "queryOptions" of "${collectionName}" is not a known option. Check the "findMany" API references in the Strapi Documentation.`
         )
       })
 

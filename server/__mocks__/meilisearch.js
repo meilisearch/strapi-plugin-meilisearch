@@ -2,7 +2,7 @@ const addDocumentsMock = jest.fn(() => 10)
 const updateDocumentsMock = jest.fn(() => 10)
 const updateSettingsMock = jest.fn(() => 10)
 const deleteDocuments = jest.fn(() => {
-  return [{ uid: 1 }, { uid: 2 }]
+  return [{ taskUid: 1 }, { taskUid: 2 }]
 })
 const getIndexes = jest.fn(() => {
   return { results: [{ uid: 'my_restaurant' }, { uid: 'restaurant' }] }

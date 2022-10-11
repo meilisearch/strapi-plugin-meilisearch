@@ -52,7 +52,7 @@ describe('Tests content types', () => {
       'restaurant-2',
     ])
     expect(client.index).toHaveBeenCalledWith('customIndex')
-    expect(tasks).toEqual([{ uid: 1 }, { uid: 2 }])
+    expect(tasks).toEqual([{ taskUid: 1 }, { taskUid: 2 }])
   })
 
   test('Test to get stats', async () => {
