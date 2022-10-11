@@ -36,21 +36,6 @@ module.exports = ({ strapi }) => {
     },
 
     /**
-     * Get the populate rule of a content-type that is applied when fetching entries in the Strapi database.
-     *
-     * @param {object} options
-     * @param {string} options.contentType - ContentType name.
-     *
-     * @return {String} - Populate rule.
-     */
-    populateEntryRule: function ({ contentType }) {
-      const collection = contentTypeService.getCollectionName({ contentType })
-      const contentTypeConfig = meilisearchConfig[collection] || {}
-
-      return contentTypeConfig.populateEntryRule || '*'
-    },
-
-    /**
      * Get the entries query rule of a content-type that are applied when fetching entries in the Strapi database.
      *
      * @param {object} options
