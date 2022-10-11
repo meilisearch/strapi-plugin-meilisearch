@@ -126,13 +126,16 @@ module.exports = ({ strapi }) => ({
    *
    * @param  {object} options
    * @param  {string | number} [options.id] - Id of the entry.
-   * @param  {string | string[]} [options.fields] - Fields present in the returned entry.
-   * @param  {object} [options.populate] - Relations, components and dynamic zones to populate.
-   * @param  {string} [options.contentType] - Content type.
+   * @param  {object} [options.entriesQuery={}] - Options to apply when fetching entries from the database.
+   * @param  {string | string[]} [options.entriesQuery.fields] - Fields present in the returned entry.
+   * @param  {object} [options.entriesQuery.populate] - Relations, components and dynamic zones to populate.
+   * @param  {object} [options.entriesQuery.locale] - When using internalization, the language to fetch.
+   * @param  {string} options.contentType - Content type.
    *
    * @returns  {Promise<object>} - Entries.
    */
-  async getEntry({ contentType, id, fields = '*', populate = '*' }) {
+  async getEntry({ contentType, id, entriesQuery = {} }) {
+    const { populate = '*', fields = '*' } = entriesQuery
     const contentTypeUid = this.getContentTypeUid({ contentType })
     if (contentTypeUid === undefined) return {}
 
@@ -160,7 +163,7 @@ module.exports = ({ strapi }) => ({
    * @param  {object|string} [options.sort] - Order definition.
    * @param  {object} [options.populate] - Relations, components and dynamic zones to populate.
    * @param  {object} [options.publicationState] - Publication state: live or preview.
-   * @param  {string} [options.contentType] - Content type.
+   * @param  {string} options.contentType - Content type.
    * @param  {string} [options.locale] - When using internalization, the language to fetch.
    *
    * @returns  {Promise<object[]>} - Entries.

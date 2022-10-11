@@ -293,8 +293,31 @@ describe('Test Meilisearch plugin configurations', () => {
 
   test('Test configuration to remove unpublished entries', async () => {
     const customStrapi = createFakeStrapi({
+      restaurantConfig: {},
+    })
+
+    const contentType = 'restaurant'
+    const meilisearchService = createMeilisearchService({
+      strapi: customStrapi,
+    })
+
+    const entries = meilisearchService.removeUnpublishedArticles({
+      contentType,
+      entries: [
+        { id: 1, publishedAt: null },
+        { id: 2, publishedAt: null },
+      ],
+    })
+
+    expect(entries).toEqual([])
+  })
+
+  test('Test configuration to unwanted locale entries', async () => {
+    const customStrapi = createFakeStrapi({
       restaurantConfig: {
-        transformEntry: () => {},
+        entriesQuery: {
+          locale: 'fr',
+        },
       },
     })
 
@@ -302,16 +325,16 @@ describe('Test Meilisearch plugin configurations', () => {
     const meilisearchService = createMeilisearchService({
       strapi: customStrapi,
     })
-    const indexName = meilisearchService.getIndexNameOfContentType({
+
+    const entries = meilisearchService.removeLocaleEntries({
       contentType,
-    })
-    const entries = meilisearchService.removeUnpublishedArticles({
-      contentType,
-      entries: [{ id: 1 }, { id: 2 }],
+      entries: [
+        { id: 1, locale: 'fr' },
+        { id: 2, locale: 'en' },
+      ],
     })
 
-    expect(indexName).toEqual(contentType)
-    expect(entries).toEqual([])
+    expect(entries).toEqual([{ id: 1, locale: 'fr' }])
   })
 
   test('Test configuration to keep unpublished entries', async () => {
@@ -333,11 +356,17 @@ describe('Test Meilisearch plugin configurations', () => {
     })
     const entries = meilisearchService.removeUnpublishedArticles({
       contentType,
-      entries: [{ id: 1 }, { id: 2 }],
+      entries: [
+        { id: 1, publishedAt: null },
+        { id: 2, publishedAt: null },
+      ],
     })
 
     expect(indexName).toEqual(contentType)
-    expect(entries).toEqual([{ id: 1 }, { id: 2 }])
+    expect(entries).toEqual([
+      { id: 1, publishedAt: null },
+      { id: 2, publishedAt: null },
+    ])
   })
 
   test('Test configuration with empty settings ', async () => {

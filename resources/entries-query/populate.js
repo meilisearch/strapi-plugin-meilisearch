@@ -2,7 +2,9 @@ module.exports = {
   meilisearch: {
     config: {
       restaurant: {
-        populateEntryRule: ['repeatableComponent.categories', 'categories'],
+        entriesQuery: {
+          populate: ['repeatableComponent.categories', 'categories'],
+        },
       },
     },
   },

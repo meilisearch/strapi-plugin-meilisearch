@@ -25,6 +25,12 @@ const sanitizeEntries = async function ({
     entries,
   })
 
+  // remove entries with unwanted locale language
+  entries = await config.removeLocaleEntries({
+    contentType,
+    entries,
+  })
+
   // Apply filterEntry plugin config.
   entries = await config.filterEntries({
     contentType,
