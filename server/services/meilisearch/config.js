@@ -51,6 +51,21 @@ module.exports = ({ strapi }) => {
     },
 
     /**
+     * Get the entries query rule of a content-type that are applied when fetching entries in the Strapi database.
+     *
+     * @param {object} options
+     * @param {string} options.contentType - ContentType name.
+     *
+     * @return {String} - EntriesQuery rules.
+     */
+    entriesQuery: function ({ contentType }) {
+      const collection = contentTypeService.getCollectionName({ contentType })
+      const contentTypeConfig = meilisearchConfig[collection] || {}
+
+      return contentTypeConfig.entriesQuery || {}
+    },
+
+    /**
      * Transform contentTypes entries before indexation in Meilisearch.
      *
      * @param {object} options

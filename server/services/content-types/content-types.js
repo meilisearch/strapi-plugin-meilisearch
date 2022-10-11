@@ -184,7 +184,7 @@ module.exports = ({ strapi }) => ({
       filters,
       sort,
       populate,
-      publicationState: publicationState,
+      publicationState,
     })
     // Safe guard in case the content-type is a single type.
     // In which case it is wrapped in an array for consistency.
@@ -197,7 +197,7 @@ module.exports = ({ strapi }) => ({
    *
    * @param  {object} options
    * @param  {string} options.contentType - Name of the content type.
-   * @param  {object} [options.populate] - Relations, components and dynamic zones to populate.
+   * @param  {object} [options.entriesQuery] - Options to apply when fetching entries from the database.
    * @param  {function} options.callback - Function applied on each entry of the contentType.
    *
    * @returns {Promise<any[]>} - List of all the returned elements from the callback.
@@ -205,22 +205,20 @@ module.exports = ({ strapi }) => ({
   actionInBatches: async function ({
     contentType,
     callback = () => {},
-    populate = '*',
+    entriesQuery = {},
   }) {
-    const BATCH_SIZE = 500
-
+    const batchSize = entriesQuery.limit || 500
     // Need total number of entries in contentType
     const entries_count = await this.numberOfEntries({
       contentType,
     })
     const cbResponse = []
-    for (let index = 0; index <= entries_count; index += BATCH_SIZE) {
+    for (let index = 0; index <= entries_count; index += batchSize) {
       const entries =
         (await this.getEntries({
           start: index,
-          limit: BATCH_SIZE,
           contentType,
-          populate,
+          ...entriesQuery,
         })) || []
 
       const info = await callback({ entries, contentType })

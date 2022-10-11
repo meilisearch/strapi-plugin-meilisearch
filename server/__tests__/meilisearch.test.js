@@ -1,50 +1,11 @@
 const createMeilisearchService = require('../services/meilisearch')
 
-const { createFakeStrapi } = require('./utils/fakes')
 const { MeiliSearch: Meilisearch } = require('meilisearch')
+const { createFakeStrapi } = require('./utils/fakes')
 
 jest.mock('meilisearch')
 
 const fakeStrapi = createFakeStrapi({})
-
-const addDocumentsMock = jest.fn(() => 10)
-const updateSettingsMock = jest.fn(() => 10)
-const deleteDocuments = jest.fn(() => {
-  return [{ uid: 1 }, { uid: 2 }]
-})
-const getIndexes = jest.fn(() => {
-  return { results: [{ uid: 'my_restaurant' }, { uid: 'restaurant' }] }
-})
-
-const getTasks = jest.fn(() => {
-  return {
-    results: [
-      { uid: 1, status: 'enqueued', indexUid: 'restaurant' },
-      { uid: 2, status: 'processed', indexUid: 'restaurant' },
-      { uid: 3, status: 'enqueued', indexUid: 'about' },
-    ],
-  }
-})
-
-const getStats = jest.fn(() => {
-  return { numberOfDocuments: 1, isIndexing: false, fieldDistribution: {} }
-})
-
-const mockIndex = jest.fn(() => ({
-  addDocuments: addDocumentsMock,
-  updateSettings: updateSettingsMock,
-  deleteDocuments,
-  getStats,
-}))
-
-// @ts-ignore
-Meilisearch.mockImplementation(() => {
-  return {
-    getIndexes,
-    index: mockIndex,
-    getTasks,
-  }
-})
 
 // @ts-ignore
 global.strapi = fakeStrapi
@@ -74,6 +35,9 @@ describe('Tests content types', () => {
       },
     })
 
+    // Spy
+    const client = new Meilisearch({ host: 'abc' })
+
     const meilisearchService = createMeilisearchService({
       strapi: customStrapi,
     })
@@ -82,12 +46,12 @@ describe('Tests content types', () => {
       contentType: 'restaurant',
       entriesId: [1, 2],
     })
-    expect(deleteDocuments).toHaveBeenCalledTimes(1)
-    expect(deleteDocuments).toHaveBeenCalledWith([
+    expect(client.index('').deleteDocuments).toHaveBeenCalledTimes(1)
+    expect(client.index('').deleteDocuments).toHaveBeenCalledWith([
       'restaurant-1',
       'restaurant-2',
     ])
-    expect(mockIndex).toHaveBeenCalledWith('customIndex')
+    expect(client.index).toHaveBeenCalledWith('customIndex')
     expect(tasks).toEqual([{ uid: 1 }, { uid: 2 }])
   })
 
