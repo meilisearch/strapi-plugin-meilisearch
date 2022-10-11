@@ -161,6 +161,7 @@ module.exports = ({ strapi }) => ({
    * @param  {object} [options.populate] - Relations, components and dynamic zones to populate.
    * @param  {object} [options.publicationState] - Publication state: live or preview.
    * @param  {string} [options.contentType] - Content type.
+   * @param  {string} [options.locale] - When using internalization, the language to fetch.
    *
    * @returns  {Promise<object[]>} - Entries.
    */
@@ -173,11 +174,12 @@ module.exports = ({ strapi }) => ({
     sort = 'id',
     populate = '*',
     publicationState = 'live',
+    locale,
   }) {
     const contentTypeUid = this.getContentTypeUid({ contentType })
     if (contentTypeUid === undefined) return []
 
-    const entries = await strapi.entityService.findMany(contentTypeUid, {
+    const queryOptions = {
       fields: fields || '*',
       start,
       limit,
@@ -185,7 +187,17 @@ module.exports = ({ strapi }) => ({
       sort,
       populate,
       publicationState,
-    })
+    }
+    // To avoid issue if internalization is not installed by the user
+    if (locale) {
+      queryOptions.locale = locale
+    }
+
+    const entries = await strapi.entityService.findMany(
+      contentTypeUid,
+      queryOptions
+    )
+
     // Safe guard in case the content-type is a single type.
     // In which case it is wrapped in an array for consistency.
     if (entries && !Array.isArray(entries)) return [entries]
@@ -213,7 +225,7 @@ module.exports = ({ strapi }) => ({
       contentType,
     })
     const cbResponse = []
-    for (let index = 0; index <= entries_count; index += batchSize) {
+    for (let index = 0; index < entries_count; index += batchSize) {
       const entries =
         (await this.getEntries({
           start: index,
@@ -221,9 +233,11 @@ module.exports = ({ strapi }) => ({
           ...entriesQuery,
         })) || []
 
-      const info = await callback({ entries, contentType })
-      if (Array.isArray(info)) cbResponse.push(...info)
-      else if (info) cbResponse.push(info)
+      if (entries.length > 0) {
+        const info = await callback({ entries, contentType })
+        if (Array.isArray(info)) cbResponse.push(...info)
+        else if (info) cbResponse.push(info)
+      }
     }
     return cbResponse
   },
