@@ -17,16 +17,29 @@ function createFakeStrapi({
     service: fakePluginService,
   }))
 
-  const fakePluginService = jest.fn(() => ({
-    getContentTypesUid: () => ['restaurant', 'about'],
-    getCollectionName: ({ contentType }) => contentType,
-    getCredentials: () => ({
-      host: 'http://localhost:7700',
-      apiKey: 'masterKey',
-      ApiKeyIsFromConfigFile: true,
-      HostIsFromConfigFile: true,
-    }),
-  }))
+  const fakeActionInBatches = jest.fn(() => {
+    return [{ id: '1' }]
+  })
+
+  const fakeAddIndexedContentType = jest.fn(() => {})
+
+  const fakePluginService = jest.fn(() => {
+    return {
+      getContentTypesUid: () => ['restaurant', 'about'],
+      getCollectionName: ({ contentType }) => contentType,
+      getCredentials: () => ({
+        host: 'http://localhost:7700',
+        apiKey: 'masterKey',
+        ApiKeyIsFromConfigFile: true,
+        HostIsFromConfigFile: true,
+      }),
+      actionInBatches: fakeActionInBatches,
+      addIndexedContentType: fakeAddIndexedContentType,
+      subscribeContentType: () => {
+        return
+      },
+    }
+  })
 
   const fakeLogger = {
     error: jest.fn(() => {}),

@@ -21,6 +21,7 @@ const sanitizeEntries = async function ({
 
   // remove un-published entries
   entries = await config.removeUnpublishedArticles({
+    contentType,
     entries,
   })
 
@@ -115,7 +116,7 @@ module.exports = ({ strapi, adapter, config }) => {
           config,
           adapter,
         })
-        if (entry.publishedAt === null || sanitized.length === 0) {
+        if (sanitized.length === 0) {
           return client.index(indexUid).deleteDocument(
             adapter.addCollectionNamePrefixToId({
               contentType,

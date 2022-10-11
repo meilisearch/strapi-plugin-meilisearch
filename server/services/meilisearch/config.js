@@ -212,16 +212,26 @@ module.exports = ({ strapi }) => {
     },
 
     /**
-     * Remove unpublished entries from array of entries.
+     * Remove unpublished entries from array of entries
+     * unless `publicationState` is set to true.
      *
      * @param {object} options
      * @param {Array<Object>} options.entries - The entries to filter.
-     *
+     * @param {string} options.contentType - ContentType name.
      *
      * @return {Array<Object>} - Published entries.
      */
-    removeUnpublishedArticles: function ({ entries }) {
-      return entries.filter(entry => !(entry.publishedAt === null))
+    removeUnpublishedArticles: function ({ entries, contentType }) {
+      const collection = contentTypeService.getCollectionName({ contentType })
+      const contentTypeConfig = meilisearchConfig[collection] || {}
+
+      const entriesQuery = contentTypeConfig.entriesQuery || {}
+
+      if (entriesQuery.publicationState === 'preview') {
+        return entries
+      } else {
+        return entries.filter(entry => !(entry.publishedAt == null))
+      }
     },
   }
 }

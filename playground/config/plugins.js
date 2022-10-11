@@ -6,6 +6,7 @@ module.exports = ({ env }) => ({
     resolve: path.resolve(__dirname, '../src/plugins/meilisearch'),
     config: {
       restaurant: {
+        entriesQuery: {},
         filterEntry({ entry }) {
           return entry.id !== 2
         },
@@ -26,8 +27,8 @@ module.exports = ({ env }) => ({
       homepage: {
         indexName: "content",
       },
-      // host: "http://localhost:7700",
-      // apiKey: "masterKey"
+      host: "http://localhost:7700",
+      apiKey: "masterKey"
     }
   }
 });

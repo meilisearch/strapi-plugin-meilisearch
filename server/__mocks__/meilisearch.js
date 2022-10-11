@@ -1,10 +1,10 @@
 const addDocumentsMock = jest.fn(() => 10)
+const updateDocumentsMock = jest.fn(() => 10)
 const updateSettingsMock = jest.fn(() => 10)
 const deleteDocuments = jest.fn(() => {
   return [{ uid: 1 }, { uid: 2 }]
 })
 const getIndexes = jest.fn(() => {
-  console.log('plouf')
   return { results: [{ uid: 'my_restaurant' }, { uid: 'restaurant' }] }
 })
 
@@ -24,6 +24,7 @@ const getStats = jest.fn(() => {
 
 const mockIndex = jest.fn(() => ({
   addDocuments: addDocumentsMock,
+  updateDocuments: updateDocumentsMock,
   updateSettings: updateSettingsMock,
   deleteDocuments,
   getStats,

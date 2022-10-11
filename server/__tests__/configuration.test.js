@@ -1,6 +1,7 @@
 const createMeilisearchService = require('../services/meilisearch')
 
 const { createFakeStrapi } = require('./utils/fakes')
+jest.mock('meilisearch')
 
 const fakeStrapi = createFakeStrapi({})
 global.strapi = fakeStrapi
@@ -290,6 +291,55 @@ describe('Test Meilisearch plugin configurations', () => {
     expect(settings).toEqual({})
   })
 
+  test('Test configuration to remove unpublished entries', async () => {
+    const customStrapi = createFakeStrapi({
+      restaurantConfig: {
+        transformEntry: () => {},
+      },
+    })
+
+    const contentType = 'restaurant'
+    const meilisearchService = createMeilisearchService({
+      strapi: customStrapi,
+    })
+    const indexName = meilisearchService.getIndexNameOfContentType({
+      contentType,
+    })
+    const entries = meilisearchService.removeUnpublishedArticles({
+      contentType,
+      entries: [{ id: 1 }, { id: 2 }],
+    })
+
+    expect(indexName).toEqual(contentType)
+    expect(entries).toEqual([])
+  })
+
+  test('Test configuration to keep unpublished entries', async () => {
+    const customStrapi = createFakeStrapi({
+      restaurantConfig: {
+        transformEntry: () => {},
+        entriesQuery: {
+          publicationState: 'preview',
+        },
+      },
+    })
+
+    const contentType = 'restaurant'
+    const meilisearchService = createMeilisearchService({
+      strapi: customStrapi,
+    })
+    const indexName = meilisearchService.getIndexNameOfContentType({
+      contentType,
+    })
+    const entries = meilisearchService.removeUnpublishedArticles({
+      contentType,
+      entries: [{ id: 1 }, { id: 2 }],
+    })
+
+    expect(indexName).toEqual(contentType)
+    expect(entries).toEqual([{ id: 1 }, { id: 2 }])
+  })
+
   test('Test configuration with empty settings ', async () => {
     const customStrapi = createFakeStrapi({
       restaurantConfig: {
@@ -397,4 +447,6 @@ describe('Test Meilisearch plugin configurations', () => {
 
     expect(contentTypes).toEqual(['restaurant', 'about'])
   })
+
+  // TODO: add tests here
 })

@@ -71,4 +71,42 @@ describe('Tests content types', () => {
       fieldDistribution: {},
     })
   })
+
+  test('Test to update the content of a collection in Meilisearch', async () => {
+    const customStrapi = createFakeStrapi({
+      restaurantConfig: {
+        entriesQuery: {
+          limit: 1,
+          fields: ['id'],
+          filters: {},
+          sort: {},
+          populate: [],
+          publicationState: 'preview',
+        },
+      },
+    })
+
+    const meilisearchService = createMeilisearchService({
+      strapi: customStrapi,
+    })
+
+    await meilisearchService.addContentTypeInMeiliSearch({
+      contentType: 'restaurant',
+    })
+
+    expect(
+      customStrapi.plugin().service().actionInBatches
+    ).toHaveBeenCalledWith({
+      contentType: 'restaurant',
+      callback: expect.anything(),
+      entriesQuery: {
+        limit: 1,
+        fields: ['id'],
+        filters: {},
+        sort: {},
+        populate: [],
+        publicationState: 'preview',
+      },
+    })
+  })
 })
