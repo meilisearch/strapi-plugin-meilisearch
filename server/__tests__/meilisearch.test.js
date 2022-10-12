@@ -1,14 +1,14 @@
 const createMeilisearchService = require('../services/meilisearch')
 
 const { MeiliSearch: Meilisearch } = require('meilisearch')
-const { createFakeStrapi } = require('./utils/fakes')
+const { createStrapiMock } = require('../__mocks__/strapi')
 
 jest.mock('meilisearch')
 
-const fakeStrapi = createFakeStrapi({})
+const strapiMock = createStrapiMock({})
 
 // @ts-ignore
-global.strapi = fakeStrapi
+global.strapi = strapiMock
 
 describe('Tests content types', () => {
   beforeEach(async () => {
@@ -17,7 +17,7 @@ describe('Tests content types', () => {
   })
 
   test('Test get all contentTypes types', async () => {
-    const customStrapi = createFakeStrapi({})
+    const customStrapi = createStrapiMock({})
 
     const meilisearchService = createMeilisearchService({
       strapi: customStrapi,
@@ -29,7 +29,7 @@ describe('Tests content types', () => {
   })
 
   test('Test to delete entries from Meilisearch', async () => {
-    const customStrapi = createFakeStrapi({
+    const customStrapi = createStrapiMock({
       restaurantConfig: {
         indexName: 'customIndex',
       },
@@ -56,7 +56,7 @@ describe('Tests content types', () => {
   })
 
   test('Test to get stats', async () => {
-    const customStrapi = createFakeStrapi({})
+    const customStrapi = createStrapiMock({})
 
     const meilisearchService = createMeilisearchService({
       strapi: customStrapi,
@@ -73,7 +73,7 @@ describe('Tests content types', () => {
   })
 
   test('Test to update the content of a collection in Meilisearch', async () => {
-    const customStrapi = createFakeStrapi({
+    const customStrapi = createStrapiMock({
       restaurantConfig: {
         entriesQuery: {
           limit: 1,

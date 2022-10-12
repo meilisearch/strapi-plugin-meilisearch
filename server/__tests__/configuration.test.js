@@ -1,10 +1,10 @@
 const createMeilisearchService = require('../services/meilisearch')
 
-const { createFakeStrapi } = require('./utils/fakes')
+const { createStrapiMock } = require('../__mocks__/strapi')
 jest.mock('meilisearch')
 
-const fakeStrapi = createFakeStrapi({})
-global.strapi = fakeStrapi
+const strapiMock = createStrapiMock({})
+global.strapi = strapiMock
 
 describe('Test Meilisearch plugin configurations', () => {
   beforeEach(async () => {
@@ -13,7 +13,7 @@ describe('Test Meilisearch plugin configurations', () => {
   })
 
   test('Test with no meilisearch configurations', async () => {
-    const customStrapi = createFakeStrapi({})
+    const customStrapi = createStrapiMock({})
 
     const contentType = 'restaurant'
     const meilisearchService = createMeilisearchService({
@@ -37,7 +37,7 @@ describe('Test Meilisearch plugin configurations', () => {
   })
 
   test('Test with empty meilisearch configurations', async () => {
-    const customStrapi = createFakeStrapi({
+    const customStrapi = createStrapiMock({
       restaurantConfig: {},
     })
 
@@ -62,7 +62,7 @@ describe('Test Meilisearch plugin configurations', () => {
   })
 
   test('Test with wrong type meilisearch configurations', async () => {
-    const customStrapi = createFakeStrapi({
+    const customStrapi = createStrapiMock({
       restaurantConfig: 1,
     })
 
@@ -87,7 +87,7 @@ describe('Test Meilisearch plugin configurations', () => {
   })
 
   test('Test configuration undefined indexName', async () => {
-    const customStrapi = createFakeStrapi({
+    const customStrapi = createStrapiMock({
       restaurantConfig: {},
     })
 
@@ -113,7 +113,7 @@ describe('Test Meilisearch plugin configurations', () => {
   })
 
   test('Test configuration with non-empty type indexName', async () => {
-    const customStrapi = createFakeStrapi({
+    const customStrapi = createStrapiMock({
       restaurantConfig: {
         indexName: 'customName',
       },
@@ -141,7 +141,7 @@ describe('Test Meilisearch plugin configurations', () => {
   })
 
   test('Test configuration with undefined transformEntry ', async () => {
-    const customStrapi = createFakeStrapi({
+    const customStrapi = createStrapiMock({
       restaurantConfig: {
         transformEntry: undefined,
       },
@@ -168,7 +168,7 @@ describe('Test Meilisearch plugin configurations', () => {
   })
 
   test('Test configuration with correct transformEntry ', async () => {
-    const customStrapi = createFakeStrapi({
+    const customStrapi = createStrapiMock({
       restaurantConfig: {
         transformEntry: ({ entry }) => {
           return {
@@ -203,7 +203,7 @@ describe('Test Meilisearch plugin configurations', () => {
   })
 
   test('Test configuration with correct filterEntry ', async () => {
-    const customStrapi = createFakeStrapi({
+    const customStrapi = createStrapiMock({
       restaurantConfig: {
         filterEntry: ({ entry }) => {
           return entry.id !== 1
@@ -236,7 +236,7 @@ describe('Test Meilisearch plugin configurations', () => {
   })
 
   test('Test configuration with throwing transformEntry ', async () => {
-    const customStrapi = createFakeStrapi({
+    const customStrapi = createStrapiMock({
       restaurantConfig: {
         transformEntry: () => {
           throw new Error('failed')
@@ -265,7 +265,7 @@ describe('Test Meilisearch plugin configurations', () => {
   })
 
   test('Test configuration with no return transformEntry ', async () => {
-    const customStrapi = createFakeStrapi({
+    const customStrapi = createStrapiMock({
       restaurantConfig: {
         transformEntry: () => {},
       },
@@ -294,7 +294,7 @@ describe('Test Meilisearch plugin configurations', () => {
   test('Test configuration to remove unpublished entries', async () => {
     const contentType = 'restaurant'
     const meilisearchService = createMeilisearchService({
-      strapi: fakeStrapi,
+      strapi: strapiMock,
     })
 
     const entries = meilisearchService.removeUnpublishedArticles({
@@ -309,7 +309,7 @@ describe('Test Meilisearch plugin configurations', () => {
   })
 
   test('Test should remove unwanted entries with a specific language', async () => {
-    const customStrapi = createFakeStrapi({
+    const customStrapi = createStrapiMock({
       restaurantConfig: {
         entriesQuery: {
           locale: 'fr',
@@ -334,7 +334,7 @@ describe('Test Meilisearch plugin configurations', () => {
   })
 
   test('Test should keep unpublished entries when publicationState is set to preview', async () => {
-    const customStrapi = createFakeStrapi({
+    const customStrapi = createStrapiMock({
       restaurantConfig: {
         transformEntry: () => {},
         entriesQuery: {
@@ -366,7 +366,7 @@ describe('Test Meilisearch plugin configurations', () => {
   })
 
   test('Test configuration with empty settings ', async () => {
-    const customStrapi = createFakeStrapi({
+    const customStrapi = createStrapiMock({
       restaurantConfig: {
         settings: {},
       },
@@ -393,7 +393,7 @@ describe('Test Meilisearch plugin configurations', () => {
   })
 
   test('Test configuration with undefined settings ', async () => {
-    const customStrapi = createFakeStrapi({
+    const customStrapi = createStrapiMock({
       restaurantConfig: {
         settings: undefined,
       },
@@ -420,7 +420,7 @@ describe('Test Meilisearch plugin configurations', () => {
   })
 
   test('Test configuration with correct settings ', async () => {
-    const customStrapi = createFakeStrapi({
+    const customStrapi = createStrapiMock({
       restaurantConfig: {
         settings: {
           mySettings: 'hello',
@@ -451,7 +451,7 @@ describe('Test Meilisearch plugin configurations', () => {
   })
 
   test('Test all contentTypes pointing to the same custom index name', async () => {
-    const customStrapi = createFakeStrapi({
+    const customStrapi = createStrapiMock({
       restaurantConfig: {
         indexName: 'my_index',
       },
