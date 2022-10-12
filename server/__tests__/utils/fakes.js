@@ -31,6 +31,7 @@ function createFakeStrapi({
   const fakeLogger = {
     error: jest.fn(() => {}),
     warn: jest.fn(() => {}),
+    info: jest.fn(() => {}),
   }
 
   const fakeConfig = {
