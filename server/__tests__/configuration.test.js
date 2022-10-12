@@ -308,7 +308,7 @@ describe('Test Meilisearch plugin configurations', () => {
     expect(entries).toEqual([])
   })
 
-  test('Test configuration to unwanted locale entries', async () => {
+  test('Test should remove unwanted entries with a specific language', async () => {
     const customStrapi = createFakeStrapi({
       restaurantConfig: {
         entriesQuery: {
@@ -333,7 +333,7 @@ describe('Test Meilisearch plugin configurations', () => {
     expect(entries).toEqual([{ id: 1, locale: 'fr' }])
   })
 
-  test('Test configuration to keep unpublished entries', async () => {
+  test('Test should keep unpublished entries when publicationState is set to preview', async () => {
     const customStrapi = createFakeStrapi({
       restaurantConfig: {
         transformEntry: () => {},
@@ -472,6 +472,4 @@ describe('Test Meilisearch plugin configurations', () => {
 
     expect(contentTypes).toEqual(['restaurant', 'about'])
   })
-
-  // TODO: add tests here
 })
