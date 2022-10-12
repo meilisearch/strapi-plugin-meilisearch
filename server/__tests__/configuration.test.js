@@ -292,13 +292,9 @@ describe('Test Meilisearch plugin configurations', () => {
   })
 
   test('Test configuration to remove unpublished entries', async () => {
-    const customStrapi = createFakeStrapi({
-      restaurantConfig: {},
-    })
-
     const contentType = 'restaurant'
     const meilisearchService = createMeilisearchService({
-      strapi: customStrapi,
+      strapi: fakeStrapi,
     })
 
     const entries = meilisearchService.removeUnpublishedArticles({
