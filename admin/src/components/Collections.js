@@ -21,91 +21,17 @@ import { headers } from '../utils/collection-header'
  */
 const Collections = ({ updateCredentials }) => {
   const [collectionsList, setCollectionsList] = useState([]) // All Collections
-  const [upToDateCollections, setUpToDateCollection] = useState(false) // Boolean that informs if collections have been updated.
   const [needReload, setNeedReload] = useState(false) // Boolean to inform that reload is requested.
-  const [collectionInWaitMode, setCollectionInWaitMode] = useState([]) // Collections that are waiting for their indexation to complete.
-  const [collectionTaskUids, setCollectionTaskUids] = useState({}) // List of collection's enqueued task uids.
+  const [realTimeReports, setRealTimeReports] = useState(false) // List of collection's enqueued task uids.
+  const [refetchIndex, setRefetchIndex] = useState(true)
 
-  // Trigger a task uids fetcher to find enqueued task of the indexed collections.
-  useEffect(() => {
-    findTaskUids()
-  }, [])
+  const refetchCollection = () =>
+    setRefetchIndex(prevRefetchIndex => !prevRefetchIndex)
 
   // Adds a listener that informs if collections have been updated.
   useEffect(() => {
-    setUpToDateCollection(false)
+    refetchCollection()
   }, [updateCredentials])
-
-  // Adds a listener that updates collections informations on updates
-  useEffect(() => {
-    if (!upToDateCollections) fetchCollections()
-  }, [upToDateCollections, updateCredentials])
-
-  // Trigger a watch if a collection has enqueued task uid's.
-  useEffect(() => {
-    for (const collection in collectionTaskUids) {
-      if (collectionTaskUids[collection].length > 0) {
-        watchTasks({ collection })
-      }
-    }
-  }, [collectionTaskUids])
-
-  /**
-   * Find all enqueued task uid's of the indexed collections.
-   * It is triggered on load.
-   */
-  const findTaskUids = async () => {
-    const response = await request(`/${pluginId}/collection/tasks`, {
-      method: 'GET',
-    })
-
-    if (response.error) errorNotifications(response)
-    setCollectionTaskUids(response.taskUids)
-  }
-
-  /**
-   * Watches a collection (if not already)
-   * For a maximum of 5 enqueued tasks in Meilisearch.
-   *
-   * @param {string} collection - Collection name.
-   */
-  const watchTasks = async ({ collection }) => {
-    // If collection has pending tasks
-    const taskUids = collectionTaskUids[collection]
-
-    if (!collectionInWaitMode.includes(collection) && taskUids?.length > 0) {
-      addIndexedStatus
-      setCollectionInWaitMode(prev => [...prev, collection])
-
-      const taskUidsIdsChunk = taskUids.splice(0, 1)
-      const response = await request(
-        `/${pluginId}/collection/${collection}/tasks/batch`,
-        {
-          method: 'POST',
-          body: { taskUids: taskUidsIdsChunk },
-        }
-      )
-
-      if (response.error) errorNotifications(response)
-
-      const { tasksStatus } = response
-
-      tasksStatus.map(task => {
-        if (task.status === 'failed') {
-          task.error.message = `Some documents could not be added: \n${task.error.message}`
-          errorNotifications(task.error)
-        }
-      })
-
-      setCollectionInWaitMode(prev => prev.filter(col => col !== collection))
-      setCollectionTaskUids(prev => ({
-        ...prev,
-        [collection]: taskUids,
-      }))
-
-      setUpToDateCollection(false) // Ask for collections to be updated.
-    }
-  }
 
   /**
    * Add a collection to Meilisearch
@@ -122,14 +48,7 @@ const Collections = ({ updateCredentials }) => {
 
     createResponseNotification(response, `${collection} is created!`)
 
-    if (!response.error) {
-      setCollectionTaskUids(prev => ({
-        ...prev,
-        [collection]: response.taskUids,
-      }))
-    }
-
-    setUpToDateCollection(false) // Ask for collections to be updated.
+    refetchCollection()
   }
 
   /**
@@ -147,14 +66,7 @@ const Collections = ({ updateCredentials }) => {
 
     createResponseNotification(response, `${collection} update started!`)
 
-    if (!response.error) {
-      setCollectionTaskUids(prev => ({
-        ...prev,
-        [collection]: response.taskUids,
-      }))
-    }
-
-    setUpToDateCollection(false) // Ask for collections to be updated.
+    refetchCollection()
   }
 
   /**
@@ -172,7 +84,7 @@ const Collections = ({ updateCredentials }) => {
       `${collection} collection is removed from Meilisearch!`
     )
 
-    setUpToDateCollection(false) // Ask for collections to be updated.
+    refetchCollection()
   }
 
   /**
@@ -200,12 +112,10 @@ const Collections = ({ updateCredentials }) => {
 
     if (error) errorNotifications(res)
     else {
-      // Start watching collections that have pending tasks
-      collections.map(col => {
-        if (col.isIndexing) {
-          watchTasks({ collection: col.collection })
-        }
-      })
+      const isIndexing = collections.find(col => col.isIndexing === true)
+
+      if (!isIndexing) setRealTimeReports(false)
+      else setRealTimeReports(true)
 
       // Transform collections information to verbose string.
       const renderedCols = collections.map(col => transformCollections(col))
@@ -217,9 +127,25 @@ const Collections = ({ updateCredentials }) => {
 
       setNeedReload(reloading) // A reload is required for a collection to be listened or de-listened
       setCollectionsList(renderedCols) // Store all `Strapi collections
-      setUpToDateCollection(true) // Collection information is up to date
     }
   }
+
+  // Start refreshing the collections when a collection is being indexed
+  useEffect(() => {
+    let interval
+    if (realTimeReports) {
+      interval = setInterval(() => {
+        refetchCollection()
+      }, 1000)
+    } else {
+      clearInterval(interval)
+    }
+    return () => clearInterval(interval)
+  }, [realTimeReports])
+
+  useEffect(() => {
+    fetchCollections()
+  }, [refetchIndex])
 
   return (
     <div className="col-md-12">
