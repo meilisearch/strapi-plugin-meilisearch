@@ -112,12 +112,13 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
     /**
      * Get indexes with a safe guard in case of error.
      *
-     * @returns { string[] }
+     * @returns { Promise<Record<string, any>[]> }
      */
     getIndexes: async function () {
       try {
         const client = MeiliSearch({ apiKey, host })
-        return await client.getIndexes()
+        const indexes = await client.getIndexes()
+        return indexes.results || []
       } catch (e) {
         console.error(e)
         return []
@@ -272,7 +273,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
       const addDocuments = async (entries, collection) => {
         if (entries.length === 0) {
           const task = await client.createIndex(indexUid)
-          return task.uid
+          return task.taskUid
         }
         let transformedEntries = collectionConnector.transformEntries({
           collection,
@@ -286,14 +287,13 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
         // Add documents in Meilisearch
         const task = await client.index(indexUid).addDocuments(documents)
 
-        return task.uid
+        return task.taskUid
       }
 
       const tasksUids = await collectionConnector.actionInBatches(
         collection,
         addDocuments
       )
-      console.log(tasksUids)
       await storeConnector.addIndexedCollection(collection)
 
       return tasksUids
@@ -380,14 +380,13 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
     /**
      * Get list of index uids in Meilisearch instance.
      *
-     * @returns {number[]} - Index uids
+     * @returns {Promise<number[]>} - Index uids
      */
     getCollectionsIndexedInMeiliSearch: async function (collections) {
-      const client = MeiliSearch({ apiKey, host })
-      let indexes = await client.getIndexes()
-      indexes = indexes.map(index => index.uid)
+      const indexes = await this.getIndexes()
+      const indexUids = indexes.map(index => index.uid)
       return collections.filter(collection =>
-        indexes.includes(collectionConnector.getIndexName(collection))
+        indexUids.includes(collectionConnector.getIndexName(collection))
       )
     },
   }
