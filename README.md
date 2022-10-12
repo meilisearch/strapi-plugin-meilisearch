@@ -202,7 +202,7 @@ Settings:
 - [🪄 Transform entries](#-transform-entries)
 - [🤚 Filter entries](#-filter-entries)
 - [🏗 Add Meilisearch settings](#-add-meilisearch-settings)
-- [👥 Populate entry rule](#-populate-entry-rule)
+- [🔎 Entries query](#🔎-entries-query)
 
 ### 🏷 Custom index name
 
@@ -373,59 +373,33 @@ module.exports = {
 
 [See resources](./resources/meilisearch-settings) for more settings examples.
 
-### 👥 Populate entry rule
+### 🔎 Entries query
 
-Content-types in Strapi may have relationships with other content-types (ex: `restaurant` can have a many-to-many relation with `category`). To ensure that these links are fetched and added to an entry correctly from your Strapi database, the correct populate rule must be provided ([see documentation](https://docs-next.strapi.io/developer-docs/latest/developer-resources/database-apis-reference/entity-service/populate.html#basic-populating)).
+When indexing a content type to Meilisearch, the plugin has to fetch the documents from your database. With `entriesQuery` it is possible to specify some options that should be applied during the fetching of the entries.
+The options you can set are described in the [`findMany` documentation](https://docs.strapi.io/developer-docs/latest/developer-resources/database-apis-reference/entity-service/crud.html#findmany) of Strapi. However, we do not accept any changes on the `start` parameter.
 
-To communicate the populate rule, use the `populateEntryRule` setting on the according content-type in the plugin's settings.
+If you are using the [🌍 Internationalization (i18n)](https://docs.strapi.io/developer-docs/latest/plugins/i18n.html) plugin, an additional field `locale` can also be added in `entriesQuery`.
 
 **For example**
 
-Imagine my `restaurant` content-type has a relation with a repeatable-component `repeatableComponent` that itself has a relationship with the content-type `categories`.
-
-The following population will ensure that a `restaurant` entry contains even the most nested relation.
+For example, if you want your documents to be fetched in batches of `1000` you specify it in the `entriesQuery` option.
 
 ```js
 module.exports = {
   meilisearch: {
     config: {
       restaurant: {
-        populateEntryRule: ['repeatableComponent.categories', 'categories'],
+        entriesQuery: {
+          limit: 1000
+        }
       }
     }
   },
 }
 ```
 
-by providing this, the following is indexed in Meilisearch:
+[See resources](./resources/entries-query) for more entriesQuery examples.
 
-```json
-  {
-    "id": "restaurant-1",
-    "title": "The slimmy snail",
-    // ... other restaurant fields
-    "repeatableComponent": [
-      {
-        "id": 1,
-        "title": "my repeatable component 1"
-        "categories": [
-          {
-            "id": 3,
-            "name": "Asian",
-            // ... other category fields
-          },
-          {
-            "id": 2,
-            "name": "Healthy",
-            // ... other category fields
-          }
-        ],
-
-      }
-    ],
-
-  }
-```
 
 ### 🕵️‍♀️ Start Searching <!-- omit in toc -->
 

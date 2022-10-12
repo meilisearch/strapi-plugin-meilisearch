@@ -1,6 +1,7 @@
 const createMeilisearchService = require('../services/meilisearch')
 
 const { createFakeStrapi } = require('./utils/fakes')
+jest.mock('meilisearch')
 
 const fakeStrapi = createFakeStrapi({})
 global.strapi = fakeStrapi
@@ -288,6 +289,80 @@ describe('Test Meilisearch plugin configurations', () => {
     expect(indexName).toEqual(contentType)
     expect(entries).toEqual([])
     expect(settings).toEqual({})
+  })
+
+  test('Test configuration to remove unpublished entries', async () => {
+    const contentType = 'restaurant'
+    const meilisearchService = createMeilisearchService({
+      strapi: fakeStrapi,
+    })
+
+    const entries = meilisearchService.removeUnpublishedArticles({
+      contentType,
+      entries: [
+        { id: 1, publishedAt: null },
+        { id: 2, publishedAt: null },
+      ],
+    })
+
+    expect(entries).toEqual([])
+  })
+
+  test('Test should remove unwanted entries with a specific language', async () => {
+    const customStrapi = createFakeStrapi({
+      restaurantConfig: {
+        entriesQuery: {
+          locale: 'fr',
+        },
+      },
+    })
+
+    const contentType = 'restaurant'
+    const meilisearchService = createMeilisearchService({
+      strapi: customStrapi,
+    })
+
+    const entries = meilisearchService.removeLocaleEntries({
+      contentType,
+      entries: [
+        { id: 1, locale: 'fr' },
+        { id: 2, locale: 'en' },
+      ],
+    })
+
+    expect(entries).toEqual([{ id: 1, locale: 'fr' }])
+  })
+
+  test('Test should keep unpublished entries when publicationState is set to preview', async () => {
+    const customStrapi = createFakeStrapi({
+      restaurantConfig: {
+        transformEntry: () => {},
+        entriesQuery: {
+          publicationState: 'preview',
+        },
+      },
+    })
+
+    const contentType = 'restaurant'
+    const meilisearchService = createMeilisearchService({
+      strapi: customStrapi,
+    })
+    const indexName = meilisearchService.getIndexNameOfContentType({
+      contentType,
+    })
+    const entries = meilisearchService.removeUnpublishedArticles({
+      contentType,
+      entries: [
+        { id: 1, publishedAt: null },
+        { id: 2, publishedAt: null },
+      ],
+    })
+
+    expect(indexName).toEqual(contentType)
+    expect(entries).toEqual([
+      { id: 1, publishedAt: null },
+      { id: 2, publishedAt: null },
+    ])
   })
 
   test('Test configuration with empty settings ', async () => {

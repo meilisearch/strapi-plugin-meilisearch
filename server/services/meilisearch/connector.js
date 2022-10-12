@@ -21,6 +21,13 @@ const sanitizeEntries = async function ({
 
   // remove un-published entries
   entries = await config.removeUnpublishedArticles({
+    contentType,
+    entries,
+  })
+
+  // remove entries with unwanted locale language
+  entries = await config.removeLocaleEntries({
+    contentType,
     entries,
   })
 
@@ -115,7 +122,7 @@ module.exports = ({ strapi, adapter, config }) => {
           config,
           adapter,
         })
-        if (entry.publishedAt === null || sanitized.length === 0) {
+        if (sanitized.length === 0) {
           return client.index(indexUid).deleteDocument(
             adapter.addCollectionNamePrefixToId({
               contentType,
@@ -286,7 +293,7 @@ module.exports = ({ strapi, adapter, config }) => {
       const tasksUids = await contentTypeService.actionInBatches({
         contentType,
         callback: addDocuments,
-        populate: config.populateEntryRule({ contentType }),
+        entriesQuery: config.entriesQuery({ contentType }),
       })
 
       await store.addIndexedContentType({ contentType })
@@ -345,7 +352,7 @@ module.exports = ({ strapi, adapter, config }) => {
         await contentTypeService.actionInBatches({
           contentType,
           callback: deleteEntries,
-          populate: config.populateEntryRule({ contentType }),
+          entriesQuery: config.entriesQuery({ contentType }),
         })
       } else {
         const { apiKey, host } = await store.getCredentials()

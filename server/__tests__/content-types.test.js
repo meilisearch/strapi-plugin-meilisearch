@@ -198,9 +198,11 @@ describe('Tests content types', () => {
     const entry = await contentTypeServices.getEntry({
       contentType: 'api::restaurant.restaurant',
       id: 200,
-      fields: ['title'],
-      populate: {
-        subClass: true,
+      entriesQuery: {
+        fields: ['title'],
+        populate: {
+          subClass: true,
+        },
       },
     })
 
