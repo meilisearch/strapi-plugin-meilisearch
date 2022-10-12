@@ -1,4 +1,4 @@
-const defaultContentTypes = require('./content-types-list')
+const defaultContentTypes = require('../__tests__/utils/content-types-list')
 
 /**
  * @param {object} config
@@ -6,24 +6,24 @@ const defaultContentTypes = require('./content-types-list')
  * @param  {object} [config.aboutConfig]
  * @param  {object} [config.contentTypes]
  */
-function createFakeStrapi({
+function createStrapiMock({
   restaurantConfig = {},
   aboutConfig = {},
   contentTypes,
 }) {
   contentTypes = contentTypes || defaultContentTypes
 
-  const fakePlugin = jest.fn(() => ({
-    service: fakePluginService,
+  const mockPlugin = jest.fn(() => ({
+    service: mockPluginService,
   }))
 
-  const fakeActionInBatches = jest.fn(() => {
+  const mockActionInBatches = jest.fn(() => {
     return [{ id: '1' }]
   })
 
-  const fakeAddIndexedContentType = jest.fn(() => {})
+  const mockAddIndexedContentType = jest.fn(() => {})
 
-  const fakePluginService = jest.fn(() => {
+  const mockPluginService = jest.fn(() => {
     return {
       getContentTypesUid: () => ['restaurant', 'about'],
       getCollectionName: ({ contentType }) => contentType,
@@ -33,20 +33,20 @@ function createFakeStrapi({
         ApiKeyIsFromConfigFile: true,
         HostIsFromConfigFile: true,
       }),
-      actionInBatches: fakeActionInBatches,
-      addIndexedContentType: fakeAddIndexedContentType,
+      actionInBatches: mockActionInBatches,
+      addIndexedContentType: mockAddIndexedContentType,
       subscribeContentType: () => {
         return
       },
     }
   })
 
-  const fakeLogger = {
+  const mockLogger = {
     error: jest.fn(() => {}),
     warn: jest.fn(() => {}),
   }
 
-  const fakeConfig = {
+  const mockConfig = {
     get: jest.fn(() => {
       return {
         restaurant: restaurantConfig,
@@ -55,39 +55,39 @@ function createFakeStrapi({
     }),
   }
 
-  const fakeFindWithCount = jest.fn(() => {
+  const mockFindWithCount = jest.fn(() => {
     return 1
   })
-  const fakeDb = {
+  const mockDb = {
     query: jest.fn(() => ({
-      count: fakeFindWithCount,
+      count: mockFindWithCount,
     })),
   }
 
-  const fakeFindMany = jest.fn(() => {
+  const mockFindMany = jest.fn(() => {
     return [{ id: 1 }]
   })
 
-  const fakeFindOne = jest.fn(() => {
+  const mockFindOne = jest.fn(() => {
     return [{ id: 1 }]
   })
 
-  const fakeEntityService = {
-    findMany: fakeFindMany,
-    findOne: fakeFindOne,
+  const mockEntityService = {
+    findMany: mockFindMany,
+    findOne: mockFindOne,
   }
 
-  const fakeStrapi = {
-    log: fakeLogger,
-    plugin: fakePlugin,
+  const mockStrapi = {
+    log: mockLogger,
+    plugin: mockPlugin,
     contentTypes,
-    config: fakeConfig,
-    db: fakeDb,
-    entityService: fakeEntityService,
+    config: mockConfig,
+    db: mockDb,
+    entityService: mockEntityService,
   }
-  return fakeStrapi
+  return mockStrapi
 }
 
 module.exports = {
-  createFakeStrapi,
+  createStrapiMock,
 }

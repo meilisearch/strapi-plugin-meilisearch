@@ -1,9 +1,9 @@
 const createContentTypeService = require('../services/content-types')
 
-const { createFakeStrapi } = require('./utils/fakes')
+const { createStrapiMock } = require('../__mocks__/strapi')
 
-const fakeStrapi = createFakeStrapi({})
-global.strapi = fakeStrapi
+const strapiMock = createStrapiMock({})
+global.strapi = strapiMock
 
 describe('Tests content types', () => {
   beforeEach(async () => {
@@ -12,7 +12,7 @@ describe('Tests content types', () => {
   })
 
   test('Test all api names of an empty content type', async () => {
-    const customStrapi = createFakeStrapi({ contentTypes: [] })
+    const customStrapi = createStrapiMock({ contentTypes: [] })
     const contentTypeServices = createContentTypeService({
       strapi: customStrapi,
     })
@@ -23,7 +23,7 @@ describe('Tests content types', () => {
   })
 
   test('Test all content types', async () => {
-    const contentTypeServices = createContentTypeService({ strapi: fakeStrapi })
+    const contentTypeServices = createContentTypeService({ strapi: strapiMock })
     const contentTypes = contentTypeServices.getContentTypesUid()
 
     expect(contentTypes.sort()).toEqual(
@@ -37,7 +37,7 @@ describe('Tests content types', () => {
   })
 
   test('Test names of empty content types', async () => {
-    const customStrapi = createFakeStrapi({ contentTypes: [] })
+    const customStrapi = createStrapiMock({ contentTypes: [] })
     const contentTypeServices = createContentTypeService({
       strapi: customStrapi,
     })
@@ -48,7 +48,7 @@ describe('Tests content types', () => {
   })
 
   test('Test empty content types', async () => {
-    const customStrapi = createFakeStrapi({ contentTypes: [] })
+    const customStrapi = createStrapiMock({ contentTypes: [] })
     const contentTypeServices = createContentTypeService({
       strapi: customStrapi,
     })
@@ -60,7 +60,7 @@ describe('Tests content types', () => {
 
   test('Test if content type exists', async () => {
     const contentTypeServices = createContentTypeService({
-      strapi: fakeStrapi,
+      strapi: strapiMock,
     })
 
     const exists = contentTypeServices.getContentTypeUid({
@@ -72,7 +72,7 @@ describe('Tests content types', () => {
 
   test('Test number of entries', async () => {
     const contentTypeServices = createContentTypeService({
-      strapi: fakeStrapi,
+      strapi: strapiMock,
     })
 
     const count = await contentTypeServices.numberOfEntries({
@@ -84,7 +84,7 @@ describe('Tests content types', () => {
 
   test('Test total number of entries', async () => {
     const contentTypeServices = createContentTypeService({
-      strapi: fakeStrapi,
+      strapi: strapiMock,
     })
 
     const count = await contentTypeServices.totalNumberOfEntries({
@@ -100,14 +100,14 @@ describe('Tests content types', () => {
 
   test('Test fetching entries of a content type with default parameters', async () => {
     const contentTypeServices = createContentTypeService({
-      strapi: fakeStrapi,
+      strapi: strapiMock,
     })
 
     const count = await contentTypeServices.getEntries({
       contentType: 'api::restaurant.restaurant',
     })
 
-    expect(fakeStrapi.entityService.findMany).toHaveBeenCalledWith(
+    expect(strapiMock.entityService.findMany).toHaveBeenCalledWith(
       'api::restaurant.restaurant',
       {
         fields: '*',
@@ -119,13 +119,13 @@ describe('Tests content types', () => {
         publicationState: 'live',
       }
     )
-    expect(fakeStrapi.entityService.findMany).toHaveBeenCalledTimes(1)
+    expect(strapiMock.entityService.findMany).toHaveBeenCalledTimes(1)
     expect(count).toEqual([{ id: 1 }])
   })
 
   test('Test fetching entries of a content type with custom parameters', async () => {
     const contentTypeServices = createContentTypeService({
-      strapi: fakeStrapi,
+      strapi: strapiMock,
     })
 
     const count = await contentTypeServices.getEntries({
@@ -139,7 +139,7 @@ describe('Tests content types', () => {
       publicationState: 'preview',
     })
 
-    expect(fakeStrapi.entityService.findMany).toHaveBeenCalledWith(
+    expect(strapiMock.entityService.findMany).toHaveBeenCalledWith(
       'api::restaurant.restaurant',
       {
         fields: 'title',
@@ -151,26 +151,26 @@ describe('Tests content types', () => {
         publicationState: 'preview',
       }
     )
-    expect(fakeStrapi.entityService.findMany).toHaveBeenCalledTimes(1)
+    expect(strapiMock.entityService.findMany).toHaveBeenCalledTimes(1)
     expect(count).toEqual([{ id: 1 }])
   })
 
   test('Test fetching entries on non existing content type', async () => {
     const contentTypeServices = createContentTypeService({
-      strapi: fakeStrapi,
+      strapi: strapiMock,
     })
 
     const entry = await contentTypeServices.getEntries({
       contentType: 'api::test.test',
     })
 
-    expect(fakeStrapi.entityService.findMany).toHaveBeenCalledTimes(0)
+    expect(strapiMock.entityService.findMany).toHaveBeenCalledTimes(0)
     expect(entry).toEqual([])
   })
 
   test('Test fetching an entry of a content type with default parameters', async () => {
     const contentTypeServices = createContentTypeService({
-      strapi: fakeStrapi,
+      strapi: strapiMock,
     })
 
     const entry = await contentTypeServices.getEntry({
@@ -178,7 +178,7 @@ describe('Tests content types', () => {
       id: 200,
     })
 
-    expect(fakeStrapi.entityService.findOne).toHaveBeenCalledWith(
+    expect(strapiMock.entityService.findOne).toHaveBeenCalledWith(
       'api::restaurant.restaurant',
       200,
       {
@@ -186,13 +186,13 @@ describe('Tests content types', () => {
         populate: '*',
       }
     )
-    expect(fakeStrapi.entityService.findOne).toHaveBeenCalledTimes(1)
+    expect(strapiMock.entityService.findOne).toHaveBeenCalledTimes(1)
     expect(entry).toEqual([{ id: 1 }])
   })
 
   test('Test fetching an entry of a content type with custom parameters', async () => {
     const contentTypeServices = createContentTypeService({
-      strapi: fakeStrapi,
+      strapi: strapiMock,
     })
 
     const entry = await contentTypeServices.getEntry({
@@ -206,7 +206,7 @@ describe('Tests content types', () => {
       },
     })
 
-    expect(fakeStrapi.entityService.findOne).toHaveBeenCalledWith(
+    expect(strapiMock.entityService.findOne).toHaveBeenCalledWith(
       'api::restaurant.restaurant',
       200,
       {
@@ -216,26 +216,26 @@ describe('Tests content types', () => {
         },
       }
     )
-    expect(fakeStrapi.entityService.findOne).toHaveBeenCalledTimes(1)
+    expect(strapiMock.entityService.findOne).toHaveBeenCalledTimes(1)
     expect(entry).toEqual([{ id: 1 }])
   })
 
   test('Test fetching an entry on a non existing content type', async () => {
     const contentTypeServices = createContentTypeService({
-      strapi: fakeStrapi,
+      strapi: strapiMock,
     })
 
     const count = await contentTypeServices.getEntry({
       contentType: 'api::test.test',
     })
 
-    expect(fakeStrapi.entityService.findOne).toHaveBeenCalledTimes(0)
+    expect(strapiMock.entityService.findOne).toHaveBeenCalledTimes(0)
     expect(count).toEqual({})
   })
 
   test('Test operation in batches on entries', async () => {
     const contentTypeServices = createContentTypeService({
-      strapi: fakeStrapi,
+      strapi: strapiMock,
     })
 
     const contentType = 'api::restaurant.restaurant'
@@ -254,7 +254,7 @@ describe('Tests content types', () => {
 
   test('Test operation in batches on entries with callback returning nothing', async () => {
     const contentTypeServices = createContentTypeService({
-      strapi: fakeStrapi,
+      strapi: strapiMock,
     })
 
     const contentType = 'api::restaurant.restaurant'

@@ -1,9 +1,9 @@
 const { validatePluginConfig } = require('../configuration-validation')
 
-const { createFakeStrapi } = require('./utils/fakes')
+const { createStrapiMock } = require('../__mocks__/strapi')
 
-const fakeStrapi = createFakeStrapi({})
-global.strapi = fakeStrapi
+const strapiMock = createStrapiMock({})
+global.strapi = strapiMock
 
 describe('Test plugin configuration', () => {
   beforeEach(async () => {
@@ -13,32 +13,32 @@ describe('Test plugin configuration', () => {
 
   test('Test empty configuration', async () => {
     validatePluginConfig()
-    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(0)
   })
 
   test('Test wrong type config configuration', async () => {
     validatePluginConfig(1)
-    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(1)
-    expect(fakeStrapi.log.error).toHaveBeenCalledWith(
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(1)
+    expect(strapiMock.log.error).toHaveBeenCalledWith(
       'The "config" field in the Meilisearch plugin configuration should be an object'
     )
   })
 
   test('Test wrong object configuration', async () => {
     validatePluginConfig({})
-    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(0)
   })
 
   test('Test configuration with not used attribute', async () => {
     validatePluginConfig({
       hello: 0,
     })
-    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(1)
-    expect(fakeStrapi.log.error).toHaveBeenCalledWith(
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(1)
+    expect(strapiMock.log.error).toHaveBeenCalledWith(
       'The collection "hello" configuration should be of type object'
     )
   })
@@ -47,17 +47,17 @@ describe('Test plugin configuration', () => {
     validatePluginConfig({
       host: undefined,
     })
-    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(0)
   })
 
   test('Test configuration with empty string host', async () => {
     validatePluginConfig({
       host: '',
     })
-    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(1)
-    expect(fakeStrapi.log.error).toHaveBeenCalledWith(
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(1)
+    expect(strapiMock.log.error).toHaveBeenCalledWith(
       'The "host" option should be a non-empty string'
     )
   })
@@ -66,25 +66,25 @@ describe('Test plugin configuration', () => {
     validatePluginConfig({
       host: 'test',
     })
-    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(0)
   })
 
   test('Test configuration with empty apiKey', async () => {
     validatePluginConfig({
       apiKey: undefined,
     })
-    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(0)
   })
 
   test('Test configuration with wrong time apiKey', async () => {
     validatePluginConfig({
       apiKey: 0,
     })
-    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(1)
-    expect(fakeStrapi.log.error).toHaveBeenCalledWith(
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(1)
+    expect(strapiMock.log.error).toHaveBeenCalledWith(
       'The "apiKey" option should be a string'
     )
   })
@@ -93,24 +93,24 @@ describe('Test plugin configuration', () => {
     validatePluginConfig({
       apiKey: '',
     })
-    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(0)
   })
 
   test('Test configuration with string apiKey', async () => {
     validatePluginConfig({
       apiKey: 'test',
     })
-    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(0)
   })
 
   test('Test configuration with string apiKey', async () => {
     validatePluginConfig({
       apiKey: 'test',
     })
-    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(0)
   })
 
   test('Test indexName with empty string', async () => {
@@ -119,9 +119,9 @@ describe('Test plugin configuration', () => {
         indexName: '',
       },
     })
-    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(1)
-    expect(fakeStrapi.log.error).toHaveBeenCalledWith(
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(1)
+    expect(strapiMock.log.error).toHaveBeenCalledWith(
       'The "indexName" option of "restaurant" should be a non-empty string'
     )
   })
@@ -132,8 +132,8 @@ describe('Test plugin configuration', () => {
         indexName: 'hello',
       },
     })
-    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(0)
   })
 
   test('Test indexName with undefined', async () => {
@@ -142,8 +142,8 @@ describe('Test plugin configuration', () => {
         indexName: undefined,
       },
     })
-    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(0)
   })
 
   test('Test transformEntry with wrong type', async () => {
@@ -152,9 +152,9 @@ describe('Test plugin configuration', () => {
         transformEntry: 0,
       },
     })
-    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(1)
-    expect(fakeStrapi.log.error).toHaveBeenCalledWith(
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(1)
+    expect(strapiMock.log.error).toHaveBeenCalledWith(
       'The "transformEntry" option of "restaurant" should be a function'
     )
   })
@@ -165,8 +165,8 @@ describe('Test plugin configuration', () => {
         transformEntry: () => {},
       },
     })
-    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(0)
   })
 
   test('Test transformEntry with undefined', async () => {
@@ -175,8 +175,8 @@ describe('Test plugin configuration', () => {
         transformEntry: undefined,
       },
     })
-    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(0)
   })
 
   test('Test filterEntry with wrong type', async () => {
@@ -185,9 +185,9 @@ describe('Test plugin configuration', () => {
         filterEntry: 0,
       },
     })
-    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(1)
-    expect(fakeStrapi.log.error).toHaveBeenCalledWith(
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(1)
+    expect(strapiMock.log.error).toHaveBeenCalledWith(
       'The "filterEntry" option of "restaurant" should be a function'
     )
   })
@@ -198,8 +198,8 @@ describe('Test plugin configuration', () => {
         filterEntry: () => {},
       },
     })
-    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(0)
   })
 
   test('Test filterEntry with undefined', async () => {
@@ -208,8 +208,8 @@ describe('Test plugin configuration', () => {
         filterEntry: undefined,
       },
     })
-    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(0)
   })
 
   test('Test settings with wrong type', async () => {
@@ -218,9 +218,9 @@ describe('Test plugin configuration', () => {
         settings: 0,
       },
     })
-    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(1)
-    expect(fakeStrapi.log.error).toHaveBeenCalledWith(
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(1)
+    expect(strapiMock.log.error).toHaveBeenCalledWith(
       'The "settings" option of "restaurant" should be an object'
     )
   })
@@ -231,8 +231,8 @@ describe('Test plugin configuration', () => {
         settings: () => {},
       },
     })
-    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(1)
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(1)
   })
 
   test('Test settings with undefined', async () => {
@@ -241,8 +241,8 @@ describe('Test plugin configuration', () => {
         settings: undefined,
       },
     })
-    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(0)
   })
 
   test('Test configuration with random field ', async () => {
@@ -251,9 +251,9 @@ describe('Test plugin configuration', () => {
         random: undefined,
       },
     })
-    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(1)
-    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
-    expect(fakeStrapi.log.warn).toHaveBeenCalledWith(
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(1)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.warn).toHaveBeenCalledWith(
       'The "random" option of "restaurant" is not a known option'
     )
   })
@@ -273,7 +273,7 @@ describe('Test entriesQuery configuration', () => {
       },
     })
 
-    expect(fakeStrapi.log.error).toHaveBeenCalledWith(
+    expect(strapiMock.log.error).toHaveBeenCalledWith(
       'The "entriesQuery" option of "restaurant" should be an object'
     )
   })
@@ -285,8 +285,8 @@ describe('Test entriesQuery configuration', () => {
       },
     })
 
-    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(0)
     expect(configuration.restaurant.entriesQuery).toBeUndefined()
   })
 
@@ -310,8 +310,8 @@ describe('Test entriesQuery configuration', () => {
       },
     })
 
-    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(0)
     expect(configuration.restaurant.entriesQuery).toEqual({})
   })
 
@@ -336,7 +336,7 @@ describe('Test entriesQuery configuration', () => {
       },
     })
 
-    expect(fakeStrapi.log.error).toHaveBeenCalledWith(
+    expect(strapiMock.log.error).toHaveBeenCalledWith(
       'The "fields" option in "queryOptions" of "restaurant" should be an array of strings.'
     )
   })
@@ -351,8 +351,8 @@ describe('Test entriesQuery configuration', () => {
       },
     })
 
-    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(0)
     expect(configuration.restaurant.entriesQuery).toEqual({})
   })
 
@@ -365,8 +365,8 @@ describe('Test entriesQuery configuration', () => {
       },
     })
 
-    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(0)
     expect(configuration.restaurant.entriesQuery).toEqual({ filters: {} })
   })
 
@@ -379,7 +379,7 @@ describe('Test entriesQuery configuration', () => {
       },
     })
 
-    expect(fakeStrapi.log.error).toHaveBeenCalledWith(
+    expect(strapiMock.log.error).toHaveBeenCalledWith(
       'The "filters" option in "queryOptions" of "restaurant" should be an object.'
     )
   })
@@ -394,7 +394,7 @@ describe('Test entriesQuery configuration', () => {
       },
     })
 
-    expect(fakeStrapi.log.error).toHaveBeenCalledWith(
+    expect(strapiMock.log.error).toHaveBeenCalledWith(
       'The "start" option in "queryOptions" of "restaurant" is forbidden.'
     )
   })
@@ -409,8 +409,8 @@ describe('Test entriesQuery configuration', () => {
       },
     })
 
-    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(0)
     expect(configuration.restaurant.entriesQuery).toEqual({})
   })
 
@@ -423,8 +423,8 @@ describe('Test entriesQuery configuration', () => {
       },
     })
 
-    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(0)
     expect(configuration.restaurant.entriesQuery).toEqual({ limit: 1 })
   })
 
@@ -437,7 +437,7 @@ describe('Test entriesQuery configuration', () => {
       },
     })
 
-    expect(fakeStrapi.log.error).toHaveBeenCalledWith(
+    expect(strapiMock.log.error).toHaveBeenCalledWith(
       'The "limit" option in "queryOptions" of "restaurant" should be a number higher than 0.'
     )
   })
@@ -451,7 +451,7 @@ describe('Test entriesQuery configuration', () => {
       },
     })
 
-    expect(fakeStrapi.log.error).toHaveBeenCalledWith(
+    expect(strapiMock.log.error).toHaveBeenCalledWith(
       'The "limit" option in "queryOptions" of "restaurant" should be a number higher than 0.'
     )
   })
@@ -466,8 +466,8 @@ describe('Test entriesQuery configuration', () => {
       },
     })
 
-    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(0)
     expect(configuration.restaurant.entriesQuery).toEqual({})
   })
 
@@ -480,8 +480,8 @@ describe('Test entriesQuery configuration', () => {
       },
     })
 
-    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(0)
     expect(configuration.restaurant.entriesQuery).toEqual({ sort: {} })
   })
 
@@ -494,8 +494,8 @@ describe('Test entriesQuery configuration', () => {
       },
     })
 
-    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(0)
     expect(configuration.restaurant.entriesQuery).toEqual({ sort: 'a' })
   })
 
@@ -508,8 +508,8 @@ describe('Test entriesQuery configuration', () => {
       },
     })
 
-    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(0)
     expect(configuration.restaurant.entriesQuery).toEqual({ sort: ['a'] })
   })
 
@@ -522,7 +522,7 @@ describe('Test entriesQuery configuration', () => {
       },
     })
 
-    expect(fakeStrapi.log.error).toHaveBeenCalledWith(
+    expect(strapiMock.log.error).toHaveBeenCalledWith(
       'The "sort" option in "queryOptions" of "restaurant" should be an object/array/string.'
     )
   })
@@ -537,8 +537,8 @@ describe('Test entriesQuery configuration', () => {
       },
     })
 
-    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(0)
     expect(configuration.restaurant.entriesQuery).toEqual({})
   })
 
@@ -551,8 +551,8 @@ describe('Test entriesQuery configuration', () => {
       },
     })
 
-    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(0)
     expect(configuration.restaurant.entriesQuery).toEqual({ populate: {} })
   })
 
@@ -565,8 +565,8 @@ describe('Test entriesQuery configuration', () => {
       },
     })
 
-    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(0)
     expect(configuration.restaurant.entriesQuery).toEqual({ populate: 'a' })
   })
 
@@ -579,8 +579,8 @@ describe('Test entriesQuery configuration', () => {
       },
     })
 
-    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(0)
     expect(configuration.restaurant.entriesQuery).toEqual({ populate: ['a'] })
   })
 
@@ -593,7 +593,7 @@ describe('Test entriesQuery configuration', () => {
       },
     })
 
-    expect(fakeStrapi.log.error).toHaveBeenCalledWith(
+    expect(strapiMock.log.error).toHaveBeenCalledWith(
       'The "populate" option in "queryOptions" of "restaurant" should be an object/array/string.'
     )
   })
@@ -609,8 +609,8 @@ describe('Test entriesQuery configuration', () => {
       },
     })
 
-    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(0)
     expect(configuration.restaurant.entriesQuery).toEqual({})
   })
 
@@ -623,8 +623,8 @@ describe('Test entriesQuery configuration', () => {
       },
     })
 
-    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(0)
     expect(configuration.restaurant.entriesQuery).toEqual({
       publicationState: 'live',
     })
@@ -639,8 +639,8 @@ describe('Test entriesQuery configuration', () => {
       },
     })
 
-    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(0)
     expect(configuration.restaurant.entriesQuery).toEqual({
       publicationState: 'preview',
     })
@@ -655,7 +655,7 @@ describe('Test entriesQuery configuration', () => {
       },
     })
 
-    expect(fakeStrapi.log.error).toHaveBeenCalledWith(
+    expect(strapiMock.log.error).toHaveBeenCalledWith(
       'The "publicationState" option in "queryOptions" of "restaurant" should be either "preview" or "live".'
     )
   })
@@ -669,7 +669,7 @@ describe('Test entriesQuery configuration', () => {
       },
     })
 
-    expect(fakeStrapi.log.error).toHaveBeenCalledWith(
+    expect(strapiMock.log.error).toHaveBeenCalledWith(
       'The "publicationState" option in "queryOptions" of "restaurant" should be either "preview" or "live".'
     )
   })
@@ -684,8 +684,8 @@ describe('Test entriesQuery configuration', () => {
       },
     })
 
-    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(0)
     expect(configuration.restaurant.entriesQuery).toEqual({})
   })
 
@@ -698,8 +698,8 @@ describe('Test entriesQuery configuration', () => {
       },
     })
 
-    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(0)
     expect(configuration.restaurant.entriesQuery).toEqual({
       locale: 'all',
     })
@@ -714,8 +714,8 @@ describe('Test entriesQuery configuration', () => {
       },
     })
 
-    expect(fakeStrapi.log.warn).toHaveBeenCalledTimes(0)
-    expect(fakeStrapi.log.error).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(0)
     expect(configuration.restaurant.entriesQuery).toEqual({
       locale: 'random',
     })
@@ -730,7 +730,7 @@ describe('Test entriesQuery configuration', () => {
       },
     })
 
-    expect(fakeStrapi.log.error).toHaveBeenCalledWith(
+    expect(strapiMock.log.error).toHaveBeenCalledWith(
       'The "locale" option in "queryOptions" of "restaurant" should be a non-empty string.'
     )
   })
@@ -746,7 +746,7 @@ describe('Test entriesQuery configuration', () => {
       },
     })
 
-    expect(fakeStrapi.log.error).toHaveBeenCalledWith(
+    expect(strapiMock.log.error).toHaveBeenCalledWith(
       'The "random" option in "queryOptions" of "restaurant" is not a known option. Check the "findMany" API references in the Strapi Documentation.'
     )
 
