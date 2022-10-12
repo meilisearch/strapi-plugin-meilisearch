@@ -89,7 +89,13 @@ module.exports = ({ strapi, adapter, config }) => {
         adapter.addCollectionNamePrefixToId({ entryId, contentType })
       )
 
-      return await client.index(indexUid).deleteDocuments(documentsIds)
+      const task = await client.index(indexUid).deleteDocuments(documentsIds)
+
+      strapi.log.info(
+        `Create task to delete ${documentsIds.length} documents of the index "${indexUid}" in Meilisearch (Task uid: ${task.taskUid})`
+      )
+
+      return task
     },
 
     /**
@@ -116,12 +122,18 @@ module.exports = ({ strapi, adapter, config }) => {
           adapter,
         })
         if (entry.publishedAt === null || sanitized.length === 0) {
-          return client.index(indexUid).deleteDocument(
+          const task = client.index(indexUid).deleteDocument(
             adapter.addCollectionNamePrefixToId({
               contentType,
               entryId: entry.id,
             })
           )
+
+          strapi.log.info(
+            `Create task to delete 1 document of the index "${indexUid}" in Meilisearch (Task uid: ${task.taskUid})`
+          )
+
+          return task
         } else {
           return client.index(indexUid).updateDocuments(sanitized)
         }
@@ -245,6 +257,9 @@ module.exports = ({ strapi, adapter, config }) => {
       })
 
       const task = await client.index(indexUid).addDocuments(documents)
+      strapi.log.info(
+        `Create task to add ${documents.length} documents in the index "${indexUid}" to Meilisearch (Task uid: ${task.taskUid})`
+      )
       await store.addIndexedContentType({ contentType })
 
       return task
@@ -265,7 +280,11 @@ module.exports = ({ strapi, adapter, config }) => {
 
       // Get Meilisearch Index settings from model
       const settings = config.getSettings({ contentType })
-      await client.index(indexUid).updateSettings(settings)
+      const task = await client.index(indexUid).updateSettings(settings)
+
+      strapi.log.info(
+        `Create task to add the settings of index "${indexUid}" to Meilisearch (Task uid: ${task.taskUid})`
+      )
 
       // Callback function for batching action
       const addDocuments = async ({ entries, contentType }) => {
@@ -278,9 +297,13 @@ module.exports = ({ strapi, adapter, config }) => {
         })
 
         // Add documents in Meilisearch
-        const task = await client.index(indexUid).addDocuments(documents)
+        const { taskUid } = await client.index(indexUid).addDocuments(documents)
 
-        return task.taskUid
+        strapi.log.info(
+          `Create task to add ${documents.length} documents in the index "${indexUid}" to Meilisearch (Task uid: ${taskUid})`
+        )
+
+        return taskUid
       }
 
       const tasksUids = await contentTypeService.actionInBatches({
@@ -352,7 +375,11 @@ module.exports = ({ strapi, adapter, config }) => {
         const client = Meilisearch({ apiKey, host })
 
         const indexUid = config.getIndexNameOfContentType({ contentType })
-        await client.index(indexUid).delete()
+        const { taskUid } = await client.index(indexUid).delete()
+
+        strapi.log.info(
+          `Create task to  delete the index "${indexUid}" in Meilisearch (Task uid: ${taskUid})`
+        )
       }
 
       await store.removeIndexedContentType({ contentType })
