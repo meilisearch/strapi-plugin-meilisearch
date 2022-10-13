@@ -444,7 +444,7 @@ Complete installation requirements are the same as for Strapi itself and can be 
 
 **Supported Meilisearch versions**:
 
-This package only guarantees the compatibility with the [version v0.29.1 of Meilisearch](https://github.com/meilisearch/meilisearch/releases/tag/v0.26.0).
+This package only guarantees the compatibility with the [version v0.29.0 of Meilisearch](https://github.com/meilisearch/meilisearch/releases/tag/v0.29.0).
 
 **Node / NPM versions**:
 
