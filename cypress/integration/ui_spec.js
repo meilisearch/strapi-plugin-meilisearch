@@ -12,8 +12,9 @@ const wrongApiKey = 'wrongApiKey'
 const removeCollectionsFromMeiliSearch = async () => {
   const client = new MeiliSearch({ apiKey, host })
   const collections = ['restaurant', 'category', 'project', 'reviews']
-  const indexes = await client.getIndexes()
-  const allUids = indexes.map(index => index.uid)
+  const { results } = await client.getIndexes()
+
+  const allUids = results.map(index => index.uid)
   const collectionInMs = collections.filter(col => allUids.includes(col))
   for (const index of collectionInMs) {
     await client.deleteIndex(index)

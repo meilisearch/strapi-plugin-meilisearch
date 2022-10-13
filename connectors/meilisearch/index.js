@@ -67,57 +67,16 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
     },
 
     /**
-     * Wait for an task to be processed in Meilisearch.
-     *
-     * @param  {string} collection - Collection name.
-     * @param  {number} taskUid - Task identifier.
-     *
-     * @returns {{Record<string, string>}} - Task body returned by Meilisearch API.
-     */
-    waitForTask: async function ({ collection, taskUid }) {
-      try {
-        const client = MeiliSearch({ apiKey, host })
-        const indexUid = collectionConnector.getIndexName(collection)
-        const task = await client
-          .index(indexUid)
-          .waitForTask(taskUid, { intervalMs: 5000 })
-
-        return task
-      } catch (e) {
-        console.error(e)
-        return 0
-      }
-    },
-
-    /**
-     * Wait for a batch of tasks uids to be processed.
-     *
-     * @param  {string} collection - Collection name.
-     * @param  {number[]} taskUids - Array of tasks identifiers.
-     *
-     * @returns { Record<string, string>[] } - List of all tasks returned by Meilisearch API.
-     */
-    waitForTasks: async function ({ collection, taskUids }) {
-      const tasks = []
-      for (const taskUid of taskUids) {
-        const status = await this.waitForTask({
-          collection,
-          taskUid,
-        })
-        tasks.push(status)
-      }
-      return tasks
-    },
-
-    /**
      * Get indexes with a safe guard in case of error.
      *
-     * @returns { string[] }
+     * @returns { Promise<Record<string, any>[]> }
      */
     getIndexes: async function () {
       try {
         const client = MeiliSearch({ apiKey, host })
-        return await client.getIndexes()
+
+        const { results } = await client.getIndexes()
+        return results
       } catch (e) {
         console.error(e)
         return []
@@ -138,32 +97,6 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
       } catch (e) {
         return {}
       }
-    },
-
-    /**
-     * Get enqueued tasks ids of indexed collections.
-     *
-     * @returns { { string: number[] } } - Collections with their respective task uids
-     */
-    getTaskUids: async function () {
-      const indexes = await this.getIndexes()
-      const indexUids = indexes.map(index => index.uid)
-      const collections = collectionConnector.allEligbleCollections()
-      const client = MeiliSearch({ apiKey, host })
-
-      const collectionTaskUids = {}
-      for (const collection of collections) {
-        const indexUid = collectionConnector.getIndexName(collection)
-        if (indexUids.includes(indexUid)) {
-          const { results: tasks } = await client.index(indexUid).getTasks()
-
-          const enqueueded = tasks
-            .filter(task => task.status === 'enqueued')
-            .map(task => task.uid)
-          collectionTaskUids[collection] = enqueueded
-        }
-      }
-      return collectionTaskUids
     },
 
     /**
@@ -272,7 +205,7 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
       const addDocuments = async (entries, collection) => {
         if (entries.length === 0) {
           const task = await client.createIndex(indexUid)
-          return task.uid
+          return task.taskUid
         }
         let transformedEntries = collectionConnector.transformEntries({
           collection,
@@ -286,14 +219,13 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
         // Add documents in Meilisearch
         const task = await client.index(indexUid).addDocuments(documents)
 
-        return task.uid
+        return task.taskUid
       }
 
       const tasksUids = await collectionConnector.actionInBatches(
         collection,
         addDocuments
       )
-      console.log(tasksUids)
       await storeConnector.addIndexedCollection(collection)
 
       return tasksUids
@@ -380,14 +312,14 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
     /**
      * Get list of index uids in Meilisearch instance.
      *
-     * @returns {number[]} - Index uids
+     * @returns {Promise<number[]>} - Index uids
      */
     getCollectionsIndexedInMeiliSearch: async function (collections) {
-      const client = MeiliSearch({ apiKey, host })
-      let indexes = await client.getIndexes()
-      indexes = indexes.map(index => index.uid)
+      const indexes = await this.getIndexes()
+      const indexUids = indexes.map(index => index.uid)
+
       return collections.filter(collection =>
-        indexes.includes(collectionConnector.getIndexName(collection))
+        indexUids.includes(collectionConnector.getIndexName(collection))
       )
     },
   }

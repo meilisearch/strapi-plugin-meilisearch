@@ -34,22 +34,6 @@
     },
     {
       "method": "POST",
-      "path": "/collection/:collection/tasks/batch",
-      "handler": "meilisearch.waitForTasks",
-      "config": {
-        "policies": ["isAdmin"]
-      }
-    },
-    {
-      "method": "GET",
-      "path": "/collection/tasks",
-      "handler": "meilisearch.getTaskUids",
-      "config": {
-        "policies": ["isAdmin"]
-      }
-    },
-    {
-      "method": "POST",
       "path": "/collections/:collection",
       "handler": "meilisearch.addCollection",
       "config": {

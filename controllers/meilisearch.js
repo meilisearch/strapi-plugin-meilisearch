@@ -130,37 +130,9 @@ async function addCollection(ctx) {
   const connector = await createConnector()
   const { collection } = ctx.params
   const taskUids = await connector.addCollectionInMeiliSearch(collection)
+  console.log({ taskUids })
+
   return { message: 'Index created', taskUids }
-}
-
-/**
- * Wait for one collection to be completely indexed in Meilisearch.
- *
- * @param  {object} ctx - Http request object.
- *
- * @returns { numberOfDocumentsIndexed: number }
- */
-async function waitForTasks(ctx) {
-  const connector = await createConnector()
-  const { collection } = ctx.params
-  const { taskUids } = ctx.request.body
-  const tasksStatus = await connector.waitForTasks({
-    taskUids,
-    collection,
-  })
-  return { tasksStatus }
-}
-
-/**
- * Wait for one collection to be completely indexed in Meilisearch.
- *
- * @returns { taskUids: number[] }
- */
-async function getTaskUids() {
-  const connector = await createConnector()
-  const taskUids = await connector.getTaskUids()
-
-  return { taskUids }
 }
 
 /**
@@ -180,7 +152,5 @@ module.exports = {
   addCredentials: async ctx => ctxWrapper(ctx, addCredentials),
   removeCollection: async ctx => ctxWrapper(ctx, removeCollection),
   updateCollections: async ctx => ctxWrapper(ctx, updateCollections),
-  waitForTasks: async ctx => ctxWrapper(ctx, waitForTasks),
-  getTaskUids: async ctx => ctxWrapper(ctx, getTaskUids),
   reload: async ctx => ctxWrapper(ctx, reload),
 }
