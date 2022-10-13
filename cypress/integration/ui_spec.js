@@ -13,8 +13,8 @@ const removeCollectionsFromMeiliSearch = async () => {
   const client = new MeiliSearch({ apiKey, host })
   const collections = ['restaurant', 'category', 'project', 'reviews']
   const { results } = await client.getIndexes()
-  const indexes = results || []
-  const allUids = indexes.map(index => index.uid)
+
+  const allUids = results.map(index => index.uid)
   const collectionInMs = collections.filter(col => allUids.includes(col))
   for (const index of collectionInMs) {
     await client.deleteIndex(index)
