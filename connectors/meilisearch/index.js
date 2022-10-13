@@ -67,30 +67,6 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
     },
 
     /**
-     * Wait for an task to be processed in Meilisearch.
-     *
-     * @param  {string} collection - Collection name.
-     * @param  {number} taskUid - Task identifier.
-     *
-     * @returns {{Record<string, string>}} - Task body returned by Meilisearch API.
-     */
-    waitForTask: async function ({ collection, taskUid }) {
-      try {
-        console.log({ collection, taskUid })
-
-        const client = MeiliSearch({ apiKey, host })
-        const indexUid = collectionConnector.getIndexName(collection)
-        const task = await client
-          .index(indexUid)
-          .waitForTask(taskUid, { intervalMs: 5000 })
-
-        return task
-      } catch (e) {
-        console.error(e)
-        return 0
-      }
-    },
-    /**
      * Get indexes with a safe guard in case of error.
      *
      * @returns { Promise<Record<string, any>[]> }

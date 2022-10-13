@@ -114,8 +114,7 @@ const Collections = ({ updateCredentials }) => {
     else {
       const isIndexing = collections.find(col => col.isIndexing === true)
 
-      if (!isIndexing) setRealTimeReports(false)
-      else setRealTimeReports(true)
+      setRealTimeReports(isIndexing)
 
       // Transform collections information to verbose string.
       const renderedCols = collections.map(col => transformCollections(col))
