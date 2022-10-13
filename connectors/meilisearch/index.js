@@ -74,7 +74,11 @@ module.exports = async ({ storeConnector, collectionConnector }) => {
     getIndexes: async function () {
       try {
         const client = MeiliSearch({ apiKey, host })
+        const version = await client.getVersion()
+        console.log({ version })
+
         const indexes = await client.getIndexes()
+        console.log({ indexes })
         return indexes.results || []
       } catch (e) {
         console.error(e)
