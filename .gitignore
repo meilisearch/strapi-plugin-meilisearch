@@ -126,3 +126,5 @@ cypress/screenshots
 cypress/videos
 cypress/plugins
 cypress/fixtures
+
+.tmp
