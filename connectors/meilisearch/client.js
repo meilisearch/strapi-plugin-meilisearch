@@ -1,5 +1,6 @@
 'use strict'
 const { MeiliSearch } = require('meilisearch')
+const packageJson = require('../../package.json')
 
 /**
  * Custom Meilisearch Error class more suited to Strapi environment.
@@ -35,7 +36,10 @@ class MeiliSearchError extends Error {
  */
 module.exports = config => {
   try {
-    return new MeiliSearch(config)
+    return new MeiliSearch({
+      ...config,
+      clientAgents: [`Meilisearch Strapi ${packageJson.version}`],
+    })
   } catch (e) {
     console.error(e)
     throw new MeiliSearchError({

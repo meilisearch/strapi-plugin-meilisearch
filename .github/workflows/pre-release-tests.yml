@@ -14,7 +14,7 @@ jobs:
     strategy:
       matrix:
         # Strapi is not yet compatible with node 16
-        node: ["12", "14"]
+        node: ['12', '14']
     name: integration-tests (Node.js ${{ matrix.node }})
     steps:
       - uses: actions/checkout@v2
@@ -37,7 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: ["12", "14"]
+        node: ['12', '14']
     name: playground-build (Node.js ${{ matrix.node }})
     steps:
       - uses: actions/checkout@v2
@@ -64,7 +64,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v2
         with:
-          node-version: "12.x"
+          node-version: '14.x'
       - name: Cache dependencies
         uses: actions/cache@v2
         with:
@@ -94,7 +94,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v2
         with:
-          node-version: "12.x"
+          node-version: '14.x'
       - name: Cache dependencies
         uses: actions/cache@v2
         with:
@@ -110,7 +110,7 @@ jobs:
           chmod +x meilisearch
       - name: Run Meilisearch
         run: |
-          ./meilisearch --master-key=masterKey --no-analytics &
+          meilisearch --master-key=masterKey --no-analytics &
       - name: Install dependencies
         run: yarn --dev && yarn --cwd ./playground
       - name: Remove plugin symlink

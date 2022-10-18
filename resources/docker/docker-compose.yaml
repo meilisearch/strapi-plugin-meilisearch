@@ -8,7 +8,6 @@ services:
       - meilisearch
   meilisearch:
     image: getmeili/meilisearch
-    command: ./meilisearch
     volumes:
       - ../meilisearch/data.ms:/data.ms
     ports:
