@@ -2,7 +2,7 @@ name: publish to npm
 on:
   push:
     tags:
-      - v0.*.*-strapi-v3
+      - v*.*.*-strapi-v3.*
 
 jobs:
   publish-npm:

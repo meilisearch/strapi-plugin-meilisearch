@@ -125,17 +125,17 @@ _[Read more about this](https://github.com/meilisearch/integration-guides/blob/m
 Make a PR modifying the file [`package.json`](/package.json) with the right version.
 
 ```javascript
-"version": "X.X.X-v3-strapi.x",
+"version": "X.X.X-strapi-v3.X",
 ```
 
-Once the changes are merged on `v3_main`, you can publish the current draft release via the [GitHub interface](https://github.com/meilisearch/strapi-plugin-meilisearch/releases): on this page:
-- The title should be `X.X.X-v3-strapi.x`, same as in `package.json` prefixed by a `v`
-- The tag should have the same name as the title.
-- click on `Edit` (related to the draft release) and update the description (be sure you apply [these recommandations](https://github.com/meilisearch/integration-guides/blob/main/resources/integration-release.md#writting-the-release-description))
-- Point the release to the `v3_main` branch and not `main`
+Once the changes are merged on `v3_main`, create a release via the [GitHub interface](https://github.com/meilisearch/strapi-plugin-meilisearch/releases):
+- The title should be `vX.X.X-strapi-v3.X`, same as in `package.json` prefixed by a `v`.
+- The new tag should have the same name as the title.
+- click on `Edit` (related to the draft release) and update the description (be sure you apply [these recommandations](https://github.com/meilisearch/integration-guides/blob/main/resources/integration-release.md#writting-the-release-description)).
+- ⚠️ Point the release to the `v3_main` branch and not `main`.
 - When you are ready, click on `Publish release`.
 
-GitHub Actions will be triggered and push the package to [npm](https://www.npmjs.com/package/strapi-plugin-meilisearch).
+GitHub Actions will be triggered and push the package to [npm](https://www.npmjs.com/package/strapi-plugin-meilisearch) on the `strapi_v3` tag.
 
 <hr>
 
