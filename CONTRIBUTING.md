@@ -73,7 +73,7 @@ yarn playground:dev
 
 This command will install required dependencies and launch the app in development mode. You should be able to reach it on the [port 8000 of your localhost](http://localhost:8000/admin/).
 
-Once on the admin panel, you are required to log-in. Here are the credentials: 
+Once on the admin panel, you are required to log-in. Here are the credentials:
 - email: `jolene@doe.com`
 - password: `Qwertyuiop1`
 

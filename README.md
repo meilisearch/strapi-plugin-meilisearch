@@ -2,7 +2,7 @@
   <img src="https://raw.githubusercontent.com/meilisearch/integration-guides/main/assets/logos/meilisearch_strapi.svg" alt="Meilisearch-Strapi" width="200" height="200" />
 </p>
 
-<h1 align="center">Meilisearch Strapi Plugin</h1>
+<h1 align="center">Meilisearch Strapi Plugin v3</h1>
 
 <h4 align="center">
   <a href="https://github.com/meilisearch/meilisearch">Meilisearch</a> |
@@ -440,7 +440,9 @@ Complete installation requirements are the same as for Strapi itself and can be 
 
 - Strapi `>=v3.6.x <v4.x.x`
 
-(This plugin **may work** with the older Strapi versions, but these are not tested nor officially supported at this time.)
+This plugin **may work** with the older Strapi versions, but these are not tested nor officially supported at this time.
+
+⚠️ We do not longer fix bugs on the v3 compatible plugin, unless critical. Nonetheless, we update it to work with the [latest version](https://github.com/meilisearch/meilisearch/releases) of Meilisearch.
 
 **Supported Meilisearch versions**:
 
