@@ -1,6 +1,6 @@
 {
   "name": "strapi-plugin-meilisearch",
-  "version": "0.6.0-strapi-v3",
+  "version": "0.6.0-strapi-v3.0",
   "description": "Synchronise and search in your Strapi v3.x.x collections with Meilisearch",
   "scripts": {
     "style": "eslint --ext .js .",
