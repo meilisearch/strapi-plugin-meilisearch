@@ -131,7 +131,7 @@ Make a PR modifying the file [`package.json`](/package.json) with the right vers
 Once the changes are merged on `v3_main`, create a release via the [GitHub interface](https://github.com/meilisearch/strapi-plugin-meilisearch/releases):
 - The title should be `vX.X.X-strapi-v3.X`, same as in `package.json` prefixed by a `v`.
 - The new tag should have the same name as the title.
-- click on `Edit` (related to the draft release) and update the description (be sure you apply [these recommandations](https://github.com/meilisearch/integration-guides/blob/main/resources/integration-release.md#writting-the-release-description)).
+- Click on `Edit` (related to the draft release) and update the description (be sure you apply [these recommendations](https://github.com/meilisearch/integration-guides/blob/main/resources/integration-release.md#writting-the-release-description)).
 - ⚠️ Point the release to the `v3_main` branch and not `main`.
 - When you are ready, click on `Publish release`.
 
