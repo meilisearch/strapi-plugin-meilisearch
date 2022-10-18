@@ -73,7 +73,7 @@ yarn playground:dev
 
 This command will install required dependencies and launch the app in development mode. You should be able to reach it on the [port 8000 of your localhost](http://localhost:8000/admin/).
 
-Once on the admin panel, you are required to log-in. Here are the credentials: 
+Once on the admin panel, you are required to log-in. Here are the credentials:
 - email: `jolene@doe.com`
 - password: `Qwertyuiop1`
 
@@ -125,10 +125,15 @@ _[Read more about this](https://github.com/meilisearch/integration-guides/blob/m
 Make a PR modifying the file [`package.json`](/package.json) with the right version.
 
 ```javascript
-"version": "X.X.X",
+"version": "X.X.X-v3-strapi.x",
 ```
 
-Once the changes are merged on `main`, you can publish the current draft release via the [GitHub interface](https://github.com/meilisearch/strapi-plugin-meilisearch/releases): on this page, click on `Edit` (related to the draft release) > update the description (be sure you apply [these recommandations](https://github.com/meilisearch/integration-guides/blob/main/resources/integration-release.md#writting-the-release-description)) > when you are ready, click on `Publish release`.
+Once the changes are merged on `v3_main`, you can publish the current draft release via the [GitHub interface](https://github.com/meilisearch/strapi-plugin-meilisearch/releases): on this page:
+- The title should be `X.X.X-v3-strapi.x`, same as in `package.json` prefixed by a `v`
+- The tag should have the same name as the title.
+- click on `Edit` (related to the draft release) and update the description (be sure you apply [these recommandations](https://github.com/meilisearch/integration-guides/blob/main/resources/integration-release.md#writting-the-release-description))
+- Point the release to the `v3_main` branch and not `main`
+- When you are ready, click on `Publish release`.
 
 GitHub Actions will be triggered and push the package to [npm](https://www.npmjs.com/package/strapi-plugin-meilisearch).
 
