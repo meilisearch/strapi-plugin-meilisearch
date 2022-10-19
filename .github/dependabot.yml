@@ -1,13 +1,13 @@
 version: 2
 updates:
-- package-ecosystem: "github-actions"
-  directory: "/"
-  schedule:
-    interval: "monthly"
-  labels:
-    - 'skip changelog'
-    - 'dependencies'
-  rebase-strategy: disabled
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    labels:
+      - 'skip changelog'
+      - 'dependencies'
+    rebase-strategy: disabled
 
   - package-ecosystem: npm
     directory: "/"
@@ -26,6 +26,7 @@ updates:
       - dependency-name: "*cypress*"
       - dependency-name: "*prettier*"
       - dependency-name: "*concurrently*"
+
   - package-ecosystem: npm
     directory: "/playground/"
     schedule:
