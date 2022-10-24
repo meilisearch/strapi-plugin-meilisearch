@@ -37,14 +37,14 @@ const sanitizeEntries = async function ({
     entries,
   })
 
+  // Remove nested
+  entries = await config.removeSensitiveFields({ entries })
+
   // Apply transformEntry plugin config.
   entries = await config.transformEntries({
     contentType,
     entries,
   })
-
-  // Remove nested
-  entries = await config.removeSensitiveFields({ entries })
 
   // Add content-type prefix to id
   entries = await adapter.addCollectionNamePrefix({
