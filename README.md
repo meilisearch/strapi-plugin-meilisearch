@@ -47,7 +47,7 @@ To understand Strapi and how to create an app, see [Strapi's documentation](http
 
 ## 🔧 Installation
 
-This package version works with the [v4 of Strapi](https://github.com/strapi/strapi/tree/v4.1.3). If you are using [Strapi v3](https://github.com/strapi/strapi/tree/v3.6.9), please refer to [this README](https://github.com/meilisearch/strapi-plugin-meilisearch/tree/v0.5.1).
+This package version works with the [v4 of Strapi](https://github.com/strapi/strapi/tree/v4.1.3). If you are using [Strapi v3](https://github.com/strapi/strapi/tree/v3.6.9), please refer to [this README](https://github.com/meilisearch/strapi-plugin-meilisearch/tree/v0.6.0-strapi-v3.0).
 
 Inside your Strapi app, add the package:
 
