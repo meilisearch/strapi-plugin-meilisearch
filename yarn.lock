@@ -594,10 +594,10 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
-"@strapi/utils@^4.4.5":
-  version "4.4.5"
-  resolved "https://registry.yarnpkg.com/@strapi/utils/-/utils-4.4.5.tgz#3ca8f7c49b9f96a72f12011e63206886db4819e0"
-  integrity sha512-JloHkrDJgn0ddIwI3HSMFxgDe/fD6m+khq8XIrN8ixOxJSYS5jlWysGQleSdbjzp4s3ADHIL+ovAeBuIiwd3Rw==
+"@strapi/utils@^4.5.0":
+  version "4.5.0"
+  resolved "https://registry.yarnpkg.com/@strapi/utils/-/utils-4.5.0.tgz#57c264ebaa90b2fb800028fc5b90d2e3acb1cd5a"
+  integrity sha512-COG9Qt2g8XDK1uByhkuLOZWUr494RG5FJt44pTY0xh/LnAIZm6tzAyEYFMnx02SnpxIBwS02MeZksx6nvkNiGw==
   dependencies:
     "@sindresorhus/slugify" "1.1.0"
     date-fns "2.29.2"
