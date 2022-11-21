@@ -3,8 +3,10 @@ module.exports = {
   meilisearch: {
     config: {
       restaurant: {
-        locale: 'all',
-      },
+        entriesQuery: {
+          locale: 'all',
+        },
+      }
     },
   },
 }
