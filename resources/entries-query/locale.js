@@ -6,7 +6,7 @@ module.exports = {
         entriesQuery: {
           locale: 'all',
         },
-      }
+      },
     },
   },
 }
