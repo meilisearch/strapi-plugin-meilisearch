@@ -215,7 +215,7 @@ module.exports = ({ strapi }) => {
       if (entriesQuery.publicationState === 'preview') {
         return entries
       } else {
-        return entries.filter(entry => !(entry.publishedAt === null))
+        return entries.filter(entry => !(entry?.publishedAt === null))
       }
     },
 
