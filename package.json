@@ -1,6 +1,6 @@
 {
   "name": "strapi-plugin-meilisearch",
-  "version": "0.8.1",
+  "version": "0.8.2",
   "description": "Synchronise and search in your Strapi content-types with Meilisearch",
   "scripts": {
     "playground:dev": "yarn --cwd ./playground && yarn --cwd ./playground dev",
