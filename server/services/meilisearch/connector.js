@@ -130,7 +130,9 @@ module.exports = ({ strapi, adapter, config }) => {
             })
           )
         } else {
-          return client.index(indexUid).updateDocuments(sanitized)
+          return client
+            .index(indexUid)
+            .updateDocuments(sanitized, { primaryKey: '_meilisearch_id' })
         }
       })
     },
