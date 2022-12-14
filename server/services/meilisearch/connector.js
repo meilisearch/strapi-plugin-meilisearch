@@ -251,7 +251,9 @@ module.exports = ({ strapi, adapter, config }) => {
         adapter,
       })
 
-      const task = await client.index(indexUid).addDocuments(documents, { primaryKey: "_meilisearch_id" })
+      const task = await client
+        .index(indexUid)
+        .addDocuments(documents, { primaryKey: '_meilisearch_id' })
       await store.addIndexedContentType({ contentType })
 
       return task
@@ -285,7 +287,9 @@ module.exports = ({ strapi, adapter, config }) => {
         })
 
         // Add documents in Meilisearch
-        const task = await client.index(indexUid).addDocuments(documents, { primaryKey: "_meilisearch_id" })
+        const task = await client
+          .index(indexUid)
+          .addDocuments(documents, { primaryKey: '_meilisearch_id' })
 
         return task.taskUid
       }
