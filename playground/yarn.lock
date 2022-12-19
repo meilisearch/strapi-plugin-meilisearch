@@ -1974,10 +1974,21 @@
     prettier "2.7.1"
     typescript "4.6.2"
 
-"@strapi/utils@4.5.2", "@strapi/utils@^4.4.3":
+"@strapi/utils@4.5.2":
   version "4.5.2"
   resolved "https://registry.yarnpkg.com/@strapi/utils/-/utils-4.5.2.tgz#dca0ae17db94943de6e226e63647e03e32f0f664"
   integrity sha512-KnaU6zlqUtJbqVCXR/OxRC7BYV5eMZkNcuKPbwQ+MWwuh/nMp5hs023CtArQzyM/rDMIWpv01Tdwg2rcZpcIoA==
+  dependencies:
+    "@sindresorhus/slugify" "1.1.0"
+    date-fns "2.29.2"
+    http-errors "1.8.1"
+    lodash "4.17.21"
+    yup "0.32.9"
+
+"@strapi/utils@^4.5.4":
+  version "4.5.4"
+  resolved "https://registry.yarnpkg.com/@strapi/utils/-/utils-4.5.4.tgz#f601fb0d1feee8882a91eb90265137ce0614fa63"
+  integrity sha512-LtARhACDp//kJ5My+oQeuFYOCdtxP8BMwVHlqEf1jdT6GnAbqNNCrN85nevZ1mJuZ5BCkQjlwb1wWLGn2GHdDQ==
   dependencies:
     "@sindresorhus/slugify" "1.1.0"
     date-fns "2.29.2"
