@@ -12,7 +12,8 @@ module.exports = {
 
 // The following document structure is indexed in Meilisearch
 // {
-//   id: 'restaurant-1',
+//   id: '1',
+//   _meilisearch_id: 'restaurant-1',
 //   title: 'The slimmy snail',
 //   // ... other restaurant fields
 //   repeatableComponent: [
