@@ -175,6 +175,9 @@ function CollectionConfig({ collectionName, configuration }) {
     filterEntry,
     settings,
     entriesQuery,
+    afterUpdateMany,
+    afterUpdate,
+    afterDelete,
     ...unknownFields
   } = configuration
   const options = {}
@@ -211,7 +214,50 @@ function CollectionConfig({ collectionName, configuration }) {
 
       return this
     },
+    validateAfterUpdateMany() {
+      // afterUpdateMany.getEntriesQueryOptions is either undefined or a function
+      if (
+        afterUpdateMany?.getEntriesQueryOptions !== undefined &&
+        typeof afterUpdateMany.getEntriesQueryOptions !== 'function'
+      ) {
+        log.error(
+          `The "afterUpdateMany.getEntriesQueryOptions" option of "${collectionName}" should be a function`
+        )
+      } else if (afterUpdateMany?.getEntriesQueryOptions !== undefined) {
+        options.afterUpdateMany = afterUpdateMany
+      }
 
+      return this
+    },
+    validateAfterUpdate() {
+      // afterUpdate.getEntryQueryOptions is either undefined or a function
+      if (
+        afterUpdate?.getEntryQueryOptions !== undefined &&
+        typeof afterUpdate.getEntryQueryOptions !== 'function'
+      ) {
+        log.error(
+          `The "afterUpdate.getEntryQueryOptions" option of "${collectionName}" should be a function`
+        )
+      } else if (afterUpdate?.getEntryQueryOptions !== undefined) {
+        options.afterUpdate = afterUpdate
+      }
+      return this
+    },
+    validateAfterDelete() {
+      // afterUpdate.deleteEntriesFromMeiliSearchOptions is either undefined or a function
+      if (
+        afterDelete?.deleteEntriesFromMeiliSearchOptions !== undefined &&
+        typeof afterDelete.deleteEntriesFromMeiliSearchOptions !== 'function'
+      ) {
+        log.error(
+          `The "afterUpdate.deleteEntriesFromMeiliSearchOptions" option of "${collectionName}" should be a function`
+        )
+      } else if (afterDelete?.deleteEntriesFromMeiliSearchOptions !== undefined) {
+        options.afterDelete = afterDelete
+      }
+    
+      return this
+    },
     validateFilterEntry() {
       // filterEntry is either undefined or a function
       if (filterEntry !== undefined && typeof filterEntry !== 'function') {
@@ -322,6 +368,9 @@ function PluginConfig({ configuration }) {
             .validateIndexName()
             .validateFilterEntry()
             .validateTransformEntry()
+            .validateAfterUpdate()
+            .validateAfterUpdateMany()
+            .validateAfterDelete()
             .validateMeilisearchSettings()
             .validateNoInvalidKeys()
             .validateEntriesQuery()

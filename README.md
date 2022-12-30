@@ -31,8 +31,17 @@ Add your Strapi content-types into a Meilisearch instance. The plugin listens to
 
 - [📖 Documentation](#-documentation)
 - [🔧 Installation](#-installation)
+  - [Run Both with Docker](#run-both-with-docker)
 - [🎬 Getting Started](#-getting-started)
+    - [Using the plugin page](#using-the-plugin-page)
+    - [Using a config file](#using-a-config-file)
 - [💅 Customization](#-customization)
+  - [🏷 Custom index name](#-custom-index-name)
+  - [🪄 Transform entries](#-transform-entries)
+  - [🤚 Filter entries](#-filter-entries)
+  - [🏗 Add Meilisearch settings](#-add-meilisearch-settings)
+  - [🔎 Entries query](#-entries-query)
+  - [🔀 Lifecycle hooks queries](#-lifecycle-hooks-queries)
 - [💡 Run the Playground](#-run-the-playground)
 - [🤖 Compatibility with Meilisearch and Strapi](#-compatibility-with-meilisearch-and-strapi)
 - [⚙️ Development Workflow and Contributing](#️-development-workflow-and-contributing)
@@ -203,6 +212,7 @@ Settings:
 - [🤚 Filter entries](#-filter-entries)
 - [🏗 Add Meilisearch settings](#-add-meilisearch-settings)
 - [🔎 Entries query](#🔎-entries-query)
+- [🔀 Lifecycle hooks queries](#🔀-lifecycle-hooks-queries)
 
 ### 🏷 Custom index name
 
@@ -400,6 +410,143 @@ module.exports = {
 
 [See resources](./resources/entries-query) for more entriesQuery examples.
 
+### 🔀 Lifecycle hooks queries
+
+⚠️ __This is an advanced feature. You should only use it if you know what you are doing.__
+
+When entries are added, updated or deleted, the plugin has to fetch the documents from your database to update them in Meilisearch accordingly. You can further customize the query options used to fetch the documents during these operations as follows:
+
+<u>__afterCreate__</u>
+
+**For example**
+
+Let's say you want to get a different entry with a different content-type and id when a new entry is created. You can do it with the `afterCreate` option.
+
+```js
+// config/plugins.js
+module.exports = {
+  meilisearch: {
+    config: {
+      restaurant: {
+        afterCreate: {
+          getEntryQueryOptions({ contentType, id, entriesQuery }) {
+            // possible return values
+
+            // contentType
+            // id
+            // entriesQuery = { populate, fields }
+            return {
+              contentType: 'other-content-type',
+              id: 'some-other-id'
+            }
+          }
+        }
+      }
+    }
+  },
+}
+```
+
+<u>__afterUpdate__</u>
+
+**For example**
+
+Let's say you want to update a different entry with a different content-type and id when a new entry is created. You can do it with the `afterUpdate` option.
+
+```js
+// config/plugins.js
+module.exports = {
+  meilisearch: {
+    config: {
+      restaurant: {
+        afterUpdate: {
+          getEntryQueryOptions({ contentType, id, entriesQuery }) {
+            // possible return values
+
+            // contentType
+            // id
+            // entriesQuery = { populate, fields }
+            return {
+              contentType: 'other-content-type',
+              id: 'some-other-id'
+            }
+          }
+        }
+      }
+    }
+  },
+}
+```
+<u>__afterUpdateMany__</u>
+
+**For example**
+
+Let's say you want get all entries that are not published and different than some id.
+
+```js
+// config/plugins.js
+module.exports = {
+  meilisearch: {
+    config: {
+      restaurant: {
+        afterUpdateMany: {
+          getEntriesQueryOptions({ contentType, start, filters, limit }) {
+            // possible return values
+
+            // contentType
+            // fields
+            // start
+            // limit
+            // filters
+            // sort
+            // populate
+            // publicationState
+            // locale
+            return {
+              filters: {
+                id: {
+                  $ne: 'some-id'
+                }
+              },
+              publicationState: 'preview',
+            }
+          }
+        }
+      },
+    }
+  }
+}
+```
+
+<u>__afterDelete__</u>
+
+**For example**
+
+Let's say you want get a different content type when an entry is deleted.
+
+```js
+// config/plugins.js
+module.exports = {
+  meilisearch: {
+    config: {
+      restaurant: {
+        afterDelete: {
+          deleteEntriesFromMeiliSearchOptions({ contentType, entriesId, filters }) {
+            // possible return values
+
+            // contentType
+            // entriesId
+            return {
+              contentType: 'other-content-type',
+              entriesId: ['some-other-id']
+            }
+          }
+        }
+      },
+    }
+  }
+}
+```
 
 ### 🕵️‍♀️ Start Searching <!-- omit in toc -->
 

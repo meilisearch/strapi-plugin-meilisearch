@@ -1,5 +1,6 @@
 module.exports = ({ strapi }) => {
   // const store = strapi.plugin('meilisearch').service('store')
+  const meilisearchConfig = strapi.config.get('plugin.meilisearch') || {}
   const contentTypeService = strapi.plugin('meilisearch').service('contentType')
   const store = strapi.plugin('meilisearch').service('store')
   return {
@@ -22,6 +23,18 @@ module.exports = ({ strapi }) => {
           const meilisearch = strapi
             .plugin('meilisearch')
             .service('meilisearch')
+          const collection = contentTypeService.getCollectionName({ contentType })
+          const contentTypeConfig = meilisearchConfig[collection] || {}
+
+          let queryOptions = { 
+            contentType: contentTypeUid,
+            id: result.id,
+            entriesQuery: meilisearch.entriesQuery({ contentType })
+          }
+
+          if(contentTypeConfig?.afterUpdate?.getEntryQueryOptions) {
+            queryOptions = contentTypeConfig.afterUpdate.getEntryQueryOptions(queryOptions)
+          }
 
           // Fetch complete entry instead of using result that is possibly
           // partial.
@@ -52,14 +65,22 @@ module.exports = ({ strapi }) => {
           const meilisearch = strapi
             .plugin('meilisearch')
             .service('meilisearch')
+          const collection = contentTypeService.getCollectionName({ contentType })
+          const contentTypeConfig = meilisearchConfig[collection] || {}
+
+          let queryOptions = { 
+            contentType: contentTypeUid,
+            id: result.id,
+            entriesQuery: meilisearch.entriesQuery({ contentType })
+          }
+
+          if(contentTypeConfig?.afterUpdate?.getEntryQueryOptions) {
+            queryOptions = {...queryOptions, ...contentTypeConfig.afterUpdate.getEntryQueryOptions(queryOptions)}
+          }
 
           // Fetch complete entry instead of using result that is possibly
           // partial.
-          const entry = await contentTypeService.getEntry({
-            contentType: contentTypeUid,
-            id: result.id,
-            entriesQuery: meilisearch.entriesQuery({ contentType }),
-          })
+          const entry = await contentTypeService.getEntry(queryOptions)
 
           meilisearch
             .updateEntriesInMeilisearch({
@@ -76,6 +97,8 @@ module.exports = ({ strapi }) => {
           const meilisearch = strapi
             .plugin('meilisearch')
             .service('meilisearch')
+          const collection = contentTypeService.getCollectionName({ contentType })
+          const contentTypeConfig = meilisearchConfig[collection] || {}
 
           const nbrEntries = await contentTypeService.numberOfEntries({
             contentType: contentTypeUid,
@@ -86,12 +109,18 @@ module.exports = ({ strapi }) => {
           const BATCH_SIZE = 500
 
           for (let pos = 0; pos < nbrEntries; pos += BATCH_SIZE) {
-            const batch = await contentTypeService.getEntries({
+            let queryOptions = {
               contentType: contentTypeUid,
-              filters: event.params.where,
               start: pos,
-              limit: BATCH_SIZE,
-            })
+              filters: event.params.where,
+              limit: BATCH_SIZE
+            }
+
+            if(contentTypeConfig?.afterUpdateMany?.getEntriesQueryOptions) {
+              queryOptions = {...queryOptions, ...contentTypeConfig.afterUpdateMany.getEntriesQueryOptions(queryOptions)}
+            }
+            strapi.log.info(JSON.stringify(queryOptions, null, 2))
+            const batch = await contentTypeService.getEntries(queryOptions)
             entries.push(...batch)
           }
 
@@ -111,7 +140,8 @@ module.exports = ({ strapi }) => {
           const meilisearch = strapi
             .plugin('meilisearch')
             .service('meilisearch')
-
+          const collection = contentTypeService.getCollectionName({ contentType })
+          const contentTypeConfig = meilisearchConfig[collection] || {}
           let entriesId = []
           // Different ways of accessing the id's depending on the number of entries being deleted
           // In case of multiple deletes:
@@ -124,11 +154,17 @@ module.exports = ({ strapi }) => {
           // In case there is only one entry being deleted
           else entriesId = [result.id]
 
+          let queryOptions = {
+            contentType: contentTypeUid,
+            entriesId: entriesId,
+          }
+
+          if(contentTypeConfig?.afterDelete?.deleteEntriesFromMeiliSearchOptions) {
+            queryOptions = {...queryOptions, ...contentTypeConfig.afterDelete.deleteEntriesFromMeiliSearchOptions({...queryOptions, filters: params?.where})}
+          }
+
           meilisearch
-            .deleteEntriesFromMeiliSearch({
-              contentType: contentTypeUid,
-              entriesId: entriesId,
-            })
+            .deleteEntriesFromMeiliSearch(queryOptions)
             .catch(e => {
               strapi.log.error(
                 `Meilisearch could not delete entry with id: ${result.id}: ${e.message}`
