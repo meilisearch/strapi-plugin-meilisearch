@@ -320,9 +320,9 @@ module.exports = ({ strapi, adapter, config }) => {
       const indexUid = config.getIndexNameOfContentType({ contentType })
 
       // Fetch contentTypes that has the same indexName as the provided contentType
-      const contentTypesWithSameIndex = await config.listContentTypesWithCustomIndexName(
-        { indexUid }
-      )
+      const contentTypesWithSameIndex = await config
+        .listContentTypesWithCustomIndexName({ indexName: indexUid })
+        .map(contentTypeName => `api::${contentTypeName}.${contentTypeName}`)
 
       // get all contentTypes (not indexes) indexed in Meilisearch.
       const indexedContentTypes = await store.getIndexedContentTypes()
@@ -349,7 +349,7 @@ module.exports = ({ strapi, adapter, config }) => {
         }
       )
       if (indexedContentTypesWithSameIndex.length > 1) {
-        const deleteEntries = async (entries, contentType) => {
+        const deleteEntries = async ({ entries, contentType }) => {
           await this.deleteEntriesFromMeiliSearch({
             contentType,
             entriesId: entries.map(entry => entry.id),
