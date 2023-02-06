@@ -446,7 +446,7 @@ This plugin **may work** with the older Strapi versions, but these are not teste
 
 **Supported Meilisearch versions**:
 
-This package only guarantees the compatibility with the [version v0.29.0 of Meilisearch](https://github.com/meilisearch/meilisearch/releases/tag/v0.29.0).
+This package only guarantees the compatibility with the [version v1.0.0 of Meilisearch](https://github.com/meilisearch/meilisearch/releases/tag/v1.0.0).
 
 **Node / NPM versions**:
 
