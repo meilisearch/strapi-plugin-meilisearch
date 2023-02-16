@@ -530,7 +530,7 @@ If you are using [Strapi v3](https://github.com/strapi/strapi/tree/v3.6.9), plea
 
 **Supported Meilisearch versions**:
 
-This package only guarantees the compatibility with the [version v1.0.0 of Meilisearch](https://github.com/meilisearch/meilisearch/releases/tag/v1.0.0).
+This package guarantees compatibility with [version v1.x of Meilisearch](https://github.com/meilisearch/meilisearch/releases/tag/latest), but some features may not be present. Please check the [issues](https://github.com/meilisearch/strapi-plugin-meilisearch/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22+label%3Aenhancement) for more info.
 
 **Node / NPM versions**:
 
