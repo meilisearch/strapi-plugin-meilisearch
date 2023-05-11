@@ -17,6 +17,10 @@
     "description": {
       "type": "string"
     },
+    "internal_notes": {
+      "type": "string",
+      "private": true
+    },
     "categories": {
       "type": "relation",
       "relation": "manyToMany",

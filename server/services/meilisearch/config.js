@@ -188,10 +188,16 @@ module.exports = ({ strapi }) => {
      *
      * @return {Array<Object>} - Entries
      */
-    removeSensitiveFields: function ({ entries }) {
+    removeSensitiveFields: function ({ contentType, entries }) {
+      // TODO: should be persisted somewhere to make it more performant
+      const attrs = strapi.contentTypes[contentType].attributes
+      const privateFields = Object.entries(attrs).map(([field, schema]) =>
+        schema.private ? field : false
+      )
+
       return entries.map(entry => {
-        delete entry.createdBy
-        delete entry.updatedBy
+        privateFields.forEach(attr => delete entry[attr])
+
         return entry
       })
     },

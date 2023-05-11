@@ -37,8 +37,11 @@ const sanitizeEntries = async function ({
     entries,
   })
 
-  // Remove nested
-  entries = await config.removeSensitiveFields({ entries })
+  // Remove sensitive fields (private = true)
+  entries = await config.removeSensitiveFields({
+    contentType,
+    entries,
+  })
 
   // Apply transformEntry plugin config.
   entries = await config.transformEntries({
