@@ -25,8 +25,8 @@
     "README.md"
   ],
   "dependencies": {
-    "@strapi/utils": "^4.5.4",
-    "meilisearch": "^0.30.0"
+    "@strapi/utils": "^4.10.5",
+    "meilisearch": "^0.32.3"
   },
   "peerDependencies": {},
   "author": {
