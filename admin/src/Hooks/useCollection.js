@@ -73,7 +73,7 @@ export function useCollection() {
       refetchCollection()
       handleNotification({
         type: 'success',
-        message: 'Request to delete content-type is succesfull',
+        message: 'Request to delete content-type is successful',
         blockTransition: false,
       })
     }
@@ -96,7 +96,7 @@ export function useCollection() {
       refetchCollection()
       handleNotification({
         type: 'success',
-        message: 'Request to add a content-type is succesfull',
+        message: 'Request to add a content-type is successful',
         blockTransition: false,
       })
     }
@@ -119,7 +119,7 @@ export function useCollection() {
       refetchCollection()
       handleNotification({
         type: 'success',
-        message: 'Request to update content-type is succesfull',
+        message: 'Request to update content-type is successful',
         blockTransition: false,
       })
     }

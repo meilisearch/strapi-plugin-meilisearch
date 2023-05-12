@@ -109,4 +109,63 @@ describe('Tests content types', () => {
       },
     })
   })
+
+  test('sanitizes the private fields from the entries', async () => {
+    const pluginMock = jest.fn(() => ({
+      // This rewrites only the needed methods to reach the system under test (removeSensitiveFields)
+      service: jest.fn().mockImplementation(() => {
+        return {
+          async actionInBatches({ contentType = 'restaurant', callback }) {
+            await callback({
+              entries: [
+                { id: 1, title: 'title', secret: '123' },
+                { id: 2, title: 'abc', secret: '234' },
+              ],
+              contentType,
+            })
+          },
+          getCollectionName: ({ contentType }) => contentType,
+          addIndexedContentType: jest.fn(),
+          subscribeContentType: jest.fn(),
+          getCredentials: () => ({}),
+        }
+      }),
+    }))
+
+    const service = createMeilisearchService({
+      strapi: {
+        plugin: pluginMock,
+        contentTypes: {
+          restaurant: {
+            attributes: {
+              id: { private: false },
+              title: { private: false },
+              secret: { private: true },
+            },
+          },
+        },
+        config: { get: jest.fn(() => ({ restaurant: jest.fn() })) },
+      },
+    })
+
+    await service.addContentTypeInMeiliSearch({ contentType: 'restaurant' })
+
+    expect(Meilisearch().index).toHaveBeenCalledWith('restaurant')
+    expect(Meilisearch().index().addDocuments).toHaveBeenNthCalledWith(
+      1,
+      [
+        {
+          _meilisearch_id: 'restaurant-1',
+          id: 1,
+          title: 'title',
+        },
+        {
+          _meilisearch_id: 'restaurant-2',
+          id: 2,
+          title: 'abc',
+        },
+      ],
+      { primaryKey: '_meilisearch_id' }
+    )
+  })
 })
