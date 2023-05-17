@@ -202,7 +202,7 @@ Settings:
 - [🪄 Transform entries](#-transform-entries)
 - [🤚 Filter entries](#-filter-entries)
 - [🏗 Add Meilisearch settings](#-add-meilisearch-settings)
-- [🔎 Entries query](#🔎-entries-query)
+- [🔎 Entries query](#-entries-query)
 
 ### 🏷 Custom index name
 
@@ -375,14 +375,18 @@ module.exports = {
 
 ### 🔎 Entries query
 
-When indexing a content type to Meilisearch, the plugin has to fetch the documents from your database. With `entriesQuery` it is possible to specify some options that should be applied during the fetching of the entries.
+When indexing a content type to Meilisearch, the plugin has to fetch the documents from your database. With `entriesQuery` it is possible to specify some options are applied during the fetching of the entries.
 The options you can set are described in the [`findMany` documentation](https://docs.strapi.io/developer-docs/latest/developer-resources/database-apis-reference/entity-service/crud.html#findmany) of Strapi. However, we do not accept any changes on the `start` parameter.
+
+**Common use cases**
 
 If you are using the [🌍 Internationalization (i18n)](https://docs.strapi.io/developer-docs/latest/plugins/i18n.html) plugin, an additional field `locale` can also be added in `entriesQuery`.
 
-**For example**
+If you want to add a collection with a relation to the collection being included, you have to configure the `populate` parameter in `entriesQuery`. See [the docs](https://docs.strapi.io/dev-docs/api/entity-service/populate) on how it works, and [an example](./resources/entries-query/populate.js) in our resources.
 
-For example, if you want your documents to be fetched in batches of `1000` you specify it in the `entriesQuery` option.
+**Example**
+
+If you want your documents to be fetched in batches of `1000` you specify it in the `entriesQuery` option.
 
 ```js
 module.exports = {
@@ -399,7 +403,6 @@ module.exports = {
 ```
 
 [See resources](./resources/entries-query) for more entriesQuery examples.
-
 
 ### 🕵️‍♀️ Start Searching <!-- omit in toc -->
 
