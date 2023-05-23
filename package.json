@@ -28,7 +28,9 @@
     "@strapi/utils": "^4.10.5",
     "meilisearch": "^0.32.3"
   },
-  "peerDependencies": {},
+  "peerDependencies": {
+     "@strapi/strapi": "^4.0.0"
+  },
   "author": {
     "name": "Charlotte Vermandel <charlotte@meilisearch.com>"
   },
