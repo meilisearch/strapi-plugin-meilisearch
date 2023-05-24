@@ -192,7 +192,9 @@ It is possible to add settings for every collection. Start by creating a sub-obj
 module.exports = () => ({
   //...
   meilisearch: {
-    restaurant: {}
+    config: {
+      restaurant: {}
+    }
   }
 })
 ```
