@@ -12,7 +12,7 @@
   "dependencies": {
     "@strapi/plugin-i18n": "^4.10.4",
     "@strapi/plugin-users-permissions": "^4.10.4",
-    "@strapi/strapi": "^4.10.4",
+    "@strapi/strapi": "^4.10.6",
     "@strapi/utils": "^4.10.4",
     "meilisearch": "^0.30.0",
     "sqlite3": "^5.1.4"
