@@ -1110,6 +1110,13 @@
   dependencies:
     regenerator-runtime "^0.13.11"
 
+"@babel/runtime@^7.21.0":
+  version "7.22.3"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.22.3.tgz#0a7fce51d43adbf0f7b517a71f4c3aaca92ebcbb"
+  integrity sha512-XsDuspWKLUsxwCp6r7EhsExHtYfbe5oAGQ19kqngTdCPUoPQzOPdUbD/pB9PJiwb2ptYKQDjSJT3R6dC+EPqfQ==
+  dependencies:
+    regenerator-runtime "^0.13.11"
+
 "@babel/template@^7.18.10":
   version "7.18.10"
   resolved "https://registry.yarnpkg.com/@babel/template/-/template-7.18.10.tgz#6f9134835970d1dbf0835c0d100c9f38de0c5e71"
@@ -2343,6 +2350,24 @@
     compute-scroll-into-view "^3.0.3"
     prop-types "^15.8.1"
 
+"@strapi/design-system@1.7.7":
+  version "1.7.7"
+  resolved "https://registry.yarnpkg.com/@strapi/design-system/-/design-system-1.7.7.tgz#7de809e4e9e964193e33c29fc01a2d81fbda3ae9"
+  integrity sha512-kN+hBXPvt6Bx0+jj4P95odrolY9VICxaZx0GdMSBc0MuIothhB5fKXr8q+aIIa9QcKmqSSc86w7XPg4XUVqmkw==
+  dependencies:
+    "@codemirror/lang-json" "^6.0.1"
+    "@floating-ui/react-dom" "^1.3.0"
+    "@internationalized/number" "^3.2.0"
+    "@radix-ui/react-dismissable-layer" "^1.0.3"
+    "@radix-ui/react-dropdown-menu" "^2.0.4"
+    "@radix-ui/react-focus-scope" "1.0.2"
+    "@strapi/ui-primitives" "^1.7.7"
+    "@uiw/react-codemirror" "^4.19.16"
+    aria-hidden "^1.2.3"
+    compute-scroll-into-view "^3.0.3"
+    prop-types "^15.8.1"
+    react-remove-scroll "^2.5.5"
+
 "@strapi/generate-new@4.10.4":
   version "4.10.4"
   resolved "https://registry.yarnpkg.com/@strapi/generate-new/-/generate-new-4.10.4.tgz#1edf0960c8cba2bc675a1f1a6da2966f31670ff8"
@@ -2391,10 +2416,31 @@
     react-intl "6.4.1"
     react-select "5.7.0"
 
+"@strapi/helper-plugin@4.10.6":
+  version "4.10.6"
+  resolved "https://registry.yarnpkg.com/@strapi/helper-plugin/-/helper-plugin-4.10.6.tgz#f1307d9a0e9be15c743a3e97a21fb8ea62cb18c5"
+  integrity sha512-YPwsYKjA2VSOHN+lS913L3VjJWX7m3Yl3P4gTYlq+hbGvPl2Gk9N0cShTx8+x/t9Y1A7M/jWS8jnJBR+AQ7htw==
+  dependencies:
+    axios "1.3.4"
+    date-fns "2.30.0"
+    formik "^2.2.6"
+    immer "9.0.19"
+    lodash "4.17.21"
+    prop-types "^15.7.2"
+    qs "6.11.1"
+    react-helmet "^6.1.0"
+    react-intl "6.4.1"
+    react-select "5.7.0"
+
 "@strapi/icons@1.7.3":
   version "1.7.3"
   resolved "https://registry.yarnpkg.com/@strapi/icons/-/icons-1.7.3.tgz#07777f026bb30b749f5179fa51a9fb3e75ede611"
   integrity sha512-iaVKEs6u8baYBOrjkXGJwvNV5vLQME5lf5y6iPpk2WyI+8JkPvCYiQ0DTGtNbrvxxV/VKcF3UDu/khs+vfyIDg==
+
+"@strapi/icons@1.7.7":
+  version "1.7.7"
+  resolved "https://registry.yarnpkg.com/@strapi/icons/-/icons-1.7.7.tgz#0256be564ca08b26ff12a3dade39d742de03e35c"
+  integrity sha512-ZMMbS6Kz6mtdfIEUz8VfWEEV1bw2IcAQvFDDxYRYdMr6zivmfRyRGKtIYBdhG2qMn3PhBD9VdVmCB9BIG0WEZw==
 
 "@strapi/logger@4.10.4":
   version "4.10.4"
@@ -2514,15 +2560,15 @@
     sharp "0.32.0"
     yup "^0.32.9"
 
-"@strapi/plugin-users-permissions@^4.10.4":
-  version "4.10.4"
-  resolved "https://registry.yarnpkg.com/@strapi/plugin-users-permissions/-/plugin-users-permissions-4.10.4.tgz#f93f6f2f8a5d5a724f428b1da04223aa1f36b4d4"
-  integrity sha512-dIhN0Moymf0W4X2XrOT5eyCJZEhA0WnYklNr8b0zk8ZeNHjNUDMqjPqUUaDOebzL/7JQFIeKTeJMcnK+IALrvQ==
+"@strapi/plugin-users-permissions@^4.10.6":
+  version "4.10.6"
+  resolved "https://registry.yarnpkg.com/@strapi/plugin-users-permissions/-/plugin-users-permissions-4.10.6.tgz#74eba3561afa46b004aaf7af4dc8e19f7f47d568"
+  integrity sha512-weejARhFpalU11U767zVyMV5SuUyEdu+Kjf9oeBKkxDQLZtwyzpuBf7wQ+5cKFndN35OTgnC8iq01SFHLVOjlA==
   dependencies:
-    "@strapi/design-system" "1.7.3"
-    "@strapi/helper-plugin" "4.10.4"
-    "@strapi/icons" "1.7.3"
-    "@strapi/utils" "4.10.4"
+    "@strapi/design-system" "1.7.7"
+    "@strapi/helper-plugin" "4.10.6"
+    "@strapi/icons" "1.7.7"
+    "@strapi/utils" "4.10.6"
     bcryptjs "2.4.3"
     formik "2.2.9"
     grant-koa "5.4.8"
@@ -2660,13 +2706,52 @@
     aria-hidden "^1.2.3"
     react-remove-scroll "^2.5.5"
 
-"@strapi/utils@4.10.4", "@strapi/utils@^4.10.4":
+"@strapi/ui-primitives@^1.7.7":
+  version "1.7.9"
+  resolved "https://registry.yarnpkg.com/@strapi/ui-primitives/-/ui-primitives-1.7.9.tgz#fbf93f24cb6b0a1e011fbefcbc8631d5a8366037"
+  integrity sha512-8zXzCU1MEx+f6V6zyp+Psa82gCFz/6/IzChH/r3GIoDO88Mblk/W43qe05Ts0Ss7PCurrwOc50wDJZnGpwcu5A==
+  dependencies:
+    "@radix-ui/number" "^1.0.0"
+    "@radix-ui/primitive" "^1.0.0"
+    "@radix-ui/react-collection" "1.0.2"
+    "@radix-ui/react-compose-refs" "^1.0.0"
+    "@radix-ui/react-context" "^1.0.0"
+    "@radix-ui/react-direction" "1.0.0"
+    "@radix-ui/react-dismissable-layer" "^1.0.3"
+    "@radix-ui/react-focus-guards" "1.0.0"
+    "@radix-ui/react-focus-scope" "1.0.2"
+    "@radix-ui/react-id" "^1.0.0"
+    "@radix-ui/react-popper" "^1.1.1"
+    "@radix-ui/react-portal" "^1.0.2"
+    "@radix-ui/react-primitive" "^1.0.2"
+    "@radix-ui/react-slot" "^1.0.1"
+    "@radix-ui/react-use-callback-ref" "^1.0.0"
+    "@radix-ui/react-use-controllable-state" "^1.0.0"
+    "@radix-ui/react-use-layout-effect" "1.0.0"
+    "@radix-ui/react-use-previous" "^1.0.0"
+    "@radix-ui/react-visually-hidden" "^1.0.2"
+    aria-hidden "^1.2.3"
+    react-remove-scroll "^2.5.5"
+
+"@strapi/utils@4.10.4":
   version "4.10.4"
   resolved "https://registry.yarnpkg.com/@strapi/utils/-/utils-4.10.4.tgz#a5f3dce55382854b103079e960e60f0db8289932"
   integrity sha512-g8R3f8kulHJ9uULyDPDuRBBSMPBcRreGHVrHfxw8L2HGh7xKZc2DuP3M+f8He8iSrAnrhtcbBCiyqcjF9gCbFw==
   dependencies:
     "@sindresorhus/slugify" "1.1.0"
     date-fns "2.29.3"
+    http-errors "1.8.1"
+    lodash "4.17.21"
+    p-map "4.0.0"
+    yup "0.32.9"
+
+"@strapi/utils@4.10.6", "@strapi/utils@^4.10.4":
+  version "4.10.6"
+  resolved "https://registry.yarnpkg.com/@strapi/utils/-/utils-4.10.6.tgz#b32a2382fdcaaa04de0a681aeece8ad3bbd7ef2c"
+  integrity sha512-X9dNy31mhTvoeoLScGGw722N2r/bTaSp8wU8ryMvnooLYKcbw7GOcU6rSM7k5WNQToWziaditA2Vx34nZNdUsw==
+  dependencies:
+    "@sindresorhus/slugify" "1.1.0"
+    date-fns "2.30.0"
     http-errors "1.8.1"
     lodash "4.17.21"
     p-map "4.0.0"
@@ -4518,6 +4603,13 @@ date-fns@2.29.3:
   version "2.29.3"
   resolved "https://registry.yarnpkg.com/date-fns/-/date-fns-2.29.3.tgz#27402d2fc67eb442b511b70bbdf98e6411cd68a8"
   integrity sha512-dDCnyH2WnnKusqvZZ6+jA1O51Ibt8ZMRNkDZdyAyK4YfbDwa/cEmuztzG5pk6hqlp9aSBPYcjOlktquahGwGeA==
+
+date-fns@2.30.0:
+  version "2.30.0"
+  resolved "https://registry.yarnpkg.com/date-fns/-/date-fns-2.30.0.tgz#f367e644839ff57894ec6ac480de40cae4b0f4d0"
+  integrity sha512-fnULvOpxnC5/Vg3NCiWelDsLiUc9bRwAPs/+LfTLNvetFCtCTN+yQz15C/fs4AwX1R9K5GLtLfn8QW+dWisaAw==
+  dependencies:
+    "@babel/runtime" "^7.21.0"
 
 debug@2.6.9, debug@^2.2.0, debug@^2.3.3:
   version "2.6.9"
