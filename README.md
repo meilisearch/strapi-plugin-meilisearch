@@ -6,7 +6,7 @@
 
 <h4 align="center">
   <a href="https://github.com/meilisearch/meilisearch">Meilisearch</a> |
-  <a href="https://docs.meilisearch.com">Documentation</a> |
+  <a href="https://www.meilisearch.com/docs">Documentation</a> |
   <a href="https://discord.meilisearch.com">Discord</a> |
   <a href="https://roadmap.meilisearch.com/tabs/1-under-consideration">Roadmap</a> |
   <a href="https://www.meilisearch.com">Website</a> |
@@ -41,7 +41,7 @@ Add your Strapi content-types into a Meilisearch instance. The plugin listens to
 
 ## 📖 Documentation
 
-To understand Meilisearch and how it works, see the [Meilisearch's documentation](https://www.meilisearch.com/docs/learn/getting_started/quick_start.html).
+To understand Meilisearch and how it works, see the [Meilisearch's documentation](https://www.meilisearch.com/docs/learn/getting_started/installation).
 
 To understand Strapi and how to create an app, see [Strapi's documentation](https://strapi.io/documentation/developer-docs/latest/getting-started/introduction.html).
 
@@ -552,7 +552,7 @@ If you want to know more about the development workflow or want to contribute, p
 
 ## 🌎 Community support
 
-- For general help using **Meilisearch**, please refer to [the official Meilisearch documentation](https://docs.meilisearch.com).
+- For general help using **Meilisearch**, please refer to [the official Meilisearch documentation](https://www.meilisearch.com/docs).
 - Contact the [Meilisearch support](https://www.meilisearch.com/docs/learn/what_is_meilisearch/contact.html)
 - Strapi [community Slack](https://slack.strapi.io/)
 - For general help using **Strapi**, please refer to [the official Strapi documentation](https://strapi.io/documentation/).
