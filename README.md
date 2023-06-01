@@ -6,11 +6,11 @@
 
 <h4 align="center">
   <a href="https://github.com/meilisearch/meilisearch">Meilisearch</a> |
-  <a href="https://docs.meilisearch.com">Documentation</a> |
+  <a href="https://www.meilisearch.com/docs">Documentation</a> |
   <a href="https://discord.meilisearch.com">Discord</a> |
   <a href="https://roadmap.meilisearch.com/tabs/1-under-consideration">Roadmap</a> |
   <a href="https://www.meilisearch.com">Website</a> |
-  <a href="https://docs.meilisearch.com/faq">FAQ</a>
+  <a href="https://www.meilisearch.com/docs/faq">FAQ</a>
 </h4>
 
 <p align="center">
@@ -41,7 +41,7 @@ Add your Strapi content-types into a Meilisearch instance. The plugin listens to
 
 ## 📖 Documentation
 
-To understand Meilisearch and how it works, see the [Meilisearch's documentation](https://docs.meilisearch.com/learn/getting_started/quick_start.html).
+To understand Meilisearch and how it works, see the [Meilisearch's documentation](https://www.meilisearch.com/docs/learn/getting_started/installation).
 
 To understand Strapi and how to create an app, see [Strapi's documentation](https://strapi.io/documentation/developer-docs/latest/getting-started/introduction.html).
 
@@ -71,7 +71,7 @@ You will need both a running Strapi app and a running Meilisearch instance. For 
 
 ### 🏃‍♀️ Run Meilisearch <!-- omit in toc -->
 
-There are many easy ways to [download and run a Meilisearch instance](https://docs.meilisearch.com/reference/features/installation.html#download-and-launch).
+There are many easy ways to [download and run a Meilisearch instance](https://www.meilisearch.com/docs/reference/features/installation.html#download-and-launch).
 
 For example, if you use Docker:
 
@@ -109,9 +109,9 @@ On the left-navbar, `Meilisearch` appears under the `PLUGINS` category. If it do
 First, you need to configure credentials via the Strapi config, or on the plugin page.
 The credentials are composed of:
 - The `host`: The url to your running Meilisearch instance.
-- The `api_key`: The `master` or `private` key as the plugin requires administration permission on Meilisearch.[More about permissions here](https://docs.meilisearch.com/reference/features/authentication.html).
+- The `api_key`: The `master` or `private` key as the plugin requires administration permission on Meilisearch.[More about permissions here](https://www.meilisearch.com/docs/reference/features/authentication.html).
 
-⚠️ The `master` or `private` key should never be used to `search` on your front end. For searching, use the `public` key available on [the `key` route](https://docs.meilisearch.com/reference/api/keys.html#get-keys).
+⚠️ The `master` or `private` key should never be used to `search` on your front end. For searching, use the `public` key available on [the `key` route](https://www.meilisearch.com/docs/reference/api/keys.html#get-keys).
 
 #### Using the plugin page
 
@@ -321,7 +321,7 @@ Result:
   }
 ```
 
-By transforming the `categories` into an array of names, it is now compatible with the [`filtering` feature](https://docs.meilisearch.com/reference/features/filtering_and_faceted_search.html#configuring-filters) in Meilisearch.
+By transforming the `categories` into an array of names, it is now compatible with the [`filtering` feature](https://www.meilisearch.com/docs/reference/features/filtering_and_faceted_search.html#configuring-filters) in Meilisearch.
 
 **Important**: You should always return the id of the entry without any transformation to [allow sync](https://github.com/meilisearch/strapi-plugin-meilisearch/issues/487) when unpublished or deleting some entries in Strapi.
 
@@ -351,7 +351,7 @@ module.exports = {
 
 ### 🏗 Add Meilisearch settings
 
-Each index in Meilisearch can be customized with specific settings. It is possible to add your [Meilisearch settings](https://docs.meilisearch.com/reference/features/settings.html#settings) configuration to the indexes you create using the `settings` field in the plugin configuration file.
+Each index in Meilisearch can be customized with specific settings. It is possible to add your [Meilisearch settings](https://www.meilisearch.com/docs/reference/api/settings#settings_parameters#settings) configuration to the indexes you create using the `settings` field in the plugin configuration file.
 
 The settings are added when either: adding a content-type to Meilisearch or when updating a content-type in Meilisearch. The settings are not updated when documents are added through the [`listeners`](-apply-hooks).
 
@@ -408,7 +408,7 @@ module.exports = {
 
 ### 🕵️‍♀️ Start Searching <!-- omit in toc -->
 
-Once you have a content-type indexed in Meilisearch, you can [start searching](https://docs.meilisearch.com/learn/getting_started/quick_start.html#search).
+Once you have a content-type indexed in Meilisearch, you can [start searching](https://www.meilisearch.com/docs/learn/getting_started/quick_start.html#search).
 
 To search in Meilisearch, you can use the [instant-meilisearch](https://github.com/meilisearch/instant-meilisearch) library that integrates a whole search interface, or our [meilisearch-js](https://github.com/meilisearch/meilisearch-js) SDK.
 
@@ -552,8 +552,8 @@ If you want to know more about the development workflow or want to contribute, p
 
 ## 🌎 Community support
 
-- For general help using **Meilisearch**, please refer to [the official Meilisearch documentation](https://docs.meilisearch.com).
-- Contact the [Meilisearch support](https://docs.meilisearch.com/learn/what_is_meilisearch/contact.html)
+- For general help using **Meilisearch**, please refer to [the official Meilisearch documentation](https://www.meilisearch.com/docs).
+- Contact the [Meilisearch support](https://www.meilisearch.com/docs/learn/what_is_meilisearch/contact.html)
 - Strapi [community Slack](https://slack.strapi.io/)
 - For general help using **Strapi**, please refer to [the official Strapi documentation](https://strapi.io/documentation/).
 

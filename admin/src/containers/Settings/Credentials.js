@@ -45,7 +45,7 @@ const Credentials = () => {
         <Typography variant="pi" style={{ color: 'red' }}>
           Do not use this API key on your front-end as it has too much rights.
           Instead, use the public key available using{' '}
-          <a href="https://docs.meilisearch.com/reference/api/keys.html#get-keys">
+          <a href="https://www.meilisearch.com/docs/reference/api/keys#get-keys">
             the key route
           </a>
           .

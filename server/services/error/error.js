@@ -9,7 +9,7 @@ module.exports = ({ strapi }) => {
           error: {
             message: e.message,
             link: {
-              url: e.link || 'https://docs.meilisearch.com/',
+              url: e.link || 'https://www.meilisearch.com/docs',
               label: {
                 id: 'notification.meilisearch',
                 defaultMessage: 'See more',
