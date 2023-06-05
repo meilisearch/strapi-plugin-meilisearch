@@ -262,6 +262,13 @@
   dependencies:
     regenerator-runtime "^0.13.4"
 
+"@babel/runtime@^7.21.0":
+  version "7.22.3"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.22.3.tgz#0a7fce51d43adbf0f7b517a71f4c3aaca92ebcbb"
+  integrity sha512-XsDuspWKLUsxwCp6r7EhsExHtYfbe5oAGQ19kqngTdCPUoPQzOPdUbD/pB9PJiwb2ptYKQDjSJT3R6dC+EPqfQ==
+  dependencies:
+    regenerator-runtime "^0.13.11"
+
 "@babel/template@^7.16.7", "@babel/template@^7.3.3":
   version "7.16.7"
   resolved "https://registry.yarnpkg.com/@babel/template/-/template-7.16.7.tgz#8d126c8701fde4d66b264b3eba3d96f07666d155"
@@ -594,13 +601,13 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
-"@strapi/utils@^4.10.5":
-  version "4.10.5"
-  resolved "https://registry.yarnpkg.com/@strapi/utils/-/utils-4.10.5.tgz#8a20df57913b8db22634243016664599b0b1c678"
-  integrity sha512-Nz3YWJbhYuzAVRnD078cTYm4hGnfnLZL2xvJoH6QCOMro3RCPawyaAjOcsLQleKaUyhVjz12b2h5wIercfhuMQ==
+"@strapi/utils@^4.10.7":
+  version "4.10.7"
+  resolved "https://registry.yarnpkg.com/@strapi/utils/-/utils-4.10.7.tgz#2cf1aa5958c353e1a1b2e7d3de5e55eff1006cbc"
+  integrity sha512-LyTcpsdcJ6Dq/33eblSU4pN4Yb9VnARA6K5/66cmTTQH34C2bKqkozm7wjK+Y1smK5HA2nvHQiZfpoDtqI0NmA==
   dependencies:
     "@sindresorhus/slugify" "1.1.0"
-    date-fns "2.29.3"
+    date-fns "2.30.0"
     http-errors "1.8.1"
     lodash "4.17.21"
     p-map "4.0.0"
@@ -1359,10 +1366,12 @@ data-urls@^2.0.0:
     whatwg-mimetype "^2.3.0"
     whatwg-url "^8.0.0"
 
-date-fns@2.29.3, date-fns@^2.16.1:
-  version "2.29.3"
-  resolved "https://registry.yarnpkg.com/date-fns/-/date-fns-2.29.3.tgz#27402d2fc67eb442b511b70bbdf98e6411cd68a8"
-  integrity sha512-dDCnyH2WnnKusqvZZ6+jA1O51Ibt8ZMRNkDZdyAyK4YfbDwa/cEmuztzG5pk6hqlp9aSBPYcjOlktquahGwGeA==
+date-fns@2.30.0, date-fns@^2.16.1:
+  version "2.30.0"
+  resolved "https://registry.yarnpkg.com/date-fns/-/date-fns-2.30.0.tgz#f367e644839ff57894ec6ac480de40cae4b0f4d0"
+  integrity sha512-fnULvOpxnC5/Vg3NCiWelDsLiUc9bRwAPs/+LfTLNvetFCtCTN+yQz15C/fs4AwX1R9K5GLtLfn8QW+dWisaAw==
+  dependencies:
+    "@babel/runtime" "^7.21.0"
 
 dayjs@^1.10.4:
   version "1.11.0"
@@ -3579,6 +3588,11 @@ react-is@^17.0.1:
   version "17.0.2"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-17.0.2.tgz#e691d4a8e9c789365655539ab372762b0efb54f0"
   integrity sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==
+
+regenerator-runtime@^0.13.11:
+  version "0.13.11"
+  resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.13.11.tgz#f6dca3e7ceec20590d07ada785636a90cdca17f9"
+  integrity sha512-kY1AZVr2Ra+t+piVaJ4gxaFaReZVH40AKNo7UCX6W+dEwBo/2oZJzqfuN1qLq1oL45o56cPaTXELwrTh8Fpggg==
 
 regenerator-runtime@^0.13.4:
   version "0.13.9"
