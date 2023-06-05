@@ -26,7 +26,7 @@
   ],
   "dependencies": {
     "@strapi/utils": "^4.10.5",
-    "meilisearch": "^0.32.3"
+    "meilisearch": "^0.32.5"
   },
   "peerDependencies": {
      "@strapi/strapi": "^4.0.0"
