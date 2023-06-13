@@ -37,7 +37,7 @@ module.exports = ({ strapi }) => {
     addCollectionNamePrefix: function ({ contentType, entries }) {
       return entries.map(entry => ({
         ...entry,
-        id: this.addCollectionNamePrefixToId({
+        _meilisearch_id: this.addCollectionNamePrefixToId({
           entryId: entry.id,
           contentType,
         }),

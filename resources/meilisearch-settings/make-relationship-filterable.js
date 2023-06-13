@@ -4,7 +4,7 @@
  *
  * In Meilisearch you can use filters to for example in our case, only find italian restaurants.
  * To be able to do that, you need to provide a list of values and add in the settings the field in `filterableAttributes`.
- * See guide: https://docs.meilisearch.com/reference/features/filtering_and_faceted_search.html#configuring-filters
+ * See guide: https://www.meilisearch.com/docs/learn/advanced/filtering
  *
  * In Strapi, when fetching an entry the many-to-many relationships are inside an object:
  *

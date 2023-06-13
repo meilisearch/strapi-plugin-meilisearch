@@ -36,18 +36,18 @@ module.exports = ({ strapi }) => {
     },
 
     /**
-     * Get the populate rule of a content-type that is applied when fetching entries in the Strapi database.
+     * Get the entries query rule of a content-type that are applied when fetching entries in the Strapi database.
      *
      * @param {object} options
      * @param {string} options.contentType - ContentType name.
      *
-     * @return {String} - Populate rule.
+     * @return {String} - EntriesQuery rules.
      */
-    populateEntryRule: function ({ contentType }) {
+    entriesQuery: function ({ contentType }) {
       const collection = contentTypeService.getCollectionName({ contentType })
       const contentTypeConfig = meilisearchConfig[collection] || {}
 
-      return contentTypeConfig.populateEntryRule || '*'
+      return contentTypeConfig.entriesQuery || {}
     },
 
     /**
@@ -188,25 +188,65 @@ module.exports = ({ strapi }) => {
      *
      * @return {Array<Object>} - Entries
      */
-    removeSensitiveFields: function ({ entries }) {
+    removeSensitiveFields: function ({ contentType, entries }) {
+      // TODO: should be persisted somewhere to make it more performant
+      const attrs = strapi.contentTypes[contentType].attributes
+      const privateFields = Object.entries(attrs).map(([field, schema]) =>
+        schema.private ? field : false
+      )
+
       return entries.map(entry => {
-        delete entry.createdBy
-        delete entry.updatedBy
+        privateFields.forEach(attr => delete entry[attr])
+
         return entry
       })
     },
 
     /**
-     * Remove unpublished entries from array of entries.
+     * Remove unpublished entries from array of entries
+     * unless `publicationState` is set to true.
      *
      * @param {object} options
      * @param {Array<Object>} options.entries - The entries to filter.
-     *
+     * @param {string} options.contentType - ContentType name.
      *
      * @return {Array<Object>} - Published entries.
      */
-    removeUnpublishedArticles: function ({ entries }) {
-      return entries.filter(entry => !(entry.publishedAt === null))
+    removeUnpublishedArticles: function ({ entries, contentType }) {
+      const collection = contentTypeService.getCollectionName({ contentType })
+      const contentTypeConfig = meilisearchConfig[collection] || {}
+
+      const entriesQuery = contentTypeConfig.entriesQuery || {}
+
+      if (entriesQuery.publicationState === 'preview') {
+        return entries
+      } else {
+        return entries.filter(entry => !(entry?.publishedAt === null))
+      }
+    },
+
+    /**
+     * Remove language entries.
+     * In the plugin entriesQuery, if `locale` is set and not equal to `all`
+     * all entries that do not have the specified language are removed.
+     *
+     * @param {object} options
+     * @param {Array<Object>} options.entries - The entries to filter.
+     * @param {string} options.contentType - ContentType name.
+     *
+     * @return {Array<Object>} - Published entries.
+     */
+    removeLocaleEntries: function ({ entries, contentType }) {
+      const collection = contentTypeService.getCollectionName({ contentType })
+      const contentTypeConfig = meilisearchConfig[collection] || {}
+
+      const entriesQuery = contentTypeConfig.entriesQuery || {}
+
+      if (!entriesQuery.locale || entriesQuery.locale === 'all') {
+        return entries
+      } else {
+        return entries.filter(entry => entry.locale === entriesQuery.locale)
+      }
     },
   }
 }
