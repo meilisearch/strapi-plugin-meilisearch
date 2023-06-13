@@ -92,7 +92,7 @@ module.exports = ({ strapi, adapter, config }) => {
       const task = await client.index(indexUid).deleteDocuments(documentsIds)
 
       strapi.log.info(
-        `Create task to delete ${documentsIds.length} documents of the index "${indexUid}" in Meilisearch (Task uid: ${task.taskUid})`
+        `A task to delete ${documentsIds.length} documents of the index "${indexUid}" in Meilisearch has been enqueued (Task uid: ${task.taskUid}).`
       )
 
       return task
@@ -130,7 +130,7 @@ module.exports = ({ strapi, adapter, config }) => {
           )
 
           strapi.log.info(
-            `Create task to delete 1 document of the index "${indexUid}" in Meilisearch (Task uid: ${task.taskUid})`
+            `A task to delete one document from the Meilisearch index "${indexUid}" has been enqueued (Task uid: ${task.taskUid}).`
           )
 
           return task
@@ -258,7 +258,7 @@ module.exports = ({ strapi, adapter, config }) => {
 
       const task = await client.index(indexUid).addDocuments(documents)
       strapi.log.info(
-        `Create task to add ${documents.length} documents in the index "${indexUid}" to Meilisearch (Task uid: ${task.taskUid})`
+        `The task to add ${documents.length} documents to the Meilisearch index "${indexUid}" has been enqueued (Task uid: ${task.taskUid}).`
       )
       await store.addIndexedContentType({ contentType })
 
@@ -283,7 +283,7 @@ module.exports = ({ strapi, adapter, config }) => {
       const task = await client.index(indexUid).updateSettings(settings)
 
       strapi.log.info(
-        `Create task to add the settings of index "${indexUid}" to Meilisearch (Task uid: ${task.taskUid})`
+        `A task to update the settings to the Meilisearch index "${indexUid}" has been enqueued (Task uid: ${task.taskUid}).`
       )
 
       // Callback function for batching action
@@ -300,7 +300,7 @@ module.exports = ({ strapi, adapter, config }) => {
         const { taskUid } = await client.index(indexUid).addDocuments(documents)
 
         strapi.log.info(
-          `Create task to add ${documents.length} documents in the index "${indexUid}" to Meilisearch (Task uid: ${taskUid})`
+          `A task to add ${documents.length} documents to the Meilisearch index "${indexUid}" has been enqueued (Task uid: ${taskUid}).`
         )
 
         return taskUid
@@ -378,7 +378,7 @@ module.exports = ({ strapi, adapter, config }) => {
         const { taskUid } = await client.index(indexUid).delete()
 
         strapi.log.info(
-          `Create task to  delete the index "${indexUid}" in Meilisearch (Task uid: ${taskUid})`
+          `A task to delete the Meilisearch index "${indexUid}" has been added to the queue (Task uid: ${taskUid}).`
         )
       }
 
