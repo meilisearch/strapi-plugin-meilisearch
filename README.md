@@ -6,11 +6,11 @@
 
 <h4 align="center">
   <a href="https://github.com/meilisearch/meilisearch">Meilisearch</a> |
-  <a href="https://docs.meilisearch.com">Documentation</a> |
-  <a href="https://slack.meilisearch.com">Slack</a> |
+  <a href="https://www.meilisearch.com/docs">Documentation</a> |
+  <a href="https://discord.meilisearch.com">Discord</a> |
   <a href="https://roadmap.meilisearch.com/tabs/1-under-consideration">Roadmap</a> |
   <a href="https://www.meilisearch.com">Website</a> |
-  <a href="https://docs.meilisearch.com/faq">FAQ</a>
+  <a href="https://www.meilisearch.com/docs/faq">FAQ</a>
 </h4>
 
 <p align="center">
@@ -41,13 +41,13 @@ Add your Strapi content-types into a Meilisearch instance. The plugin listens to
 
 ## 📖 Documentation
 
-To understand Meilisearch and how it works, see the [Meilisearch's documentation](https://docs.meilisearch.com/learn/getting_started/quick_start.html).
+To understand Meilisearch and how it works, see the [Meilisearch's documentation](https://www.meilisearch.com/docs/learn/getting_started/installation).
 
 To understand Strapi and how to create an app, see [Strapi's documentation](https://strapi.io/documentation/developer-docs/latest/getting-started/introduction.html).
 
 ## 🔧 Installation
 
-This package version works with the [v4 of Strapi](https://github.com/strapi/strapi/tree/v4.1.3). If you are using [Strapi v3](https://github.com/strapi/strapi/tree/v3.6.9), please refer to [this README](https://github.com/meilisearch/strapi-plugin-meilisearch/tree/v0.5.1).
+This package version works with the [v4 of Strapi](https://docs.strapi.io/developer-docs/latest/getting-started/introduction.html). If you are using [Strapi v3](https://docs-v3.strapi.io/developer-docs/latest/getting-started/introduction.html), please refer to [this README](https://github.com/meilisearch/strapi-plugin-meilisearch/tree/v3_main).
 
 Inside your Strapi app, add the package:
 
@@ -71,7 +71,7 @@ You will need both a running Strapi app and a running Meilisearch instance. For 
 
 ### 🏃‍♀️ Run Meilisearch <!-- omit in toc -->
 
-There are many easy ways to [download and run a Meilisearch instance](https://docs.meilisearch.com/reference/features/installation.html#download-and-launch).
+There are many easy ways to [download and run a Meilisearch instance](https://www.meilisearch.com/docs/reference/features/installation.html#download-and-launch).
 
 For example, if you use Docker:
 
@@ -109,9 +109,9 @@ On the left-navbar, `Meilisearch` appears under the `PLUGINS` category. If it do
 First, you need to configure credentials via the Strapi config, or on the plugin page.
 The credentials are composed of:
 - The `host`: The url to your running Meilisearch instance.
-- The `api_key`: The `master` or `private` key as the plugin requires administration permission on Meilisearch.[More about permissions here](https://docs.meilisearch.com/reference/features/authentication.html).
+- The `api_key`: The `master` or `private` key as the plugin requires administration permission on Meilisearch.[More about permissions here](https://www.meilisearch.com/docs/reference/features/authentication.html).
 
-⚠️ The `master` or `private` key should never be used to `search` on your front end. For searching, use the `public` key available on [the `key` route](https://docs.meilisearch.com/reference/api/keys.html#get-keys).
+⚠️ The `master` or `private` key should never be used to `search` on your front end. For searching, use the `public` key available on [the `key` route](https://www.meilisearch.com/docs/reference/api/keys.html#get-keys).
 
 #### Using the plugin page
 
@@ -192,7 +192,9 @@ It is possible to add settings for every collection. Start by creating a sub-obj
 module.exports = () => ({
   //...
   meilisearch: {
-    restaurant: {}
+    config: {
+      restaurant: {}
+    }
   }
 })
 ```
@@ -202,7 +204,7 @@ Settings:
 - [🪄 Transform entries](#-transform-entries)
 - [🤚 Filter entries](#-filter-entries)
 - [🏗 Add Meilisearch settings](#-add-meilisearch-settings)
-- [👥 Populate entry rule](#-populate-entry-rule)
+- [🔎 Entries query](#-entries-query)
 
 ### 🏷 Custom index name
 
@@ -319,7 +321,7 @@ Result:
   }
 ```
 
-By transforming the `categories` into an array of names, it is now compatible with the [`filtering` feature](https://docs.meilisearch.com/reference/features/filtering_and_faceted_search.html#configuring-filters) in Meilisearch.
+By transforming the `categories` into an array of names, it is now compatible with the [`filtering` feature](https://www.meilisearch.com/docs/reference/features/filtering_and_faceted_search.html#configuring-filters) in Meilisearch.
 
 **Important**: You should always return the id of the entry without any transformation to [allow sync](https://github.com/meilisearch/strapi-plugin-meilisearch/issues/487) when unpublished or deleting some entries in Strapi.
 
@@ -349,7 +351,7 @@ module.exports = {
 
 ### 🏗 Add Meilisearch settings
 
-Each index in Meilisearch can be customized with specific settings. It is possible to add your [Meilisearch settings](https://docs.meilisearch.com/reference/features/settings.html#settings) configuration to the indexes you create using the `settings` field in the plugin configuration file.
+Each index in Meilisearch can be customized with specific settings. It is possible to add your [Meilisearch settings](https://www.meilisearch.com/docs/reference/api/settings#settings_parameters#settings) configuration to the indexes you create using the `settings` field in the plugin configuration file.
 
 The settings are added when either: adding a content-type to Meilisearch or when updating a content-type in Meilisearch. The settings are not updated when documents are added through the [`listeners`](-apply-hooks).
 
@@ -373,69 +375,46 @@ module.exports = {
 
 [See resources](./resources/meilisearch-settings) for more settings examples.
 
-### 👥 Populate entry rule
+### 🔎 Entries query
 
-Content-types in Strapi may have relationships with other content-types (ex: `restaurant` can have a many-to-many relation with `category`). To ensure that these links are fetched and added to an entry correctly from your Strapi database, the correct populate rule must be provided ([see documentation](https://docs-next.strapi.io/developer-docs/latest/developer-resources/database-apis-reference/entity-service/populate.html#basic-populating)).
+When indexing a content type to Meilisearch, the plugin has to fetch the documents from your database. With `entriesQuery` it is possible to specify some options are applied during the fetching of the entries.
+The options you can set are described in the [`findMany` documentation](https://docs.strapi.io/developer-docs/latest/developer-resources/database-apis-reference/entity-service/crud.html#findmany) of Strapi. However, we do not accept any changes on the `start` parameter.
 
-To communicate the populate rule, use the `populateEntryRule` setting on the according content-type in the plugin's settings.
+**Common use cases**
 
-**For example**
+If you are using the [🌍 Internationalization (i18n)](https://docs.strapi.io/developer-docs/latest/plugins/i18n.html) plugin, an additional field `locale` can also be added in `entriesQuery`.
 
-Imagine my `restaurant` content-type has a relation with a repeatable-component `repeatableComponent` that itself has a relationship with the content-type `categories`.
+If you want to add a collection with a relation to the collection being included, you have to configure the `populate` parameter in `entriesQuery`. See [the docs](https://docs.strapi.io/dev-docs/api/entity-service/populate) on how it works, and [an example](./resources/entries-query/populate.js) in our resources.
 
-The following population will ensure that a `restaurant` entry contains even the most nested relation.
+**Example**
+
+If you want your documents to be fetched in batches of `1000` you specify it in the `entriesQuery` option.
 
 ```js
 module.exports = {
   meilisearch: {
     config: {
       restaurant: {
-        populateEntryRule: ['repeatableComponent.categories', 'categories'],
+        entriesQuery: {
+          limit: 1000
+        }
       }
     }
   },
 }
 ```
 
-by providing this, the following is indexed in Meilisearch:
-
-```json
-  {
-    "id": "restaurant-1",
-    "title": "The slimmy snail",
-    // ... other restaurant fields
-    "repeatableComponent": [
-      {
-        "id": 1,
-        "title": "my repeatable component 1"
-        "categories": [
-          {
-            "id": 3,
-            "name": "Asian",
-            // ... other category fields
-          },
-          {
-            "id": 2,
-            "name": "Healthy",
-            // ... other category fields
-          }
-        ],
-
-      }
-    ],
-
-  }
-```
+[See resources](./resources/entries-query) for more entriesQuery examples.
 
 ### 🕵️‍♀️ Start Searching <!-- omit in toc -->
 
-Once you have a content-type indexed in Meilisearch, you can [start searching](https://docs.meilisearch.com/learn/getting_started/quick_start.html#search).
+Once you have a content-type indexed in Meilisearch, you can [start searching](https://www.meilisearch.com/docs/learn/getting_started/quick_start.html#search).
 
-To search in Meilisearch, you can use the [instant-meilisearch](https://github.com/meilisearch/instant-meilisearch) library that integrates a whole search interface, or our [meilisearch-js](https://github.com/meilisearch/meilisearch-js) SDK.
+To search in Meilisearch, you can use the [instant-meilisearch](https://github.com/meilisearch/meilisearch-js-plugins/tree/main/packages/instant-meilisearch) library that integrates a whole search interface, or our [meilisearch-js](https://github.com/meilisearch/meilisearch-js) SDK.
 
 #### ⚡️ Using Instant meiliSearch <!-- omit in toc -->
 
-You can have a front up and running in record time with [instant-meilisearch](https://github.com/meilisearch/instant-meilisearch).
+You can have a front up and running in record time with [instant-meilisearch](https://github.com/meilisearch/meilisearch-js-plugins/tree/main/packages/instant-meilisearch).
 
 <p align="center">
 <img src="./assets/obrigado.gif" alt="Restaurant demo" width="600"/>
@@ -556,7 +535,7 @@ If you are using [Strapi v3](https://github.com/strapi/strapi/tree/v3.6.9), plea
 
 **Supported Meilisearch versions**:
 
-This package only guarantees the compatibility with the [version v0.29.0 of Meilisearch](https://github.com/meilisearch/meilisearch/releases/tag/v0.29.0).
+This package guarantees compatibility with [version v1.x of Meilisearch](https://github.com/meilisearch/meilisearch/releases/latest), but some features may not be present. Please check the [issues](https://github.com/meilisearch/strapi-plugin-meilisearch/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22+label%3Aenhancement) for more info.
 
 **Node / NPM versions**:
 
@@ -573,14 +552,14 @@ If you want to know more about the development workflow or want to contribute, p
 
 ## 🌎 Community support
 
-- For general help using **Meilisearch**, please refer to [the official Meilisearch documentation](https://docs.meilisearch.com).
-- Contact the [Meilisearch support](https://docs.meilisearch.com/learn/what_is_meilisearch/contact.html)
+- For general help using **Meilisearch**, please refer to [the official Meilisearch documentation](https://www.meilisearch.com/docs).
+- Contact the [Meilisearch support](https://www.meilisearch.com/docs/learn/what_is_meilisearch/contact.html)
 - Strapi [community Slack](https://slack.strapi.io/)
 - For general help using **Strapi**, please refer to [the official Strapi documentation](https://strapi.io/documentation/).
 
 ## 🤩 Just for the pleasure of the eyes
 
-Using the [foodadvisor](https://github.com/strapi/foodadvisor) restaurant demo Strapi provided. We added a searchbar to it using [instant-meilisearch](https://github.com/meilisearch/instant-meilisearch).
+Using the [foodadvisor](https://github.com/strapi/foodadvisor) restaurant demo Strapi provided. We added a searchbar to it using [instant-meilisearch](https://github.com/meilisearch/meilisearch-js-plugins/tree/main/packages/instant-meilisearch).
 
 <p align="center">
 <img src="./assets/restaurant.gif" alt="Fooradvisor demo" width="600"/>

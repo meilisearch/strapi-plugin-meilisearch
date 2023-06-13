@@ -6,6 +6,7 @@ services:
     tty: true
     stdin_open: true
     working_dir: /home/package
+    command: "yarn run playground:dev"
     environment:
       - MEILISEARCH_HOST=http://meilisearch:7700
     depends_on:
@@ -14,6 +15,8 @@ services:
       - meilisearch
     volumes:
       - ./:/home/package
+    ports:
+      - "1337:1337"
 
   meilisearch:
     image: getmeili/meilisearch:latest

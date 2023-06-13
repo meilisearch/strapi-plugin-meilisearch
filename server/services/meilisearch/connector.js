@@ -21,6 +21,13 @@ const sanitizeEntries = async function ({
 
   // remove un-published entries
   entries = await config.removeUnpublishedArticles({
+    contentType,
+    entries,
+  })
+
+  // remove entries with unwanted locale language
+  entries = await config.removeLocaleEntries({
+    contentType,
     entries,
   })
 
@@ -30,14 +37,17 @@ const sanitizeEntries = async function ({
     entries,
   })
 
+  // Remove sensitive fields (private = true)
+  entries = await config.removeSensitiveFields({
+    contentType,
+    entries,
+  })
+
   // Apply transformEntry plugin config.
   entries = await config.transformEntries({
     contentType,
     entries,
   })
-
-  // Remove nested
-  entries = await config.removeSensitiveFields({ entries })
 
   // Add content-type prefix to id
   entries = await adapter.addCollectionNamePrefix({
@@ -121,8 +131,9 @@ module.exports = ({ strapi, adapter, config }) => {
           config,
           adapter,
         })
-        if (entry.publishedAt === null || sanitized.length === 0) {
-          const task = client.index(indexUid).deleteDocument(
+
+        if (sanitized.length === 0) {
+          const task = await client.index(indexUid).deleteDocument(
             adapter.addCollectionNamePrefixToId({
               contentType,
               entryId: entry.id,
@@ -135,7 +146,9 @@ module.exports = ({ strapi, adapter, config }) => {
 
           return task
         } else {
-          return client.index(indexUid).updateDocuments(sanitized)
+          return client
+            .index(indexUid)
+            .updateDocuments(sanitized, { primaryKey: '_meilisearch_id' })
         }
       })
     },
@@ -256,11 +269,15 @@ module.exports = ({ strapi, adapter, config }) => {
         adapter,
       })
 
-      const task = await client.index(indexUid).addDocuments(documents)
+      const task = await client
+        .index(indexUid)
+        .addDocuments(documents, { primaryKey: '_meilisearch_id' })
+
+      await store.addIndexedContentType({ contentType })
+
       strapi.log.info(
         `The task to add ${documents.length} documents to the Meilisearch index "${indexUid}" has been enqueued (Task uid: ${task.taskUid}).`
       )
-      await store.addIndexedContentType({ contentType })
 
       return task
     },
@@ -297,7 +314,9 @@ module.exports = ({ strapi, adapter, config }) => {
         })
 
         // Add documents in Meilisearch
-        const { taskUid } = await client.index(indexUid).addDocuments(documents)
+        const { taskUid } = await client
+          .index(indexUid)
+          .addDocuments(documents, { primaryKey: '_meilisearch_id' })
 
         strapi.log.info(
           `A task to add ${documents.length} documents to the Meilisearch index "${indexUid}" has been enqueued (Task uid: ${taskUid}).`
@@ -309,7 +328,7 @@ module.exports = ({ strapi, adapter, config }) => {
       const tasksUids = await contentTypeService.actionInBatches({
         contentType,
         callback: addDocuments,
-        populate: config.populateEntryRule({ contentType }),
+        entriesQuery: config.entriesQuery({ contentType }),
       })
 
       await store.addIndexedContentType({ contentType })
@@ -330,9 +349,9 @@ module.exports = ({ strapi, adapter, config }) => {
       const indexUid = config.getIndexNameOfContentType({ contentType })
 
       // Fetch contentTypes that has the same indexName as the provided contentType
-      const contentTypesWithSameIndex = await config.listContentTypesWithCustomIndexName(
-        { indexUid }
-      )
+      const contentTypesWithSameIndex = await config
+        .listContentTypesWithCustomIndexName({ indexName: indexUid })
+        .map(contentTypeName => `api::${contentTypeName}.${contentTypeName}`)
 
       // get all contentTypes (not indexes) indexed in Meilisearch.
       const indexedContentTypes = await store.getIndexedContentTypes()
@@ -359,7 +378,7 @@ module.exports = ({ strapi, adapter, config }) => {
         }
       )
       if (indexedContentTypesWithSameIndex.length > 1) {
-        const deleteEntries = async (entries, contentType) => {
+        const deleteEntries = async ({ entries, contentType }) => {
           await this.deleteEntriesFromMeiliSearch({
             contentType,
             entriesId: entries.map(entry => entry.id),
@@ -368,7 +387,7 @@ module.exports = ({ strapi, adapter, config }) => {
         await contentTypeService.actionInBatches({
           contentType,
           callback: deleteEntries,
-          populate: config.populateEntryRule({ contentType }),
+          entriesQuery: config.entriesQuery({ contentType }),
         })
       } else {
         const { apiKey, host } = await store.getCredentials()

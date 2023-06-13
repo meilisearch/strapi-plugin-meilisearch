@@ -126,13 +126,16 @@ module.exports = ({ strapi }) => ({
    *
    * @param  {object} options
    * @param  {string | number} [options.id] - Id of the entry.
-   * @param  {string | string[]} [options.fields] - Fields present in the returned entry.
-   * @param  {object} [options.populate] - Relations, components and dynamic zones to populate.
-   * @param  {string} [options.contentType] - Content type.
+   * @param  {object} [options.entriesQuery={}] - Options to apply when fetching entries from the database.
+   * @param  {string | string[]} [options.entriesQuery.fields] - Fields present in the returned entry.
+   * @param  {object} [options.entriesQuery.populate] - Relations, components and dynamic zones to populate.
+   * @param  {object} [options.entriesQuery.locale] - When using internalization, the language to fetch.
+   * @param  {string} options.contentType - Content type.
    *
    * @returns  {Promise<object>} - Entries.
    */
-  async getEntry({ contentType, id, fields = '*', populate = '*' }) {
+  async getEntry({ contentType, id, entriesQuery = {} }) {
+    const { populate = '*', fields = '*' } = entriesQuery
     const contentTypeUid = this.getContentTypeUid({ contentType })
     if (contentTypeUid === undefined) return {}
 
@@ -160,7 +163,8 @@ module.exports = ({ strapi }) => ({
    * @param  {object|string} [options.sort] - Order definition.
    * @param  {object} [options.populate] - Relations, components and dynamic zones to populate.
    * @param  {object} [options.publicationState] - Publication state: live or preview.
-   * @param  {string} [options.contentType] - Content type.
+   * @param  {string} options.contentType - Content type.
+   * @param  {string} [options.locale] - When using internalization, the language to fetch.
    *
    * @returns  {Promise<object[]>} - Entries.
    */
@@ -173,19 +177,30 @@ module.exports = ({ strapi }) => ({
     sort = 'id',
     populate = '*',
     publicationState = 'live',
+    locale,
   }) {
     const contentTypeUid = this.getContentTypeUid({ contentType })
     if (contentTypeUid === undefined) return []
 
-    const entries = await strapi.entityService.findMany(contentTypeUid, {
+    const queryOptions = {
       fields: fields || '*',
       start,
       limit,
       filters,
       sort,
       populate,
-      publicationState: publicationState,
-    })
+      publicationState,
+    }
+    // To avoid issue if internalization is not installed by the user
+    if (locale) {
+      queryOptions.locale = locale
+    }
+
+    const entries = await strapi.entityService.findMany(
+      contentTypeUid,
+      queryOptions
+    )
+
     // Safe guard in case the content-type is a single type.
     // In which case it is wrapped in an array for consistency.
     if (entries && !Array.isArray(entries)) return [entries]
@@ -197,7 +212,7 @@ module.exports = ({ strapi }) => ({
    *
    * @param  {object} options
    * @param  {string} options.contentType - Name of the content type.
-   * @param  {object} [options.populate] - Relations, components and dynamic zones to populate.
+   * @param  {object} [options.entriesQuery] - Options to apply when fetching entries from the database.
    * @param  {function} options.callback - Function applied on each entry of the contentType.
    *
    * @returns {Promise<any[]>} - List of all the returned elements from the callback.
@@ -205,27 +220,27 @@ module.exports = ({ strapi }) => ({
   actionInBatches: async function ({
     contentType,
     callback = () => {},
-    populate = '*',
+    entriesQuery = {},
   }) {
-    const BATCH_SIZE = 500
-
+    const batchSize = entriesQuery.limit || 500
     // Need total number of entries in contentType
     const entries_count = await this.numberOfEntries({
       contentType,
     })
     const cbResponse = []
-    for (let index = 0; index <= entries_count; index += BATCH_SIZE) {
+    for (let index = 0; index < entries_count; index += batchSize) {
       const entries =
         (await this.getEntries({
           start: index,
-          limit: BATCH_SIZE,
           contentType,
-          populate,
+          ...entriesQuery,
         })) || []
 
-      const info = await callback({ entries, contentType })
-      if (Array.isArray(info)) cbResponse.push(...info)
-      else if (info) cbResponse.push(info)
+      if (entries.length > 0) {
+        const info = await callback({ entries, contentType })
+        if (Array.isArray(info)) cbResponse.push(...info)
+        else if (info) cbResponse.push(info)
+      }
     }
     return cbResponse
   },
