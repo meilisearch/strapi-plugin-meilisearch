@@ -46,6 +46,11 @@ describe('Tests content types', () => {
       contentType: 'restaurant',
       entriesId: [1, 2],
     })
+
+    expect(customStrapi.log.info).toHaveBeenCalledTimes(1)
+    expect(customStrapi.log.info).toHaveBeenCalledWith(
+      'A task to delete 2 documents of the index "customIndex" in Meilisearch has been enqueued (Task uid: undefined).'
+    )
     expect(client.index('').deleteDocuments).toHaveBeenCalledTimes(1)
     expect(client.index('').deleteDocuments).toHaveBeenCalledWith([
       'restaurant-1',
@@ -108,6 +113,10 @@ describe('Tests content types', () => {
         publicationState: 'preview',
       },
     })
+    expect(customStrapi.log.info).toHaveBeenCalledTimes(1)
+    expect(customStrapi.log.info).toHaveBeenCalledWith(
+      'A task to update the settings to the Meilisearch index "restaurant" has been enqueued (Task uid: undefined).'
+    )
   })
 
   test('sanitizes the private fields from the entries', async () => {
