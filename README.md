@@ -410,11 +410,11 @@ module.exports = {
 
 Once you have a content-type indexed in Meilisearch, you can [start searching](https://www.meilisearch.com/docs/learn/getting_started/quick_start.html#search).
 
-To search in Meilisearch, you can use the [instant-meilisearch](https://github.com/meilisearch/instant-meilisearch) library that integrates a whole search interface, or our [meilisearch-js](https://github.com/meilisearch/meilisearch-js) SDK.
+To search in Meilisearch, you can use the [instant-meilisearch](https://github.com/meilisearch/meilisearch-js-plugins/tree/main/packages/instant-meilisearch) library that integrates a whole search interface, or our [meilisearch-js](https://github.com/meilisearch/meilisearch-js) SDK.
 
 #### ⚡️ Using Instant meiliSearch <!-- omit in toc -->
 
-You can have a front up and running in record time with [instant-meilisearch](https://github.com/meilisearch/instant-meilisearch).
+You can have a front up and running in record time with [instant-meilisearch](https://github.com/meilisearch/meilisearch-js-plugins/tree/main/packages/instant-meilisearch).
 
 <p align="center">
 <img src="./assets/obrigado.gif" alt="Restaurant demo" width="600"/>
@@ -559,7 +559,7 @@ If you want to know more about the development workflow or want to contribute, p
 
 ## 🤩 Just for the pleasure of the eyes
 
-Using the [foodadvisor](https://github.com/strapi/foodadvisor) restaurant demo Strapi provided. We added a searchbar to it using [instant-meilisearch](https://github.com/meilisearch/instant-meilisearch).
+Using the [foodadvisor](https://github.com/strapi/foodadvisor) restaurant demo Strapi provided. We added a searchbar to it using [instant-meilisearch](https://github.com/meilisearch/meilisearch-js-plugins/tree/main/packages/instant-meilisearch).
 
 <p align="center">
 <img src="./assets/restaurant.gif" alt="Fooradvisor demo" width="600"/>
