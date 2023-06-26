@@ -601,10 +601,10 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
-"@strapi/utils@^4.11.1":
-  version "4.11.1"
-  resolved "https://registry.yarnpkg.com/@strapi/utils/-/utils-4.11.1.tgz#7e695f4dd919fc6e1e3a4f50bfa6cebced4ab29e"
-  integrity sha512-X+it/AS1uclrU88OefvCL+imLTLA9cD0NmaaZR7v/PwEIUlDMTcnUZ8gZJVMdy96vU7ZH+rcaRoh4pYGPo41+Q==
+"@strapi/utils@^4.11.2":
+  version "4.11.2"
+  resolved "https://registry.yarnpkg.com/@strapi/utils/-/utils-4.11.2.tgz#feb5fbe967c126465521750f80dacb0501911deb"
+  integrity sha512-3qUxNMWN2rDXtTBR7j/6ViTYMgbMLwGbblTEnVvAsh/JVVZp826/LUOk8egcmHLLZLjQiruGu+7yYNoMc0XUTg==
   dependencies:
     "@sindresorhus/slugify" "1.1.0"
     date-fns "2.30.0"
