@@ -1766,23 +1766,23 @@
     react-intl "6.4.1"
     yup "^0.32.9"
 
-"@strapi/plugin-i18n@^4.10.4":
-  version "4.10.4"
-  resolved "https://registry.yarnpkg.com/@strapi/plugin-i18n/-/plugin-i18n-4.10.4.tgz#79635ca6691b939f6d3b501b13c1fcf1c61d3fbb"
-  integrity sha512-+qkRpzRRUk+XP3l8g7IC+RtrzbdMSmuAa8YxyuOeZt1QI2ASUwVAqc29uNduEiTpha43u8Fx1GrJN6IfI+kWUw==
+"@strapi/plugin-i18n@^4.11.7":
+  version "4.11.7"
+  resolved "https://registry.yarnpkg.com/@strapi/plugin-i18n/-/plugin-i18n-4.11.7.tgz#147d5ea274f68a8dcee2de31909c9fc7359ad255"
+  integrity sha512-oiyFQr0WuLzYKGOOEaBr+mR2jC9e9qckoDiyicnpFVoedN0quhZbwO/cu5O28Bk+mKfHfrrx5I4mLSCFx4/rcQ==
   dependencies:
-    "@strapi/design-system" "1.7.3"
-    "@strapi/helper-plugin" "4.10.4"
-    "@strapi/icons" "1.7.3"
-    "@strapi/utils" "4.10.4"
-    formik "2.2.9"
+    "@strapi/design-system" "1.8.2"
+    "@strapi/helper-plugin" "4.11.7"
+    "@strapi/icons" "1.8.2"
+    "@strapi/utils" "4.11.7"
+    formik "2.4.0"
     immer "9.0.19"
     lodash "4.17.21"
-    prop-types "^15.7.2"
+    prop-types "^15.8.1"
     qs "6.11.1"
     react-intl "6.4.1"
-    react-query "3.24.3"
-    react-redux "8.0.5"
+    react-query "3.39.3"
+    react-redux "8.1.1"
     redux "^4.2.1"
     yup "^0.32.9"
 
@@ -4716,7 +4716,7 @@ formidable@^1.1.1:
   resolved "https://registry.yarnpkg.com/formidable/-/formidable-1.2.6.tgz#d2a51d60162bbc9b4a055d8457a7c75315d1a168"
   integrity sha512-KcpbcpuLNOwrEjnbpMC0gS+X8ciDoZE1kkqzat4a8vrprf+s9pKNQ/QIwWfbfs4ltgmFl3MD177SNTkve3BwGQ==
 
-formik@2.2.9, formik@^2.2.6:
+formik@2.2.9:
   version "2.2.9"
   resolved "https://registry.yarnpkg.com/formik/-/formik-2.2.9.tgz#8594ba9c5e2e5cf1f42c5704128e119fc46232d0"
   integrity sha512-LQLcISMmf1r5at4/gyJigGn0gOwFbeEAlji+N9InZF6LIMXnFNkO42sCI8Jt84YZggpD4cPWObAZaxpEFtSzNA==
@@ -4742,7 +4742,7 @@ formik@2.4.0:
     tiny-warning "^1.0.2"
     tslib "^1.10.0"
 
-formik@^2.4.0:
+formik@^2.2.6, formik@^2.4.0:
   version "2.4.2"
   resolved "https://registry.yarnpkg.com/formik/-/formik-2.4.2.tgz#a1115457cfb012a5c782cea3ad4b40b2fe36fa18"
   integrity sha512-C6nx0hifW2uENP3M6HpPmnAE6HFWCcd8/sqBZEOHZY6lpHJ5qehsfAy43ktpFLEmkBmhiZDei726utcUB9leqg==
