@@ -6,7 +6,7 @@
 
 <h4 align="center">
   <a href="https://github.com/meilisearch/meilisearch">Meilisearch</a> |
-  <a href="https://www.meilisearch.com/pricing?utm_campaign=oss&utm_source=integration&utm_medium=strapi-plugin-meilisearch">Meilisearch Cloud</a> |
+  <a href="https://www.meilisearch.com/cloud?utm_campaign=oss&utm_source=github&utm_medium=strapi-plugin-meilisearch">Meilisearch Cloud</a> |
   <a href="https://www.meilisearch.com/docs">Documentation</a> |
   <a href="https://discord.meilisearch.com">Discord</a> |
   <a href="https://roadmap.meilisearch.com/tabs/1-under-consideration">Roadmap</a> |
@@ -49,7 +49,7 @@ To understand Strapi and how to create an app, see [Strapi's documentation](http
 
 ## ⚡ Supercharge your Meilisearch experience
 
-Say goodbye to server deployment and manual updates with [Meilisearch Cloud](https://www.meilisearch.com/pricing?utm_campaign=oss&utm_source=integration&utm_medium=strapi-plugin-meilisearch). Get started with a 14-day free trial! No credit card required.
+Say goodbye to server deployment and manual updates with [Meilisearch Cloud](https://www.meilisearch.com/cloud?utm_campaign=oss&utm_source=github&utm_medium=strapi-plugin-meilisearch). Get started with a 14-day free trial! No credit card required.
 
 ## 🔧 Installation
 
