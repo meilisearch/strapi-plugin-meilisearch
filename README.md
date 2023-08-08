@@ -190,7 +190,7 @@ The reload is only possible in develop mode; click on the `Reload Server` button
 
 ## 💅 Customization
 
-It is possible to add settings for every collection. Start by creating a sub-object with the name of the collection inside your `plugin.json` file.
+It is possible to add settings for every collection. Start by creating a sub-object with the name of the collection inside your `plugins.js` file.
 
 ```js
 // config/plugins.js
