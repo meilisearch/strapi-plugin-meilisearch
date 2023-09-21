@@ -3143,10 +3143,10 @@ makeerror@1.0.12:
   dependencies:
     tmpl "1.0.5"
 
-meilisearch@^0.33.0:
-  version "0.33.0"
-  resolved "https://registry.yarnpkg.com/meilisearch/-/meilisearch-0.33.0.tgz#25982b193cdd22e9ec534a022dbde89c42951dc4"
-  integrity sha512-bYPb9WyITnJfzf92e7QFK8Rc50DmshFWxypXCs3ILlpNh8pT15A7KSu9Xgnnk/K3G/4vb3wkxxtFS4sxNkWB8w==
+meilisearch@^0.34.2:
+  version "0.34.2"
+  resolved "https://registry.yarnpkg.com/meilisearch/-/meilisearch-0.34.2.tgz#005adc44e23a451b91d0426856e1ad3eab6c1138"
+  integrity sha512-bbiq8pr+3yyOLU+9qdnNX7CEUQCFNs13Vgrne1iNXVnnRxj9aPRpWP8Kh8o0mdQ2tVKJKGZ7MN5rCGm6qvu52A==
   dependencies:
     cross-fetch "^3.1.6"
 
