@@ -1,8 +1,8 @@
 status = [
   'playground-build (Node.js 16)',
-  'playground-build (Node.js 14)',
+  'playground-build (Node.js 18)',
   'integration-tests (Node.js 16)',
-  'integration-tests (Node.js 14)',
+  'integration-tests (Node.js 18)',
   'style-check',
 ]
 # 1 hour timeout
