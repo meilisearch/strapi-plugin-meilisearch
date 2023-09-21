@@ -22,7 +22,7 @@ updates:
     rebase-strategy: disabled
     allow:
       - dependency-name: "@strapi*"
-      - dependency-name: "meilisearch"      
+      - dependency-name: "meilisearch"
   - package-ecosystem: npm
     directory: "/playground/"
     schedule:
