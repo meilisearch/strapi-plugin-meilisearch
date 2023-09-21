@@ -14,7 +14,7 @@ jobs:
     strategy:
       matrix:
         # Strapi is not yet compatible with node 16
-        node: ['14', '16']
+        node: ['16', '18']
     name: integration-tests (Node.js ${{ matrix.node }})
     steps:
       - uses: actions/checkout@v4
@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: ['14', '16']
+        node: ['16', '18']
     name: playground-build (Node.js ${{ matrix.node }})
     steps:
       - uses: actions/checkout@v4
