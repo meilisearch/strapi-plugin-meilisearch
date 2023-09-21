@@ -6,6 +6,7 @@
 
 <h4 align="center">
   <a href="https://github.com/meilisearch/meilisearch">Meilisearch</a> |
+  <a href="https://www.meilisearch.com/cloud?utm_campaign=oss&utm_source=github&utm_medium=strapi-plugin-meilisearch">Meilisearch Cloud</a> |
   <a href="https://www.meilisearch.com/docs">Documentation</a> |
   <a href="https://discord.meilisearch.com">Discord</a> |
   <a href="https://roadmap.meilisearch.com/tabs/1-under-consideration">Roadmap</a> |
@@ -30,6 +31,7 @@ Add your Strapi content-types into a Meilisearch instance. The plugin listens to
 ## Table of Contents <!-- omit in toc -->
 
 - [📖 Documentation](#-documentation)
+- [⚡ Supercharge your Meilisearch experience](#-supercharge-your-meilisearch-experience)
 - [🔧 Installation](#-installation)
 - [🎬 Getting Started](#-getting-started)
 - [💅 Customization](#-customization)
@@ -44,6 +46,10 @@ Add your Strapi content-types into a Meilisearch instance. The plugin listens to
 To understand Meilisearch and how it works, see the [Meilisearch's documentation](https://www.meilisearch.com/docs/learn/getting_started/installation).
 
 To understand Strapi and how to create an app, see [Strapi's documentation](https://strapi.io/documentation/developer-docs/latest/getting-started/introduction.html).
+
+## ⚡ Supercharge your Meilisearch experience
+
+Say goodbye to server deployment and manual updates with [Meilisearch Cloud](https://www.meilisearch.com/cloud?utm_campaign=oss&utm_source=github&utm_medium=strapi-plugin-meilisearch). Get started with a 14-day free trial! No credit card required.
 
 ## 🔧 Installation
 
@@ -184,7 +190,7 @@ The reload is only possible in develop mode; click on the `Reload Server` button
 
 ## 💅 Customization
 
-It is possible to add settings for every collection. Start by creating a sub-object with the name of the collection inside your `plugin.json` file.
+It is possible to add settings for every collection. Start by creating a sub-object with the name of the collection inside your `plugins.js` file.
 
 ```js
 // config/plugins.js
