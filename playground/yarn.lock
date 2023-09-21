@@ -1591,9 +1591,9 @@
     typescript "5.1.3"
 
 "@strapi/ui-primitives@^1.8.2":
-  version "1.8.2"
-  resolved "https://registry.yarnpkg.com/@strapi/ui-primitives/-/ui-primitives-1.8.2.tgz#31e056c50993a898df7704329a87f3ef7d85221d"
-  integrity sha512-33GDdBXyH8BtBNyjUNiiZVoZ0R9BPtcKhCIb9VtR6RoyR/OVoAOgA3cOO9isxrwh8LZFP2BgofKW62ew3Y801w==
+  version "1.11.0"
+  resolved "https://registry.yarnpkg.com/@strapi/ui-primitives/-/ui-primitives-1.11.0.tgz#d6b3698f79ea8d6bb8c7507837dc46d37cee51b4"
+  integrity sha512-YqE7BQhOYtfv615ib4SjdSAZg+o+EfpQ1e4UD2cb6r6b56D4fP2/1mDPk82qdEc4L8mzeOG/G6nhy4wMu5TaXw==
   dependencies:
     "@radix-ui/number" "^1.0.1"
     "@radix-ui/primitive" "^1.0.1"
