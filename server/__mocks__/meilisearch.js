@@ -4,8 +4,8 @@ const updateSettingsMock = jest.fn(() => 10)
 const deleteDocuments = jest.fn(() => {
   return [{ taskUid: 1 }, { taskUid: 2 }]
 })
-const getIndexes = jest.fn(() => {
-  return { results: [{ uid: 'my_restaurant' }, { uid: 'restaurant' }] }
+const getIndexUids = jest.fn(() => {
+  return ['my_restaurant', 'restaurant']
 })
 
 const getTasks = jest.fn(() => {
@@ -33,7 +33,7 @@ const mockIndex = jest.fn(() => ({
 // @ts-ignore
 const mock = jest.fn().mockImplementation(() => {
   return {
-    getIndexes,
+    getIndexUids,
     index: mockIndex,
     getTasks,
   }
