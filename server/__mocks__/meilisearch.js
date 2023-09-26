@@ -4,8 +4,23 @@ const updateSettingsMock = jest.fn(() => 10)
 const deleteDocuments = jest.fn(() => {
   return [{ taskUid: 1 }, { taskUid: 2 }]
 })
-const getIndexes = jest.fn(() => {
-  return { results: [{ uid: 'my_restaurant' }, { uid: 'restaurant' }] }
+const getStats = jest.fn(() => {
+  return {
+    databaseSize: 447819776,
+    lastUpdate: '2019-11-15T11:15:22.092896Z',
+    indexes: {
+      my_restaurant: {
+        numberOfDocuments: 1,
+        isIndexing: false,
+        fieldDistribution: {},
+      },
+      restaurant: {
+        numberOfDocuments: 1,
+        isIndexing: false,
+        fieldDistribution: {},
+      },
+    },
+  }
 })
 
 const getTasks = jest.fn(() => {
@@ -18,7 +33,7 @@ const getTasks = jest.fn(() => {
   }
 })
 
-const getStats = jest.fn(() => {
+const getIndexStats = jest.fn(() => {
   return { numberOfDocuments: 1, isIndexing: false, fieldDistribution: {} }
 })
 
@@ -27,13 +42,13 @@ const mockIndex = jest.fn(() => ({
   updateDocuments: updateDocumentsMock,
   updateSettings: updateSettingsMock,
   deleteDocuments,
-  getStats,
+  getStats: getIndexStats,
 }))
 
 // @ts-ignore
 const mock = jest.fn().mockImplementation(() => {
   return {
-    getIndexes,
+    getStats,
     index: mockIndex,
     getTasks,
   }
