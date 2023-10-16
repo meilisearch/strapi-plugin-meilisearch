@@ -28,6 +28,12 @@ Meilisearch is an open-source search engine. [Discover what Meilisearch is!](htt
 
 Add your Strapi content-types into a Meilisearch instance. The plugin listens to modifications made on your content-types and updates Meilisearch accordingly.
 
+---
+
+### 🔥 On November 2nd, we are hosting our first-ever live demo and product updates for [Meilisearch Cloud](https://www.meilisearch.com/cloud?utm_campaign=oss&utm_source=github&utm_medium=meilisearch). Make sure to [register here](https://us06web.zoom.us/meeting/register/tZMlc-mqrjIsH912-HTRe-AaT-pp41bDe81a#/registration) and bring your questions for live Q&A!
+
+---
+
 ## Table of Contents <!-- omit in toc -->
 
 - [📖 Documentation](#-documentation)
