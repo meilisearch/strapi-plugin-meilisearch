@@ -1,5 +1,11 @@
 const defaultContentTypes = require('../__tests__/utils/content-types-list')
 
+const mockLogger = {
+  error: jest.fn(() => {}),
+  info: jest.fn(() => {}),
+  warn: jest.fn(() => {}),
+}
+
 /**
  * @param {object} config
  * @param  {object} [config.restaurantConfig]
@@ -40,11 +46,6 @@ function createStrapiMock({
       },
     }
   })
-
-  const mockLogger = {
-    error: jest.fn(() => {}),
-    warn: jest.fn(() => {}),
-  }
 
   const mockConfig = {
     get: jest.fn(() => {
@@ -90,4 +91,5 @@ function createStrapiMock({
 
 module.exports = {
   createStrapiMock,
+  mockLogger,
 }
