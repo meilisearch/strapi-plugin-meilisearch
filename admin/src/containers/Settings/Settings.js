@@ -1,4 +1,4 @@
-import { Box } from '@strapi/design-system/Box'
+import { Box } from '@strapi/design-system'
 import React, { memo } from 'react'
 import Credentials from './Credentials'
 

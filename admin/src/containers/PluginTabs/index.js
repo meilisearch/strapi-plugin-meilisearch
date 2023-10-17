@@ -1,14 +1,14 @@
 import React, { memo } from 'react'
-import { Box } from '@strapi/design-system/Box'
-import {
-  Tabs,
-  Tab,
-  TabGroup,
-  TabPanels,
-  TabPanel,
-} from '@strapi/design-system/Tabs'
 import { CollectionTable } from '../Collection'
 import { Settings } from '../Settings'
+import {
+  Box,
+  Tab,
+  TabGroup,
+  TabPanel,
+  TabPanels,
+  Tabs,
+} from '@strapi/design-system'
 
 const PluginTabs = () => {
   return (
