@@ -65,16 +65,16 @@ module.exports = ({ strapi, adapter, config }) => {
 
   return {
     /**
-     * Get indexes with a safe guard in case of error.
+     * Get index uids with a safe guard in case of error.
      *
      * @returns { Promise<import("meilisearch").Index[]> }
      */
-    getIndexes: async function () {
+    getIndexUids: async function () {
       try {
         const { apiKey, host } = await store.getCredentials()
         const client = Meilisearch({ apiKey, host })
-        const { results: indexes } = await client.getIndexes()
-        return indexes
+        const { indexes } = await client.getStats()
+        return Object.keys(indexes)
       } catch (e) {
         strapi.log.error(`meilisearch: ${e.message}`)
         return []
@@ -189,8 +189,7 @@ module.exports = ({ strapi, adapter, config }) => {
      * }>}>} - List of contentTypes reports.
      */
     getContentTypesReport: async function () {
-      const indexes = await this.getIndexes()
-      const indexUids = indexes.map(index => index.uid)
+      const indexUids = await this.getIndexUids()
 
       // All listened contentTypes
       const listenedContentTypes = await store.getListenedContentTypes()

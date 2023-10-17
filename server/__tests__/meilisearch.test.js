@@ -23,9 +23,9 @@ describe('Tests content types', () => {
       strapi: customStrapi,
     })
 
-    const indexes = await meilisearchService.getIndexes()
+    const indexes = await meilisearchService.getIndexUids()
 
-    expect(indexes).toEqual([{ uid: 'my_restaurant' }, { uid: 'restaurant' }])
+    expect(indexes).toEqual(['my_restaurant', 'restaurant'])
   })
 
   test('Test to delete entries from Meilisearch', async () => {

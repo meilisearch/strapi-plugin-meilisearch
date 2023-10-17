@@ -10,11 +10,11 @@
     "strapi": "strapi"
   },
   "dependencies": {
-    "@strapi/plugin-i18n": "^4.11.7",
-    "@strapi/plugin-users-permissions": "^4.11.7",
+    "@strapi/plugin-i18n": "^4.13.7",
+    "@strapi/plugin-users-permissions": "^4.13.7",
     "@strapi/strapi": "^4.11.7",
     "@strapi/utils": "^4.10.4",
-    "meilisearch": "^0.33.0",
+    "meilisearch": "^0.34.2",
     "sqlite3": "^5.1.4"
   },
   "author": {
@@ -22,10 +22,6 @@
   },
   "strapi": {
     "uuid": "227ce342-a655-4ff3-9374-17704b534984"
-  },
-  "engines": {
-    "node": ">=12.x.x <=16.x.x",
-    "npm": ">=6.0.0"
   },
   "license": "MIT"
 }

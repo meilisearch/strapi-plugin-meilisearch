@@ -601,10 +601,10 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
-"@strapi/utils@^4.11.7":
-  version "4.11.7"
-  resolved "https://registry.yarnpkg.com/@strapi/utils/-/utils-4.11.7.tgz#5d22866fc3df011af31a014870e9dd51e1eee704"
-  integrity sha512-NAnjcKxR9rpJFKsRgqDtjImoKEUrK0Zf5y+5AAowWtteyWXYujkUxNpWYKJ8D08sFnp//MyP8fT6Rtu196ZQTQ==
+"@strapi/utils@^4.13.7":
+  version "4.13.7"
+  resolved "https://registry.yarnpkg.com/@strapi/utils/-/utils-4.13.7.tgz#cf8a9286d04ea9ba7d8c8c1c7b3680f9a6f7cc10"
+  integrity sha512-v1e0408+wYr7WbAxQ1Vdwv117J8GorgAGd9l2y8nhBQIRKpNgFx0Ym93N8YVCtLQPPwHM83TOr/Sc3x99f8jbQ==
   dependencies:
     "@sindresorhus/slugify" "1.1.0"
     date-fns "2.30.0"
@@ -3143,10 +3143,10 @@ makeerror@1.0.12:
   dependencies:
     tmpl "1.0.5"
 
-meilisearch@^0.33.0:
-  version "0.33.0"
-  resolved "https://registry.yarnpkg.com/meilisearch/-/meilisearch-0.33.0.tgz#25982b193cdd22e9ec534a022dbde89c42951dc4"
-  integrity sha512-bYPb9WyITnJfzf92e7QFK8Rc50DmshFWxypXCs3ILlpNh8pT15A7KSu9Xgnnk/K3G/4vb3wkxxtFS4sxNkWB8w==
+meilisearch@^0.34.2:
+  version "0.34.2"
+  resolved "https://registry.yarnpkg.com/meilisearch/-/meilisearch-0.34.2.tgz#005adc44e23a451b91d0426856e1ad3eab6c1138"
+  integrity sha512-bbiq8pr+3yyOLU+9qdnNX7CEUQCFNs13Vgrne1iNXVnnRxj9aPRpWP8Kh8o0mdQ2tVKJKGZ7MN5rCGm6qvu52A==
   dependencies:
     cross-fetch "^3.1.6"
 
