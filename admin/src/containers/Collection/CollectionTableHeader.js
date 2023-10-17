@@ -1,7 +1,11 @@
 import React, { memo } from 'react'
-import { Thead, Tr, Th } from '@strapi/design-system/Table'
-import { Typography } from '@strapi/design-system/Typography'
-import { VisuallyHidden } from '@strapi/design-system/VisuallyHidden'
+import {
+  Th,
+  Thead,
+  Tr,
+  Typography,
+  VisuallyHidden,
+} from '@strapi/design-system'
 
 const CollectionTableHeader = () => {
   return (

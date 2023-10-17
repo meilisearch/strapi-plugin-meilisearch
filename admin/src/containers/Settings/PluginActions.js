@@ -1,7 +1,5 @@
-import { Box } from '@strapi/design-system/Box'
 import React, { memo } from 'react'
-import { Typography } from '@strapi/design-system/Typography'
-import { Button } from '@strapi/design-system/Button'
+import { Box, Button, Typography } from '@strapi/design-system'
 
 const PluginActions = () => {
   return (

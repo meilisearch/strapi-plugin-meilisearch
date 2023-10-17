@@ -1,12 +1,12 @@
 import React, { memo } from 'react'
-import { Box } from '@strapi/design-system/Box'
 import {
-  Tabs,
+  Box,
   Tab,
   TabGroup,
-  TabPanels,
   TabPanel,
-} from '@strapi/design-system/Tabs'
+  TabPanels,
+  Tabs,
+} from '@strapi/design-system'
 import { CollectionTable } from '../Collection'
 import { Settings } from '../Settings'
 

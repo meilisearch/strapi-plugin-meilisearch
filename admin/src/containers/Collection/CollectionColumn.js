@@ -1,10 +1,13 @@
 import React, { memo } from 'react'
-import { Tr, Td } from '@strapi/design-system/Table'
-import { BaseCheckbox } from '@strapi/design-system/BaseCheckbox'
-import { Typography } from '@strapi/design-system/Typography'
-import { Flex } from '@strapi/design-system/Flex'
-import { Box } from '@strapi/design-system/Box'
-import { Button } from '@strapi/design-system/Button'
+import {
+  BaseCheckbox,
+  Box,
+  Button,
+  Flex,
+  Td,
+  Tr,
+  Typography,
+} from '@strapi/design-system'
 
 const CollectionColumn = ({
   entry,

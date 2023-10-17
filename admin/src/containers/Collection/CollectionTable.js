@@ -1,7 +1,5 @@
 import React, { memo, useEffect, useState } from 'react'
-import { Table, Tbody } from '@strapi/design-system/Table'
-import { Box } from '@strapi/design-system/Box'
-import { Button } from '@strapi/design-system/Button'
+import { Box, Button, Table, Tbody } from '@strapi/design-system'
 import { request, useAutoReloadOverlayBlocker } from '@strapi/helper-plugin'
 import CollectionTableHeader from './CollectionTableHeader'
 import CollectionColumn from './CollectionColumn'
