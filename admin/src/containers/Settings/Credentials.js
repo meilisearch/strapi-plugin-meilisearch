@@ -1,6 +1,6 @@
 import React, { memo } from 'react'
 import { useCredential } from '../../Hooks/useCredential'
-import { Box, TextInput, Typography } from '@strapi/design-system'
+import { Box, Button, TextInput, Typography } from '@strapi/design-system'
 
 const Credentials = () => {
   const {
