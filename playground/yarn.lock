@@ -1757,10 +1757,22 @@
     p-map "4.0.0"
     yup "0.32.9"
 
-"@strapi/utils@4.14.0", "@strapi/utils@^4.10.4":
+"@strapi/utils@4.14.0":
   version "4.14.0"
   resolved "https://registry.yarnpkg.com/@strapi/utils/-/utils-4.14.0.tgz#c36bb354f5e98a408d521f04f4de2faa610256e4"
   integrity sha512-LKpsVwKmHC8iFoQAxRvSH6vjIwqdf3yoLHPGK6fNT0R6C3NTdZvyL+zqHBVtpnpkADoaFw9dYA81kmHGEegKtg==
+  dependencies:
+    "@sindresorhus/slugify" "1.1.0"
+    date-fns "2.30.0"
+    http-errors "1.8.1"
+    lodash "4.17.21"
+    p-map "4.0.0"
+    yup "0.32.9"
+
+"@strapi/utils@^4.14.4":
+  version "4.14.4"
+  resolved "https://registry.yarnpkg.com/@strapi/utils/-/utils-4.14.4.tgz#856bd5e459138327e2a0b07e46eab80f8d129d8f"
+  integrity sha512-Eyj9PB4Gz6r8cHsWzVOCnmEDTgYr17n3P8xOGHoLUN9Uz7dB7eeloeUNhYiAZHKzNDd02LETySWTglwwA5NpXQ==
   dependencies:
     "@sindresorhus/slugify" "1.1.0"
     date-fns "2.30.0"
