@@ -1,6 +1,5 @@
 import React, { memo } from 'react'
-import { Box, Link } from '@strapi/design-system'
-import { BaseHeaderLayout } from '@strapi/design-system'
+import { Box, Link, BaseHeaderLayout } from '@strapi/design-system'
 import { ArrowLeft } from '@strapi/icons'
 
 const PluginHeader = () => {

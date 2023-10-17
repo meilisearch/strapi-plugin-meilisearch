@@ -1,10 +1,10 @@
 import React, { memo, useEffect, useState } from 'react'
+import { Box, Button, Table, Tbody } from '@strapi/design-system'
 import { request, useAutoReloadOverlayBlocker } from '@strapi/helper-plugin'
 import CollectionTableHeader from './CollectionTableHeader'
 import CollectionColumn from './CollectionColumn'
 import useCollection from '../../Hooks/useCollection'
 import pluginId from '../../pluginId'
-import { Box, Button, Table, Tbody } from '@strapi/design-system'
 
 const Collection = () => {
   const {

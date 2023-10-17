@@ -1,6 +1,4 @@
 import React, { memo } from 'react'
-import { CollectionTable } from '../Collection'
-import { Settings } from '../Settings'
 import {
   Box,
   Tab,
@@ -9,6 +7,8 @@ import {
   TabPanels,
   Tabs,
 } from '@strapi/design-system'
+import { CollectionTable } from '../Collection'
+import { Settings } from '../Settings'
 
 const PluginTabs = () => {
   return (
