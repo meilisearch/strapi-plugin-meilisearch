@@ -112,7 +112,7 @@ To run the Docker script add both files `Dockerfile` and `docker-compose.yaml` a
 
 ## 🎬 Getting Started
 
-Now that you have installed the plugin, a running meiliSearch instance and, a running Strapi app, let's go to the plugin page on your admin dashboard.
+Now that you have installed the plugin, a running Meilisearch instance and, a running Strapi app, let's go to the plugin page on your admin dashboard.
 
 On the left-navbar, `Meilisearch` appears under the `PLUGINS` category. If it does not, ensure that you have installed the plugin and re-build Strapi (see [installation](#-installation)).
 
@@ -424,7 +424,7 @@ Once you have a content-type indexed in Meilisearch, you can [start searching](h
 
 To search in Meilisearch, you can use the [instant-meilisearch](https://github.com/meilisearch/meilisearch-js-plugins/tree/main/packages/instant-meilisearch) library that integrates a whole search interface, or our [meilisearch-js](https://github.com/meilisearch/meilisearch-js) SDK.
 
-#### ⚡️ Using Instant meiliSearch <!-- omit in toc -->
+#### ⚡️ Using Instant Meilisearch <!-- omit in toc -->
 
 You can have a front up and running in record time with [instant-meilisearch](https://github.com/meilisearch/meilisearch-js-plugins/tree/main/packages/instant-meilisearch).
 
