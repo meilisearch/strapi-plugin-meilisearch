@@ -189,10 +189,22 @@ module.exports = ({ strapi }) => {
      * @return {Array<Object>} - Entries
      */
     removeSensitiveFields: function ({ contentType, entries }) {
+      const collection = contentTypeService.getCollectionName({ contentType })
+      const contentTypeConfig = meilisearchConfig[collection] || {}
+
+      const noSanitizePrivateFields =
+        contentTypeConfig.noSanitizePrivateFields || []
+
+      if (noSanitizePrivateFields.includes('*')) {
+        return entries
+      }
+
       // TODO: should be persisted somewhere to make it more performant
       const attrs = strapi.contentTypes[contentType].attributes
       const privateFields = Object.entries(attrs).map(([field, schema]) =>
-        schema.private ? field : false
+        schema.private && !noSanitizePrivateFields.includes(field)
+          ? field
+          : false
       )
 
       return entries.map(entry => {

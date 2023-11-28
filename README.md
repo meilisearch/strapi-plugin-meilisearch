@@ -211,6 +211,7 @@ Settings:
 - [🤚 Filter entries](#-filter-entries)
 - [🏗 Add Meilisearch settings](#-add-meilisearch-settings)
 - [🔎 Entries query](#-entries-query)
+- [🔐 Selectively index private fields](#-selectively-index-private-fields)
 
 ### 🏷 Custom index name
 
@@ -411,6 +412,27 @@ module.exports = {
 ```
 
 [See resources](./resources/entries-query) for more entriesQuery examples.
+
+### 🔐 Selectively index private fields
+
+Private fields are sanitized by default to prevent data leaks. However, you might want to allow some of these private fields to be used for `search`, `filter` or `sort`. This is possible with the `noSanitizePrivateFields`. For example, if you have a private field called `internal_notes` in your content-type schema that you wish to include in searching, you can add it to the `noSanitizePrivateFields` array to allow it to be indexed.
+
+```js
+// config/plugins.js
+
+module.exports = {
+  meilisearch: {
+    config: {
+      restaurant: {
+        noSanitizePrivateFields: ["internal_notes"], // All attributes: ["*"]
+        settings:  {
+          "searchableAttributes": ["internal_notes"],
+        }
+      },
+    },
+  },
+}
+```
 
 ### 🕵️‍♀️ Start Searching <!-- omit in toc -->
 
