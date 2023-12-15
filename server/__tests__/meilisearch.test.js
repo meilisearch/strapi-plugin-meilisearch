@@ -119,7 +119,7 @@ describe('Tests content types', () => {
     )
   })
 
-  test('sanitizes the private fields from the entries', async () => {
+  test('selectively sanitizes the private fields from the entries', async () => {
     const pluginMock = jest.fn(() => ({
       // This rewrites only the needed methods to reach the system under test (removeSensitiveFields)
       service: jest.fn().mockImplementation(() => {
@@ -127,8 +127,18 @@ describe('Tests content types', () => {
           async actionInBatches({ contentType = 'restaurant', callback }) {
             await callback({
               entries: [
-                { id: 1, title: 'title', secret: '123' },
-                { id: 2, title: 'abc', secret: '234' },
+                {
+                  id: 1,
+                  title: 'title',
+                  internal_notes: 'note123',
+                  secret: '123',
+                },
+                {
+                  id: 2,
+                  title: 'abc',
+                  internal_notes: 'note234',
+                  secret: '234',
+                },
               ],
               contentType,
             })
@@ -149,11 +159,18 @@ describe('Tests content types', () => {
             attributes: {
               id: { private: false },
               title: { private: false },
+              internal_notes: { private: true },
               secret: { private: true },
             },
           },
         },
-        config: { get: jest.fn(() => ({ restaurant: jest.fn() })) },
+        config: {
+          get: jest.fn(() => ({
+            restaurant: {
+              noSanitizePrivateFields: ['internal_notes'],
+            },
+          })),
+        },
         log: mockLogger,
       },
     })
@@ -169,11 +186,13 @@ describe('Tests content types', () => {
           _meilisearch_id: 'restaurant-1',
           id: 1,
           title: 'title',
+          internal_notes: 'note123',
         },
         {
           _meilisearch_id: 'restaurant-2',
           id: 2,
           title: 'abc',
+          internal_notes: 'note234',
         },
       ],
       { primaryKey: '_meilisearch_id' }
