@@ -245,6 +245,41 @@ describe('Test plugin configuration', () => {
     expect(strapiMock.log.error).toHaveBeenCalledTimes(0)
   })
 
+  test('Test noSanitizePrivateFields with wrong type', async () => {
+    validatePluginConfig({
+      restaurant: {
+        noSanitizePrivateFields: 0,
+      },
+    })
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(1)
+    expect(strapiMock.log.error).toHaveBeenCalledWith(
+      'The "noSanitizePrivateFields" option of "restaurant" should be an array of strings.'
+    )
+  })
+
+  test('Test noSanitizePrivateFields with array of strings', async () => {
+    const configuration = validatePluginConfig({
+      restaurant: {
+        noSanitizePrivateFields: ['test'],
+      },
+    })
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(0)
+    expect(configuration.restaurant.noSanitizePrivateFields).toEqual(['test'])
+  })
+
+  test('Test noSanitizePrivateFields with undefined', async () => {
+    validatePluginConfig({
+      restaurant: {
+        noSanitizePrivateFields: undefined,
+      },
+    })
+
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(0)
+  })
+
   test('Test configuration with random field ', async () => {
     validatePluginConfig({
       restaurant: {

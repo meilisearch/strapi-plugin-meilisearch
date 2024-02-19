@@ -28,13 +28,7 @@ Meilisearch is an open-source search engine. [Discover what Meilisearch is!](htt
 
 Add your Strapi content-types into a Meilisearch instance. The plugin listens to modifications made on your content-types and updates Meilisearch accordingly.
 
----
-
-### 🔥 On November 2nd, we are hosting our first-ever live demo and product updates for [Meilisearch Cloud](https://www.meilisearch.com/cloud?utm_campaign=oss&utm_source=github&utm_medium=meilisearch). Make sure to [register here](https://us06web.zoom.us/meeting/register/tZMlc-mqrjIsH912-HTRe-AaT-pp41bDe81a#/registration) and bring your questions for live Q&A!
-
----
-
-## Table of Contents <!-- omit in toc -->
+## Table of Contents <!-- omit in TOC -->
 
 - [📖 Documentation](#-documentation)
 - [⚡ Supercharge your Meilisearch experience](#-supercharge-your-meilisearch-experience)
@@ -217,6 +211,7 @@ Settings:
 - [🤚 Filter entries](#-filter-entries)
 - [🏗 Add Meilisearch settings](#-add-meilisearch-settings)
 - [🔎 Entries query](#-entries-query)
+- [🔐 Selectively index private fields](#-selectively-index-private-fields)
 
 ### 🏷 Custom index name
 
@@ -417,6 +412,27 @@ module.exports = {
 ```
 
 [See resources](./resources/entries-query) for more entriesQuery examples.
+
+### 🔐 Selectively index private fields
+
+Private fields are sanitized by default to prevent data leaks. However, you might want to allow some of these private fields to be used for `search`, `filter` or `sort`. This is possible with the `noSanitizePrivateFields`. For example, if you have a private field called `internal_notes` in your content-type schema that you wish to include in searching, you can add it to the `noSanitizePrivateFields` array to allow it to be indexed.
+
+```js
+// config/plugins.js
+
+module.exports = {
+  meilisearch: {
+    config: {
+      restaurant: {
+        noSanitizePrivateFields: ["internal_notes"], // All attributes: ["*"]
+        settings:  {
+          "searchableAttributes": ["internal_notes"],
+        }
+      },
+    },
+  },
+}
+```
 
 ### 🕵️‍♀️ Start Searching <!-- omit in toc -->
 

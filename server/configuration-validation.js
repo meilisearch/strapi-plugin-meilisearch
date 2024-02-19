@@ -175,6 +175,7 @@ function CollectionConfig({ collectionName, configuration }) {
     filterEntry,
     settings,
     entriesQuery,
+    noSanitizePrivateFields,
     ...unknownFields
   } = configuration
   const options = {}
@@ -262,6 +263,21 @@ function CollectionConfig({ collectionName, configuration }) {
 
       return this
     },
+    validateNoSanitizePrivateFields() {
+      // noSanitizePrivateFields is either undefined or an array
+      if (
+        noSanitizePrivateFields !== undefined &&
+        !Array.isArray(noSanitizePrivateFields)
+      ) {
+        log.error(
+          `The "noSanitizePrivateFields" option of "${collectionName}" should be an array of strings.`
+        )
+      } else if (noSanitizePrivateFields !== undefined) {
+        options.noSanitizePrivateFields = noSanitizePrivateFields
+      }
+
+      return this
+    },
 
     validateNoInvalidKeys() {
       // Keys that should not be present in the configuration
@@ -323,8 +339,9 @@ function PluginConfig({ configuration }) {
             .validateFilterEntry()
             .validateTransformEntry()
             .validateMeilisearchSettings()
-            .validateNoInvalidKeys()
             .validateEntriesQuery()
+            .validateNoSanitizePrivateFields()
+            .validateNoInvalidKeys()
             .get()
         }
       }
