@@ -10,8 +10,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 14
-          registry-url: https://registry.npmjs.org/
+          node-version: 20
       - name: Check release validity
         run: sh .github/scripts/check-release.sh
       - name: Check tag format
