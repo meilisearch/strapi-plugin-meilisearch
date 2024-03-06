@@ -565,10 +565,9 @@ If you are using [Strapi v3](https://github.com/strapi/strapi/tree/v3.6.9), plea
 
 This package guarantees compatibility with [version v1.x of Meilisearch](https://github.com/meilisearch/meilisearch/releases/latest), but some features may not be present. Please check the [issues](https://github.com/meilisearch/strapi-plugin-meilisearch/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22+label%3Aenhancement) for more info.
 
-**Node / NPM versions**:
+**Node**:
 
-- NodeJS >= 14.10 <= 16
-- NPM >= 6.x
+- NodeJS >= 18
 
 **We recommend always using the latest version of Strapi to start your new projects**.
 

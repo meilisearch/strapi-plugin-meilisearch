@@ -42,7 +42,8 @@
     }
   ],
   "engines": {
-    "npm": ">=6.0.0"
+    "npm": ">=6.0.0",
+    "node": ">=18"
   },
   "bugs": {
     "url": "https://github.com/meilisearch/strapi-plugin-meilisearch/issues"
