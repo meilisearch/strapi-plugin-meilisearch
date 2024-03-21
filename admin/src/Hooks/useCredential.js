@@ -13,32 +13,36 @@ export function useCredential() {
   const [refetchIndex, setRefetchIndex] = useState(true)
   const [host, setHost] = useState('')
   const [apiKey, setApiKey] = useState('')
-  const { handleNotification } = useAlert()
+  const { handleNotification, checkForbiddenError } = useAlert()
 
   const refetchCredentials = () =>
     setRefetchIndex(prevRefetchIndex => !prevRefetchIndex)
 
   const updateCredentials = async () => {
-    const { error } = await request(`/${pluginId}/credential`, {
-      method: 'POST',
-      body: {
-        apiKey: apiKey,
-        host: host,
-      },
-    })
-    if (error) {
-      handleNotification({
-        type: 'warning',
-        message: error.message,
-        link: error.link,
+    try {
+      const { error } = await request(`/${pluginId}/credential`, {
+        method: 'POST',
+        body: {
+          apiKey: apiKey,
+          host: host,
+        },
       })
-    } else {
-      refetchCredentials()
-      handleNotification({
-        type: 'success',
-        message: 'Credentials sucessfully updated!',
-        blockTransition: false,
-      })
+      if (error) {
+        handleNotification({
+          type: 'warning',
+          message: error.message,
+          link: error.link,
+        })
+      } else {
+        refetchCredentials()
+        handleNotification({
+          type: 'success',
+          message: 'Credentials sucessfully updated!',
+          blockTransition: false,
+        })
+      }
+    } catch (error) {
+      checkForbiddenError(error)
     }
   }
 

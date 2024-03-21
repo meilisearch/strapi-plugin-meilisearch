@@ -9,6 +9,8 @@ import {
 } from '@strapi/design-system'
 import { CollectionTable } from '../Collection'
 import { Settings } from '../Settings'
+import { CheckPermissions } from '@strapi/helper-plugin'
+import { PERMISSIONS } from '../../constants'
 
 const PluginTabs = () => {
   return (
@@ -20,14 +22,18 @@ const PluginTabs = () => {
         </Tabs>
         <TabPanels>
           <TabPanel>
-            <Box color="neutral800" padding={4} background="neutral0">
-              <CollectionTable />
-            </Box>
+            <CheckPermissions permissions={PERMISSIONS.collections}>
+              <Box color="neutral800" padding={4} background="neutral0">
+                <CollectionTable />
+              </Box>
+            </CheckPermissions>
           </TabPanel>
           <TabPanel>
-            <Box color="neutral800" padding={4} background="neutral0">
-              <Settings />
-            </Box>
+            <CheckPermissions permissions={PERMISSIONS.settings}>
+              <Box color="neutral800" padding={4} background="neutral0">
+                <Settings />
+              </Box>
+            </CheckPermissions>
           </TabPanel>
         </TabPanels>
       </TabGroup>

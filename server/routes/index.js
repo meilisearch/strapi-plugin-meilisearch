@@ -1,10 +1,12 @@
+const { ACTIONS } = require('../constants')
+
 module.exports = [
   {
     method: 'GET',
     path: '/credential',
     handler: 'credentialController.getCredentials',
     config: {
-      policies: ['isAdmin'],
+      policies: ['admin::isAuthenticatedAdmin'],
     },
   },
   {
@@ -12,7 +14,13 @@ module.exports = [
     path: '/credential',
     handler: 'credentialController.addCredentials',
     config: {
-      policies: ['isAdmin'],
+      policies: [
+        'admin::isAuthenticatedAdmin',
+        {
+          name: 'admin::hasPermissions',
+          config: { actions: [ACTIONS.settings] },
+        },
+      ],
     },
   },
   {
@@ -20,7 +28,7 @@ module.exports = [
     path: '/content-type',
     handler: 'contentTypeController.getContentTypes',
     config: {
-      policies: ['isAdmin'],
+      policies: ['admin::isAuthenticatedAdmin'],
     },
   },
   {
@@ -28,7 +36,13 @@ module.exports = [
     path: '/content-type',
     handler: 'contentTypeController.addContentType',
     config: {
-      policies: ['isAdmin'],
+      policies: [
+        'admin::isAuthenticatedAdmin',
+        {
+          name: 'admin::hasPermissions',
+          config: { actions: [ACTIONS.create] },
+        },
+      ],
     },
   },
   {
@@ -36,7 +50,15 @@ module.exports = [
     path: '/content-type',
     handler: 'contentTypeController.updateContentType',
     config: {
-      policies: ['isAdmin'],
+      policies: [
+        'admin::isAuthenticatedAdmin',
+        {
+          name: 'admin::hasPermissions',
+          config: {
+            actions: [ACTIONS.update],
+          },
+        },
+      ],
     },
   },
   {
@@ -44,7 +66,15 @@ module.exports = [
     path: '/content-type/:contentType',
     handler: 'contentTypeController.removeContentType',
     config: {
-      policies: ['isAdmin'],
+      policies: [
+        'admin::isAuthenticatedAdmin',
+        {
+          name: 'admin::hasPermissions',
+          config: {
+            actions: [ACTIONS.delete],
+          },
+        },
+      ],
     },
   },
   {
@@ -52,7 +82,7 @@ module.exports = [
     path: '/reload',
     handler: 'reloadController.reload',
     config: {
-      policies: ['isAdmin'],
+      policies: ['admin::isAuthenticatedAdmin'],
     },
   },
 ]

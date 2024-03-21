@@ -16,7 +16,7 @@ export function useCollection() {
   const [reloadNeeded, setReloadNeeded] = useState(false)
   const [realTimeReports, setRealTimeReports] = useState(false)
 
-  const { handleNotification } = useAlert()
+  const { handleNotification, checkForbiddenError } = useAlert()
 
   const refetchCollection = () =>
     setRefetchIndex(prevRefetchIndex => !prevRefetchIndex)
@@ -57,71 +57,84 @@ export function useCollection() {
   }
 
   const deleteCollection = async ({ contentType }) => {
-    const { error } = await request(
-      `/${pluginId}/content-type/${contentType}`,
-      {
-        method: 'DELETE',
+    try {
+      const { error } = await request(
+        `/${pluginId}/content-type/${contentType}`,
+        {
+          method: 'DELETE',
+        }
+      )
+      if (error) {
+        handleNotification({
+          type: 'warning',
+          message: error.message,
+          link: error.link,
+        })
+      } else {
+        refetchCollection()
+        handleNotification({
+          type: 'success',
+          message: 'Request to delete content-type is successful',
+          blockTransition: false,
+        })
       }
-    )
-    if (error) {
-      handleNotification({
-        type: 'warning',
-        message: error.message,
-        link: error.link,
-      })
-    } else {
-      refetchCollection()
-      handleNotification({
-        type: 'success',
-        message: 'Request to delete content-type is successful',
-        blockTransition: false,
-      })
+    } catch (error) {
+      checkForbiddenError(error)
     }
   }
 
   const addCollection = async ({ contentType }) => {
-    const { error } = await request(`/${pluginId}/content-type`, {
-      method: 'POST',
-      body: {
-        contentType,
-      },
-    })
-    if (error) {
-      handleNotification({
-        type: 'warning',
-        message: error.message,
-        link: error.link,
+    try {
+      const { error } = await request(`/${pluginId}/content-type`, {
+        method: 'POST',
+        body: {
+          contentType,
+        },
       })
-    } else {
-      refetchCollection()
-      handleNotification({
-        type: 'success',
-        message: 'Request to add a content-type is successful',
-        blockTransition: false,
-      })
+      if (error) {
+        handleNotification({
+          type: 'warning',
+          message: error.message,
+          link: error.link,
+        })
+      } else {
+        refetchCollection()
+        handleNotification({
+          type: 'success',
+          message: 'Request to add a content-type is successful',
+          blockTransition: false,
+        })
+      }
+    } catch (error) {
+      checkForbiddenError(error)
     }
   }
 
   const updateCollection = async ({ contentType }) => {
-    const { error } = await request(`/${pluginId}/content-type`, {
-      method: 'PUT',
-      body: {
-        contentType,
-      },
-    })
-    if (error) {
-      handleNotification({
-        type: 'warning',
-        message: error.message,
-        link: error.link,
+    try {
+      const { error } = await request(`/${pluginId}/content-type`, {
+        method: 'PUT',
+        body: {
+          contentType,
+        },
       })
-    } else {
-      refetchCollection()
-      handleNotification({
-        type: 'success',
-        message: 'Request to update content-type is successful',
-        blockTransition: false,
-      })
+
+      if (error) {
+        handleNotification({
+          type: 'warning',
+          message: error.message,
+          link: error.link,
+        })
+      } else {
+        refetchCollection()
+        handleNotification({
+          type: 'success',
+          message: 'Request to update content-type is successful',
+          blockTransition: false,
+        })
+      }
+    } catch (error) {
+      checkForbiddenError(error)
     }
   }
 

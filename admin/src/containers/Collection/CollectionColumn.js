@@ -8,6 +8,8 @@ import {
   Tr,
   Typography,
 } from '@strapi/design-system'
+import { CheckPermissions } from '@strapi/helper-plugin'
+import { PERMISSIONS } from '../../constants'
 
 const CollectionColumn = ({
   entry,
@@ -17,17 +19,19 @@ const CollectionColumn = ({
 }) => {
   return (
     <Tr key={entry.contentType}>
-      <Td>
-        <BaseCheckbox
-          aria-label={`Select ${entry.collection}`}
-          onValueChange={() => {
-            if (entry.indexed)
-              deleteCollection({ contentType: entry.contentType })
-            else addCollection({ contentType: entry.contentType })
-          }}
-          value={entry.indexed}
-        />
-      </Td>
+      <CheckPermissions permissions={PERMISSIONS.createAndDelete}>
+        <Td>
+          <BaseCheckbox
+            aria-label={`Select ${entry.collection}`}
+            onValueChange={() => {
+              if (entry.indexed)
+                deleteCollection({ contentType: entry.contentType })
+              else addCollection({ contentType: entry.contentType })
+            }}
+            value={entry.indexed}
+          />
+        </Td>
+      </CheckPermissions>
       {/* // Name */}
       <Td>
         <Typography textColor="neutral800">{entry.collection}</Typography>
@@ -58,21 +62,25 @@ const CollectionColumn = ({
       <Td>
         <Typography textColor="neutral800">{entry.reloadNeeded}</Typography>
       </Td>
-      <Td>
-        <Flex>
-          <Box paddingLeft={1}>
-            <Button
-              onClick={() =>
-                updateCollection({ contentType: entry.contentType })
-              }
-              size="S"
-              variant="secondary"
-            >
-              Update
-            </Button>
-          </Box>
-        </Flex>
-      </Td>
+      <CheckPermissions permissions={PERMISSIONS.update}>
+        <Td>
+          <Flex>
+            <Box paddingLeft={1}>
+              {entry.indexed && (
+                <Button
+                  onClick={() =>
+                    updateCollection({ contentType: entry.contentType })
+                  }
+                  size="S"
+                  variant="secondary"
+                >
+                  Update
+                </Button>
+              )}
+            </Box>
+          </Flex>
+        </Td>
+      </CheckPermissions>
     </Tr>
   )
 }

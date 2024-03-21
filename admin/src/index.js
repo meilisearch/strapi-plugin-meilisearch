@@ -1,6 +1,8 @@
 import pluginPkg from '../../package.json'
 import pluginId from './pluginId'
 import PluginIcon from './components/PluginIcon'
+import Initializer from './components/Initializer'
+import { PERMISSIONS } from './constants'
 
 const name = pluginPkg.strapi.name
 
@@ -8,9 +10,9 @@ export default {
   register(app) {
     app.registerPlugin({
       id: pluginId,
+      initializer: Initializer,
       isReady: true,
       name,
-      description: 'TEST',
     })
 
     app.addMenuLink({
@@ -27,7 +29,7 @@ export default {
 
         return component
       },
-      permissions: [],
+      permissions: PERMISSIONS.main,
     })
   },
 }
