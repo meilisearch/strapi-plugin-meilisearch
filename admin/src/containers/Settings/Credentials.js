@@ -1,6 +1,8 @@
 import React, { memo } from 'react'
 import { Box, Button, TextInput, Typography } from '@strapi/design-system'
 import { useCredential } from '../../Hooks/useCredential'
+import { CheckPermissions } from '@strapi/helper-plugin'
+import { PERMISSIONS } from '../../constants'
 
 const Credentials = () => {
   const {
@@ -11,7 +13,6 @@ const Credentials = () => {
     setApiKey,
     updateCredentials,
   } = useCredential()
-
   return (
     <Box>
       <Box padding={2}>
@@ -42,23 +43,30 @@ const Credentials = () => {
         <Typography variant="pi" style={{ color: 'red' }}>
           Do not use this API key on your front-end as it has too much rights.
           Instead, use the public key available using{' '}
-          <a href="https://www.meilisearch.com/docs/reference/api/keys#get-keys">
+          <a
+            href="https://www.meilisearch.com/docs/reference/api/keys#get-keys"
+            target="_blank"
+            rel="noreferrer"
+          >
             the key route
           </a>
           .
         </Typography>
       </Box>
+
       <Box paddingTop={2} paddingLeft={2} paddingRight={2} paddingBottom={2}>
-        <Button
-          variant="secondary"
-          onClick={() => updateCredentials()}
-          disabled={
-            credentials.ApiKeyIsFromConfigFile &&
-            credentials.HostIsFromConfigFile
-          }
-        >
-          Save
-        </Button>
+        <CheckPermissions permissions={PERMISSIONS.settingsEdit}>
+          <Button
+            variant="secondary"
+            onClick={() => updateCredentials()}
+            disabled={
+              credentials.ApiKeyIsFromConfigFile &&
+              credentials.HostIsFromConfigFile
+            }
+          >
+            Save
+          </Button>
+        </CheckPermissions>
       </Box>
     </Box>
   )

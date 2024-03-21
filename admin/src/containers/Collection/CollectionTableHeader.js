@@ -6,14 +6,18 @@ import {
   Typography,
   VisuallyHidden,
 } from '@strapi/design-system'
+import { CheckPermissions } from '@strapi/helper-plugin'
+import { PERMISSIONS } from '../../constants'
 
 const CollectionTableHeader = () => {
   return (
     <Thead>
       <Tr>
-        <Th>
-          <VisuallyHidden>INDEX</VisuallyHidden>
-        </Th>
+        <CheckPermissions permissions={PERMISSIONS.createAndDelete}>
+          <Th>
+            <VisuallyHidden>INDEX</VisuallyHidden>
+          </Th>
+        </CheckPermissions>
         <Th>
           <Typography variant="sigma">NAME</Typography>
         </Th>
@@ -32,9 +36,11 @@ const CollectionTableHeader = () => {
         <Th>
           <Typography variant="sigma">HOOKS</Typography>
         </Th>
-        <Th>
-          <VisuallyHidden>Actions</VisuallyHidden>
-        </Th>
+        <CheckPermissions permissions={PERMISSIONS.update}>
+          <Th>
+            <VisuallyHidden>Actions</VisuallyHidden>
+          </Th>
+        </CheckPermissions>
       </Tr>
     </Thead>
   )
