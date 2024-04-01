@@ -55,10 +55,8 @@ module.exports = ({ store, strapi }) => ({
    * }>} Extended Credentials information
    */
   addCredentials: async function ({ host, apiKey }) {
-    const {
-      ApiKeyIsFromConfigFile,
-      HostIsFromConfigFile,
-    } = await this.getCredentials()
+    const { ApiKeyIsFromConfigFile, HostIsFromConfigFile } =
+      await this.getCredentials()
 
     if (!ApiKeyIsFromConfigFile) {
       await this.setApiKey(apiKey || '')
@@ -117,9 +115,8 @@ module.exports = ({ store, strapi }) => ({
     if (apiKey) {
       await this.setApiKey(apiKey)
     }
-    const ApiKeyIsFromConfigFile = await this.setApiKeyIsFromConfigFile(
-      !!apiKey
-    )
+    const ApiKeyIsFromConfigFile =
+      await this.setApiKeyIsFromConfigFile(!!apiKey)
 
     if (host) {
       await this.setHost(host)

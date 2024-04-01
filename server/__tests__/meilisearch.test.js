@@ -49,7 +49,7 @@ describe('Tests content types', () => {
 
     expect(customStrapi.log.info).toHaveBeenCalledTimes(1)
     expect(customStrapi.log.info).toHaveBeenCalledWith(
-      'A task to delete 2 documents of the index "customIndex" in Meilisearch has been enqueued (Task uid: undefined).'
+      'A task to delete 2 documents of the index "customIndex" in Meilisearch has been enqueued (Task uid: undefined).',
     )
     expect(client.index('').deleteDocuments).toHaveBeenCalledTimes(1)
     expect(client.index('').deleteDocuments).toHaveBeenCalledWith([
@@ -100,7 +100,7 @@ describe('Tests content types', () => {
     })
 
     expect(
-      customStrapi.plugin().service().actionInBatches
+      customStrapi.plugin().service().actionInBatches,
     ).toHaveBeenCalledWith({
       contentType: 'restaurant',
       callback: expect.anything(),
@@ -115,7 +115,7 @@ describe('Tests content types', () => {
     })
     expect(customStrapi.log.info).toHaveBeenCalledTimes(1)
     expect(customStrapi.log.info).toHaveBeenCalledWith(
-      'A task to update the settings to the Meilisearch index "restaurant" has been enqueued (Task uid: undefined).'
+      'A task to update the settings to the Meilisearch index "restaurant" has been enqueued (Task uid: undefined).',
     )
   })
 
@@ -195,7 +195,7 @@ describe('Tests content types', () => {
           internal_notes: 'note234',
         },
       ],
-      { primaryKey: '_meilisearch_id' }
+      { primaryKey: '_meilisearch_id' },
     )
   })
 })

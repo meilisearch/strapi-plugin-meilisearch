@@ -10,8 +10,7 @@ async function reloadServer({ strapi }) {
         'Reload is only possible in develop mode. Please reload server manually.',
       title: 'Reload failed',
       error: true,
-      link:
-        'https://strapi.io/documentation/developer-docs/latest/developer-resources/cli/CLI.html#strapi-start',
+      link: 'https://strapi.io/documentation/developer-docs/latest/developer-resources/cli/CLI.html#strapi-start',
     }
   } else {
     strapi.reload.isWatching = false

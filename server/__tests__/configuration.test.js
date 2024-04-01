@@ -467,7 +467,7 @@ describe('Test Meilisearch plugin configurations', () => {
     const contentTypes = meilisearchService.listContentTypesWithCustomIndexName(
       {
         indexName: 'my_index',
-      }
+      },
     )
 
     expect(contentTypes).toEqual(['restaurant', 'about'])

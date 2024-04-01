@@ -11,7 +11,7 @@ const { isObject } = require('../../utils')
  */
 const aborted = ({ contentType, action }) => {
   strapi.log.error(
-    `Indexing of ${contentType} aborted as the data could not be ${action}`
+    `Indexing of ${contentType} aborted as the data could not be ${action}`,
   )
   return [] // return empty array to avoid indexing entries that might contain sensitive data
 }
@@ -75,8 +75,8 @@ module.exports = ({ strapi }) => {
                 await contentTypeConfig.transformEntry({
                   entry,
                   contentType,
-                })
-            )
+                }),
+            ),
           )
 
           if (transformed.length > 0 && !isObject(transformed[0])) {
@@ -123,7 +123,7 @@ module.exports = ({ strapi }) => {
               const syncFilteredEntries = await filteredEntries
               return [...syncFilteredEntries, entry]
             },
-            []
+            [],
           )
           return filtered
         }
@@ -168,7 +168,7 @@ module.exports = ({ strapi }) => {
           .service('contentType')
           .getContentTypesUid() || []
       const collectionNames = contentTypes.map(contentType =>
-        contentTypeService.getCollectionName({ contentType })
+        contentTypeService.getCollectionName({ contentType }),
       )
       const contentTypeWithIndexName = collectionNames.filter(contentType => {
         const name = this.getIndexNameOfContentType({
@@ -204,7 +204,7 @@ module.exports = ({ strapi }) => {
       const privateFields = Object.entries(attrs).map(([field, schema]) =>
         schema.private && !noSanitizePrivateFields.includes(field)
           ? field
-          : false
+          : false,
       )
 
       return entries.map(entry => {

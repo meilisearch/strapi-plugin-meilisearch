@@ -41,7 +41,7 @@ export function useCollection() {
         return collection
       })
       const reload = collections.find(
-        col => col.reloadNeeded === 'Reload needed'
+        col => col.reloadNeeded === 'Reload needed',
       )
 
       const isIndexing = collections.find(col => col.isIndexing === true)
@@ -62,7 +62,7 @@ export function useCollection() {
         `/${pluginId}/content-type/${contentType}`,
         {
           method: 'DELETE',
-        }
+        },
       )
       if (error) {
         handleNotification({

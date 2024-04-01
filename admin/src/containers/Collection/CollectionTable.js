@@ -15,10 +15,8 @@ const Collection = () => {
     reloadNeeded,
     refetchCollection,
   } = useCollection()
-  const {
-    lockAppWithAutoreload,
-    unlockAppWithAutoreload,
-  } = useAutoReloadOverlayBlocker()
+  const { lockAppWithAutoreload, unlockAppWithAutoreload } =
+    useAutoReloadOverlayBlocker()
   const [reload, setReload] = useState(false)
 
   const ROW_COUNT = 6
@@ -35,7 +33,7 @@ const Collection = () => {
         {
           method: 'GET',
         },
-        true
+        true,
       )
       setReload(false)
     } catch (err) {

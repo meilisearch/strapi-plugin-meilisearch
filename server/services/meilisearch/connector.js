@@ -96,13 +96,13 @@ module.exports = ({ strapi, adapter, config }) => {
 
       const indexUid = config.getIndexNameOfContentType({ contentType })
       const documentsIds = entriesId.map(entryId =>
-        adapter.addCollectionNamePrefixToId({ entryId, contentType })
+        adapter.addCollectionNamePrefixToId({ entryId, contentType }),
       )
 
       const task = await client.index(indexUid).deleteDocuments(documentsIds)
 
       strapi.log.info(
-        `A task to delete ${documentsIds.length} documents of the index "${indexUid}" in Meilisearch has been enqueued (Task uid: ${task.taskUid}).`
+        `A task to delete ${documentsIds.length} documents of the index "${indexUid}" in Meilisearch has been enqueued (Task uid: ${task.taskUid}).`,
       )
 
       return task
@@ -137,11 +137,11 @@ module.exports = ({ strapi, adapter, config }) => {
             adapter.addCollectionNamePrefixToId({
               contentType,
               entryId: entry.id,
-            })
+            }),
           )
 
           strapi.log.info(
-            `A task to delete one document from the Meilisearch index "${indexUid}" has been enqueued (Task uid: ${task.taskUid}).`
+            `A task to delete one document from the Meilisearch index "${indexUid}" has been enqueued (Task uid: ${task.taskUid}).`,
           )
 
           return task
@@ -206,9 +206,8 @@ module.exports = ({ strapi, adapter, config }) => {
           const indexUid = config.getIndexNameOfContentType({ contentType })
           const indexInMeiliSearch = indexUids.includes(indexUid)
 
-          const contentTypeInIndexStore = indexedContentTypes.includes(
-            contentType
-          )
+          const contentTypeInIndexStore =
+            indexedContentTypes.includes(contentType)
           const indexed = indexInMeiliSearch && contentTypeInIndexStore
 
           // safe guard in case index does not exist anymore in Meilisearch
@@ -216,20 +215,19 @@ module.exports = ({ strapi, adapter, config }) => {
             await store.removeIndexedContentType({ contentType })
           }
 
-          const {
-            numberOfDocuments = 0,
-            isIndexing = false,
-          } = indexUids.includes(indexUid)
-            ? await this.getStats({ indexUid })
-            : {}
+          const { numberOfDocuments = 0, isIndexing = false } =
+            indexUids.includes(indexUid)
+              ? await this.getStats({ indexUid })
+              : {}
 
-          const contentTypesWithSameIndexUid = await config.listContentTypesWithCustomIndexName(
-            { indexName: indexUid }
-          )
+          const contentTypesWithSameIndexUid =
+            await config.listContentTypesWithCustomIndexName({
+              indexName: indexUid,
+            })
           const numberOfEntries = await contentTypeService.totalNumberOfEntries(
             {
               contentTypes: contentTypesWithSameIndexUid,
-            }
+            },
           )
           return {
             collection: collectionName,
@@ -241,7 +239,7 @@ module.exports = ({ strapi, adapter, config }) => {
             numberOfEntries,
             listened: listenedContentTypes.includes(contentType),
           }
-        })
+        }),
       )
       return { contentTypes: reports }
     },
@@ -275,7 +273,7 @@ module.exports = ({ strapi, adapter, config }) => {
       await store.addIndexedContentType({ contentType })
 
       strapi.log.info(
-        `The task to add ${documents.length} documents to the Meilisearch index "${indexUid}" has been enqueued (Task uid: ${task.taskUid}).`
+        `The task to add ${documents.length} documents to the Meilisearch index "${indexUid}" has been enqueued (Task uid: ${task.taskUid}).`,
       )
 
       return task
@@ -299,7 +297,7 @@ module.exports = ({ strapi, adapter, config }) => {
       const task = await client.index(indexUid).updateSettings(settings)
 
       strapi.log.info(
-        `A task to update the settings to the Meilisearch index "${indexUid}" has been enqueued (Task uid: ${task.taskUid}).`
+        `A task to update the settings to the Meilisearch index "${indexUid}" has been enqueued (Task uid: ${task.taskUid}).`,
       )
 
       // Callback function for batching action
@@ -318,7 +316,7 @@ module.exports = ({ strapi, adapter, config }) => {
           .addDocuments(documents, { primaryKey: '_meilisearch_id' })
 
         strapi.log.info(
-          `A task to add ${documents.length} documents to the Meilisearch index "${indexUid}" has been enqueued (Task uid: ${taskUid}).`
+          `A task to add ${documents.length} documents to the Meilisearch index "${indexUid}" has been enqueued (Task uid: ${taskUid}).`,
         )
 
         return taskUid
@@ -357,7 +355,7 @@ module.exports = ({ strapi, adapter, config }) => {
 
       // Take union of both array
       const indexedContentTypesWithSameIndex = indexedContentTypes.filter(
-        contentType => contentTypesWithSameIndex.includes(contentType)
+        contentType => contentTypesWithSameIndex.includes(contentType),
       )
 
       return indexedContentTypesWithSameIndex
@@ -371,11 +369,10 @@ module.exports = ({ strapi, adapter, config }) => {
      * @param  {string} options.contentType - ContentType name.
      */
     emptyOrDeleteIndex: async function ({ contentType }) {
-      const indexedContentTypesWithSameIndex = await this.getContentTypesWithSameIndex(
-        {
+      const indexedContentTypesWithSameIndex =
+        await this.getContentTypesWithSameIndex({
           contentType,
-        }
-      )
+        })
       if (indexedContentTypesWithSameIndex.length > 1) {
         const deleteEntries = async ({ entries, contentType }) => {
           await this.deleteEntriesFromMeiliSearch({
@@ -396,7 +393,7 @@ module.exports = ({ strapi, adapter, config }) => {
         const { taskUid } = await client.index(indexUid).delete()
 
         strapi.log.info(
-          `A task to delete the Meilisearch index "${indexUid}" has been added to the queue (Task uid: ${taskUid}).`
+          `A task to delete the Meilisearch index "${indexUid}" has been added to the queue (Task uid: ${taskUid}).`,
         )
       }
 

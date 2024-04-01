@@ -39,7 +39,7 @@ function EntriesQuery({ configuration, collectionName }) {
     validateFields() {
       if (fields !== undefined && !Array.isArray(fields)) {
         log.error(
-          `The "fields" option in "queryOptions" of "${collectionName}" should be an array of strings.`
+          `The "fields" option in "queryOptions" of "${collectionName}" should be an array of strings.`,
         )
       } else if (fields !== undefined) {
         options.fields = fields
@@ -51,7 +51,7 @@ function EntriesQuery({ configuration, collectionName }) {
     validateFilters() {
       if (filters !== undefined && !isObject(filters)) {
         log.error(
-          `The "filters" option in "queryOptions" of "${collectionName}" should be an object.`
+          `The "filters" option in "queryOptions" of "${collectionName}" should be an object.`,
         )
       } else if (filters !== undefined) {
         options.filters = filters
@@ -63,7 +63,7 @@ function EntriesQuery({ configuration, collectionName }) {
     validateStart() {
       if (start !== undefined) {
         log.error(
-          `The "start" option in "queryOptions" of "${collectionName}" is forbidden.`
+          `The "start" option in "queryOptions" of "${collectionName}" is forbidden.`,
         )
       }
 
@@ -73,7 +73,7 @@ function EntriesQuery({ configuration, collectionName }) {
     validateLimit() {
       if (limit !== undefined && (isNaN(limit) || limit < 1)) {
         log.error(
-          `The "limit" option in "queryOptions" of "${collectionName}" should be a number higher than 0.`
+          `The "limit" option in "queryOptions" of "${collectionName}" should be a number higher than 0.`,
         )
       } else if (limit !== undefined) {
         options.limit = limit
@@ -91,7 +91,7 @@ function EntriesQuery({ configuration, collectionName }) {
         typeof sort !== 'string'
       ) {
         log.error(
-          `The "sort" option in "queryOptions" of "${collectionName}" should be an object/array/string.`
+          `The "sort" option in "queryOptions" of "${collectionName}" should be an object/array/string.`,
         )
       } else if (sort !== undefined) {
         options.sort = sort
@@ -109,7 +109,7 @@ function EntriesQuery({ configuration, collectionName }) {
         typeof populate !== 'string'
       ) {
         log.error(
-          `The "populate" option in "queryOptions" of "restaurant" should be an object/array/string.`
+          `The "populate" option in "queryOptions" of "restaurant" should be an object/array/string.`,
         )
       } else if (populate !== undefined) {
         options.populate = populate
@@ -125,7 +125,7 @@ function EntriesQuery({ configuration, collectionName }) {
         publicationState !== 'preview'
       ) {
         log.error(
-          `The "publicationState" option in "queryOptions" of "${collectionName}" should be either "preview" or "live".`
+          `The "publicationState" option in "queryOptions" of "${collectionName}" should be either "preview" or "live".`,
         )
       } else if (publicationState !== undefined) {
         options.publicationState = publicationState
@@ -141,7 +141,7 @@ function EntriesQuery({ configuration, collectionName }) {
         locale === ''
       ) {
         log.error(
-          `The "locale" option in "queryOptions" of "${collectionName}" should be a non-empty string.`
+          `The "locale" option in "queryOptions" of "${collectionName}" should be a non-empty string.`,
         )
       } else if (locale !== undefined) {
         options.locale = locale
@@ -154,7 +154,7 @@ function EntriesQuery({ configuration, collectionName }) {
       // Unknown fields
       Object.keys(unknownKeys).map(key => {
         log.error(
-          `The "${key}" option in "queryOptions" of "${collectionName}" is not a known option. Check the "findMany" API references in the Strapi Documentation.`
+          `The "${key}" option in "queryOptions" of "${collectionName}" is not a known option. Check the "findMany" API references in the Strapi Documentation.`,
         )
       })
 
@@ -188,7 +188,7 @@ function CollectionConfig({ collectionName, configuration }) {
         indexName === ''
       ) {
         log.error(
-          `The "indexName" option of "${collectionName}" should be a non-empty string`
+          `The "indexName" option of "${collectionName}" should be a non-empty string`,
         )
       } else if (indexName !== undefined) {
         options.indexName = indexName
@@ -204,7 +204,7 @@ function CollectionConfig({ collectionName, configuration }) {
         typeof transformEntry !== 'function'
       ) {
         log.error(
-          `The "transformEntry" option of "${collectionName}" should be a function`
+          `The "transformEntry" option of "${collectionName}" should be a function`,
         )
       } else if (transformEntry !== undefined) {
         options.transformEntry = transformEntry
@@ -217,7 +217,7 @@ function CollectionConfig({ collectionName, configuration }) {
       // filterEntry is either undefined or a function
       if (filterEntry !== undefined && typeof filterEntry !== 'function') {
         log.error(
-          `The "filterEntry" option of "${collectionName}" should be a function`
+          `The "filterEntry" option of "${collectionName}" should be a function`,
         )
       } else if (filterEntry !== undefined) {
         options.filterEntry = filterEntry
@@ -230,7 +230,7 @@ function CollectionConfig({ collectionName, configuration }) {
       // Settings is either undefined or an object
       if (settings !== undefined && !isObject(settings)) {
         log.error(
-          `The "settings" option of "${collectionName}" should be an object`
+          `The "settings" option of "${collectionName}" should be an object`,
         )
       } else if (settings !== undefined) {
         options.settings = settings
@@ -242,7 +242,7 @@ function CollectionConfig({ collectionName, configuration }) {
     validateEntriesQuery() {
       if (entriesQuery !== undefined && !isObject(entriesQuery)) {
         log.error(
-          `The "entriesQuery" option of "${collectionName}" should be an object`
+          `The "entriesQuery" option of "${collectionName}" should be an object`,
         )
       } else if (entriesQuery !== undefined) {
         options.entriesQuery = EntriesQuery({
@@ -270,7 +270,7 @@ function CollectionConfig({ collectionName, configuration }) {
         !Array.isArray(noSanitizePrivateFields)
       ) {
         log.error(
-          `The "noSanitizePrivateFields" option of "${collectionName}" should be an array of strings.`
+          `The "noSanitizePrivateFields" option of "${collectionName}" should be an array of strings.`,
         )
       } else if (noSanitizePrivateFields !== undefined) {
         options.noSanitizePrivateFields = noSanitizePrivateFields
@@ -283,7 +283,7 @@ function CollectionConfig({ collectionName, configuration }) {
       // Keys that should not be present in the configuration
       Object.keys(unknownFields).map(key => {
         log.warn(
-          `The "${key}" option of "${collectionName}" is not a known option`
+          `The "${key}" option of "${collectionName}" is not a known option`,
         )
       })
 
@@ -327,7 +327,7 @@ function PluginConfig({ configuration }) {
       for (const collection in collections) {
         if (!isObject(collections[collection])) {
           log.error(
-            `The collection "${collection}" configuration should be of type object`
+            `The collection "${collection}" configuration should be of type object`,
           )
           options[collection] = {}
         } else {
@@ -368,7 +368,7 @@ function validatePluginConfig(configuration) {
     return
   } else if (configuration !== undefined && !isObject(configuration)) {
     log.error(
-      'The "config" field in the Meilisearch plugin configuration should be an object'
+      'The "config" field in the Meilisearch plugin configuration should be an object',
     )
     return
   }
