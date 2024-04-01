@@ -1047,9 +1047,9 @@
   integrity sha512-28LX0DCh8hGK2PRg+eXuBGHOkupfv3vD9lmZ/yCoyVdMWdURDdJCtc+KV+vCG++dcwvSbHw78aUNYfwaejDB7Q==
 
 "@strapi/ui-primitives@^1.13.2":
-  version "1.15.0"
-  resolved "https://registry.yarnpkg.com/@strapi/ui-primitives/-/ui-primitives-1.15.0.tgz#bb3ec83438d7c75d5d32451df2e9d2e9e32c2e76"
-  integrity sha512-Ejw2nItyzIrGZ8AO7aaoP+bFLP1ilvJ21eeNB8l/ofkotWhUwkxsYO2p88m7+HSclX0CAv9IsTGNYaTivnLg+w==
+  version "1.16.0"
+  resolved "https://registry.yarnpkg.com/@strapi/ui-primitives/-/ui-primitives-1.16.0.tgz#6156c1493c2929945ed6591ca3f340477be4c4b0"
+  integrity sha512-ATJPrLI9K/Cq9gGlLa93KAXBdc4rkWRg7GOogOeukohy4a8CzcQTK0l7Lp3EeXSZKwcOU5ohDcC43BXB0eSlyg==
   dependencies:
     "@radix-ui/number" "^1.0.1"
     "@radix-ui/primitive" "^1.0.1"
