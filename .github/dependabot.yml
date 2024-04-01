@@ -19,10 +19,12 @@ updates:
     labels:
       - skip-changelog
       - dependencies
-    rebase-strategy: disabled
-    allow:
-      - dependency-name: "@strapi*"
-      - dependency-name: "meilisearch"
+    rebase-strategy: auto
+    groups:
+      production:
+        patterns:
+          - "@strapi*"
+          - "meilisearch"
   - package-ecosystem: npm
     directory: "/playground/"
     schedule:
@@ -37,3 +39,7 @@ updates:
     allow:
       - dependency-name: "@strapi*"
       - dependency-name: "meilisearch"
+    groups:
+      playground:
+        patterns:
+          - "playground"
