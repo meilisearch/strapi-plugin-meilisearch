@@ -48,6 +48,50 @@ async function syncIndexedCollections({
   }
 }
 
+const registerPermissionActions = async () => {
+  // Role Based Access Control
+  const RBAC_ACTIONS = [
+    {
+      section: 'plugins',
+      displayName: 'Access the Meilisearch',
+      uid: 'read',
+      pluginName: 'meilisearch',
+    },
+    {
+      section: 'plugins',
+      displayName: 'Create',
+      uid: 'collections.create',
+      subCategory: 'collections',
+      pluginName: 'meilisearch',
+    },
+    {
+      section: 'plugins',
+      displayName: 'Update',
+      uid: 'collections.update',
+      subCategory: 'collections',
+      pluginName: 'meilisearch',
+    },
+    {
+      section: 'plugins',
+      displayName: 'Delete',
+      uid: 'collections.delete',
+      subCategory: 'collections',
+      pluginName: 'meilisearch',
+    },
+    {
+      section: 'plugins',
+      displayName: 'Edit',
+      uid: 'settings.edit',
+      subCategory: 'settings',
+      pluginName: 'meilisearch',
+    },
+  ]
+
+  await strapi.admin.services.permission.actionProvider.registerMany(
+    RBAC_ACTIONS
+  )
+}
+
 module.exports = async ({ strapi }) => {
   const store = strapi.plugin('meilisearch').service('store')
   const lifecycle = strapi.plugin('meilisearch').service('lifecycle')
@@ -65,4 +109,5 @@ module.exports = async ({ strapi }) => {
     lifecycle,
     store,
   })
+  await registerPermissionActions()
 }
