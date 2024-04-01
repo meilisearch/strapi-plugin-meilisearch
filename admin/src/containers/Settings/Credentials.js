@@ -5,14 +5,8 @@ import { CheckPermissions } from '@strapi/helper-plugin'
 import { PERMISSIONS } from '../../constants'
 
 const Credentials = () => {
-  const {
-    host,
-    apiKey,
-    credentials,
-    setHost,
-    setApiKey,
-    updateCredentials,
-  } = useCredential()
+  const { host, apiKey, credentials, setHost, setApiKey, updateCredentials } =
+    useCredential()
   return (
     <Box>
       <Box padding={2}>

@@ -32,7 +32,7 @@ describe('Tests content types', () => {
         'api::movie.movie',
         'api::restaurant.restaurant',
         'plugin::users-permissions.user',
-      ].sort()
+      ].sort(),
     )
   })
 
@@ -117,7 +117,7 @@ describe('Tests content types', () => {
         sort: 'id',
         populate: '*',
         publicationState: 'live',
-      }
+      },
     )
     expect(strapiMock.entityService.findMany).toHaveBeenCalledTimes(1)
     expect(count).toEqual([{ id: 1 }])
@@ -149,7 +149,7 @@ describe('Tests content types', () => {
         sort: 'id',
         populate: {},
         publicationState: 'preview',
-      }
+      },
     )
     expect(strapiMock.entityService.findMany).toHaveBeenCalledTimes(1)
     expect(count).toEqual([{ id: 1 }])
@@ -184,7 +184,7 @@ describe('Tests content types', () => {
       {
         fields: '*',
         populate: '*',
-      }
+      },
     )
     expect(strapiMock.entityService.findOne).toHaveBeenCalledTimes(1)
     expect(entry).toEqual([{ id: 1 }])
@@ -214,7 +214,7 @@ describe('Tests content types', () => {
         populate: {
           subClass: true,
         },
-      }
+      },
     )
     expect(strapiMock.entityService.findOne).toHaveBeenCalledTimes(1)
     expect(entry).toEqual([{ id: 1 }])

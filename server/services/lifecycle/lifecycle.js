@@ -38,13 +38,13 @@ module.exports = ({ strapi }) => {
             })
             .catch(e => {
               strapi.log.error(
-                `Meilisearch could not add entry with id: ${result.id}: ${e.message}`
+                `Meilisearch could not add entry with id: ${result.id}: ${e.message}`,
               )
             })
         },
         async afterCreateMany() {
           strapi.log.error(
-            `Meilisearch does not work with \`afterCreateMany\` hook as the entries are provided without their id`
+            `Meilisearch does not work with \`afterCreateMany\` hook as the entries are provided without their id`,
           )
         },
         async afterUpdate(event) {
@@ -68,7 +68,7 @@ module.exports = ({ strapi }) => {
             })
             .catch(e => {
               strapi.log.error(
-                `Meilisearch could not update entry with id: ${result.id}: ${e.message}`
+                `Meilisearch could not update entry with id: ${result.id}: ${e.message}`,
               )
             })
         },
@@ -102,7 +102,7 @@ module.exports = ({ strapi }) => {
             })
             .catch(e => {
               strapi.log.error(
-                `Meilisearch could not update the entries: ${e.message}`
+                `Meilisearch could not update the entries: ${e.message}`,
               )
             })
         },
@@ -131,7 +131,7 @@ module.exports = ({ strapi }) => {
             })
             .catch(e => {
               strapi.log.error(
-                `Meilisearch could not delete entry with id: ${result.id}: ${e.message}`
+                `Meilisearch could not delete entry with id: ${result.id}: ${e.message}`,
               )
             })
         },

@@ -22,7 +22,7 @@ describe('Test plugin configuration', () => {
     expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
     expect(strapiMock.log.error).toHaveBeenCalledTimes(1)
     expect(strapiMock.log.error).toHaveBeenCalledWith(
-      'The "config" field in the Meilisearch plugin configuration should be an object'
+      'The "config" field in the Meilisearch plugin configuration should be an object',
     )
   })
 
@@ -39,7 +39,7 @@ describe('Test plugin configuration', () => {
     expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
     expect(strapiMock.log.error).toHaveBeenCalledTimes(1)
     expect(strapiMock.log.error).toHaveBeenCalledWith(
-      'The collection "hello" configuration should be of type object'
+      'The collection "hello" configuration should be of type object',
     )
   })
 
@@ -58,7 +58,7 @@ describe('Test plugin configuration', () => {
     expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
     expect(strapiMock.log.error).toHaveBeenCalledTimes(1)
     expect(strapiMock.log.error).toHaveBeenCalledWith(
-      'The "host" option should be a non-empty string'
+      'The "host" option should be a non-empty string',
     )
   })
 
@@ -85,7 +85,7 @@ describe('Test plugin configuration', () => {
     expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
     expect(strapiMock.log.error).toHaveBeenCalledTimes(1)
     expect(strapiMock.log.error).toHaveBeenCalledWith(
-      'The "apiKey" option should be a string'
+      'The "apiKey" option should be a string',
     )
   })
 
@@ -122,7 +122,7 @@ describe('Test plugin configuration', () => {
     expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
     expect(strapiMock.log.error).toHaveBeenCalledTimes(1)
     expect(strapiMock.log.error).toHaveBeenCalledWith(
-      'The "indexName" option of "restaurant" should be a non-empty string'
+      'The "indexName" option of "restaurant" should be a non-empty string',
     )
   })
 
@@ -155,7 +155,7 @@ describe('Test plugin configuration', () => {
     expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
     expect(strapiMock.log.error).toHaveBeenCalledTimes(1)
     expect(strapiMock.log.error).toHaveBeenCalledWith(
-      'The "transformEntry" option of "restaurant" should be a function'
+      'The "transformEntry" option of "restaurant" should be a function',
     )
   })
 
@@ -188,7 +188,7 @@ describe('Test plugin configuration', () => {
     expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
     expect(strapiMock.log.error).toHaveBeenCalledTimes(1)
     expect(strapiMock.log.error).toHaveBeenCalledWith(
-      'The "filterEntry" option of "restaurant" should be a function'
+      'The "filterEntry" option of "restaurant" should be a function',
     )
   })
 
@@ -221,7 +221,7 @@ describe('Test plugin configuration', () => {
     expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
     expect(strapiMock.log.error).toHaveBeenCalledTimes(1)
     expect(strapiMock.log.error).toHaveBeenCalledWith(
-      'The "settings" option of "restaurant" should be an object'
+      'The "settings" option of "restaurant" should be an object',
     )
   })
 
@@ -254,7 +254,7 @@ describe('Test plugin configuration', () => {
     expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
     expect(strapiMock.log.error).toHaveBeenCalledTimes(1)
     expect(strapiMock.log.error).toHaveBeenCalledWith(
-      'The "noSanitizePrivateFields" option of "restaurant" should be an array of strings.'
+      'The "noSanitizePrivateFields" option of "restaurant" should be an array of strings.',
     )
   })
 
@@ -289,7 +289,7 @@ describe('Test plugin configuration', () => {
     expect(strapiMock.log.warn).toHaveBeenCalledTimes(1)
     expect(strapiMock.log.error).toHaveBeenCalledTimes(0)
     expect(strapiMock.log.warn).toHaveBeenCalledWith(
-      'The "random" option of "restaurant" is not a known option'
+      'The "random" option of "restaurant" is not a known option',
     )
   })
 })
@@ -309,7 +309,7 @@ describe('Test entriesQuery configuration', () => {
     })
 
     expect(strapiMock.log.error).toHaveBeenCalledWith(
-      'The "entriesQuery" option of "restaurant" should be an object'
+      'The "entriesQuery" option of "restaurant" should be an object',
     )
   })
 
@@ -372,7 +372,7 @@ describe('Test entriesQuery configuration', () => {
     })
 
     expect(strapiMock.log.error).toHaveBeenCalledWith(
-      'The "fields" option in "queryOptions" of "restaurant" should be an array of strings.'
+      'The "fields" option in "queryOptions" of "restaurant" should be an array of strings.',
     )
   })
 
@@ -415,7 +415,7 @@ describe('Test entriesQuery configuration', () => {
     })
 
     expect(strapiMock.log.error).toHaveBeenCalledWith(
-      'The "filters" option in "queryOptions" of "restaurant" should be an object.'
+      'The "filters" option in "queryOptions" of "restaurant" should be an object.',
     )
   })
 
@@ -430,7 +430,7 @@ describe('Test entriesQuery configuration', () => {
     })
 
     expect(strapiMock.log.error).toHaveBeenCalledWith(
-      'The "start" option in "queryOptions" of "restaurant" is forbidden.'
+      'The "start" option in "queryOptions" of "restaurant" is forbidden.',
     )
   })
 
@@ -473,7 +473,7 @@ describe('Test entriesQuery configuration', () => {
     })
 
     expect(strapiMock.log.error).toHaveBeenCalledWith(
-      'The "limit" option in "queryOptions" of "restaurant" should be a number higher than 0.'
+      'The "limit" option in "queryOptions" of "restaurant" should be a number higher than 0.',
     )
   })
 
@@ -487,7 +487,7 @@ describe('Test entriesQuery configuration', () => {
     })
 
     expect(strapiMock.log.error).toHaveBeenCalledWith(
-      'The "limit" option in "queryOptions" of "restaurant" should be a number higher than 0.'
+      'The "limit" option in "queryOptions" of "restaurant" should be a number higher than 0.',
     )
   })
 
@@ -558,7 +558,7 @@ describe('Test entriesQuery configuration', () => {
     })
 
     expect(strapiMock.log.error).toHaveBeenCalledWith(
-      'The "sort" option in "queryOptions" of "restaurant" should be an object/array/string.'
+      'The "sort" option in "queryOptions" of "restaurant" should be an object/array/string.',
     )
   })
 
@@ -629,7 +629,7 @@ describe('Test entriesQuery configuration', () => {
     })
 
     expect(strapiMock.log.error).toHaveBeenCalledWith(
-      'The "populate" option in "queryOptions" of "restaurant" should be an object/array/string.'
+      'The "populate" option in "queryOptions" of "restaurant" should be an object/array/string.',
     )
   })
 
@@ -691,7 +691,7 @@ describe('Test entriesQuery configuration', () => {
     })
 
     expect(strapiMock.log.error).toHaveBeenCalledWith(
-      'The "publicationState" option in "queryOptions" of "restaurant" should be either "preview" or "live".'
+      'The "publicationState" option in "queryOptions" of "restaurant" should be either "preview" or "live".',
     )
   })
 
@@ -705,7 +705,7 @@ describe('Test entriesQuery configuration', () => {
     })
 
     expect(strapiMock.log.error).toHaveBeenCalledWith(
-      'The "publicationState" option in "queryOptions" of "restaurant" should be either "preview" or "live".'
+      'The "publicationState" option in "queryOptions" of "restaurant" should be either "preview" or "live".',
     )
   })
 
@@ -766,7 +766,7 @@ describe('Test entriesQuery configuration', () => {
     })
 
     expect(strapiMock.log.error).toHaveBeenCalledWith(
-      'The "locale" option in "queryOptions" of "restaurant" should be a non-empty string.'
+      'The "locale" option in "queryOptions" of "restaurant" should be a non-empty string.',
     )
   })
 
@@ -782,7 +782,7 @@ describe('Test entriesQuery configuration', () => {
     })
 
     expect(strapiMock.log.error).toHaveBeenCalledWith(
-      'The "random" option in "queryOptions" of "restaurant" is not a known option. Check the "findMany" API references in the Strapi Documentation.'
+      'The "random" option in "queryOptions" of "restaurant" is not a known option. Check the "findMany" API references in the Strapi Documentation.',
     )
 
     expect(configuration.restaurant.entriesQuery.random).toBeUndefined()

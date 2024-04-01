@@ -88,7 +88,7 @@ const registerPermissionActions = async () => {
   ]
 
   await strapi.admin.services.permission.actionProvider.registerMany(
-    RBAC_ACTIONS
+    RBAC_ACTIONS,
   )
 }
 

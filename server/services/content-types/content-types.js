@@ -113,8 +113,8 @@ module.exports = ({ strapi }) => ({
   totalNumberOfEntries: async function ({ contentTypes, where = {} }) {
     let numberOfEntries = await Promise.all(
       contentTypes.map(async contentType =>
-        this.numberOfEntries({ contentType, where })
-      )
+        this.numberOfEntries({ contentType, where }),
+      ),
     )
     const entriesSum = numberOfEntries.reduce((acc, curr) => (acc += curr), 0)
     return entriesSum
@@ -198,7 +198,7 @@ module.exports = ({ strapi }) => ({
 
     const entries = await strapi.entityService.findMany(
       contentTypeUid,
-      queryOptions
+      queryOptions,
     )
 
     // Safe guard in case the content-type is a single type.
