@@ -1073,10 +1073,10 @@
     aria-hidden "^1.2.3"
     react-remove-scroll "^2.5.7"
 
-"@strapi/utils@^4.14.4":
-  version "4.14.4"
-  resolved "https://registry.yarnpkg.com/@strapi/utils/-/utils-4.14.4.tgz#856bd5e459138327e2a0b07e46eab80f8d129d8f"
-  integrity sha512-Eyj9PB4Gz6r8cHsWzVOCnmEDTgYr17n3P8xOGHoLUN9Uz7dB7eeloeUNhYiAZHKzNDd02LETySWTglwwA5NpXQ==
+"@strapi/utils@^4.21.1":
+  version "4.21.1"
+  resolved "https://registry.yarnpkg.com/@strapi/utils/-/utils-4.21.1.tgz#490236b2e1a7703b10d9bf785e8841a834f61aaa"
+  integrity sha512-SbaAO6bT3bHWqhAn0cvkCqp9JBBWJJlZRUTu4QGRJunFpC3lOAI+uTZJk5a1KNkdZoTUup8+l8yjcs+G7LBheQ==
   dependencies:
     "@sindresorhus/slugify" "1.1.0"
     date-fns "2.30.0"
