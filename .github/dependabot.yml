@@ -25,6 +25,15 @@ updates:
         patterns:
           - "@strapi*"
           - "meilisearch"
+      development:
+        patterns:
+          - "eslint*"
+          - "concurrently"
+          - "@types*"
+          - "prettier"
+      test:
+        patterns:
+          - "*jest*"
   - package-ecosystem: npm
     directory: "/playground/"
     schedule:
@@ -42,4 +51,4 @@ updates:
     groups:
       playground:
         patterns:
-          - "playground"
+          - "*"
