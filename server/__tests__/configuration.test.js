@@ -91,7 +91,7 @@ describe('Test Meilisearch plugin configurations', () => {
       restaurantConfig: {},
     })
 
-    const contentType = 'customName'
+    const contentType = 'restaurant'
     const meilisearchService = createMeilisearchService({
       strapi: customStrapi,
     })
@@ -113,13 +113,14 @@ describe('Test Meilisearch plugin configurations', () => {
   })
 
   test('Test configuration with non-empty type indexName', async () => {
+    const customIndexName = 'customName'
     const customStrapi = createStrapiMock({
       restaurantConfig: {
-        indexName: 'customName',
+        indexName: customIndexName,
       },
     })
 
-    const contentType = 'customName'
+    const contentType = 'restaurant'
     const meilisearchService = createMeilisearchService({
       strapi: customStrapi,
     })
@@ -135,7 +136,7 @@ describe('Test Meilisearch plugin configurations', () => {
       contentType,
     })
 
-    expect(indexName).toEqual(contentType)
+    expect(indexName).toEqual(customIndexName)
     expect(entries).toEqual([{ id: 1 }])
     expect(settings).toEqual({})
   })
