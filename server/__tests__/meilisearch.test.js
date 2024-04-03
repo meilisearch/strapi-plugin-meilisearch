@@ -106,7 +106,7 @@ describe('Tests content types', () => {
 
     expect(strapi.log.info).toHaveBeenCalledTimes(1)
     expect(strapi.log.info).toHaveBeenCalledWith(
-      'The task to add 2 documents to the Meilisearch index "customIndex" has been enqueued (Task uid: undefined).'
+      'The task to add 2 documents to the Meilisearch index "customIndex" has been enqueued (Task uid: undefined).',
     )
     expect(client.index('').addDocuments).toHaveBeenCalledTimes(1)
     expect(client.index).toHaveBeenCalledWith('customIndex')
@@ -228,7 +228,7 @@ describe('Tests content types', () => {
     })
 
     expect(
-      customStrapi.plugin().service().actionInBatches
+      customStrapi.plugin().service().actionInBatches,
     ).toHaveBeenCalledWith({
       contentType: 'restaurant',
       callback: expect.anything(),
@@ -243,7 +243,7 @@ describe('Tests content types', () => {
     })
     expect(customStrapi.log.info).toHaveBeenCalledTimes(1)
     expect(customStrapi.log.info).toHaveBeenCalledWith(
-      'A task to update the settings to the Meilisearch index "customIndex" has been enqueued (Task uid: undefined).'
+      'A task to update the settings to the Meilisearch index "customIndex" has been enqueued (Task uid: undefined).',
     )
   })
 
@@ -325,5 +325,47 @@ describe('Tests content types', () => {
       ],
       { primaryKey: '_meilisearch_id' },
     )
+  })
+
+  test('Test to get content types with same index', async () => {
+    const customStrapi = createStrapiMock({
+      restaurantConfig: {
+        indexName: 'customIndex',
+      },
+      aboutConfig: {
+        indexName: 'customIndex',
+      },
+    })
+
+    const meilisearchService = createMeilisearchService({
+      strapi: customStrapi,
+    })
+
+    const result = await meilisearchService.getContentTypesWithSameIndex({
+      contentType: 'restaurant',
+    })
+
+    expect(result).toEqual(['api::restaurant.restaurant', 'api::about.about'])
+  })
+
+  test('Test to get content types with same index', async () => {
+    const customStrapi = createStrapiMock({
+      restaurantConfig: {
+        indexName: 'customIndex',
+      },
+      aboutConfig: {
+        indexName: 'anotherIndex',
+      },
+    })
+
+    const meilisearchService = createMeilisearchService({
+      strapi: customStrapi,
+    })
+
+    const result = await meilisearchService.getContentTypesWithSameIndex({
+      contentType: 'restaurant',
+    })
+
+    expect(result).toEqual(['api::restaurant.restaurant'])
   })
 })

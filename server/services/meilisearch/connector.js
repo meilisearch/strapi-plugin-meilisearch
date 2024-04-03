@@ -353,7 +353,7 @@ module.exports = ({ strapi, adapter, config }) => {
       // get all contentTypes (not indexes) indexed in Meilisearch.
       const indexedContentTypes = await store.getIndexedContentTypes()
 
-      // Take union of both array
+      // Take intersection of both array
       const indexedContentTypesWithSameIndex = indexedContentTypes.filter(
         contentType => contentTypesWithSameIndex.includes(contentType),
       )
