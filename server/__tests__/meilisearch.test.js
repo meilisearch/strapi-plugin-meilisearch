@@ -204,6 +204,49 @@ describe('Tests content types', () => {
     )
   })
 
+  test('Test to update the content of a collection in Meilisearch with a custom index name', async () => {
+    const customStrapi = createStrapiMock({
+      restaurantConfig: {
+        indexName: 'customIndex',
+        entriesQuery: {
+          limit: 1,
+          fields: ['id'],
+          filters: {},
+          sort: {},
+          populate: [],
+          publicationState: 'preview',
+        },
+      },
+    })
+
+    const meilisearchService = createMeilisearchService({
+      strapi: customStrapi,
+    })
+
+    await meilisearchService.addContentTypeInMeiliSearch({
+      contentType: 'restaurant',
+    })
+
+    expect(
+      customStrapi.plugin().service().actionInBatches
+    ).toHaveBeenCalledWith({
+      contentType: 'restaurant',
+      callback: expect.anything(),
+      entriesQuery: {
+        limit: 1,
+        fields: ['id'],
+        filters: {},
+        sort: {},
+        populate: [],
+        publicationState: 'preview',
+      },
+    })
+    expect(customStrapi.log.info).toHaveBeenCalledTimes(1)
+    expect(customStrapi.log.info).toHaveBeenCalledWith(
+      'A task to update the settings to the Meilisearch index "customIndex" has been enqueued (Task uid: undefined).'
+    )
+  })
+
   test('selectively sanitizes the private fields from the entries', async () => {
     const pluginMock = jest.fn(() => ({
       // This rewrites only the needed methods to reach the system under test (removeSensitiveFields)
