@@ -15,16 +15,16 @@ module.exports = ({ env }) => ({
             categories: entry.categories.map(category => category.name)
           };
         },
-        indexName: "my_restaurant",
+        indexName: ["my_restaurant"],
         settings:  {
           "searchableAttributes": ["*"]
         }
       },
       "about-us": {
-        indexName: "content",
+        indexName: ["content"],
       },
       homepage: {
-        indexName: "content",
+        indexName: ["content"],
       },
       // host: "http://localhost:7700",
       // apiKey: "masterKey"
