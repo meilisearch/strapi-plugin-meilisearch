@@ -176,10 +176,10 @@ module.exports = ({ strapi }) => {
         contentTypeService.getCollectionName({ contentType }),
       )
       const contentTypeWithIndexName = collectionNames.filter(contentType => {
-        const name = this.getIndexNameOfContentType({
+        const names = this.getIndexNamesOfContentType({
           contentType,
         })
-        return name === indexName
+        return names.includes(indexName)
       })
       return contentTypeWithIndexName
     },

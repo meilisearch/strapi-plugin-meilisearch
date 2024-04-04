@@ -532,4 +532,27 @@ describe('Test Meilisearch plugin configurations', () => {
 
     expect(contentTypes).toEqual(['restaurant', 'about'])
   })
+
+  test('Test all contentTypes pointing to the same custom index name, with multiple index names', async () => {
+    const customStrapi = createStrapiMock({
+      restaurantConfig: {
+        indexName: ['another_index', 'my_index'],
+      },
+      aboutConfig: {
+        indexName: ['my_index', 'another_index2'],
+      },
+    })
+
+    const meilisearchService = createMeilisearchService({
+      strapi: customStrapi,
+    })
+
+    const contentTypes = meilisearchService.listContentTypesWithCustomIndexName(
+      {
+        indexName: 'my_index',
+      },
+    )
+
+    expect(contentTypes).toEqual(['restaurant', 'about'])
+  })
 })
