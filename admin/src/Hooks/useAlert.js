@@ -16,7 +16,7 @@ export function useAlert() {
     type = 'info',
     message = i18n(
       'plugin.message.something',
-      'Something occured in Meilisearch'
+      'Something occured in Meilisearch',
     ),
     link,
     blockTransition = true,
@@ -50,7 +50,7 @@ export function useAlert() {
         type: 'warning',
         message: i18n(
           'plugin.message.forbidden.description',
-          'You do not have permission to do this action'
+          'You do not have permission to do this action',
         ),
         blockTransition: false,
       })
