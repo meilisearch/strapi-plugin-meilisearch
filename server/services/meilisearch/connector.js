@@ -364,17 +364,30 @@ module.exports = ({ strapi, adapter, config }) => {
      * @returns {Promise<string[]>} - ContentTypes names.
      */
     getContentTypesWithSameIndex: async function ({ contentType }) {
-      const indexUid = config.getIndexNameOfContentType({ contentType })
+      const indexUids = config.getIndexNamesOfContentType({ contentType })
 
-      // Fetch contentTypes that has the same indexName as the provided contentType
-      const contentTypesWithSameIndex = await config
-        .listContentTypesWithCustomIndexName({ indexName: indexUid })
-        .map(contentTypeName => `api::${contentTypeName}.${contentTypeName}`)
+      // Initialize an empty array to hold contentTypes with the same index names
+      let contentTypesWithSameIndex = []
 
-      // get all contentTypes (not indexes) indexed in Meilisearch.
+      // Iterate over each indexUid to fetch and accumulate contentTypes that have the same indexName
+      for (const indexUid of indexUids) {
+        const contentTypesForCurrentIndex = await config
+          .listContentTypesWithCustomIndexName({ indexName: indexUid })
+          .map(contentTypeName => `api::${contentTypeName}.${contentTypeName}`)
+
+        contentTypesWithSameIndex = [
+          ...contentTypesWithSameIndex,
+          ...contentTypesForCurrentIndex,
+        ]
+      }
+
+      // Remove duplicates
+      contentTypesWithSameIndex = [...new Set(contentTypesWithSameIndex)]
+
+      // Get all contentTypes (not indexes) indexed in Meilisearch.
       const indexedContentTypes = await store.getIndexedContentTypes()
 
-      // Take intersection of both array
+      // Take intersection of both arrays
       const indexedContentTypesWithSameIndex = indexedContentTypes.filter(
         contentType => contentTypesWithSameIndex.includes(contentType),
       )
