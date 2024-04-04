@@ -116,7 +116,7 @@ describe('Tests content types', () => {
   test('Test to delete entries from Meilisearch', async () => {
     const customStrapi = createStrapiMock({
       restaurantConfig: {
-        indexName: 'customIndex',
+        indexName: ['customIndex'],
       },
     })
 
@@ -143,6 +143,47 @@ describe('Tests content types', () => {
     ])
     expect(client.index).toHaveBeenCalledWith('customIndex')
     expect(tasks).toEqual([{ taskUid: 1 }, { taskUid: 2 }])
+  })
+
+  test('Test to delete entries linked to multiple indexes from Meilisearch', async () => {
+    const customStrapi = createStrapiMock({
+      restaurantConfig: {
+        indexName: ['customIndex', 'anotherIndex'],
+      },
+    })
+
+    // Spy
+    const client = new Meilisearch({ host: 'abc' })
+
+    const meilisearchService = createMeilisearchService({
+      strapi: customStrapi,
+    })
+
+    const tasks = await meilisearchService.deleteEntriesFromMeiliSearch({
+      contentType: 'restaurant',
+      entriesId: [1, 2],
+    })
+
+    expect(customStrapi.log.info).toHaveBeenCalledTimes(2)
+    expect(customStrapi.log.info).toHaveBeenCalledWith(
+      'A task to delete 2 documents of the index "customIndex" in Meilisearch has been enqueued (Task uid: undefined).'
+    )
+    expect(customStrapi.log.info).toHaveBeenCalledWith(
+      'A task to delete 2 documents of the index "anotherIndex" in Meilisearch has been enqueued (Task uid: undefined).'
+    )
+    expect(client.index('').deleteDocuments).toHaveBeenCalledTimes(2)
+    expect(client.index('').deleteDocuments).toHaveBeenCalledWith([
+      'restaurant-1',
+      'restaurant-2',
+    ])
+    expect(client.index).toHaveBeenCalledWith('customIndex')
+    expect(client.index).toHaveBeenCalledWith('anotherIndex')
+    expect(tasks).toEqual([
+      { taskUid: 1 },
+      { taskUid: 2 },
+      { taskUid: 1 },
+      { taskUid: 2 },
+    ])
   })
 
   test('Test to get stats', async () => {

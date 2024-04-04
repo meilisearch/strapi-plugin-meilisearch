@@ -82,7 +82,7 @@ module.exports = ({ strapi, adapter, config }) => {
     },
 
     /**
-     * Delete multiples entries from the contentType in its index in Meilisearch.
+     * Delete multiples entries from the contentType in all its indexes in Meilisearch.
      *
      * @param  {object} options
      * @param  {string} options.contentType - ContentType name.
@@ -94,18 +94,24 @@ module.exports = ({ strapi, adapter, config }) => {
       const { apiKey, host } = await store.getCredentials()
       const client = Meilisearch({ apiKey, host })
 
-      const indexUid = config.getIndexNameOfContentType({ contentType })
+      const indexUids = config.getIndexNamesOfContentType({ contentType })
       const documentsIds = entriesId.map(entryId =>
         adapter.addCollectionNamePrefixToId({ entryId, contentType }),
       )
 
-      const task = await client.index(indexUid).deleteDocuments(documentsIds)
-
-      strapi.log.info(
-        `A task to delete ${documentsIds.length} documents of the index "${indexUid}" in Meilisearch has been enqueued (Task uid: ${task.taskUid}).`,
+      const tasks = await Promise.all(
+        indexUids.map(async indexUid => {
+          const task = await client
+            .index(indexUid)
+            .deleteDocuments(documentsIds)
+          strapi.log.info(
+            `A task to delete ${documentsIds.length} documents of the index "${indexUid}" in Meilisearch has been enqueued (Task uid: ${task.taskUid}).`,
+          )
+          return task
+        }),
       )
 
-      return task
+      return tasks.flat()
     },
 
     /**
