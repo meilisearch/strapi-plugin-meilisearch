@@ -1,13 +1,12 @@
 import { useIntl } from 'react-intl'
-
-import getTrad from '../utils/getTrad'
+import pluginId from '../pluginId'
 
 export const useI18n = () => {
   const { formatMessage } = useIntl()
 
   const i18n = (key, defaultMessage) => {
     return formatMessage({
-      id: getTrad(key),
+      id: `${pluginId}.${key}`,
       defaultMessage,
     })
   }

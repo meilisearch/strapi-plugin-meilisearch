@@ -18,13 +18,12 @@ export function useCollection() {
 
   const hookingTextRendering = ({ indexed, listened }) => {
     if (indexed && listened)
-      return i18n("plugin.table.td.hookingText.hooked", "Hooked")
+      return i18n('plugin.table.td.hookingText.hooked', 'Hooked')
 
-    if (!indexed && !listened) 
-      return "/"
-  
-    return i18n("plugin.table.td.hookingText.reload", "Reload needed")
-  };
+    if (!indexed && !listened) return '/'
+
+    return i18n('plugin.table.td.hookingText.reload', 'Reload needed')
+  }
 
   const fetchCollections = async () => {
     const { data, error } = await request(`/${pluginId}/content-type/`, {
@@ -46,7 +45,9 @@ export function useCollection() {
         return collection
       })
       const reload = collections.find(
-        col => col.reloadNeeded === 'Reload needed',
+        col =>
+          col.reloadNeeded ===
+          i18n('plugin.table.td.hookingText.reload', 'Reload needed'),
       )
 
       const isIndexing = collections.find(col => col.isIndexing === true)

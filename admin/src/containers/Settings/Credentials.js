@@ -14,18 +14,12 @@ const Credentials = () => {
     <Box>
       <Box padding={2}>
         <TextInput
-          placeholder={i18n(
-            'plugin.tab.settings.input.host.placeholder',
-            'Host',
-          )}
-          label={i18n(
-            'plugin.tab.settings.input.host.label',
-            'Meilisearch Host',
-          )}
+          placeholder={i18n('plugin.tab.settings.input.url.placeholder', 'URL')}
+          label={i18n('plugin.tab.settings.input.url.label', 'Meilisearch URL')}
           name="host"
           hint={i18n(
-            'plugin.tab.settings.input.host.hint',
-            'The host on which your Meilisearch is running',
+            'plugin.tab.settings.input.url.hint',
+            'The URL on which your Meilisearch is running',
           )}
           value={host}
           onChange={e => setHost(e.target.value)}
