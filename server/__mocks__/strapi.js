@@ -39,6 +39,7 @@ function createStrapiMock({
         ApiKeyIsFromConfigFile: true,
         HostIsFromConfigFile: true,
       }),
+      getIndexedContentTypes: () => ['api::restaurant.restaurant', 'api::about.about'],
       actionInBatches: mockActionInBatches,
       addIndexedContentType: mockAddIndexedContentType,
       subscribeContentType: () => {

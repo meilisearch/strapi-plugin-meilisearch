@@ -20,7 +20,7 @@ describe('Test Meilisearch plugin configurations', () => {
       strapi: customStrapi,
     })
 
-    const indexName = meilisearchService.getIndexNameOfContentType({
+    const indexNames = meilisearchService.getIndexNamesOfContentType({
       contentType,
     })
     const entries = await meilisearchService.transformEntries({
@@ -31,7 +31,7 @@ describe('Test Meilisearch plugin configurations', () => {
       contentType,
     })
 
-    expect(indexName).toEqual(contentType)
+    expect(indexNames).toEqual([contentType])
     expect(entries).toEqual([{ id: 1 }])
     expect(settings).toEqual({})
   })
@@ -45,7 +45,7 @@ describe('Test Meilisearch plugin configurations', () => {
     const meilisearchService = createMeilisearchService({
       strapi: customStrapi,
     })
-    const indexName = meilisearchService.getIndexNameOfContentType({
+    const indexNames = meilisearchService.getIndexNamesOfContentType({
       contentType,
     })
     const entries = await meilisearchService.transformEntries({
@@ -56,7 +56,7 @@ describe('Test Meilisearch plugin configurations', () => {
       contentType,
     })
 
-    expect(indexName).toEqual(contentType)
+    expect(indexNames).toEqual([contentType])
     expect(entries).toEqual([{ id: 1 }])
     expect(settings).toEqual({})
   })
@@ -70,7 +70,7 @@ describe('Test Meilisearch plugin configurations', () => {
     const meilisearchService = createMeilisearchService({
       strapi: customStrapi,
     })
-    const indexName = meilisearchService.getIndexNameOfContentType({
+    const indexNames = meilisearchService.getIndexNamesOfContentType({
       contentType,
     })
     const entries = await meilisearchService.transformEntries({
@@ -81,7 +81,7 @@ describe('Test Meilisearch plugin configurations', () => {
       contentType,
     })
 
-    expect(indexName).toEqual(contentType)
+    expect(indexNames).toEqual([contentType])
     expect(entries).toEqual([{ id: 1 }])
     expect(settings).toEqual({})
   })
@@ -91,11 +91,11 @@ describe('Test Meilisearch plugin configurations', () => {
       restaurantConfig: {},
     })
 
-    const contentType = 'customName'
+    const contentType = 'restaurant'
     const meilisearchService = createMeilisearchService({
       strapi: customStrapi,
     })
-    const indexName = meilisearchService.getIndexNameOfContentType({
+    const indexNames = meilisearchService.getIndexNamesOfContentType({
       contentType,
     })
 
@@ -107,23 +107,24 @@ describe('Test Meilisearch plugin configurations', () => {
       contentType,
     })
 
-    expect(indexName).toEqual(contentType)
+    expect(indexNames).toEqual([contentType])
     expect(entries).toEqual([{ id: 1 }])
     expect(settings).toEqual({})
   })
 
   test('Test configuration with non-empty type indexName', async () => {
+    const customIndexName = 'customName'
     const customStrapi = createStrapiMock({
       restaurantConfig: {
-        indexName: 'customName',
+        indexName: [customIndexName],
       },
     })
 
-    const contentType = 'customName'
+    const contentType = 'restaurant'
     const meilisearchService = createMeilisearchService({
       strapi: customStrapi,
     })
-    const indexName = meilisearchService.getIndexNameOfContentType({
+    const indexNames = meilisearchService.getIndexNamesOfContentType({
       contentType,
     })
 
@@ -135,7 +136,66 @@ describe('Test Meilisearch plugin configurations', () => {
       contentType,
     })
 
-    expect(indexName).toEqual(contentType)
+    expect(indexNames).toEqual([customIndexName])
+    expect(entries).toEqual([{ id: 1 }])
+    expect(settings).toEqual({})
+  })
+
+  test('Test configuration with non-empty and several indexName', async () => {
+    const customIndexName = 'customName'
+    const customIndexName2 = 'otherCustomName'
+    const customStrapi = createStrapiMock({
+      restaurantConfig: {
+        indexName: [customIndexName, customIndexName2],
+      },
+    })
+
+    const contentType = 'restaurant'
+    const meilisearchService = createMeilisearchService({
+      strapi: customStrapi,
+    })
+    const indexNames = meilisearchService.getIndexNamesOfContentType({
+      contentType,
+    })
+
+    const entries = await meilisearchService.transformEntries({
+      contentType,
+      entries: [{ id: 1 }],
+    })
+    const settings = meilisearchService.getSettings({
+      contentType,
+    })
+
+    expect(indexNames).toEqual([customIndexName, customIndexName2])
+    expect(entries).toEqual([{ id: 1 }])
+    expect(settings).toEqual({})
+  })
+
+  test('Test configuration with indexName that is not an array', async () => {
+    const customIndexName = 'customName'
+    const customStrapi = createStrapiMock({
+      restaurantConfig: {
+        indexName: customIndexName,
+      },
+    })
+
+    const contentType = 'restaurant'
+    const meilisearchService = createMeilisearchService({
+      strapi: customStrapi,
+    })
+    const indexNames = meilisearchService.getIndexNamesOfContentType({
+      contentType,
+    })
+
+    const entries = await meilisearchService.transformEntries({
+      contentType,
+      entries: [{ id: 1 }],
+    })
+    const settings = meilisearchService.getSettings({
+      contentType,
+    })
+
+    expect(indexNames).toEqual([customIndexName])
     expect(entries).toEqual([{ id: 1 }])
     expect(settings).toEqual({})
   })
@@ -151,7 +211,7 @@ describe('Test Meilisearch plugin configurations', () => {
     const meilisearchService = createMeilisearchService({
       strapi: customStrapi,
     })
-    const indexName = meilisearchService.getIndexNameOfContentType({
+    const indexNames = meilisearchService.getIndexNamesOfContentType({
       contentType,
     })
     const entries = await meilisearchService.transformEntries({
@@ -162,7 +222,7 @@ describe('Test Meilisearch plugin configurations', () => {
       contentType,
     })
 
-    expect(indexName).toEqual(contentType)
+    expect(indexNames).toEqual([contentType])
     expect(entries).toEqual([{ id: 1 }])
     expect(settings).toEqual({})
   })
@@ -183,7 +243,7 @@ describe('Test Meilisearch plugin configurations', () => {
     const meilisearchService = createMeilisearchService({
       strapi: customStrapi,
     })
-    const indexName = meilisearchService.getIndexNameOfContentType({
+    const indexNames = meilisearchService.getIndexNamesOfContentType({
       contentType,
     })
     const entries = await meilisearchService.transformEntries({
@@ -194,7 +254,7 @@ describe('Test Meilisearch plugin configurations', () => {
       contentType,
     })
 
-    expect(indexName).toEqual(contentType)
+    expect(indexNames).toEqual([contentType])
     expect(entries).toEqual([
       { id: 1, name: 'hello' },
       { id: 2, name: 'hello' },
@@ -215,7 +275,7 @@ describe('Test Meilisearch plugin configurations', () => {
     const meilisearchService = createMeilisearchService({
       strapi: customStrapi,
     })
-    const indexName = meilisearchService.getIndexNameOfContentType({
+    const indexNames = meilisearchService.getIndexNamesOfContentType({
       contentType,
     })
     const entries = await meilisearchService.filterEntries({
@@ -230,7 +290,7 @@ describe('Test Meilisearch plugin configurations', () => {
       contentType,
     })
 
-    expect(indexName).toEqual(contentType)
+    expect(indexNames).toEqual([contentType])
     expect(entries).toEqual([{ id: 2, name: 'two' }])
     expect(settings).toEqual({})
   })
@@ -248,7 +308,7 @@ describe('Test Meilisearch plugin configurations', () => {
     const meilisearchService = createMeilisearchService({
       strapi: customStrapi,
     })
-    const indexName = meilisearchService.getIndexNameOfContentType({
+    const indexNames = meilisearchService.getIndexNamesOfContentType({
       contentType,
     })
     const entries = await meilisearchService.transformEntries({
@@ -259,7 +319,7 @@ describe('Test Meilisearch plugin configurations', () => {
       contentType,
     })
 
-    expect(indexName).toEqual(contentType)
+    expect(indexNames).toEqual([contentType])
     expect(entries).toEqual([])
     expect(settings).toEqual({})
   })
@@ -275,7 +335,7 @@ describe('Test Meilisearch plugin configurations', () => {
     const meilisearchService = createMeilisearchService({
       strapi: customStrapi,
     })
-    const indexName = meilisearchService.getIndexNameOfContentType({
+    const indexNames = meilisearchService.getIndexNamesOfContentType({
       contentType,
     })
     const entries = await meilisearchService.transformEntries({
@@ -286,7 +346,7 @@ describe('Test Meilisearch plugin configurations', () => {
       contentType,
     })
 
-    expect(indexName).toEqual(contentType)
+    expect(indexNames).toEqual([contentType])
     expect(entries).toEqual([])
     expect(settings).toEqual({})
   })
@@ -347,7 +407,7 @@ describe('Test Meilisearch plugin configurations', () => {
     const meilisearchService = createMeilisearchService({
       strapi: customStrapi,
     })
-    const indexName = meilisearchService.getIndexNameOfContentType({
+    const indexNames = meilisearchService.getIndexNamesOfContentType({
       contentType,
     })
     const entries = meilisearchService.removeUnpublishedArticles({
@@ -358,7 +418,7 @@ describe('Test Meilisearch plugin configurations', () => {
       ],
     })
 
-    expect(indexName).toEqual(contentType)
+    expect(indexNames).toEqual([contentType])
     expect(entries).toEqual([
       { id: 1, publishedAt: null },
       { id: 2, publishedAt: null },
@@ -376,7 +436,7 @@ describe('Test Meilisearch plugin configurations', () => {
     const meilisearchService = createMeilisearchService({
       strapi: customStrapi,
     })
-    const indexName = meilisearchService.getIndexNameOfContentType({
+    const indexNames = meilisearchService.getIndexNamesOfContentType({
       contentType,
     })
     const entries = await meilisearchService.transformEntries({
@@ -387,7 +447,7 @@ describe('Test Meilisearch plugin configurations', () => {
       contentType,
     })
 
-    expect(indexName).toEqual(contentType)
+    expect(indexNames).toEqual([contentType])
     expect(entries).toEqual([{ id: 1 }, { id: 2 }])
     expect(settings).toEqual({})
   })
@@ -403,7 +463,7 @@ describe('Test Meilisearch plugin configurations', () => {
     const meilisearchService = createMeilisearchService({
       strapi: customStrapi,
     })
-    const indexName = meilisearchService.getIndexNameOfContentType({
+    const indexNames = meilisearchService.getIndexNamesOfContentType({
       contentType,
     })
     const entries = await meilisearchService.transformEntries({
@@ -414,7 +474,7 @@ describe('Test Meilisearch plugin configurations', () => {
       contentType,
     })
 
-    expect(indexName).toEqual(contentType)
+    expect(indexNames).toEqual([contentType])
     expect(entries).toEqual([{ id: 1 }, { id: 2 }])
     expect(settings).toEqual({})
   })
@@ -432,7 +492,7 @@ describe('Test Meilisearch plugin configurations', () => {
     const meilisearchService = createMeilisearchService({
       strapi: customStrapi,
     })
-    const indexName = meilisearchService.getIndexNameOfContentType({
+    const indexNames = meilisearchService.getIndexNamesOfContentType({
       contentType,
     })
     const entries = await meilisearchService.transformEntries({
@@ -443,7 +503,7 @@ describe('Test Meilisearch plugin configurations', () => {
       contentType,
     })
 
-    expect(indexName).toEqual(contentType)
+    expect(indexNames).toEqual([contentType])
     expect(entries).toEqual([{ id: 1 }, { id: 2 }])
     expect(settings).toEqual({
       mySettings: 'hello',
@@ -453,10 +513,33 @@ describe('Test Meilisearch plugin configurations', () => {
   test('Test all contentTypes pointing to the same custom index name', async () => {
     const customStrapi = createStrapiMock({
       restaurantConfig: {
-        indexName: 'my_index',
+        indexName: ['my_index'],
       },
       aboutConfig: {
+        indexName: ['my_index'],
+      },
+    })
+
+    const meilisearchService = createMeilisearchService({
+      strapi: customStrapi,
+    })
+
+    const contentTypes = meilisearchService.listContentTypesWithCustomIndexName(
+      {
         indexName: 'my_index',
+      },
+    )
+
+    expect(contentTypes).toEqual(['restaurant', 'about'])
+  })
+
+  test('Test all contentTypes pointing to the same custom index name, with multiple index names', async () => {
+    const customStrapi = createStrapiMock({
+      restaurantConfig: {
+        indexName: ['another_index', 'my_index'],
+      },
+      aboutConfig: {
+        indexName: ['my_index', 'another_index2'],
       },
     })
 

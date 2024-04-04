@@ -82,7 +82,7 @@ module.exports = ({ strapi, adapter, config }) => {
     },
 
     /**
-     * Delete multiples entries from the contentType in its index in Meilisearch.
+     * Delete multiples entries from the contentType in all its indexes in Meilisearch.
      *
      * @param  {object} options
      * @param  {string} options.contentType - ContentType name.
@@ -94,22 +94,28 @@ module.exports = ({ strapi, adapter, config }) => {
       const { apiKey, host } = await store.getCredentials()
       const client = Meilisearch({ apiKey, host })
 
-      const indexUid = config.getIndexNameOfContentType({ contentType })
+      const indexUids = config.getIndexNamesOfContentType({ contentType })
       const documentsIds = entriesId.map(entryId =>
         adapter.addCollectionNamePrefixToId({ entryId, contentType }),
       )
 
-      const task = await client.index(indexUid).deleteDocuments(documentsIds)
-
-      strapi.log.info(
-        `A task to delete ${documentsIds.length} documents of the index "${indexUid}" in Meilisearch has been enqueued (Task uid: ${task.taskUid}).`,
+      const tasks = await Promise.all(
+        indexUids.map(async indexUid => {
+          const task = await client
+            .index(indexUid)
+            .deleteDocuments(documentsIds)
+          strapi.log.info(
+            `A task to delete ${documentsIds.length} documents of the index "${indexUid}" in Meilisearch has been enqueued (Task uid: ${task.taskUid}).`,
+          )
+          return task
+        }),
       )
 
-      return task
+      return tasks.flat()
     },
 
     /**
-     * Update entries from the contentType in its index in Meilisearch.
+     * Update entries from the contentType in all its indexes in Meilisearch.
      *
      * @param  {object} options
      * @param  {string} options.contentType - ContentType name.
@@ -123,34 +129,41 @@ module.exports = ({ strapi, adapter, config }) => {
 
       if (!Array.isArray(entries)) entries = [entries]
 
-      const indexUid = config.getIndexNameOfContentType({ contentType })
-      await entries.forEach(async entry => {
-        const sanitized = await sanitizeEntries({
-          entries: [entry],
-          contentType,
-          config,
-          adapter,
-        })
+      const indexUids = config.getIndexNamesOfContentType({ contentType })
+      await Promise.all(
+        indexUids.map(async indexUid => {
+          const tasks = await Promise.all(
+            entries.map(async entry => {
+              const sanitized = await sanitizeEntries({
+                entries: [entry],
+                contentType,
+                config,
+                adapter,
+              })
 
-        if (sanitized.length === 0) {
-          const task = await client.index(indexUid).deleteDocument(
-            adapter.addCollectionNamePrefixToId({
-              contentType,
-              entryId: entry.id,
+              if (sanitized.length === 0) {
+                const task = await client.index(indexUid).deleteDocument(
+                  adapter.addCollectionNamePrefixToId({
+                    contentType,
+                    entryId: entry.id,
+                  }),
+                )
+
+                strapi.log.info(
+                  `A task to delete one document from the Meilisearch index "${indexUid}" has been enqueued (Task uid: ${task.taskUid}).`,
+                )
+
+                return task
+              } else {
+                return client
+                  .index(indexUid)
+                  .updateDocuments(sanitized, { primaryKey: '_meilisearch_id' })
+              }
             }),
           )
-
-          strapi.log.info(
-            `A task to delete one document from the Meilisearch index "${indexUid}" has been enqueued (Task uid: ${task.taskUid}).`,
-          )
-
-          return task
-        } else {
-          return client
-            .index(indexUid)
-            .updateDocuments(sanitized, { primaryKey: '_meilisearch_id' })
-        }
-      })
+          return tasks.flat()
+        }),
+      )
     },
 
     /**
@@ -199,53 +212,57 @@ module.exports = ({ strapi, adapter, config }) => {
       const contentTypes = contentTypeService.getContentTypesUid()
 
       const reports = await Promise.all(
-        contentTypes.map(async contentType => {
+        contentTypes.flatMap(async contentType => {
           const collectionName = contentTypeService.getCollectionName({
             contentType,
           })
-          const indexUid = config.getIndexNameOfContentType({ contentType })
-          const indexInMeiliSearch = indexUids.includes(indexUid)
+          const indexUidsForContentType = config.getIndexNamesOfContentType({
+            contentType,
+          })
+          return Promise.all(
+            indexUidsForContentType.map(async indexUid => {
+              const indexInMeiliSearch = indexUids.includes(indexUid)
+              const contentTypeInIndexStore =
+                indexedContentTypes.includes(contentType)
+              const indexed = indexInMeiliSearch && contentTypeInIndexStore
 
-          const contentTypeInIndexStore =
-            indexedContentTypes.includes(contentType)
-          const indexed = indexInMeiliSearch && contentTypeInIndexStore
+              // safe guard in case index does not exist anymore in Meilisearch
+              if (!indexInMeiliSearch && contentTypeInIndexStore) {
+                await store.removeIndexedContentType({ contentType })
+              }
 
-          // safe guard in case index does not exist anymore in Meilisearch
-          if (!indexInMeiliSearch && contentTypeInIndexStore) {
-            await store.removeIndexedContentType({ contentType })
-          }
+              const { numberOfDocuments = 0, isIndexing = false } =
+                indexUids.includes(indexUid)
+                  ? await this.getStats({ indexUid })
+                  : {}
 
-          const { numberOfDocuments = 0, isIndexing = false } =
-            indexUids.includes(indexUid)
-              ? await this.getStats({ indexUid })
-              : {}
-
-          const contentTypesWithSameIndexUid =
-            await config.listContentTypesWithCustomIndexName({
-              indexName: indexUid,
-            })
-          const numberOfEntries = await contentTypeService.totalNumberOfEntries(
-            {
-              contentTypes: contentTypesWithSameIndexUid,
-            },
+              const contentTypesWithSameIndexUid =
+                await config.listContentTypesWithCustomIndexName({
+                  indexName: indexUid,
+                })
+              const numberOfEntries =
+                await contentTypeService.totalNumberOfEntries({
+                  contentTypes: contentTypesWithSameIndexUid,
+                })
+              return {
+                collection: collectionName,
+                contentType: contentType,
+                indexUid,
+                indexed,
+                isIndexing,
+                numberOfDocuments,
+                numberOfEntries,
+                listened: listenedContentTypes.includes(contentType),
+              }
+            }),
           )
-          return {
-            collection: collectionName,
-            contentType: contentType,
-            indexUid,
-            indexed,
-            isIndexing,
-            numberOfDocuments,
-            numberOfEntries,
-            listened: listenedContentTypes.includes(contentType),
-          }
         }),
       )
-      return { contentTypes: reports }
+      return { contentTypes: reports.flat() }
     },
 
     /**
-     * Add entries from a contentType to its index in Meilisearch.
+     * Add entries from a contentType to all its indexes in Meilisearch.
      *
      * @param  {object} options
      * @param  {string} options.contentType - ContentType name.
@@ -258,7 +275,7 @@ module.exports = ({ strapi, adapter, config }) => {
 
       if (!Array.isArray(entries)) entries = [entries]
 
-      const indexUid = config.getIndexNameOfContentType({ contentType })
+      const indexUids = config.getIndexNamesOfContentType({ contentType })
       const documents = await sanitizeEntries({
         contentType,
         entries,
@@ -266,21 +283,26 @@ module.exports = ({ strapi, adapter, config }) => {
         adapter,
       })
 
-      const task = await client
-        .index(indexUid)
-        .addDocuments(documents, { primaryKey: '_meilisearch_id' })
+      const tasks = await Promise.all(
+        indexUids.map(async indexUid => {
+          const task = await client
+            .index(indexUid)
+            .addDocuments(documents, { primaryKey: '_meilisearch_id' })
 
-      await store.addIndexedContentType({ contentType })
+          await store.addIndexedContentType({ contentType })
 
-      strapi.log.info(
-        `The task to add ${documents.length} documents to the Meilisearch index "${indexUid}" has been enqueued (Task uid: ${task.taskUid}).`,
+          strapi.log.info(
+            `The task to add ${documents.length} documents to the Meilisearch index "${indexUid}" has been enqueued (Task uid: ${task.taskUid}).`,
+          )
+          return task
+        }),
       )
 
-      return task
+      return tasks.flat()[0]
     },
 
     /**
-     * Add all entries from a contentType to its index in Meilisearch.
+     * Add all entries from a contentType to all its indexes in Meilisearch.
      *
      * @param  {object} options
      * @param  {string} options.contentType - ContentType name.
@@ -290,14 +312,18 @@ module.exports = ({ strapi, adapter, config }) => {
     addContentTypeInMeiliSearch: async function ({ contentType }) {
       const { apiKey, host } = await store.getCredentials()
       const client = Meilisearch({ apiKey, host })
-      const indexUid = config.getIndexNameOfContentType({ contentType })
+      const indexUids = config.getIndexNamesOfContentType({ contentType })
 
       // Get Meilisearch Index settings from model
       const settings = config.getSettings({ contentType })
-      const task = await client.index(indexUid).updateSettings(settings)
-
-      strapi.log.info(
-        `A task to update the settings to the Meilisearch index "${indexUid}" has been enqueued (Task uid: ${task.taskUid}).`,
+      await Promise.all(
+        indexUids.map(async indexUid => {
+          const task = await client.index(indexUid).updateSettings(settings)
+          strapi.log.info(
+            `A task to update the settings to the Meilisearch index "${indexUid}" has been enqueued (Task uid: ${task.taskUid}).`,
+          )
+          return task
+        }),
       )
 
       // Callback function for batching action
@@ -311,15 +337,21 @@ module.exports = ({ strapi, adapter, config }) => {
         })
 
         // Add documents in Meilisearch
-        const { taskUid } = await client
-          .index(indexUid)
-          .addDocuments(documents, { primaryKey: '_meilisearch_id' })
+        const taskUids = await Promise.all(
+          indexUids.map(async indexUid => {
+            const { taskUid } = await client
+              .index(indexUid)
+              .addDocuments(documents, { primaryKey: '_meilisearch_id' })
 
-        strapi.log.info(
-          `A task to add ${documents.length} documents to the Meilisearch index "${indexUid}" has been enqueued (Task uid: ${taskUid}).`,
+            strapi.log.info(
+              `A task to add ${documents.length} documents to the Meilisearch index "${indexUid}" has been enqueued (Task uid: ${taskUid}).`,
+            )
+
+            return taskUid
+          }),
         )
 
-        return taskUid
+        return taskUids.flat()
       }
 
       const tasksUids = await contentTypeService.actionInBatches({
@@ -343,17 +375,30 @@ module.exports = ({ strapi, adapter, config }) => {
      * @returns {Promise<string[]>} - ContentTypes names.
      */
     getContentTypesWithSameIndex: async function ({ contentType }) {
-      const indexUid = config.getIndexNameOfContentType({ contentType })
+      const indexUids = config.getIndexNamesOfContentType({ contentType })
 
-      // Fetch contentTypes that has the same indexName as the provided contentType
-      const contentTypesWithSameIndex = await config
-        .listContentTypesWithCustomIndexName({ indexName: indexUid })
-        .map(contentTypeName => `api::${contentTypeName}.${contentTypeName}`)
+      // Initialize an empty array to hold contentTypes with the same index names
+      let contentTypesWithSameIndex = []
 
-      // get all contentTypes (not indexes) indexed in Meilisearch.
+      // Iterate over each indexUid to fetch and accumulate contentTypes that have the same indexName
+      for (const indexUid of indexUids) {
+        const contentTypesForCurrentIndex = await config
+          .listContentTypesWithCustomIndexName({ indexName: indexUid })
+          .map(contentTypeName => `api::${contentTypeName}.${contentTypeName}`)
+
+        contentTypesWithSameIndex = [
+          ...contentTypesWithSameIndex,
+          ...contentTypesForCurrentIndex,
+        ]
+      }
+
+      // Remove duplicates
+      contentTypesWithSameIndex = [...new Set(contentTypesWithSameIndex)]
+
+      // Get all contentTypes (not indexes) indexed in Meilisearch.
       const indexedContentTypes = await store.getIndexedContentTypes()
 
-      // Take union of both array
+      // Take intersection of both arrays
       const indexedContentTypesWithSameIndex = indexedContentTypes.filter(
         contentType => contentTypesWithSameIndex.includes(contentType),
       )
@@ -362,7 +407,7 @@ module.exports = ({ strapi, adapter, config }) => {
     },
 
     /**
-     * Delete or empty an index depending if the contentType is part
+     * Delete or empty all indexes of a contentType, depending if the contentType is part
      * of a composite index.
      *
      * @param  {object} options
@@ -389,11 +434,15 @@ module.exports = ({ strapi, adapter, config }) => {
         const { apiKey, host } = await store.getCredentials()
         const client = Meilisearch({ apiKey, host })
 
-        const indexUid = config.getIndexNameOfContentType({ contentType })
-        const { taskUid } = await client.index(indexUid).delete()
-
-        strapi.log.info(
-          `A task to delete the Meilisearch index "${indexUid}" has been added to the queue (Task uid: ${taskUid}).`,
+        const indexUids = config.getIndexNamesOfContentType({ contentType })
+        await Promise.all(
+          indexUids.map(async indexUid => {
+            const { taskUid } = await client.index(indexUid).delete()
+            strapi.log.info(
+              `A task to delete the Meilisearch index "${indexUid}" has been added to the queue (Task uid: ${taskUid}).`,
+            )
+            return taskUid
+          }),
         )
       }
 

@@ -21,18 +21,23 @@ module.exports = ({ strapi }) => {
   const contentTypeService = strapi.plugin('meilisearch').service('contentType')
   return {
     /**
-     * Get the name of the index from Meilisearch in which the contentType content is added.
+     * Get the names of the indexes from Meilisearch in which the contentType content is added.
      *
      * @param {object} options
      * @param {string} options.contentType - ContentType name.
      *
-     * @return {String} - Index name
+     * @return {String[]} - Index names
      */
-    getIndexNameOfContentType: function ({ contentType }) {
+    getIndexNamesOfContentType: function ({ contentType }) {
       const collection = contentTypeService.getCollectionName({ contentType })
 
       const contentTypeConfig = meilisearchConfig[collection] || {}
-      return contentTypeConfig.indexName || collection
+
+      let indexName = contentTypeConfig.indexName
+      if (indexName !== undefined && !Array.isArray(indexName))
+        indexName = [indexName]
+
+      return indexName || [collection]
     },
 
     /**
@@ -171,10 +176,10 @@ module.exports = ({ strapi }) => {
         contentTypeService.getCollectionName({ contentType }),
       )
       const contentTypeWithIndexName = collectionNames.filter(contentType => {
-        const name = this.getIndexNameOfContentType({
+        const names = this.getIndexNamesOfContentType({
           contentType,
         })
-        return name === indexName
+        return names.includes(indexName)
       })
       return contentTypeWithIndexName
     },
