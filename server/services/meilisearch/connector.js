@@ -396,7 +396,7 @@ module.exports = ({ strapi, adapter, config }) => {
     },
 
     /**
-     * Delete or empty an index depending if the contentType is part
+     * Delete or empty all indexes of a contentType, depending if the contentType is part
      * of a composite index.
      *
      * @param  {object} options
@@ -423,11 +423,15 @@ module.exports = ({ strapi, adapter, config }) => {
         const { apiKey, host } = await store.getCredentials()
         const client = Meilisearch({ apiKey, host })
 
-        const indexUid = config.getIndexNameOfContentType({ contentType })
-        const { taskUid } = await client.index(indexUid).delete()
-
-        strapi.log.info(
-          `A task to delete the Meilisearch index "${indexUid}" has been added to the queue (Task uid: ${taskUid}).`,
+        const indexUids = config.getIndexNamesOfContentType({ contentType })
+        await Promise.all(
+          indexUids.map(async indexUid => {
+            const { taskUid } = await client.index(indexUid).delete()
+            strapi.log.info(
+              `A task to delete the Meilisearch index "${indexUid}" has been added to the queue (Task uid: ${taskUid}).`,
+            )
+            return taskUid
+          }),
         )
       }
 
