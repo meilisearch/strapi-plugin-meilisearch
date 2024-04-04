@@ -113,7 +113,6 @@ describe('Tests content types', () => {
     expect(tasks).toEqual(10)
   })
 
-
   test('Test to add entries linked to multiple indexes in Meilisearch', async () => {
     const pluginMock = jest.fn(() => ({
       // This rewrites only the needed methods to reach the system under test (removeSensitiveFields)
@@ -192,10 +191,10 @@ describe('Tests content types', () => {
 
     expect(strapi.log.info).toHaveBeenCalledTimes(2)
     expect(strapi.log.info).toHaveBeenCalledWith(
-      'The task to add 2 documents to the Meilisearch index "customIndex" has been enqueued (Task uid: undefined).'
+      'The task to add 2 documents to the Meilisearch index "customIndex" has been enqueued (Task uid: undefined).',
     )
     expect(strapi.log.info).toHaveBeenCalledWith(
-      'The task to add 2 documents to the Meilisearch index "anotherIndex" has been enqueued (Task uid: undefined).'
+      'The task to add 2 documents to the Meilisearch index "anotherIndex" has been enqueued (Task uid: undefined).',
     )
     expect(client.index('').addDocuments).toHaveBeenCalledTimes(2)
     expect(client.index).toHaveBeenCalledWith('customIndex')
@@ -256,10 +255,10 @@ describe('Tests content types', () => {
 
     expect(customStrapi.log.info).toHaveBeenCalledTimes(2)
     expect(customStrapi.log.info).toHaveBeenCalledWith(
-      'A task to delete 2 documents of the index "customIndex" in Meilisearch has been enqueued (Task uid: undefined).'
+      'A task to delete 2 documents of the index "customIndex" in Meilisearch has been enqueued (Task uid: undefined).',
     )
     expect(customStrapi.log.info).toHaveBeenCalledWith(
-      'A task to delete 2 documents of the index "anotherIndex" in Meilisearch has been enqueued (Task uid: undefined).'
+      'A task to delete 2 documents of the index "anotherIndex" in Meilisearch has been enqueued (Task uid: undefined).',
     )
     expect(client.index('').deleteDocuments).toHaveBeenCalledTimes(2)
     expect(client.index('').deleteDocuments).toHaveBeenCalledWith([
@@ -332,6 +331,95 @@ describe('Tests content types', () => {
     expect(customStrapi.log.info).toHaveBeenCalledTimes(1)
     expect(customStrapi.log.info).toHaveBeenCalledWith(
       'A task to update the settings to the Meilisearch index "restaurant" has been enqueued (Task uid: undefined).',
+    )
+  })
+
+  test('Test to update the content of a collection in Meilisearch with a custom index name', async () => {
+    const customStrapi = createStrapiMock({
+      restaurantConfig: {
+        indexName: ['customIndex'],
+        entriesQuery: {
+          limit: 1,
+          fields: ['id'],
+          filters: {},
+          sort: {},
+          populate: [],
+          publicationState: 'preview',
+        },
+      },
+    })
+
+    const meilisearchService = createMeilisearchService({
+      strapi: customStrapi,
+    })
+
+    await meilisearchService.addContentTypeInMeiliSearch({
+      contentType: 'restaurant',
+    })
+
+    expect(
+      customStrapi.plugin().service().actionInBatches
+    ).toHaveBeenCalledWith({
+      contentType: 'restaurant',
+      callback: expect.anything(),
+      entriesQuery: {
+        limit: 1,
+        fields: ['id'],
+        filters: {},
+        sort: {},
+        populate: [],
+        publicationState: 'preview',
+      },
+    })
+    expect(customStrapi.log.info).toHaveBeenCalledTimes(1)
+    expect(customStrapi.log.info).toHaveBeenCalledWith(
+      'A task to update the settings to the Meilisearch index "customIndex" has been enqueued (Task uid: undefined).'
+    )
+  })
+
+  test('Test to update the content of a collection in Meilisearch with a multiple index names', async () => {
+    const customStrapi = createStrapiMock({
+      restaurantConfig: {
+        indexName: ['customIndex', 'anotherIndex'],
+        entriesQuery: {
+          limit: 1,
+          fields: ['id'],
+          filters: {},
+          sort: {},
+          populate: [],
+          publicationState: 'preview',
+        },
+      },
+    })
+
+    const meilisearchService = createMeilisearchService({
+      strapi: customStrapi,
+    })
+
+    await meilisearchService.addContentTypeInMeiliSearch({
+      contentType: 'restaurant',
+    })
+
+    expect(
+      customStrapi.plugin().service().actionInBatches
+    ).toHaveBeenCalledWith({
+      contentType: 'restaurant',
+      callback: expect.anything(),
+      entriesQuery: {
+        limit: 1,
+        fields: ['id'],
+        filters: {},
+        sort: {},
+        populate: [],
+        publicationState: 'preview',
+      },
+    })
+    expect(customStrapi.log.info).toHaveBeenCalledTimes(2)
+    expect(customStrapi.log.info).toHaveBeenCalledWith(
+      'A task to update the settings to the Meilisearch index "customIndex" has been enqueued (Task uid: undefined).'
+    )
+    expect(customStrapi.log.info).toHaveBeenCalledWith(
+      'A task to update the settings to the Meilisearch index "anotherIndex" has been enqueued (Task uid: undefined).'
     )
   })
 

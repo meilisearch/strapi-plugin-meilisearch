@@ -291,7 +291,7 @@ module.exports = ({ strapi, adapter, config }) => {
     },
 
     /**
-     * Add all entries from a contentType to its index in Meilisearch.
+     * Add all entries from a contentType to all its indexes in Meilisearch.
      *
      * @param  {object} options
      * @param  {string} options.contentType - ContentType name.
@@ -301,14 +301,18 @@ module.exports = ({ strapi, adapter, config }) => {
     addContentTypeInMeiliSearch: async function ({ contentType }) {
       const { apiKey, host } = await store.getCredentials()
       const client = Meilisearch({ apiKey, host })
-      const indexUid = config.getIndexNameOfContentType({ contentType })
+      const indexUids = config.getIndexNamesOfContentType({ contentType })
 
       // Get Meilisearch Index settings from model
       const settings = config.getSettings({ contentType })
-      const task = await client.index(indexUid).updateSettings(settings)
-
-      strapi.log.info(
-        `A task to update the settings to the Meilisearch index "${indexUid}" has been enqueued (Task uid: ${task.taskUid}).`,
+      await Promise.all(
+        indexUids.map(async indexUid => {
+          const task = await client.index(indexUid).updateSettings(settings)
+          strapi.log.info(
+            `A task to update the settings to the Meilisearch index "${indexUid}" has been enqueued (Task uid: ${task.taskUid}).`,
+          )
+          return task
+        }),
       )
 
       // Callback function for batching action
@@ -322,15 +326,21 @@ module.exports = ({ strapi, adapter, config }) => {
         })
 
         // Add documents in Meilisearch
-        const { taskUid } = await client
-          .index(indexUid)
-          .addDocuments(documents, { primaryKey: '_meilisearch_id' })
+        const taskUids = await Promise.all(
+          indexUids.map(async indexUid => {
+            const { taskUid } = await client
+              .index(indexUid)
+              .addDocuments(documents, { primaryKey: '_meilisearch_id' })
 
-        strapi.log.info(
-          `A task to add ${documents.length} documents to the Meilisearch index "${indexUid}" has been enqueued (Task uid: ${taskUid}).`,
+            strapi.log.info(
+              `A task to add ${documents.length} documents to the Meilisearch index "${indexUid}" has been enqueued (Task uid: ${taskUid}).`,
+            )
+
+            return taskUid
+          }),
         )
 
-        return taskUid
+        return taskUids.flat()
       }
 
       const tasksUids = await contentTypeService.actionInBatches({
