@@ -17,14 +17,14 @@ export function useCollection() {
     setRefetchIndex(prevRefetchIndex => !prevRefetchIndex)
 
   const hookingTextRendering = ({ indexed, listened }) => {
-    if (indexed && !listened)
-      return i18n('plugin.table.td.hookingText.reload', 'Reload needed')
-    if (!indexed && listened)
-      return i18n('plugin.table.td.hookingText.reload', 'Reload needed')
     if (indexed && listened)
-      return i18n('plugin.table.td.hookingText.hooked', 'Hooked')
-    if (!indexed && !listened) return '/'
-  }
+      return i18n("plugin.table.td.hookingText.hooked", "Hooked")
+
+    if (!indexed && !listened) 
+      return "/"
+  
+    return i18n("plugin.table.td.hookingText.reload", "Reload needed")
+  };
 
   const fetchCollections = async () => {
     const { data, error } = await request(`/${pluginId}/content-type/`, {
