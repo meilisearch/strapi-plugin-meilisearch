@@ -251,7 +251,7 @@ module.exports = ({ strapi, adapter, config }) => {
     },
 
     /**
-     * Add entries from a contentType to its index in Meilisearch.
+     * Add entries from a contentType to all its indexes in Meilisearch.
      *
      * @param  {object} options
      * @param  {string} options.contentType - ContentType name.
@@ -264,7 +264,7 @@ module.exports = ({ strapi, adapter, config }) => {
 
       if (!Array.isArray(entries)) entries = [entries]
 
-      const indexUid = config.getIndexNameOfContentType({ contentType })
+      const indexUids = config.getIndexNamesOfContentType({ contentType })
       const documents = await sanitizeEntries({
         contentType,
         entries,
@@ -272,17 +272,22 @@ module.exports = ({ strapi, adapter, config }) => {
         adapter,
       })
 
-      const task = await client
-        .index(indexUid)
-        .addDocuments(documents, { primaryKey: '_meilisearch_id' })
+      const tasks = await Promise.all(
+        indexUids.map(async indexUid => {
+          const task = await client
+            .index(indexUid)
+            .addDocuments(documents, { primaryKey: '_meilisearch_id' })
 
-      await store.addIndexedContentType({ contentType })
+          await store.addIndexedContentType({ contentType })
 
-      strapi.log.info(
-        `The task to add ${documents.length} documents to the Meilisearch index "${indexUid}" has been enqueued (Task uid: ${task.taskUid}).`,
+          strapi.log.info(
+            `The task to add ${documents.length} documents to the Meilisearch index "${indexUid}" has been enqueued (Task uid: ${task.taskUid}).`,
+          )
+          return task
+        }),
       )
 
-      return task
+      return tasks.flat()[0]
     },
 
     /**

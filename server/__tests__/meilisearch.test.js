@@ -113,6 +113,96 @@ describe('Tests content types', () => {
     expect(tasks).toEqual(10)
   })
 
+
+  test('Test to add entries linked to multiple indexes in Meilisearch', async () => {
+    const pluginMock = jest.fn(() => ({
+      // This rewrites only the needed methods to reach the system under test (removeSensitiveFields)
+      service: jest.fn().mockImplementation(() => {
+        return {
+          async actionInBatches({ contentType = 'restaurant', callback }) {
+            await callback({
+              entries: [
+                {
+                  id: 1,
+                  title: 'title',
+                  internal_notes: 'note123',
+                  secret: '123',
+                },
+                {
+                  id: 2,
+                  title: 'abc',
+                  internal_notes: 'note234',
+                  secret: '234',
+                },
+              ],
+              contentType,
+            })
+          },
+          getCollectionName: ({ contentType }) => contentType,
+          addIndexedContentType: jest.fn(),
+          subscribeContentType: jest.fn(),
+          getCredentials: () => ({}),
+        }
+      }),
+    }))
+
+    // Spy
+    const client = new Meilisearch({ host: 'abc' })
+
+    const meilisearchService = createMeilisearchService({
+      strapi: {
+        plugin: pluginMock,
+        contentTypes: {
+          restaurant: {
+            attributes: {
+              id: { private: false },
+              title: { private: false },
+              internal_notes: { private: true },
+              secret: { private: true },
+            },
+          },
+        },
+        config: {
+          get: jest.fn(() => ({
+            restaurant: {
+              noSanitizePrivateFields: ['internal_notes'],
+              indexName: ['customIndex', 'anotherIndex'],
+            },
+          })),
+        },
+        log: mockLogger,
+      },
+      contentTypes: {
+        restaurant: {
+          attributes: {
+            id: { private: false },
+            title: { private: false },
+            internal_notes: { private: true },
+            secret: { private: true },
+          },
+        },
+      },
+    })
+
+    const mockEntry = { attributes: { id: 1 } }
+    const tasks = await meilisearchService.addEntriesToMeilisearch({
+      contentType: 'restaurant',
+      entries: [mockEntry, mockEntry],
+    })
+
+    expect(strapi.log.info).toHaveBeenCalledTimes(2)
+    expect(strapi.log.info).toHaveBeenCalledWith(
+      'The task to add 2 documents to the Meilisearch index "customIndex" has been enqueued (Task uid: undefined).'
+    )
+    expect(strapi.log.info).toHaveBeenCalledWith(
+      'The task to add 2 documents to the Meilisearch index "anotherIndex" has been enqueued (Task uid: undefined).'
+    )
+    expect(client.index('').addDocuments).toHaveBeenCalledTimes(2)
+    expect(client.index).toHaveBeenCalledWith('customIndex')
+    expect(client.index).toHaveBeenCalledWith('anotherIndex')
+    expect(tasks).toEqual(10)
+  })
+
   test('Test to delete entries from Meilisearch', async () => {
     const customStrapi = createStrapiMock({
       restaurantConfig: {
