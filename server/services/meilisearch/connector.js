@@ -115,7 +115,7 @@ module.exports = ({ strapi, adapter, config }) => {
     },
 
     /**
-     * Update entries from the contentType in its index in Meilisearch.
+     * Update entries from the contentType in all its indexes in Meilisearch.
      *
      * @param  {object} options
      * @param  {string} options.contentType - ContentType name.
@@ -129,34 +129,41 @@ module.exports = ({ strapi, adapter, config }) => {
 
       if (!Array.isArray(entries)) entries = [entries]
 
-      const indexUid = config.getIndexNameOfContentType({ contentType })
-      await entries.forEach(async entry => {
-        const sanitized = await sanitizeEntries({
-          entries: [entry],
-          contentType,
-          config,
-          adapter,
-        })
+      const indexUids = config.getIndexNamesOfContentType({ contentType })
+      await Promise.all(
+        indexUids.map(async indexUid => {
+          const tasks = await Promise.all(
+            entries.map(async entry => {
+              const sanitized = await sanitizeEntries({
+                entries: [entry],
+                contentType,
+                config,
+                adapter,
+              })
 
-        if (sanitized.length === 0) {
-          const task = await client.index(indexUid).deleteDocument(
-            adapter.addCollectionNamePrefixToId({
-              contentType,
-              entryId: entry.id,
+              if (sanitized.length === 0) {
+                const task = await client.index(indexUid).deleteDocument(
+                  adapter.addCollectionNamePrefixToId({
+                    contentType,
+                    entryId: entry.id,
+                  }),
+                )
+
+                strapi.log.info(
+                  `A task to delete one document from the Meilisearch index "${indexUid}" has been enqueued (Task uid: ${task.taskUid}).`,
+                )
+
+                return task
+              } else {
+                return client
+                  .index(indexUid)
+                  .updateDocuments(sanitized, { primaryKey: '_meilisearch_id' })
+              }
             }),
           )
-
-          strapi.log.info(
-            `A task to delete one document from the Meilisearch index "${indexUid}" has been enqueued (Task uid: ${task.taskUid}).`,
-          )
-
-          return task
-        } else {
-          return client
-            .index(indexUid)
-            .updateDocuments(sanitized, { primaryKey: '_meilisearch_id' })
-        }
-      })
+          return tasks.flat()
+        }),
+      )
     },
 
     /**
