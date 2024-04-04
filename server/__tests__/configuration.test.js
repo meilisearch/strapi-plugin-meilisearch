@@ -141,6 +141,36 @@ describe('Test Meilisearch plugin configurations', () => {
     expect(settings).toEqual({})
   })
 
+  test('Test configuration with non-empty and several indexName', async () => {
+    const customIndexName = 'customName'
+    const customIndexName2 = 'otherCustomName'
+    const customStrapi = createStrapiMock({
+      restaurantConfig: {
+        indexName: [customIndexName, customIndexName2],
+      },
+    })
+
+    const contentType = 'restaurant'
+    const meilisearchService = createMeilisearchService({
+      strapi: customStrapi,
+    })
+    const indexNames = meilisearchService.getIndexNamesOfContentType({
+      contentType,
+    })
+
+    const entries = await meilisearchService.transformEntries({
+      contentType,
+      entries: [{ id: 1 }],
+    })
+    const settings = meilisearchService.getSettings({
+      contentType,
+    })
+
+    expect(indexNames).toEqual([customIndexName, customIndexName2])
+    expect(entries).toEqual([{ id: 1 }])
+    expect(settings).toEqual({})
+  })
+
   test('Test configuration with indexName that is not an array', async () => {
     const customIndexName = 'customName'
     const customStrapi = createStrapiMock({
