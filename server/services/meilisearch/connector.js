@@ -212,49 +212,53 @@ module.exports = ({ strapi, adapter, config }) => {
       const contentTypes = contentTypeService.getContentTypesUid()
 
       const reports = await Promise.all(
-        contentTypes.map(async contentType => {
+        contentTypes.flatMap(async contentType => {
           const collectionName = contentTypeService.getCollectionName({
             contentType,
           })
-          const indexUid = config.getIndexNameOfContentType({ contentType })
-          const indexInMeiliSearch = indexUids.includes(indexUid)
+          const indexUidsForContentType = config.getIndexNamesOfContentType({
+            contentType,
+          })
+          return Promise.all(
+            indexUidsForContentType.map(async indexUid => {
+              const indexInMeiliSearch = indexUids.includes(indexUid)
+              const contentTypeInIndexStore =
+                indexedContentTypes.includes(contentType)
+              const indexed = indexInMeiliSearch && contentTypeInIndexStore
 
-          const contentTypeInIndexStore =
-            indexedContentTypes.includes(contentType)
-          const indexed = indexInMeiliSearch && contentTypeInIndexStore
+              // safe guard in case index does not exist anymore in Meilisearch
+              if (!indexInMeiliSearch && contentTypeInIndexStore) {
+                await store.removeIndexedContentType({ contentType })
+              }
 
-          // safe guard in case index does not exist anymore in Meilisearch
-          if (!indexInMeiliSearch && contentTypeInIndexStore) {
-            await store.removeIndexedContentType({ contentType })
-          }
+              const { numberOfDocuments = 0, isIndexing = false } =
+                indexUids.includes(indexUid)
+                  ? await this.getStats({ indexUid })
+                  : {}
 
-          const { numberOfDocuments = 0, isIndexing = false } =
-            indexUids.includes(indexUid)
-              ? await this.getStats({ indexUid })
-              : {}
-
-          const contentTypesWithSameIndexUid =
-            await config.listContentTypesWithCustomIndexName({
-              indexName: indexUid,
-            })
-          const numberOfEntries = await contentTypeService.totalNumberOfEntries(
-            {
-              contentTypes: contentTypesWithSameIndexUid,
-            },
+              const contentTypesWithSameIndexUid =
+                await config.listContentTypesWithCustomIndexName({
+                  indexName: indexUid,
+                })
+              const numberOfEntries =
+                await contentTypeService.totalNumberOfEntries({
+                  contentTypes: contentTypesWithSameIndexUid,
+                })
+              return {
+                collection: collectionName,
+                contentType: contentType,
+                indexUid,
+                indexed,
+                isIndexing,
+                numberOfDocuments,
+                numberOfEntries,
+                listened: listenedContentTypes.includes(contentType),
+              }
+            }),
           )
-          return {
-            collection: collectionName,
-            contentType: contentType,
-            indexUid,
-            indexed,
-            isIndexing,
-            numberOfDocuments,
-            numberOfEntries,
-            listened: listenedContentTypes.includes(contentType),
-          }
         }),
       )
-      return { contentTypes: reports }
+      return { contentTypes: reports.flat() }
     },
 
     /**
