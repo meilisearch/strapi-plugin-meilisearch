@@ -129,3 +129,11 @@ playground/src/plugins
 
 # Sqlite Database from the playground
 data.db
+
+############################
+# Local
+############################
+.nvmrc
+.prettierignore
+.prettierrc.js
+.vscode

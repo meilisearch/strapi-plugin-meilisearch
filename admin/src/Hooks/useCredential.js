@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { request } from '@strapi/helper-plugin'
 import pluginId from '../pluginId'
 import useAlert from './useAlert'
+import { useI18n } from './useI18n'
 
 export function useCredential() {
   const [credentials, setCredentials] = useState({
@@ -13,36 +14,36 @@ export function useCredential() {
   const [refetchIndex, setRefetchIndex] = useState(true)
   const [host, setHost] = useState('')
   const [apiKey, setApiKey] = useState('')
-  const { handleNotification, checkForbiddenError } = useAlert()
+  const { handleNotification } = useAlert()
+  const { i18n } = useI18n()
 
   const refetchCredentials = () =>
     setRefetchIndex(prevRefetchIndex => !prevRefetchIndex)
 
   const updateCredentials = async () => {
-    try {
-      const { error } = await request(`/${pluginId}/credential`, {
-        method: 'POST',
-        body: {
-          apiKey: apiKey,
-          host: host,
-        },
+    const { error } = await request(`/${pluginId}/credential`, {
+      method: 'POST',
+      body: {
+        apiKey: apiKey,
+        host: host,
+      },
+    })
+    if (error) {
+      handleNotification({
+        type: 'warning',
+        message: error.message,
+        link: error.link,
       })
-      if (error) {
-        handleNotification({
-          type: 'warning',
-          message: error.message,
-          link: error.link,
-        })
-      } else {
-        refetchCredentials()
-        handleNotification({
-          type: 'success',
-          message: 'Credentials sucessfully updated!',
-          blockTransition: false,
-        })
-      }
-    } catch (error) {
-      checkForbiddenError(error)
+    } else {
+      refetchCredentials()
+      handleNotification({
+        type: 'success',
+        message: i18n(
+          'plugin.message.success.credentials',
+          'Credentials sucessfully updated!',
+        ),
+        blockTransition: false,
+      })
     }
   }
 

@@ -5,6 +5,7 @@ import CollectionTableHeader from './CollectionTableHeader'
 import CollectionColumn from './CollectionColumn'
 import useCollection from '../../Hooks/useCollection'
 import pluginId from '../../pluginId'
+import { useI18n } from '../../Hooks/useI18n'
 
 const Collection = () => {
   const {
@@ -18,6 +19,8 @@ const Collection = () => {
   const { lockAppWithAutoreload, unlockAppWithAutoreload } =
     useAutoReloadOverlayBlocker()
   const [reload, setReload] = useState(false)
+
+  const { i18n } = useI18n()
 
   const ROW_COUNT = 6
   const COL_COUNT = 10
@@ -65,7 +68,9 @@ const Collection = () => {
       </Table>
       {reloadNeeded && (
         <Box padding={5}>
-          <Button onClick={() => setReload(true)}>Reload server</Button>
+          <Button onClick={() => setReload(true)}>
+            {i18n('plugin.reload-server', 'Reload server')}
+          </Button>
         </Box>
       )}
     </Box>

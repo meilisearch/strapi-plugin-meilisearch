@@ -1,7 +1,10 @@
 import { useNotification } from '@strapi/helper-plugin'
+import { useI18n } from './useI18n'
 
 export function useAlert() {
   const toggleNotification = useNotification() // HERE
+  const { i18n } = useI18n()
+
   /**
    * @param  {object} options
    * @param  {string} [options.type='info']
@@ -9,13 +12,16 @@ export function useAlert() {
    * @param  {object} [options.link]
    * @param  {boolean} [options.blockTransition]
    */
-  const handleNotification = ({
+  function handleNotification({
     type = 'info',
-    message = 'Something occured in Meilisearch',
+    message = i18n(
+      'plugin.message.something',
+      'Something occured in Meilisearch'
+    ),
     link,
     blockTransition = true,
     title,
-  }) => {
+  }) {
     toggleNotification({
       // optional
       title,
@@ -40,9 +46,12 @@ export function useAlert() {
     const status = response?.payload?.error?.status
     if (status && status === 403) {
       handleNotification({
-        title: 'Forbidden',
+        title: i18n('plugin.message.forbidden.title', 'Forbidden'),
         type: 'warning',
-        message: 'You do not have permission to do this action',
+        message: i18n(
+          'plugin.message.forbidden.description',
+          'You do not have permission to do this action'
+        ),
         blockTransition: false,
       })
     }
