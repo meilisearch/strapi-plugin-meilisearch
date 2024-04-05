@@ -104,9 +104,11 @@ module.exports = ({ strapi, adapter, config }) => {
           const task = await client
             .index(indexUid)
             .deleteDocuments(documentsIds)
+
           strapi.log.info(
             `A task to delete ${documentsIds.length} documents of the index "${indexUid}" in Meilisearch has been enqueued (Task uid: ${task.taskUid}).`,
           )
+
           return task
         }),
       )
@@ -267,7 +269,7 @@ module.exports = ({ strapi, adapter, config }) => {
      * @param  {object} options
      * @param  {string} options.contentType - ContentType name.
      * @param  {object[] | object} options.entries - Entry from the document.
-     * @returns {Promise<{ taskUid: number }>} - Task identifier.
+     * @returns {Promise<{ taskUid: number }[]>} - Task identifiers.
      */
     addEntriesToMeilisearch: async function ({ contentType, entries }) {
       const { apiKey, host } = await store.getCredentials()
@@ -298,7 +300,7 @@ module.exports = ({ strapi, adapter, config }) => {
         }),
       )
 
-      return tasks.flat()[0]
+      return tasks.flat()
     },
 
     /**

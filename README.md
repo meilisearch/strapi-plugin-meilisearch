@@ -221,7 +221,22 @@ To link a single collection to multiple indexes, you can assign an array of inde
 
 **Example 1: Linking a Single Collection to a Single Index**
 
-In the following example, the `restaurant` content-type in Meilisearch is called `my_restaurant` instead of the default `restaurant`.
+In the following examples, the `restaurant` content-type in Meilisearch is called `my_restaurant` instead of the default `restaurant`.
+
+```js
+// config/plugins.js
+
+module.exports = () => ({
+  //...
+  meilisearch: {
+    config: {
+      restaurant: {
+        indexName: "my_restaurants",
+      }
+    }
+  }
+})
+```
 
 ```js
 // config/plugins.js

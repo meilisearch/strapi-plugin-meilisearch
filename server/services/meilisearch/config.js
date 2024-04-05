@@ -33,11 +33,11 @@ module.exports = ({ strapi }) => {
 
       const contentTypeConfig = meilisearchConfig[collection] || {}
 
-      let indexName = contentTypeConfig.indexName
-      if (indexName !== undefined && !Array.isArray(indexName))
-        indexName = [indexName]
+      let indexNames = [contentTypeConfig.indexName]
+        .flat(2)
+        .filter(index => index)
 
-      return indexName || [collection]
+      return indexNames.length > 0 ? indexNames : [collection]
     },
 
     /**
