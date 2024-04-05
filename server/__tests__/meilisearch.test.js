@@ -110,7 +110,7 @@ describe('Tests content types', () => {
     )
     expect(client.index('').addDocuments).toHaveBeenCalledTimes(1)
     expect(client.index).toHaveBeenCalledWith('customIndex')
-    expect(tasks).toEqual(10)
+    expect(tasks).toEqual([10])
   })
 
   test('Test to add entries linked to multiple indexes in Meilisearch', async () => {
@@ -199,7 +199,7 @@ describe('Tests content types', () => {
     expect(client.index('').addDocuments).toHaveBeenCalledTimes(2)
     expect(client.index).toHaveBeenCalledWith('customIndex')
     expect(client.index).toHaveBeenCalledWith('anotherIndex')
-    expect(tasks).toEqual(10)
+    expect(tasks).toEqual([10, 10])
   })
 
   test('Test to delete entries from Meilisearch', async () => {
