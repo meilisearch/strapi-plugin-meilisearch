@@ -104,9 +104,11 @@ module.exports = ({ strapi, adapter, config }) => {
           const task = await client
             .index(indexUid)
             .deleteDocuments(documentsIds)
+
           strapi.log.info(
             `A task to delete ${documentsIds.length} documents of the index "${indexUid}" in Meilisearch has been enqueued (Task uid: ${task.taskUid}).`,
           )
+
           return task
         }),
       )
