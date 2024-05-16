@@ -182,13 +182,21 @@ function CollectionConfig({ collectionName, configuration }) {
 
   return {
     validateIndexName() {
-      // indexName is either undefined or a none empty string
+      // indexName is either undefined, a non-empty string, or a non-empty array of non-empty strings
+      const isStringAndNotEmpty =
+        typeof indexName === 'string' && indexName !== ''
+
+      const isArrayWithNonEmptyStrings =
+        Array.isArray(indexName) &&
+        indexName.length > 0 &&
+        indexName.every(name => typeof name === 'string' && name !== '')
+
       if (
-        (indexName !== undefined && typeof indexName !== 'string') ||
-        indexName === ''
+        indexName !== undefined &&
+        !(isStringAndNotEmpty || isArrayWithNonEmptyStrings)
       ) {
         log.error(
-          `The "indexName" option of "${collectionName}" should be a non-empty string`,
+          `The "indexName" option of "${collectionName}" should be a non-empty string or an array of non-empty strings`,
         )
       } else if (indexName !== undefined) {
         options.indexName = indexName

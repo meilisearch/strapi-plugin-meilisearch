@@ -122,14 +122,50 @@ describe('Test plugin configuration', () => {
     expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
     expect(strapiMock.log.error).toHaveBeenCalledTimes(1)
     expect(strapiMock.log.error).toHaveBeenCalledWith(
-      'The "indexName" option of "restaurant" should be a non-empty string',
+      'The "indexName" option of "restaurant" should be a non-empty string or an array of non-empty strings',
     )
   })
 
   test('Test indexName with non-empty string', async () => {
     validatePluginConfig({
       restaurant: {
-        indexName: 'hello',
+        indexName: 'validName',
+      },
+    })
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(0)
+  })
+
+  test('Test indexName with empty array', async () => {
+    validatePluginConfig({
+      restaurant: {
+        indexName: [],
+      },
+    })
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(1)
+    expect(strapiMock.log.error).toHaveBeenCalledWith(
+      'The "indexName" option of "restaurant" should be a non-empty string or an array of non-empty strings',
+    )
+  })
+
+  test('Test indexName with non-empty array containing empty string', async () => {
+    validatePluginConfig({
+      restaurant: {
+        indexName: [''],
+      },
+    })
+    expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
+    expect(strapiMock.log.error).toHaveBeenCalledTimes(1)
+    expect(strapiMock.log.error).toHaveBeenCalledWith(
+      'The "indexName" option of "restaurant" should be a non-empty string or an array of non-empty strings',
+    )
+  })
+
+  test('Test indexName with non-empty array of strings', async () => {
+    validatePluginConfig({
+      restaurant: {
+        indexName: ['validName1', 'validName2'],
       },
     })
     expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)

@@ -217,9 +217,11 @@ Settings:
 
 By default, when indexing a content-type in Meilisearch, the index in Meilisearch has the same name as the content-type. This behavior can be changed by setting the `indexName` property in the configuration file of the plugin.
 
-**Example:**
+To link a single collection to multiple indexes, you can assign an array of index names to the `indexName` property.
 
-In the following example, the `restaurant` content-type in Meilisearch is called `my_restaurant` instead of the default `restaurant`.
+**Example 1: Linking a Single Collection to a Single Index**
+
+In the following examples, the `restaurant` content-type in Meilisearch is called `my_restaurant` instead of the default `restaurant`.
 
 ```js
 // config/plugins.js
@@ -230,6 +232,21 @@ module.exports = () => ({
     config: {
       restaurant: {
         indexName: "my_restaurants",
+      }
+    }
+  }
+})
+```
+
+```js
+// config/plugins.js
+
+module.exports = () => ({
+  //...
+  meilisearch: {
+    config: {
+      restaurant: {
+        indexName: ["my_restaurants"],
       }
     }
   }
@@ -248,10 +265,10 @@ module.exports = () => ({
   meilisearch: {
     config: {
       shirts: {
-        indexName: 'products',
+        indexName: ['products'],
       },
       shoes: {
-        indexName: 'products',
+        indexName: ['products'],
       },
     },
   },
@@ -259,6 +276,25 @@ module.exports = () => ({
 ```
 
 Now, on each entry addition from both `shoes` and `shirts` the entry is added in the `product` index of Meilisearch.
+
+**Example 2: Linking a Single Collection to Multiple Indexes**
+
+Suppose you want the `restaurant` content-type to be indexed under both `my_restaurants` and `all_food_places` indexes in Meilisearch. You can achieve this by setting the `indexName` property to an array containing both index names, as shown in the configuration below:
+
+```js
+// config/plugins.js
+
+module.exports = () => ({
+  //...
+  meilisearch: {
+    config: {
+      restaurant: {
+        indexName: ['my_restaurants', 'all_food_places'],
+      }
+    }
+  }
+})
+```
 
 
 **disclaimer**
