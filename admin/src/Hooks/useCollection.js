@@ -2,13 +2,7 @@ import { useState, useEffect } from 'react'
 import { request } from '@strapi/helper-plugin'
 import pluginId from '../pluginId'
 import useAlert from './useAlert'
-
-const hookingTextRendering = ({ indexed, listened }) => {
-  if (indexed && !listened) return 'Reload needed'
-  if (!indexed && listened) return 'Reload needed'
-  if (indexed && listened) return 'Hooked'
-  if (!indexed && !listened) return '/'
-}
+import { useI18n } from './useI18n'
 
 export function useCollection() {
   const [collections, setCollections] = useState([])
@@ -17,9 +11,19 @@ export function useCollection() {
   const [realTimeReports, setRealTimeReports] = useState(false)
 
   const { handleNotification, checkForbiddenError } = useAlert()
+  const { i18n } = useI18n()
 
   const refetchCollection = () =>
     setRefetchIndex(prevRefetchIndex => !prevRefetchIndex)
+
+  const hookingTextRendering = ({ indexed, listened }) => {
+    if (indexed && listened)
+      return i18n('plugin.table.td.hookingText.hooked', 'Hooked')
+
+    if (!indexed && !listened) return '/'
+
+    return i18n('plugin.table.td.hookingText.reload', 'Reload needed')
+  }
 
   const fetchCollections = async () => {
     const { data, error } = await request(`/${pluginId}/content-type/`, {
@@ -41,7 +45,9 @@ export function useCollection() {
         return collection
       })
       const reload = collections.find(
-        col => col.reloadNeeded === 'Reload needed',
+        col =>
+          col.reloadNeeded ===
+          i18n('plugin.table.td.hookingText.reload', 'Reload needed'),
       )
 
       const isIndexing = collections.find(col => col.isIndexing === true)
@@ -74,7 +80,10 @@ export function useCollection() {
         refetchCollection()
         handleNotification({
           type: 'success',
-          message: 'Request to delete content-type is successful',
+          message: i18n(
+            'plugin.message.success.delete',
+            'Request to delete content-type is successful',
+          ),
           blockTransition: false,
         })
       }
@@ -101,7 +110,10 @@ export function useCollection() {
         refetchCollection()
         handleNotification({
           type: 'success',
-          message: 'Request to add a content-type is successful',
+          message: i18n(
+            'plugin.message.success.add',
+            'Request to add a content-type is successful',
+          ),
           blockTransition: false,
         })
       }
@@ -129,7 +141,10 @@ export function useCollection() {
         refetchCollection()
         handleNotification({
           type: 'success',
-          message: 'Request to update content-type is successful',
+          message: i18n(
+            'plugin.message.success.update',
+            'Request to update content-type is successful',
+          ),
           blockTransition: false,
         })
       }

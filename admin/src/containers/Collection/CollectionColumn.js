@@ -8,6 +8,7 @@ import {
   Tr,
   Typography,
 } from '@strapi/design-system'
+import { useI18n } from '../../Hooks/useI18n'
 import { CheckPermissions } from '@strapi/helper-plugin'
 import { PERMISSIONS } from '../../constants'
 
@@ -17,6 +18,7 @@ const CollectionColumn = ({
   addCollection,
   updateCollection,
 }) => {
+  const { i18n } = useI18n()
   return (
     <Tr key={entry.contentType}>
       <CheckPermissions permissions={PERMISSIONS.createAndDelete}>
@@ -39,13 +41,17 @@ const CollectionColumn = ({
       {/* // IN MEILISEARCH */}
       <Td>
         <Typography textColor="neutral800">
-          {entry.indexed ? 'Yes' : 'No'}
+          {entry.indexed
+            ? i18n('plugin.table.td.yes', 'Yes')
+            : i18n('plugin.table.td.no', 'No')}
         </Typography>
       </Td>
       {/* // INDEXING */}
       <Td>
         <Typography textColor="neutral800">
-          {entry.isIndexing ? 'Yes' : 'No'}
+          {entry.isIndexing
+            ? i18n('plugin.table.td.yes', 'Yes')
+            : i18n('plugin.table.td.no', 'No')}
         </Typography>
       </Td>
       {/* // INDEX NAME */}
@@ -74,7 +80,7 @@ const CollectionColumn = ({
                   size="S"
                   variant="secondary"
                 >
-                  Update
+                  {i18n('plugin.update', 'Update')}
                 </Button>
               )}
             </Box>

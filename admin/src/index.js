@@ -1,3 +1,5 @@
+import { prefixPluginTranslations } from '@strapi/helper-plugin'
+
 import pluginPkg from '../../package.json'
 import pluginId from './pluginId'
 import PluginIcon from './components/PluginIcon'
@@ -20,7 +22,7 @@ export default {
       icon: PluginIcon,
       intlLabel: {
         id: `${pluginId}.plugin.name`,
-        defaultMessage: 'Meilisearch',
+        defaultMessage: name,
       },
       Component: async () => {
         const component = await import(
@@ -31,5 +33,29 @@ export default {
       },
       permissions: PERMISSIONS.main,
     })
+  },
+
+  async registerTrads({ locales }) {
+    const importedTrads = await Promise.all(
+      locales.map(locale => {
+        return import(
+          /* webpackChunkName: "[pluginId]-[request]" */ `./translations/${locale}.json`
+        )
+          .then(({ default: data }) => {
+            return {
+              data: prefixPluginTranslations(data, pluginId),
+              locale,
+            }
+          })
+          .catch(() => {
+            return {
+              data: {},
+              locale,
+            }
+          })
+      }),
+    )
+
+    return Promise.resolve(importedTrads)
   },
 }
