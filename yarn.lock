@@ -1114,10 +1114,10 @@
   dependencies:
     "@sinonjs/commons" "^3.0.0"
 
-"@strapi/design-system@^1.18.0":
-  version "1.18.0"
-  resolved "https://registry.yarnpkg.com/@strapi/design-system/-/design-system-1.18.0.tgz#7673c2157e9d28edee118c981fd4fc8460fb723a"
-  integrity sha512-bQ//p4deEfu3z2rQOrT1QUPPugXsoVUusSuwdffZ7/fJAxOShZ8nOUmpWETq8bZECPoDn278cirYAXfcTftHLA==
+"@strapi/design-system@^1.19.0":
+  version "1.19.0"
+  resolved "https://registry.yarnpkg.com/@strapi/design-system/-/design-system-1.19.0.tgz#1b0ca923c22f167baa6d35663e7f47c971df474c"
+  integrity sha512-kEQNaRztIcr6I5Zh6mxtE/Nmkk1mylCS5s56ySKDdqOjWZw2BCbS72/J9k6r1RF1TLIDSXJN9r5dHR0ZKtWvBQ==
   dependencies:
     "@codemirror/lang-json" "^6.0.1"
     "@floating-ui/react-dom" "^2.0.8"
@@ -1126,22 +1126,22 @@
     "@radix-ui/react-dismissable-layer" "^1.0.5"
     "@radix-ui/react-dropdown-menu" "^2.0.6"
     "@radix-ui/react-focus-scope" "1.0.4"
-    "@strapi/ui-primitives" "^1.18.0"
+    "@strapi/ui-primitives" "^1.19.0"
     "@uiw/react-codemirror" "^4.21.25"
     aria-hidden "^1.2.4"
     compute-scroll-into-view "^3.1.0"
     prop-types "^15.8.1"
     react-remove-scroll "^2.5.9"
 
-"@strapi/icons@^1.18.0":
-  version "1.18.0"
-  resolved "https://registry.yarnpkg.com/@strapi/icons/-/icons-1.18.0.tgz#ef8e36155ad4dfce53e83b780ba5c64856d1e9a2"
-  integrity sha512-XeOjGqwDX7HkSfWNnUOx8WCT3qGzPixZrKxNUPCPmIzcLmhL9/Ni4wa1uoqwiZgzq/XzoiXpNEPl1lB5Tiljjg==
+"@strapi/icons@^1.19.0":
+  version "1.19.0"
+  resolved "https://registry.yarnpkg.com/@strapi/icons/-/icons-1.19.0.tgz#efa6b553a7de437171512e3549859faa141a145f"
+  integrity sha512-jcS7n3Ps+73fYGadxdaD6owazoDJKN1fHSG9dp8RX4RqkP6BfoHOX5j3aodVLmDX57Ksg6gy5JXf9xEml7nMpQ==
 
-"@strapi/ui-primitives@^1.18.0":
-  version "1.18.0"
-  resolved "https://registry.yarnpkg.com/@strapi/ui-primitives/-/ui-primitives-1.18.0.tgz#4f2e81c32a724f0722f9690a7ad8ce7253565a0f"
-  integrity sha512-l+EAzfWL7n5u1awCfasonxU9VP7TSeu2CPf2S7oNZIM/tJnLMahsmMefnbVCeJAG50dvPx7vHQiWQ3483O8qww==
+"@strapi/ui-primitives@^1.19.0":
+  version "1.19.0"
+  resolved "https://registry.yarnpkg.com/@strapi/ui-primitives/-/ui-primitives-1.19.0.tgz#01e2709d64bbde1f6810c49898da216934f76479"
+  integrity sha512-dEpmI0PpSH6VWuP/bBvRKI5lUpazdDAcxOpukoq2QDwUFbuZWywgW7a6O5nMnD4bLQtyNeYwd52J8Jqr9pNoQA==
   dependencies:
     "@radix-ui/number" "^1.0.1"
     "@radix-ui/primitive" "^1.0.1"
@@ -1165,10 +1165,10 @@
     aria-hidden "^1.2.4"
     react-remove-scroll "^2.5.9"
 
-"@strapi/utils@^4.24.0":
-  version "4.24.0"
-  resolved "https://registry.yarnpkg.com/@strapi/utils/-/utils-4.24.0.tgz#7e1e6dca91ff4230d4a1208f33e457fbc7db1c64"
-  integrity sha512-9kOSyatGRDxpDZIJ3R5WaGzt4+z1uiddKbPCwM0oHTqPyxfsTCHGhy7y1N4R64KRKtN2fj+h+A76C6Xf5LZTyQ==
+"@strapi/utils@^4.24.4":
+  version "4.24.4"
+  resolved "https://registry.yarnpkg.com/@strapi/utils/-/utils-4.24.4.tgz#a9c48dfc50e77fe758e706ca41d8f57126c090c1"
+  integrity sha512-vd1XNH0Odj8JnHd8IFjaj5uef/CraIjPSP+BgaoekFHRnbXWSyddqRSPKP39NFs4uyVfCXS2dAWIh9JNG7vMmA==
   dependencies:
     "@sindresorhus/slugify" "1.1.0"
     date-fns "2.30.0"
@@ -4000,10 +4000,10 @@ makeerror@1.0.12:
   dependencies:
     tmpl "1.0.5"
 
-meilisearch@^0.38.0:
-  version "0.38.0"
-  resolved "https://registry.yarnpkg.com/meilisearch/-/meilisearch-0.38.0.tgz#c3f666a995f15553b1b27e05e28a51bbfb3639bc"
-  integrity sha512-bHaq8nYxSKw9/Qslq1Zes5g9tHgFkxy/I9o8942wv2PqlNOT0CzptIkh/x98N52GikoSZOXSQkgt6oMjtf5uZw==
+meilisearch@^0.40.0:
+  version "0.40.0"
+  resolved "https://registry.yarnpkg.com/meilisearch/-/meilisearch-0.40.0.tgz#b08b3dfddbdc781a6dc486ea9e098f5af78d691c"
+  integrity sha512-BoRhQMr2mBFLEeCfsvPluksGb01IaOiWvV3Deu3iEY+yYJ4jdGTu+IQi5FCjKlNQ7/TMWSN2XUToSgvH1tj0BQ==
   dependencies:
     cross-fetch "^3.1.6"
 
