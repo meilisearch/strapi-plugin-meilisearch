@@ -427,7 +427,8 @@ The options you can set are described in the [`findMany` documentation](https://
 
 If you are using the [🌍 Internationalization (i18n)](https://docs.strapi.io/developer-docs/latest/plugins/i18n.html) plugin, an additional field `locale` should also be added in `entriesQuery`.
 
-Warning : if you do not specify `locale: "all"` in `entriesQuery`, you may not index all available entries, potentially leading to missing products in your search results. To ensure all entries in every language are indexed in Meilisearch, include the `locale` field with the value 'all'.
+⚠️ Warning: if you do not specify `locale: "all"` in `entriesQuery`, you may not index all available entries, potentially leading to missing products in your search results. To ensure all entries in every language are indexed in Meilisearch, include the `locale` field with the value 'all'.
+
 ```js
 module.exports = {
   meilisearch: {
