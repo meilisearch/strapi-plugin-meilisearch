@@ -1165,10 +1165,10 @@
     aria-hidden "^1.2.4"
     react-remove-scroll "^2.5.9"
 
-"@strapi/utils@^4.24.4":
-  version "4.24.4"
-  resolved "https://registry.yarnpkg.com/@strapi/utils/-/utils-4.24.4.tgz#a9c48dfc50e77fe758e706ca41d8f57126c090c1"
-  integrity sha512-vd1XNH0Odj8JnHd8IFjaj5uef/CraIjPSP+BgaoekFHRnbXWSyddqRSPKP39NFs4uyVfCXS2dAWIh9JNG7vMmA==
+"@strapi/utils@^4.25.6":
+  version "4.25.6"
+  resolved "https://registry.yarnpkg.com/@strapi/utils/-/utils-4.25.6.tgz#a2a52826d7d8902f190181459fe5aa7ff36aa65d"
+  integrity sha512-pzunLY0CpNp62dbd484kgc/BJTWbYThuxp1sLANZKHvP8Weo1Qfhup7E14D3tvVlckVfPaNKmDRuhJnEIZdGTQ==
   dependencies:
     "@sindresorhus/slugify" "1.1.0"
     date-fns "2.30.0"
@@ -4000,10 +4000,10 @@ makeerror@1.0.12:
   dependencies:
     tmpl "1.0.5"
 
-meilisearch@^0.40.0:
-  version "0.40.0"
-  resolved "https://registry.yarnpkg.com/meilisearch/-/meilisearch-0.40.0.tgz#b08b3dfddbdc781a6dc486ea9e098f5af78d691c"
-  integrity sha512-BoRhQMr2mBFLEeCfsvPluksGb01IaOiWvV3Deu3iEY+yYJ4jdGTu+IQi5FCjKlNQ7/TMWSN2XUToSgvH1tj0BQ==
+meilisearch@^0.41.0:
+  version "0.41.0"
+  resolved "https://registry.yarnpkg.com/meilisearch/-/meilisearch-0.41.0.tgz#98fc50dd8ce4f2446aa4445e3cecd47e3c9afde5"
+  integrity sha512-5KcGLxEXD7E+uNO7R68rCbGSHgCqeM3Q3RFFLSsN7ZrIgr8HPDXVAIlP4LHggAZfk0FkSzo8VSXifHCwa2k80g==
   dependencies:
     cross-fetch "^3.1.6"
 
