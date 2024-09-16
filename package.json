@@ -63,7 +63,7 @@
   "devDependencies": {
     "@types/jest": "^29.5.12",
     "concurrently": "^8.2.2",
-    "cypress": "^13.13.2",
+    "cypress": "^13.14.2",
     "eslint": "^8.2.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-cypress": "^2.12.1",
