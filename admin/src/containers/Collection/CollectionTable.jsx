@@ -5,10 +5,7 @@ import CollectionColumn from './CollectionColumn'
 import useCollection from '../../Hooks/useCollection'
 import pluginId from '../../pluginId'
 import { useI18n } from '../../Hooks/useI18n'
-import {
-  useFetchClient,
-  useAutoReloadOverlayBlocker,
-} from '@strapi/admin/strapi-admin'
+import { useFetchClient } from '@strapi/admin/strapi-admin'
 
 const Collection = () => {
   const {
@@ -19,8 +16,9 @@ const Collection = () => {
     reloadNeeded,
     refetchCollection,
   } = useCollection()
-  const { lockAppWithAutoreload, unlockAppWithAutoreload } =
-    useAutoReloadOverlayBlocker()
+// TODO
+//   const { lockAppWithAutoreload, unlockAppWithAutoreload } =
+//     useAutoReloadOverlayBlocker()
   const [reload, setReload] = useState(false)
 
   const { i18n } = useI18n()
@@ -33,7 +31,8 @@ const Collection = () => {
    */
   const reloadServer = async () => {
     try {
-      lockAppWithAutoreload()
+	// TODO
+    //   lockAppWithAutoreload()
       await useFetchClient(
         `/${pluginId}/reload`,
         {
@@ -45,7 +44,8 @@ const Collection = () => {
     } catch (err) {
       console.error(err)
     } finally {
-      unlockAppWithAutoreload()
+	// TODO
+    //   unlockAppWithAutoreload()
       refetchCollection()
     }
   }

@@ -7,7 +7,7 @@ import { prefixPluginTranslations } from './prefixPluginTranslations'
 
 const name = pluginPkg.strapi.name
 
-module.exports = {
+export default {
   register(app) {
     app.registerPlugin({
       id: pluginId,

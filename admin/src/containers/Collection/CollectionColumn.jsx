@@ -1,6 +1,6 @@
 import React, { memo } from 'react'
 import {
-  BaseCheckbox,
+  Checkbox,
   Box,
   Button,
   Flex,
@@ -24,7 +24,7 @@ const CollectionColumn = ({
     <Tr key={entry.contentType}>
       <Page.Protect permissions={PERMISSIONS.createAndDelete}>
         <Td>
-          <BaseCheckbox
+          <Checkbox
             aria-label={`Select ${entry.collection}`}
             onValueChange={() => {
               if (entry.indexed)
