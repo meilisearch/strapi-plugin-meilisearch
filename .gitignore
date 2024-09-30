@@ -1,13 +1,4 @@
-# Don't check auto-generated stuff into git
-coverage
-node_modules
-stats.json
-package-lock.json
-
-# Cruft
-.DS_Store
-npm-debug.log
-.idea
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 ############################
 # OS X
@@ -21,11 +12,13 @@ Icon
 .Trashes
 ._*
 
+
 ############################
 # Linux
 ############################
 
 *~
+
 
 ############################
 # Windows
@@ -39,6 +32,7 @@ $RECYCLE.BIN/
 *.msi
 *.msm
 *.msp
+
 
 ############################
 # Packages
@@ -68,15 +62,17 @@ $RECYCLE.BIN/
 *.out
 *.pid
 
+
 ############################
 # Logs and databases
 ############################
 
-# .tmp
+.tmp
 *.log
 *.sql
 *.sqlite
 *.sqlite3
+
 
 ############################
 # Misc.
@@ -86,6 +82,26 @@ $RECYCLE.BIN/
 ssl
 .idea
 nbproject
+.tsbuildinfo
+.eslintcache
+.env
+
+
+############################
+# Strapi
+############################
+
+public/uploads/*
+!public/uploads/.gitkeep
+
+
+############################
+# Build
+############################
+
+dist
+build
+
 
 ############################
 # Node.js
@@ -99,41 +115,24 @@ results
 node_modules
 .node_history
 
+
+############################
+# Package managers
+############################
+
+.yarn/*
+!.yarn/cache
+!.yarn/unplugged
+!.yarn/patches
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
+yarn-error.log
+
+
 ############################
 # Tests
 ############################
 
-testApp
 coverage
-
-############################
-# Strapi
-############################
-
-.env
-license.txt
-exports
-*.cache
-build
-.strapi-updater.json
-
-############################
-# CYPRESS
-############################
-cypress/screenshots
-cypress/videos
-cypress/plugins
-cypress/fixtures
-
-playground/src/plugins
-
-# Sqlite Database from the playground
-data.db
-
-############################
-# Local
-############################
-.nvmrc
-.prettierignore
-.prettierrc.js
-.vscode
