@@ -1,7 +1,7 @@
 import React, { memo } from 'react'
-import PluginTabs from '../PluginTabs'
-import { PERMISSIONS } from '../../constants'
 import { Page } from "@strapi/strapi/admin";
+import { PERMISSIONS } from '../constants';
+import PluginTabs from './PluginTabs';
 
 const HomePage = () => {
   return (

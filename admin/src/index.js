@@ -24,11 +24,9 @@ export default {
         defaultMessage: name,
       },
       Component: async () => {
-        const component = await import(
-          /* webpackChunkName: "[request]" */ './containers/HomePage'
-        )
+        const { HomePage } = await import('./containers/HomePage')
 
-        return component
+        return HomePage
       },
       permissions: PERMISSIONS.main,
     })
