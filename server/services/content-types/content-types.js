@@ -140,7 +140,7 @@ module.exports = ({ strapi }) => ({
     if (contentTypeUid === undefined) return {}
 
     const entry = await strapi.documents(contentTypeUid).findOne({
-      documentId: "__TODO__",
+      documentId: id,
       fields,
       populate
     })
