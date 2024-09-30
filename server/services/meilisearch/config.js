@@ -17,7 +17,7 @@ const aborted = ({ contentType, action }) => {
 }
 
 module.exports = ({ strapi }) => {
-  const meilisearchConfig = strapi.config.get('plugin.meilisearch') || {}
+  const meilisearchConfig = strapi.config.get("plugin::meilisearch") || {}
   const contentTypeService = strapi.plugin('meilisearch').service('contentType')
   return {
     /**

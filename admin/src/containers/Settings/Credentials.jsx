@@ -2,7 +2,7 @@ import React, { memo } from 'react'
 import { Box, Button, TextInput, Typography } from '@strapi/design-system'
 import { useCredential } from '../../Hooks/useCredential'
 import { useI18n } from '../../Hooks/useI18n'
-import { CheckPermissions } from '@strapi/helper-plugin'
+import { Page } from '@strapi/strapi/admin';
 import { PERMISSIONS } from '../../constants'
 
 const Credentials = () => {
@@ -66,7 +66,7 @@ const Credentials = () => {
       </Box>
 
       <Box paddingTop={2} paddingLeft={2} paddingRight={2} paddingBottom={2}>
-        <CheckPermissions permissions={PERMISSIONS.settingsEdit}>
+        <Page.Protect permissions={PERMISSIONS.settingsEdit}>
           <Button
             variant="secondary"
             onClick={() => updateCredentials()}
@@ -77,7 +77,7 @@ const Credentials = () => {
           >
             {i18n('plugin.save', 'Save')}
           </Button>
-        </CheckPermissions>
+        </Page.Protect>
       </Box>
     </Box>
   )

@@ -139,9 +139,10 @@ module.exports = ({ strapi }) => ({
     const contentTypeUid = this.getContentTypeUid({ contentType })
     if (contentTypeUid === undefined) return {}
 
-    const entry = await strapi.entityService.findOne(contentTypeUid, id, {
+    const entry = await strapi.documents(contentTypeUid).findOne({
+      documentId: "__TODO__",
       fields,
-      populate,
+      populate
     })
 
     if (entry == null) {
@@ -189,17 +190,14 @@ module.exports = ({ strapi }) => ({
       filters,
       sort,
       populate,
-      publicationState,
+      status: publicationState,
     }
     // To avoid issue if internalization is not installed by the user
     if (locale) {
       queryOptions.locale = locale
     }
 
-    const entries = await strapi.entityService.findMany(
-      contentTypeUid,
-      queryOptions,
-    )
+    const entries = await strapi.documents(contentTypeUid).findMany(queryOptions)
 
     // Safe guard in case the content-type is a single type.
     // In which case it is wrapped in an array for consistency.

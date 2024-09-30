@@ -1,10 +1,9 @@
-import { prefixPluginTranslations } from '@strapi/helper-plugin'
-
 import pluginPkg from '../../package.json'
 import pluginId from './pluginId'
 import PluginIcon from './components/PluginIcon'
 import Initializer from './components/Initializer'
 import { PERMISSIONS } from './constants'
+import { prefixPluginTranslations } from './prefixPluginTranslations'
 
 const name = pluginPkg.strapi.name
 
@@ -38,9 +37,7 @@ export default {
   async registerTrads({ locales }) {
     const importedTrads = await Promise.all(
       locales.map(locale => {
-        return import(
-          /* webpackChunkName: "[pluginId]-[request]" */ `./translations/${locale}.json`
-        )
+        return import(`./translations/${locale}.json`)
           .then(({ default: data }) => {
             return {
               data: prefixPluginTranslations(data, pluginId),
