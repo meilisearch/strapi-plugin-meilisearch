@@ -10,7 +10,7 @@ import {
 import { CollectionTable } from '../Collection'
 import { Settings } from '../Settings'
 import { useI18n } from '../../Hooks/useI18n'
-import { CheckPermissions } from '@strapi/helper-plugin'
+import { Page } from '@strapi/strapi/admin';
 import { PERMISSIONS } from '../../constants'
 
 const PluginTabs = () => {
@@ -24,18 +24,18 @@ const PluginTabs = () => {
         </Tabs>
         <TabPanels>
           <TabPanel>
-            <CheckPermissions permissions={PERMISSIONS.collections}>
+            <Page.Protect permissions={PERMISSIONS.collections}>
               <Box color="neutral800" padding={4} background="neutral0">
                 <CollectionTable />
               </Box>
-            </CheckPermissions>
+            </Page.Protect>
           </TabPanel>
           <TabPanel>
-            <CheckPermissions permissions={PERMISSIONS.settings}>
+            <Page.Protect permissions={PERMISSIONS.settings}>
               <Box color="neutral800" padding={4} background="neutral0">
                 <Settings />
               </Box>
-            </CheckPermissions>
+            </Page.Protect>
           </TabPanel>
         </TabPanels>
       </TabGroup>

@@ -1,4 +1,4 @@
-import { useNotification } from '@strapi/helper-plugin'
+import { useNotification } from '@strapi/strapi/admin'
 import { useI18n } from './useI18n'
 
 export function useAlert() {

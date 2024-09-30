@@ -1,14 +1,13 @@
-import { prefixPluginTranslations } from '@strapi/helper-plugin'
-
 import pluginPkg from '../../package.json'
 import pluginId from './pluginId'
 import PluginIcon from './components/PluginIcon'
 import Initializer from './components/Initializer'
 import { PERMISSIONS } from './constants'
+import { prefixPluginTranslations } from './prefixPluginTranslations'
 
 const name = pluginPkg.strapi.name
 
-export default {
+module.exports = {
   register(app) {
     app.registerPlugin({
       id: pluginId,

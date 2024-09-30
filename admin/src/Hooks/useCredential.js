@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { request } from '@strapi/helper-plugin'
+import { useFetchClient } from '@strapi/admin/strapi-admin'
 import pluginId from '../pluginId'
 import useAlert from './useAlert'
 import { useI18n } from './useI18n'
@@ -21,7 +21,7 @@ export function useCredential() {
     setRefetchIndex(prevRefetchIndex => !prevRefetchIndex)
 
   const updateCredentials = async () => {
-    const { error } = await request(`/${pluginId}/credential`, {
+    const { error } = await useFetchClient(`/${pluginId}/credential`, {
       method: 'POST',
       body: {
         apiKey: apiKey,
@@ -48,7 +48,7 @@ export function useCredential() {
   }
 
   const fetchCredentials = async () => {
-    const { data, error } = await request(`/${pluginId}/credential`, {
+    const { data, error } = await useFetchClient(`/${pluginId}/credential`, {
       method: 'GET',
     })
 

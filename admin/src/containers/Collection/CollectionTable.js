@@ -1,11 +1,13 @@
 import React, { memo, useEffect, useState } from 'react'
 import { Box, Button, Table, Tbody } from '@strapi/design-system'
-import { request, useAutoReloadOverlayBlocker } from '@strapi/helper-plugin'
+import { useAutoReloadOverlayBlocker } from '@strapi/helper-plugin'
 import CollectionTableHeader from './CollectionTableHeader'
 import CollectionColumn from './CollectionColumn'
 import useCollection from '../../Hooks/useCollection'
 import pluginId from '../../pluginId'
 import { useI18n } from '../../Hooks/useI18n'
+import { useFetchClient } from '@strapi/admin/strapi-admin';
+
 
 const Collection = () => {
   const {
@@ -31,7 +33,7 @@ const Collection = () => {
   const reloadServer = async () => {
     try {
       lockAppWithAutoreload()
-      await request(
+      await useFetchClient(
         `/${pluginId}/reload`,
         {
           method: 'GET',
