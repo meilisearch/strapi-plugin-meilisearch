@@ -1,0 +1,243 @@
+// ***********************************************
+// This example commands.js shows you how to
+// create various custom commands and overwrite
+// existing commands.
+//
+// For more comprehensive examples of custom
+// commands please read more here:
+// https://on.cypress.io/custom-commands
+// ***********************************************
+//
+//
+// -- This is a parent command --
+// Cypress.Commands.add('login', (email, password) => { ... })
+//
+//
+// -- This is a child command --
+// Cypress.Commands.add('drag', { prevSubject: 'element'}, (subject, options) => { ... })
+//
+//
+// -- This is a dual command --
+// Cypress.Commands.add('dismiss', { prevSubject: 'optional'}, (subject, options) => { ... })
+//
+//
+// -- This will overwrite an existing command --
+// Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
+
+/**
+ *
+ * @param {string} adminUrl
+ * @param {string} email
+ * @param {string} password
+ */
+const login = ({ adminUrl, email, password }) => {
+  cy.session(
+    [email, password],
+    () => {
+      cy.visit(adminUrl)
+      cy.get('form', { timeout: 10000 }).should('be.visible')
+      cy.get('input[name="email"]').type(email)
+      cy.get('input[name="password"]').type(password)
+      cy.get('button[type="submit"]').click()
+    },
+    {
+      validate() {
+        cy.visit(adminUrl)
+        cy.contains('Strapi Dashboard', { timeout: 10000 }).should('be.visible')
+      },
+    },
+  )
+}
+
+const confirmDialog = () => {
+  cy.get('div[role="dialog"]').within(() => {
+    cy.contains('button', 'Confirm').click()
+  })
+}
+
+/**
+ *
+ * @param {string} adminUrl
+ */
+const openPluginPage = adminUrl => {
+  cy.visit(`${adminUrl}/plugins/meilisearch`)
+}
+
+/**
+ *
+ * @param {string} adminUrl
+ */
+const openPluginSettings = adminUrl => {
+  openPluginPage(adminUrl)
+  cy.get('button').contains('Settings').click()
+}
+
+const openContentManager = adminUrl => {
+  cy.visit(`${adminUrl}/content-manager/`)
+}
+
+const openRestaurants = adminUrl => {
+  cy.visit(
+    `${adminUrl}/content-manager/collectionType/api::restaurant.restaurant`,
+  )
+}
+
+const openUsers = adminUrl => {
+  cy.visit(`${adminUrl}/settings/users`)
+}
+
+const openRoles = adminUrl => {
+  cy.visit(`${adminUrl}/settings/roles`)
+}
+
+/**
+ *
+ * @param {string} adminUrl
+ * @param {string} roleName
+ * @param {string[]} permissions
+ */
+const createRole = ({ adminUrl, roleName, permissions }) => {
+  cy.openRoles(adminUrl)
+  cy.contains('button', 'Add new role').click()
+
+  cy.get('input[name="name"]').type(roleName)
+
+  cy.get('div[role="tablist"]')
+    .contains('button[role="tab"]', 'Plugins')
+    .click()
+
+  cy.get('main').contains('Meilisearch').click()
+
+  cy.get('div #accordion-content-accordion-meilisearch')
+    .first()
+    .within(() => {
+      permissions?.forEach(permission => {
+        cy.get('div').contains(permission).click()
+      })
+    })
+
+  cy.contains('button[type="button"]', 'Save').click()
+
+  cy.contains('Edit a role').should('be.visible')
+}
+
+/**
+ * @param {string} adminUrl
+ * @param {string} roleName
+ */
+const removeRole = ({ adminUrl, roleName }) => {
+  cy.openRoles(adminUrl)
+
+  cy.contains('table[role="grid"] tbody tr', roleName)
+    .contains('button', 'Delete')
+    .click()
+
+  cy.confirm()
+}
+
+/**
+ *
+ * @param {string} adminUrl
+ * @param {string} roleName
+ */
+const createUser = ({ adminUrl, email, password, roleName }) => {
+  cy.openUsers(adminUrl)
+
+  cy.contains('button', 'Invite new user').click()
+
+  cy.get('div[role="dialog"]').within(() => {
+    cy.get('input[name="firstname"]').type('e2e')
+    cy.get('input[name="lastname"]').type('test')
+    cy.get('input[name="email"]').type(email)
+
+    cy.get('div[role="combobox"]#roles').click()
+  })
+
+  cy.get('div[role="listbox"]').contains('div[role="option"]', roleName).click()
+
+  cy.get('div[role="dialog"]').within(() => {
+    cy.get('button[type="submit"]').click({ force: true })
+
+    cy.contains('button[type="button"]', 'Finish').click()
+  })
+
+  cy.contains('tr', email, { timeout: 10000 }).should('be.visible')
+  cy.contains('tr', email, { timeout: 10000 })
+    .contains('button', /^Edit/)
+    .click()
+
+  cy.get('form').within(() => {
+    cy.get('input[type="checkbox"][name="isActive"]').click()
+    cy.get('input[type="checkbox"][name="isActive"]').should('be.checked')
+
+    cy.get('input[name="password"]').type(password)
+    cy.get('input[name="confirmPassword"]').type(password)
+
+    cy.root().submit()
+  })
+
+  cy.contains('div[role="status"]', 'Saved').should('be.visible')
+}
+
+const removeUser = ({ adminUrl, email }) => {
+  cy.openUsers(adminUrl)
+
+  cy.contains('tr', email, { timeout: 10000 }).should('be.visible')
+  cy.contains('tr', email, { timeout: 10000 })
+    .contains('button', /^Delete/)
+    .click()
+
+  cy.confirm()
+
+  cy.root().should('not.contain', email)
+}
+
+const removeNotifications = () => {
+  cy.get('button[aria-label="Close"]').click()
+}
+
+const clickCollection = ({ rowNb }) => {
+  const row = `table[role='grid'] tbody tr:nth-child(${rowNb})`
+  cy.get(`${row} input[type="checkbox"]`, { timeout: 10000 }).click({
+    timeout: 10000,
+  })
+}
+
+const checkCollectionContent = ({ rowNb, contains }) => {
+  const row = `table[role='grid'] tbody tr:nth-child(${rowNb})`
+  contains.map(value =>
+    cy
+      .get(row, {
+        timeout: 10000,
+      })
+      .contains(value, { timeout: 10000 }),
+  )
+}
+
+const reloadServer = () => {
+  cy.get(`button`).contains('Reload server').click({ force: true })
+  cy.wait(2000)
+}
+const clickAndCheckRowContent = ({ rowNb, contains }) => {
+  clickCollection({ rowNb })
+  checkCollectionContent({ rowNb, contains })
+}
+
+Cypress.Commands.add('login', login)
+Cypress.Commands.add('confirm', confirmDialog)
+Cypress.Commands.add('openPluginPage', openPluginPage)
+Cypress.Commands.add('openPluginSettings', openPluginSettings)
+Cypress.Commands.add('openContentManager', openContentManager)
+Cypress.Commands.add('openRestaurants', openRestaurants)
+Cypress.Commands.add('openUsers', openUsers)
+Cypress.Commands.add('openRoles', openRoles)
+Cypress.Commands.add('createUser', createUser)
+Cypress.Commands.add('removeUser', removeUser)
+Cypress.Commands.add('createRole', createRole)
+Cypress.Commands.add('removeRole', removeRole)
+
+Cypress.Commands.add('clickCollection', clickCollection)
+Cypress.Commands.add('clickAndCheckRowContent', clickAndCheckRowContent)
+Cypress.Commands.add('checkCollectionContent', checkCollectionContent)
+Cypress.Commands.add('reloadServer', reloadServer)
+Cypress.Commands.add('removeNotifications', removeNotifications)

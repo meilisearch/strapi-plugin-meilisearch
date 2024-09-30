@@ -5,10 +5,12 @@
   "scripts": {
     "playground:dev": "yarn --cwd ./playground && yarn --cwd ./playground dev",
     "playground:build": "yarn --cwd ./playground && yarn --cwd ./playground build",
+    "playground:ci": "yarn --cwd ./playground ci",
     "style": "eslint --ext .js,.test.js .",
     "style:fix": "eslint --ext .js,.test.js . --fix",
     "test": "jest --testPathPattern=tests",
-    "test:watch": "jest --watch --testPathPattern=tests --verbose"
+    "test:watch": "jest --watch --testPathPattern=tests --verbose",
+    "test:e2e:watch": "concurrently --kill-others -s first \"NODE_ENV=test yarn playground:dev\" \"cypress open --env env=watch\""
   },
   "strapi": {
     "name": "meilisearch",
@@ -25,9 +27,9 @@
     "README.md"
   ],
   "dependencies": {
-    "@strapi/utils": "^4.25.9",
-    "@strapi/icons": "^1.19.0",
     "@strapi/design-system": "^1.19.0",
+    "@strapi/icons": "^1.19.0",
+    "@strapi/utils": "^4.25.9",
     "meilisearch": "^0.42.0"
   },
   "peerDependencies": {
