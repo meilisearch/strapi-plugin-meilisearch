@@ -49,6 +49,12 @@ const login = ({ adminUrl, email, password }) => {
   )
 }
 
+const confirmDialog = () => {
+  cy.get('div[role="dialog"]').within(() => {
+    cy.contains('button', 'Confirm').click()
+  })
+}
+
 /**
  *
  * @param {string} adminUrl
@@ -74,6 +80,116 @@ const openRestaurants = adminUrl => {
   cy.visit(
     `${adminUrl}/content-manager/collectionType/api::restaurant.restaurant`,
   )
+}
+
+const openUsers = adminUrl => {
+  cy.visit(`${adminUrl}/settings/users`)
+}
+
+const openRoles = adminUrl => {
+  cy.visit(`${adminUrl}/settings/roles`)
+}
+
+/**
+ *
+ * @param {string} adminUrl
+ * @param {string} roleName
+ * @param {string[]} permissions
+ */
+const createRole = ({ adminUrl, roleName, permissions }) => {
+  cy.openRoles(adminUrl)
+  cy.contains('button', 'Add new role').click()
+
+  cy.get('input[name="name"]').type(roleName)
+
+  cy.get('div[role="tablist"]')
+    .contains('button[role="tab"]', 'Plugins')
+    .click()
+
+  cy.get('main').contains('Meilisearch').click()
+
+  cy.get('div #accordion-content-accordion-meilisearch')
+    .first()
+    .within(() => {
+      permissions?.forEach(permission => {
+        cy.get('div').contains(permission).click()
+      })
+    })
+
+  cy.contains('button[type="button"]', 'Save').click()
+
+  cy.contains('Edit a role').should('be.visible')
+}
+
+/**
+ * @param {string} adminUrl
+ * @param {string} roleName
+ */
+const removeRole = ({ adminUrl, roleName }) => {
+  cy.openRoles(adminUrl)
+
+  cy.contains('table[role="grid"] tbody tr', roleName)
+    .contains('button', 'Delete')
+    .click()
+
+  cy.confirm()
+}
+
+/**
+ *
+ * @param {string} adminUrl
+ * @param {string} roleName
+ */
+const createUser = ({ adminUrl, email, password, roleName }) => {
+  cy.openUsers(adminUrl)
+
+  cy.contains('button', 'Invite new user').click()
+
+  cy.get('div[role="dialog"]').within(() => {
+    cy.get('input[name="firstname"]').type('e2e')
+    cy.get('input[name="lastname"]').type('test')
+    cy.get('input[name="email"]').type(email)
+
+    cy.get('div[role="combobox"]#roles').click()
+  })
+
+  cy.get('div[role="listbox"]').contains('div[role="option"]', roleName).click()
+
+  cy.get('div[role="dialog"]').within(() => {
+    cy.get('button[type="submit"]').click({ force: true })
+
+    cy.contains('button[type="button"]', 'Finish').click()
+  })
+
+  cy.contains('tr', email, { timeout: 10000 }).should('be.visible')
+  cy.contains('tr', email, { timeout: 10000 })
+    .contains('button', /^Edit/)
+    .click()
+
+  cy.get('form').within(() => {
+    cy.get('input[type="checkbox"][name="isActive"]').click()
+    cy.get('input[type="checkbox"][name="isActive"]').should('be.checked')
+
+    cy.get('input[name="password"]').type(password)
+    cy.get('input[name="confirmPassword"]').type(password)
+
+    cy.root().submit()
+  })
+
+  cy.contains('div[role="status"]', 'Saved').should('be.visible')
+}
+
+const removeUser = ({ adminUrl, email }) => {
+  cy.openUsers(adminUrl)
+
+  cy.contains('tr', email, { timeout: 10000 }).should('be.visible')
+  cy.contains('tr', email, { timeout: 10000 })
+    .contains('button', /^Delete/)
+    .click()
+
+  cy.confirm()
+
+  cy.root().should('not.contain', email)
 }
 
 const removeNotifications = () => {
@@ -108,10 +224,17 @@ const clickAndCheckRowContent = ({ rowNb, contains }) => {
 }
 
 Cypress.Commands.add('login', login)
+Cypress.Commands.add('confirm', confirmDialog)
 Cypress.Commands.add('openPluginPage', openPluginPage)
 Cypress.Commands.add('openPluginSettings', openPluginSettings)
 Cypress.Commands.add('openContentManager', openContentManager)
 Cypress.Commands.add('openRestaurants', openRestaurants)
+Cypress.Commands.add('openUsers', openUsers)
+Cypress.Commands.add('openRoles', openRoles)
+Cypress.Commands.add('createUser', createUser)
+Cypress.Commands.add('removeUser', removeUser)
+Cypress.Commands.add('createRole', createRole)
+Cypress.Commands.add('removeRole', removeRole)
 
 Cypress.Commands.add('clickCollection', clickCollection)
 Cypress.Commands.add('clickAndCheckRowContent', clickAndCheckRowContent)
