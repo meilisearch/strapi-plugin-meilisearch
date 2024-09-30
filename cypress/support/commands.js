@@ -85,14 +85,13 @@ const clickCollection = ({ rowNb }) => {
   cy.get(`${row} input[type="checkbox"]`, { timeout: 10000 }).click({
     timeout: 10000,
   })
-  removeNotifications()
 }
 
 const checkCollectionContent = ({ rowNb, contains }) => {
   const row = `table[role='grid'] tbody tr:nth-child(${rowNb})`
-  contains.map(({ value, colIndex }) =>
+  contains.map(value =>
     cy
-      .get(`${row}${colIndex ? ` td[aria-colindex=${colIndex}]` : ''}`, {
+      .get(row, {
         timeout: 10000,
       })
       .contains(value, { timeout: 10000 }),

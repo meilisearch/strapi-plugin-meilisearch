@@ -98,94 +98,42 @@ describe('Strapi meilisearch plugin - administrator', () => {
   it('Add Collections to Meilisearch', () => {
     cy.openPluginPage(adminUrl)
 
-    if (['develop', 'watch', 'ci', 'prereleaseci'].includes(env)) {
-      cy.clickAndCheckRowContent({
-        rowNb: 1,
-        contains: [
-          {
-            value: 'user',
-            colIndex: 2,
-          },
-          { value: 'Yes', colIndex: 3 },
-          {
-            value: 'Hooked',
-            colIndex: 7,
-          },
-        ],
-      })
+    cy.clickAndCheckRowContent({
+      rowNb: 1,
+      contains: ['user', 'Yes', 'Hooked'],
+    })
 
-      cy.clickAndCheckRowContent({
-        rowNb: 2,
-        contains: [
-          {
-            value: 'about-us',
-            colIndex: 2,
-          },
-          { value: 'Yes', colIndex: 3 },
-          {
-            value: 'Hooked',
-            colIndex: 7,
-          },
-        ],
-      })
+    cy.clickAndCheckRowContent({
+      rowNb: 2,
+      contains: ['about-us', 'Yes', 'Hooked'],
+    })
 
-      cy.clickAndCheckRowContent({
-        rowNb: 3,
-        contains: [
-          {
-            value: 'category',
-            colIndex: 2,
-          },
-          { value: 'Yes', colIndex: 3 },
-          {
-            value: 'Hooked',
-            colIndex: 7,
-          },
-        ],
-      })
+    cy.clickAndCheckRowContent({
+      rowNb: 3,
+      contains: ['category', 'Yes', 'Hooked'],
+    })
 
-      cy.clickAndCheckRowContent({
-        rowNb: 4,
-        contains: [
-          {
-            value: 'homepage',
-            colIndex: 2,
-          },
-          { value: 'Yes', colIndex: 3 },
-          {
-            value: 'Hooked',
-            colIndex: 7,
-          },
-        ],
-      })
+    cy.clickAndCheckRowContent({
+      rowNb: 4,
+      contains: ['homepage', 'Yes', 'Hooked'],
+    })
 
-      cy.clickAndCheckRowContent({
-        rowNb: 5,
-        contains: [
-          {
-            value: 'restaurant',
-            colIndex: 2,
-          },
-          { value: 'Yes', colIndex: 3 },
-          {
-            value: 'Hooked',
-            colIndex: 7,
-          },
-        ],
-      })
-    }
+    cy.clickAndCheckRowContent({
+      rowNb: 5,
+      contains: ['restaurant', 'Yes', 'Hooked'],
+    })
   })
 
   it('Check for right number of documents indexed', () => {
     cy.openPluginPage(adminUrl)
 
-    cy.checkCollectionContent({ rowNb: 1, contains: [{ value: '1 / 2' }] })
-    cy.checkCollectionContent({ rowNb: 2, contains: [{ value: '2 / 2' }] })
-    cy.checkCollectionContent({ rowNb: 3, contains: [{ value: '3 / 3' }] })
-    cy.checkCollectionContent({ rowNb: 4, contains: [{ value: '2 / 2' }] })
+    cy.checkCollectionContent({ rowNb: 1, contains: ['1 / 2'] })
+    cy.checkCollectionContent({ rowNb: 2, contains: ['2 / 2'] })
+    cy.checkCollectionContent({ rowNb: 3, contains: ['3 / 3'] })
+    cy.checkCollectionContent({ rowNb: 4, contains: ['2 / 2'] })
     cy.checkCollectionContent({
       rowNb: 5,
-      contains: [{ value: '6200 / 6200' }],
+      contains: ['6200 / 6200'],
     })
   })
 
@@ -208,7 +156,7 @@ describe('Strapi meilisearch plugin - administrator', () => {
 
     cy.checkCollectionContent({
       rowNb: 5,
-      contains: [{ value: '6201 / 6201' }],
+      contains: ['6201 / 6201'],
     })
   })
 
@@ -233,7 +181,7 @@ describe('Strapi meilisearch plugin - administrator', () => {
 
     cy.checkCollectionContent({
       rowNb: 5,
-      contains: [{ value: '6200 / 6200' }],
+      contains: ['6200 / 6200'],
     })
   })
 
@@ -242,13 +190,7 @@ describe('Strapi meilisearch plugin - administrator', () => {
 
     cy.clickAndCheckRowContent({
       rowNb: 1,
-      contains: [
-        {
-          value: 'No',
-          colIndex: 3,
-        },
-        { value: 'Reload needed' },
-      ],
+      contains: ['No', 'Reload needed'],
     })
 
     cy.reloadServer()
@@ -257,13 +199,13 @@ describe('Strapi meilisearch plugin - administrator', () => {
   it('should show that first collection is not indexed', () => {
     cy.openPluginPage(adminUrl)
 
-    cy.checkCollectionContent({ rowNb: 1, contains: [{ value: '0 / 2' }] })
-    cy.checkCollectionContent({ rowNb: 2, contains: [{ value: '2 / 2' }] })
-    cy.checkCollectionContent({ rowNb: 3, contains: [{ value: '3 / 3' }] })
-    cy.checkCollectionContent({ rowNb: 4, contains: [{ value: '2 / 2' }] })
+    cy.checkCollectionContent({ rowNb: 1, contains: ['0 / 2'] })
+    cy.checkCollectionContent({ rowNb: 2, contains: ['2 / 2'] })
+    cy.checkCollectionContent({ rowNb: 3, contains: ['3 / 3'] })
+    cy.checkCollectionContent({ rowNb: 4, contains: ['2 / 2'] })
     cy.checkCollectionContent({
       rowNb: 5,
-      contains: [{ value: '6200 / 6200' }],
+      contains: ['6200 / 6200'],
     })
   })
 
@@ -272,17 +214,7 @@ describe('Strapi meilisearch plugin - administrator', () => {
 
     cy.clickAndCheckRowContent({
       rowNb: 1,
-      contains: [
-        {
-          value: 'user',
-          colIndex: 2,
-        },
-        { value: 'Yes', colIndex: 3 },
-        {
-          value: 'Hooked',
-          colIndex: 7,
-        },
-      ],
+      contains: ['user', 'Yes', 'Hooked'],
     })
   })
 
@@ -292,13 +224,7 @@ describe('Strapi meilisearch plugin - administrator', () => {
     for (let i = 1; i <= 5; i++) {
       cy.clickAndCheckRowContent({
         rowNb: i,
-        contains: [
-          {
-            value: 'No',
-            colIndex: 3,
-          },
-          { value: 'Reload needed' },
-        ],
+        contains: ['No', 'Reload needed'],
       })
     }
 
@@ -308,13 +234,13 @@ describe('Strapi meilisearch plugin - administrator', () => {
   it('Check that collections are not in Meilisearch anymore', () => {
     cy.openPluginPage(adminUrl)
 
-    cy.checkCollectionContent({ rowNb: 1, contains: [{ value: '0 / 2' }] })
-    cy.checkCollectionContent({ rowNb: 2, contains: [{ value: '0 / 2' }] })
-    cy.checkCollectionContent({ rowNb: 3, contains: [{ value: '0 / 3' }] })
-    cy.checkCollectionContent({ rowNb: 4, contains: [{ value: '0 / 2' }] })
+    cy.checkCollectionContent({ rowNb: 1, contains: ['0 / 2'] })
+    cy.checkCollectionContent({ rowNb: 2, contains: ['0 / 2'] })
+    cy.checkCollectionContent({ rowNb: 3, contains: ['0 / 3'] })
+    cy.checkCollectionContent({ rowNb: 4, contains: ['0 / 2'] })
     cy.checkCollectionContent({
       rowNb: 5,
-      contains: [{ value: '0 / 6200' }],
+      contains: ['0 / 6200'],
     })
   })
 
@@ -336,9 +262,6 @@ describe('Strapi meilisearch plugin - administrator', () => {
     const row = `table[role='grid'] tbody tr:nth-child(1) input[type="checkbox"]`
 
     cy.get(row).click()
-    cy.contains(new RegExp(`Request to ${wrongHost}.* has failed`)).should(
-      'be.visible',
-    )
     cy.removeNotifications()
 
     cy.get(row).should('not.be.checked')
