@@ -10,7 +10,7 @@ import {
 import { CollectionTable } from '../Collection'
 import { Settings } from '../Settings'
 import { useI18n } from '../../Hooks/useI18n'
-import { Page } from '@strapi/strapi/admin';
+import { Page } from '@strapi/strapi/admin'
 import { PERMISSIONS } from '../../constants'
 
 const PluginTabs = () => {
