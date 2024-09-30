@@ -1,78 +1,69 @@
 {
-  "name": "strapi-plugin-meilisearch",
-  "version": "0.13.0",
-  "description": "Synchronise and search in your Strapi content-types with Meilisearch",
-  "scripts": {
-    "playground:dev": "yarn --cwd ./playground && yarn --cwd ./playground dev",
-    "playground:build": "yarn --cwd ./playground && yarn --cwd ./playground build",
-    "style": "eslint --ext .js,.test.js .",
-    "style:fix": "eslint --ext .js,.test.js . --fix",
-    "test": "jest --testPathPattern=tests",
-    "test:watch": "jest --watch --testPathPattern=tests --verbose"
-  },
-  "strapi": {
-    "name": "meilisearch",
-    "icon": "search",
-    "description": "Search in your content-types with the Meilisearch plugin",
-    "kind": "plugin"
+  "name": "plugin-test",
+  "version": "0.0.0",
+  "description": "Plugin Test",
+  "keywords": [],
+  "license": "MIT",
+  "author": "Candido Sales Gomes <candidosg@gmail.com>",
+  "type": "commonjs",
+  "exports": {
+    "./package.json": "./package.json",
+    "./strapi-admin": {
+      "types": "./dist/admin/src/index.d.ts",
+      "source": "./admin/src/index.ts",
+      "import": "./dist/admin/index.mjs",
+      "require": "./dist/admin/index.js",
+      "default": "./dist/admin/index.js"
+    },
+    "./strapi-server": {
+      "types": "./dist/server/src/index.d.ts",
+      "source": "./server/src/index.ts",
+      "import": "./dist/server/index.mjs",
+      "require": "./dist/server/index.js",
+      "default": "./dist/server/index.js"
+    }
   },
   "files": [
-    "admin",
-    "server",
-    "strapi-admin.js",
-    "strapi-server.js",
-    "LICENSE",
-    "README.md"
+    "dist"
   ],
+  "scripts": {
+    "build": "strapi-plugin build",
+    "test:ts:back": "run -T tsc -p server/tsconfig.json",
+    "test:ts:front": "run -T tsc -p admin/tsconfig.json",
+    "verify": "strapi-plugin verify",
+    "watch": "strapi-plugin watch",
+    "watch:link": "strapi-plugin watch:link"
+  },
   "dependencies": {
-    "@strapi/utils": "^5.0.1",
-	"@strapi/design-system": "^2.0.0-rc.11",
+    "@strapi/design-system": "^2.0.0-rc.11",
     "@strapi/icons": "^2.0.0-rc.11",
-    "meilisearch": "^0.42.0"
+    "react-intl": "^6.7.0"
+  },
+  "devDependencies": {
+    "@strapi/sdk-plugin": "^5.2.6",
+    "@strapi/strapi": "^5.0.1",
+    "@strapi/typescript-utils": "^5.0.1",
+    "@types/react": "^18.3.10",
+    "@types/react-dom": "^18.3.0",
+    "prettier": "^3.3.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.2",
+    "styled-components": "^6.1.13",
+    "typescript": "^5.6.2"
   },
   "peerDependencies": {
-    "@strapi/strapi": "^5.0.0"
+    "@strapi/sdk-plugin": "^5.2.6",
+    "@strapi/strapi": "^5.0.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.2",
+    "styled-components": "^6.1.13"
   },
-  "author": {
-    "name": "Charlotte Vermandel <charlotte@meilisearch.com>"
-  },
-  "maintainers": [
-    {
-      "name": "Charlotte Vermandel <charlotte@meilisearch.com>"
-    }
-  ],
-  "engines": {
-    "node": ">=18.0.0 <=20.x.x",
-    "npm": ">=6.0.0"
-  },
-  "bugs": {
-    "url": "https://github.com/meilisearch/strapi-plugin-meilisearch/issues"
-  },
-  "keywords": [
-    "strapi",
-    "plugin",
-    "meilisearch",
-    "search"
-  ],
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/meilisearch/strapi-plugin-meilisearch.git"
-  },
-  "homepage": "https://github.com/meilisearch/strapi-plugin-meilisearch#readme",
-  "devDependencies": {
-    "@types/jest": "^29.5.13",
-    "concurrently": "^8.2.2",
-    "cypress": "^13.15.0",
-    "eslint": "^8.2.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-cypress": "^3.5.0",
-    "eslint-plugin-import": "^2.30.0",
-    "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-prettier": "^5.2.1",
-    "eslint-plugin-promise": "^7.1.0",
-    "eslint-plugin-react": "^7.37.0",
-    "jest": "^29.7.0",
-    "prettier": "3.3.3"
+  "strapi": {
+    "kind": "plugin",
+    "name": "plugin-test",
+    "displayName": "Plugin Test",
+    "description": "Plugin Test"
   }
 }
