@@ -1,10 +1,14 @@
 {
-  "name": "plugin-test",
-  "version": "0.0.0",
-  "description": "Plugin Test",
-  "keywords": [],
+  "name": "strapi-plugin-meilisearch",
+  "version": "0.13.0",
+  "description": "Synchronise and search in your Strapi content-types with Meilisearch",
+  "keywords": [
+	"strapi",
+    "plugin",
+    "meilisearch",
+    "search"
+  ],
   "license": "MIT",
-  "author": "Candido Sales Gomes <candidosg@gmail.com>",
   "type": "commonjs",
   "exports": {
     "./package.json": "./package.json",
@@ -37,7 +41,8 @@
   "dependencies": {
     "@strapi/design-system": "^2.0.0-rc.11",
     "@strapi/icons": "^2.0.0-rc.11",
-    "react-intl": "^6.7.0"
+    "react-intl": "^6.7.0",
+	"meilisearch": "^0.42.0"
   },
   "devDependencies": {
     "@strapi/sdk-plugin": "^5.2.6",
@@ -65,5 +70,24 @@
     "name": "plugin-test",
     "displayName": "Plugin Test",
     "description": "Plugin Test"
-  }
+  },
+  "author": {
+    "name": "Charlotte Vermandel <charlotte@meilisearch.com>"
+  },
+  "maintainers": [
+    {
+      "name": "Charlotte Vermandel <charlotte@meilisearch.com>"
+    },
+	{
+	  "name": "Candido Sales Gomes <candidosg@gmail.com>"
+	}
+  ],
+  "bugs": {
+    "url": "https://github.com/meilisearch/strapi-plugin-meilisearch/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/meilisearch/strapi-plugin-meilisearch.git"
+  },
+  "homepage": "https://github.com/meilisearch/strapi-plugin-meilisearch#readme"
 }

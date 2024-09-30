@@ -1,5 +1,9 @@
-import controller from './controller';
+import contentTypeController from './content-type';
+import credentialController from './credential';
+import reloadController from './reload';
 
 export default {
-  controller,
+  contentTypeController,
+  credentialController,
+  reloadController
 };

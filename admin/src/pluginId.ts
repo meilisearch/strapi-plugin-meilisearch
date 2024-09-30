@@ -1,1 +1,1 @@
-export const PLUGIN_ID = 'plugin-test';
+export const PLUGIN_ID = 'meilisearch';

@@ -1,16 +1,21 @@
-import { Main } from '@strapi/design-system';
-import { useIntl } from 'react-intl';
-
-import { getTranslation } from '../utils/getTranslation';
+/*
+ *
+ * HomePage
+ *
+ */
+import { Page } from '@strapi/strapi/admin';
+import { memo } from 'react'
+import { PERMISSIONS } from 'src/constants';
+import PluginTabs from './PluginTabs';
 
 const HomePage = () => {
-  const { formatMessage } = useIntl();
-
   return (
-    <Main>
-      <h1>Welcome to {formatMessage({ id: getTranslation('plugin.name') })}</h1>
-    </Main>
-  );
-};
+    <Page.Protect permissions={PERMISSIONS.main}>
+      <div>
+        <PluginTabs />
+      </div>
+    </Page.Protect>
+  )
+}
 
-export { HomePage };
+export default memo(HomePage)
