@@ -33,7 +33,7 @@ const storeListenedContentTypesService = ({ store }) => ({
    *
    * @returns {Promise<string[]>} - ContentType names.
    */
-  addListenedContentType: async ({ contentType }) => {
+  addListenedContentType: async function ({ contentType }) {
     const listenedContentTypes = await this.getListenedContentTypes()
     const newSet = new Set(listenedContentTypes)
     newSet.add(contentType)
@@ -51,7 +51,7 @@ const storeListenedContentTypesService = ({ store }) => ({
    *
    * @returns {Promise<string[]>} - ContentType names.
    */
-  addListenedContentTypes: async ({ contentTypes }) => {
+  addListenedContentTypes: async function ({ contentTypes }) {
     for (const contentType of contentTypes) {
       await this.addListenedContentType({ contentType })
     }
@@ -63,7 +63,7 @@ const storeListenedContentTypesService = ({ store }) => ({
    *
    * @returns {Promise<string[]>} - ContentType names.
    */
-  emptyListenedContentTypes: async () => {
+  emptyListenedContentTypes: async function () {
     await this.setListenedContentTypes({})
     return this.getListenedContentTypes()
   },

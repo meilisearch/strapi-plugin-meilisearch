@@ -52,7 +52,7 @@ const storeCredentialService =  ({ store, strapi }) => ({
    *  HostIsFromConfigFile: boolean
    * }>} Extended Credentials information
    */
-  addCredentials: async ({ host, apiKey }) => {
+  addCredentials: async function ({ host, apiKey }) {
     const { ApiKeyIsFromConfigFile, HostIsFromConfigFile } =
       await this.getCredentials()
 
@@ -75,7 +75,7 @@ const storeCredentialService =  ({ store, strapi }) => ({
    *  HostIsFromConfigFile: boolean
    * }>} Extended Credentials information
    */
-  getCredentials: async () => {
+  getCredentials: async function () {
     const apiKey = await this.getApiKey()
     const host = await this.getHost()
 
@@ -99,7 +99,7 @@ const storeCredentialService =  ({ store, strapi }) => ({
    * }>} Extended Credentials information
    *
    */
-  syncCredentials: async (config) => {
+  syncCredentials: async function (config) {
     let apiKey = ''
     let host = ''
 

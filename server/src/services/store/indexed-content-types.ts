@@ -34,7 +34,7 @@ const storeIndexedContentTypesService = ({ store }) => ({
    *
    * @returns {Promise<string[]>} List of contentTypes indexed in Meilisearch.
    */
-  addIndexedContentType: async ({ contentType }) => {
+  addIndexedContentType: async function ({ contentType }) {
     const indexedContentTypes = await this.getIndexedContentTypes()
     const newSet = new Set(indexedContentTypes)
     newSet.add(contentType)
@@ -52,7 +52,7 @@ const storeIndexedContentTypesService = ({ store }) => ({
    *
    * @returns {Promise<string[]>} List of contentTypes indexed in Meilisearch.
    */
-  removeIndexedContentType: async ({ contentType }) => {
+  removeIndexedContentType: async function ({ contentType }) {
     const indexedContentTypes = await this.getIndexedContentTypes()
 
     const newSet = new Set(indexedContentTypes)

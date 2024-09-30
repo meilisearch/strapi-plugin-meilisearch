@@ -33,7 +33,7 @@ export const meilisearchAdapterService = ({ strapi }) => {
      *
      * @returns {object[]} - Formatted entries.
      */
-    addCollectionNamePrefix: ({ contentType, entries }) => {
+    addCollectionNamePrefix: function ({ contentType, entries }) {
       return entries.map(entry => ({
         ...entry,
         _meilisearch_id: this.addCollectionNamePrefixToId({

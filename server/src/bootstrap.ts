@@ -98,7 +98,7 @@ async function subscribeToLifecycles({ lifecycle, store }) {
   }
   
 
-const bootstrap = ({ strapi }: { strapi: Core.Strapi }) => {
+const bootstrap = async ({ strapi }: { strapi: Core.Strapi }) => {
 	const store = strapi.plugin('meilisearch').service('store')
 	const lifecycle = strapi.plugin('meilisearch').service('lifecycle')
 	const meilisearch = strapi.plugin('meilisearch').service('meilisearch')

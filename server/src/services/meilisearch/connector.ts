@@ -202,7 +202,7 @@ export const meilisearchConnectorService = ({ strapi, adapter, config }) => {
      * listened: boolean,
      * }>}>} - List of contentTypes reports.
      */
-    getContentTypesReport: async () => {
+    getContentTypesReport: async function () {
       const indexUids = await this.getIndexUids()
 
       // All listened contentTypes
@@ -414,7 +414,7 @@ export const meilisearchConnectorService = ({ strapi, adapter, config }) => {
      * @param  {object} options
      * @param  {string} options.contentType - ContentType name.
      */
-    emptyOrDeleteIndex: async ({ contentType }) => {
+    emptyOrDeleteIndex: async function ({ contentType }) {
       const indexedContentTypesWithSameIndex =
         await this.getContentTypesWithSameIndex({
           contentType,
@@ -458,7 +458,7 @@ export const meilisearchConnectorService = ({ strapi, adapter, config }) => {
      *
      * @returns {Promise<number[]>} - All tasks uid from the indexation process.
      */
-    updateContentTypeInMeiliSearch: async ({ contentType }) => {
+    updateContentTypeInMeiliSearch: async function ({ contentType }) {
       const indexedContentTypes = await store.getIndexedContentTypes()
       if (indexedContentTypes.includes(contentType)) {
         await this.emptyOrDeleteIndex({ contentType })

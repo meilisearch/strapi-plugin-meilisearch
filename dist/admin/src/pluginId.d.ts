@@ -1,1 +1,1 @@
-export declare const PLUGIN_ID = "plugin-test";
+export declare const PLUGIN_ID = "meilisearch";
