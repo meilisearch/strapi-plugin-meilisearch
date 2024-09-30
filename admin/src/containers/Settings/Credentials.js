@@ -2,7 +2,7 @@ import React, { memo } from 'react'
 import { Box, Button, TextInput, Typography } from '@strapi/design-system'
 import { useCredential } from '../../Hooks/useCredential'
 import { useI18n } from '../../Hooks/useI18n'
-import { Page } from '@strapi/strapi/admin';
+import { Page } from '@strapi/strapi/admin'
 import { PERMISSIONS } from '../../constants'
 
 const Credentials = () => {

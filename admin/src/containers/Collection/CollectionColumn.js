@@ -9,7 +9,7 @@ import {
   Typography,
 } from '@strapi/design-system'
 import { useI18n } from '../../Hooks/useI18n'
-import { Page } from '@strapi/strapi/admin';
+import { Page } from '@strapi/strapi/admin'
 
 import { PERMISSIONS } from '../../constants'
 

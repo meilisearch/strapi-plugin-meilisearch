@@ -3,7 +3,7 @@
  * HomePage
  *
  */
-import { Page } from '@strapi/strapi/admin';
+import { Page } from '@strapi/strapi/admin'
 import React, { memo } from 'react'
 import PluginTabs from '../PluginTabs'
 import PluginHeader from '../PluginHeader'
