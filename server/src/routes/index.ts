@@ -1,6 +1,6 @@
 import { ACTIONS } from "src/constants";
 
-module.exports = [
+export default [
   {
     method: 'GET',
     path: '/credential',
