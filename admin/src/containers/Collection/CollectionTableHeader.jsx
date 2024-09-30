@@ -7,7 +7,7 @@ import {
   VisuallyHidden,
 } from '@strapi/design-system'
 import { useI18n } from '../../Hooks/useI18n'
-import { CheckPermissions } from '@strapi/helper-plugin'
+import { Page } from '@strapi/strapi/admin';
 import { PERMISSIONS } from '../../constants'
 
 const CollectionTableHeader = () => {
@@ -15,11 +15,11 @@ const CollectionTableHeader = () => {
   return (
     <Thead>
       <Tr>
-        <CheckPermissions permissions={PERMISSIONS.createAndDelete}>
+        <Page.Protect permissions={PERMISSIONS.createAndDelete}>
           <Th>
             <VisuallyHidden>INDEX</VisuallyHidden>
           </Th>
-        </CheckPermissions>
+        </Page.Protect>
         <Th>
           <Typography variant="sigma">
             {i18n('plugin.table.header.name', 'NAME')}
@@ -50,11 +50,11 @@ const CollectionTableHeader = () => {
             {i18n('plugin.table.header.hooks', 'HOOKS')}
           </Typography>
         </Th>
-        <CheckPermissions permissions={PERMISSIONS.update}>
+        <Page.Protect permissions={PERMISSIONS.update}>
           <Th>
             <VisuallyHidden>Actions</VisuallyHidden>
           </Th>
-        </CheckPermissions>
+        </Page.Protect>
       </Tr>
     </Thead>
   )

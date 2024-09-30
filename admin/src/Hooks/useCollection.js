@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { request } from '@strapi/helper-plugin'
+import { useFetchClient } from '@strapi/admin/strapi-admin'
 import pluginId from '../pluginId'
 import useAlert from './useAlert'
 import { useI18n } from './useI18n'
@@ -12,6 +12,7 @@ export function useCollection() {
 
   const { handleNotification, checkForbiddenError } = useAlert()
   const { i18n } = useI18n()
+  const { get, del, post, put } = useFetchClient();
 
   const refetchCollection = () =>
     setRefetchIndex(prevRefetchIndex => !prevRefetchIndex)
@@ -26,9 +27,7 @@ export function useCollection() {
   }
 
   const fetchCollections = async () => {
-    const { data, error } = await request(`/${pluginId}/content-type/`, {
-      method: 'GET',
-    })
+    const { data, error } = await get(`/${pluginId}/content-type/`)
 
     if (error) {
       handleNotification({
@@ -64,11 +63,8 @@ export function useCollection() {
 
   const deleteCollection = async ({ contentType }) => {
     try {
-      const { error } = await request(
+      const { error } = await del(
         `/${pluginId}/content-type/${contentType}`,
-        {
-          method: 'DELETE',
-        },
       )
       if (error) {
         handleNotification({
@@ -94,8 +90,7 @@ export function useCollection() {
 
   const addCollection = async ({ contentType }) => {
     try {
-      const { error } = await request(`/${pluginId}/content-type`, {
-        method: 'POST',
+      const { error } = await post(`/${pluginId}/content-type`, {
         body: {
           contentType,
         },
@@ -124,8 +119,7 @@ export function useCollection() {
 
   const updateCollection = async ({ contentType }) => {
     try {
-      const { error } = await request(`/${pluginId}/content-type`, {
-        method: 'PUT',
+      const { error } = await put(`/${pluginId}/content-type`, {
         body: {
           contentType,
         },
