@@ -11846,6 +11846,7 @@ __metadata:
     react: "npm:^18.0.0"
     react-dom: "npm:^18.0.0"
     react-router-dom: "npm:^6.0.0"
+    strapi-plugin-meilisearch: "link:.yalc/strapi-plugin-meilisearch"
     styled-components: "npm:^6.0.0"
   languageName: unknown
   linkType: soft
@@ -13910,6 +13911,12 @@ __metadata:
   checksum: 10c0/e433900956357b3efd79b1c547da4d291799ac836960c016d10a98f6a810b1b5c0dcc13b5a7aa609a58239b5190e1ea176ad9221c2157d2fd1c747393e6b2940
   languageName: node
   linkType: hard
+
+"strapi-plugin-meilisearch@link:.yalc/strapi-plugin-meilisearch::locator=playground%40workspace%3A.":
+  version: 0.0.0-use.local
+  resolution: "strapi-plugin-meilisearch@link:.yalc/strapi-plugin-meilisearch::locator=playground%40workspace%3A."
+  languageName: node
+  linkType: soft
 
 "stream-chain@npm:2.2.5, stream-chain@npm:^2.2.5":
   version: 2.2.5

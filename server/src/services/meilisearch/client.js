@@ -1,6 +1,6 @@
 'use strict'
 const { MeiliSearch: Meilisearch } = require('meilisearch')
-const packageJson = require('../../../package.json')
+const packageJson = require('../../../../package.json')
 
 /**
  * Create a Meilisearch client instance.

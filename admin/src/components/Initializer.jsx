@@ -4,24 +4,21 @@
  *
  */
 
-import PropTypes from 'prop-types'
 import { useEffect, useRef } from 'react'
 
-import pluginId from '../../pluginId'
+import pluginId from '../pluginId'
 
+/**
+ * @type {import('react').FC<{ setPlugin: (id: string) => void }>}
+ */
 const Initializer = ({ setPlugin }) => {
-  const ref = useRef()
-  ref.current = setPlugin
+  const ref = useRef(setPlugin)
 
   useEffect(() => {
     ref.current(pluginId)
   }, [])
 
   return null
-}
-
-Initializer.propTypes = {
-  setPlugin: PropTypes.func.isRequired,
 }
 
 export default Initializer

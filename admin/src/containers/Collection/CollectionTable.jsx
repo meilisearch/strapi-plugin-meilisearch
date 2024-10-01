@@ -1,6 +1,6 @@
 import React, { memo, useEffect, useState } from 'react'
 import { Box, Button, Table, Tbody } from '@strapi/design-system'
-import { request, useAutoReloadOverlayBlocker } from '@strapi/helper-plugin'
+// import { request, useAutoReloadOverlayBlocker } from '@strapi/helper-plugin'
 import CollectionTableHeader from './CollectionTableHeader'
 import CollectionColumn from './CollectionColumn'
 import useCollection from '../../Hooks/useCollection'
@@ -16,8 +16,8 @@ const Collection = () => {
     reloadNeeded,
     refetchCollection,
   } = useCollection()
-  const { lockAppWithAutoreload, unlockAppWithAutoreload } =
-    useAutoReloadOverlayBlocker()
+  // const { lockAppWithAutoreload, unlockAppWithAutoreload } =
+    // useAutoReloadOverlayBlocker()
   const [reload, setReload] = useState(false)
 
   const { i18n } = useI18n()
@@ -30,19 +30,16 @@ const Collection = () => {
    */
   const reloadServer = async () => {
     try {
-      lockAppWithAutoreload()
-      await request(
+      // lockAppWithAutoreload()
+      await get(
         `/${pluginId}/reload`,
-        {
-          method: 'GET',
-        },
         true,
       )
       setReload(false)
     } catch (err) {
       console.error(err)
     } finally {
-      unlockAppWithAutoreload()
+      // unlockAppWithAutoreload()
       refetchCollection()
     }
   }

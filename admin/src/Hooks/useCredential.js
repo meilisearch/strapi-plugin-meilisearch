@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { request } from '@strapi/helper-plugin'
+import { useFetchClient } from '@strapi/strapi/admin'
 import pluginId from '../pluginId'
 import useAlert from './useAlert'
 import { useI18n } from './useI18n'
@@ -16,13 +16,13 @@ export function useCredential() {
   const [apiKey, setApiKey] = useState('')
   const { handleNotification } = useAlert()
   const { i18n } = useI18n()
+  const { get, post } = useFetchClient()
 
   const refetchCredentials = () =>
     setRefetchIndex(prevRefetchIndex => !prevRefetchIndex)
 
   const updateCredentials = async () => {
-    const { error } = await request(`/${pluginId}/credential`, {
-      method: 'POST',
+    const { error } = await post(`/${pluginId}/credential`, {
       body: {
         apiKey: apiKey,
         host: host,
@@ -48,20 +48,18 @@ export function useCredential() {
   }
 
   const fetchCredentials = async () => {
-    const { data, error } = await request(`/${pluginId}/credential`, {
-      method: 'GET',
-    })
-
-    if (error) {
+    try {
+      const { data } = await get(`/${pluginId}/credential`)
+      console.log(data, data.host, data.apiKey)
+      setCredentials(data)
+      setHost(data.host)
+      setApiKey(data.apiKey)
+    } catch (error) {
       handleNotification({
         type: 'warning',
         message: error.message,
         link: error.link,
       })
-    } else {
-      setCredentials(data)
-      setHost(data.host)
-      setApiKey(data.apiKey)
     }
   }
 
