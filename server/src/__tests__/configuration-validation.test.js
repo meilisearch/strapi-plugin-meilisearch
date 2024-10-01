@@ -1,4 +1,4 @@
-const { validatePluginConfig } = require('../configuration-validation')
+const { validatePluginConfig } = require('../config/configuration-validation')
 
 const { createStrapiMock } = require('../__mocks__/strapi')
 
