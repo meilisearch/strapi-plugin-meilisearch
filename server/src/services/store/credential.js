@@ -105,7 +105,7 @@ module.exports = ({ store, strapi }) => ({
     let apiKey = ''
     let host = ''
 
-    config = strapi.config.get('plugin.meilisearch')
+    config = strapi.config.get('plugin::meilisearch')
 
     if (config && config) {
       apiKey = config.apiKey

@@ -1,23 +1,18 @@
-/*
- *
- * HomePage
- *
- */
-import { CheckPagePermissions } from '@strapi/helper-plugin'
 import React, { memo } from 'react'
 import PluginTabs from '../PluginTabs'
 import PluginHeader from '../PluginHeader'
 import { PERMISSIONS } from '../../constants'
+import { Page } from "@strapi/strapi/admin";
 
 const HomePage = () => {
   return (
-    <CheckPagePermissions permissions={PERMISSIONS.main}>
+    (<Page.Protect permissions={PERMISSIONS.main}>
       <div>
         <PluginHeader />
         <PluginTabs />
       </div>
-    </CheckPagePermissions>
-  )
+    </Page.Protect>)
+  );
 }
 
 export default memo(HomePage)
