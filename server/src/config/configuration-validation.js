@@ -1,4 +1,4 @@
-const { isObject } = require('./utils')
+const { isObject } = require('../utils')
 /**
  * Validate and cleans the DB query settings.
  * These will be used when fetching documents from the user's database.
