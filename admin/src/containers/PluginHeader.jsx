@@ -1,7 +1,7 @@
 import React, { memo } from 'react'
 import { Box, Link, BaseHeaderLayout } from '@strapi/design-system'
 import { ArrowLeft } from '@strapi/icons'
-import { useI18n } from '../../Hooks/useI18n'
+import { useI18n } from '../Hooks/useI18n'
 
 const PluginHeader = () => {
   const { i18n } = useI18n()

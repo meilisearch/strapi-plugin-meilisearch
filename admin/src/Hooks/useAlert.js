@@ -1,8 +1,8 @@
-import { useNotification } from '@strapi/helper-plugin'
+import { useNotification } from '@strapi/strapi/admin'
 import { useI18n } from './useI18n'
 
 export function useAlert() {
-  const toggleNotification = useNotification() // HERE
+  const { toggleNotification } = useNotification()
   const { i18n } = useI18n()
 
   /**
@@ -29,16 +29,13 @@ export function useAlert() {
       // type: 'info|success|warning',
       type,
       // required
-      message: {
-        id: 'notification.meilisearch.message',
-        defaultMessage: message,
-      },
+      message: i18n('notification.meilisearch.message', message),
       // optional
       link,
       // optional: default = false
       blockTransition,
       // optional
-      onClose: () => localStorage.setItem('STRAPI_UPDATE_NOTIF', true),
+      onClose: () => localStorage.setItem('STRAPI_UPDATE_NOTIF', 'true'),
     })
   }
 

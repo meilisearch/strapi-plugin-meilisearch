@@ -9,7 +9,7 @@ import {
   Typography,
 } from '@strapi/design-system'
 import { useI18n } from '../../Hooks/useI18n'
-import { CheckPermissions } from '@strapi/helper-plugin'
+// import { CheckPermissions } from '@strapi/helper-plugin'
 import { PERMISSIONS } from '../../constants'
 
 const CollectionColumn = ({
@@ -21,7 +21,7 @@ const CollectionColumn = ({
   const { i18n } = useI18n()
   return (
     <Tr key={entry.contentType}>
-      <CheckPermissions permissions={PERMISSIONS.createAndDelete}>
+      {/* <CheckPermissions permissions={PERMISSIONS.createAndDelete}> */}
         <Td>
           <BaseCheckbox
             aria-label={`Select ${entry.collection}`}
@@ -33,7 +33,7 @@ const CollectionColumn = ({
             value={entry.indexed}
           />
         </Td>
-      </CheckPermissions>
+      {/* </CheckPermissions> */}
       {/* // Name */}
       <Td>
         <Typography textColor="neutral800">{entry.collection}</Typography>
@@ -68,7 +68,7 @@ const CollectionColumn = ({
       <Td>
         <Typography textColor="neutral800">{entry.reloadNeeded}</Typography>
       </Td>
-      <CheckPermissions permissions={PERMISSIONS.update}>
+      {/* <CheckPermissions permissions={PERMISSIONS.update}> */}
         <Td>
           <Flex>
             <Box paddingLeft={1}>
@@ -86,7 +86,7 @@ const CollectionColumn = ({
             </Box>
           </Flex>
         </Td>
-      </CheckPermissions>
+      {/* </CheckPermissions> */}
     </Tr>
   )
 }

@@ -1,4 +1,4 @@
-import { prefixPluginTranslations } from '@strapi/helper-plugin'
+// import { prefixPluginTranslations } from '@strapi/helper-plugin'
 
 import pluginPkg from '../../package.json'
 import pluginId from './pluginId'
@@ -25,25 +25,22 @@ export default {
         defaultMessage: name,
       },
       Component: async () => {
-        const component = await import(
-          /* webpackChunkName: "[request]" */ './containers/HomePage'
-        )
+        const { App } = await import('./pages/App')
 
-        return component
+        return App
       },
       permissions: PERMISSIONS.main,
     })
   },
 
   async registerTrads({ locales }) {
-    const importedTrads = await Promise.all(
+    const importedTranslations = await Promise.all(
       locales.map(locale => {
-        return import(
-          /* webpackChunkName: "[pluginId]-[request]" */ `./translations/${locale}.json`
+        return import(`./translations/${locale}.json`
         )
           .then(({ default: data }) => {
             return {
-              data: prefixPluginTranslations(data, pluginId),
+              data: getTranslation(data),
               locale,
             }
           })
@@ -56,6 +53,6 @@ export default {
       }),
     )
 
-    return Promise.resolve(importedTrads)
+    return Promise.resolve(importedTranslations)
   },
 }

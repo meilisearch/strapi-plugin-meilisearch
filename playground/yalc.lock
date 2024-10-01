@@ -1,0 +1,9 @@
+{
+  "version": "v1",
+  "packages": {
+    "strapi-plugin-meilisearch": {
+      "signature": "c21a9a19853ecbd61a4e6b02a16acc80",
+      "link": true
+    }
+  }
+}

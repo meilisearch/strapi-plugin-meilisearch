@@ -137,3 +137,6 @@ data.db
 .prettierignore
 .prettierrc.js
 .vscode
+
+
+dist
