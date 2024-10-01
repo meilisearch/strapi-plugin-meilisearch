@@ -23,10 +23,8 @@ export function useCredential() {
 
   const updateCredentials = async () => {
     const { error } = await post(`/${pluginId}/credential`, {
-      body: {
-        apiKey: apiKey,
-        host: host,
-      },
+      apiKey: apiKey,
+      host: host,
     })
     if (error) {
       handleNotification({
@@ -48,18 +46,20 @@ export function useCredential() {
   }
 
   const fetchCredentials = async () => {
-    try {
-      const { data } = await get(`/${pluginId}/credential`)
-      console.log(data, data.host, data.apiKey)
-      setCredentials(data)
-      setHost(data.host)
-      setApiKey(data.apiKey)
-    } catch (error) {
+    const {
+      data: { data, error },
+    } = await get(`/${pluginId}/credential`)
+
+    if (error) {
       handleNotification({
         type: 'warning',
         message: error.message,
         link: error.link,
       })
+    } else {
+      setCredentials(data)
+      setHost(data.host)
+      setApiKey(data.apiKey)
     }
   }
 

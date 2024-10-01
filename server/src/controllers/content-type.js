@@ -17,8 +17,8 @@ module.exports = ({ strapi }) => {
         .then(contentTypes => {
           ctx.body = { data: contentTypes }
         })
-        .catch(e => {
-          ctx.body(error.createError(e))
+        .catch(async e => {
+          ctx.body = await error.createError(e)
         })
     },
 
