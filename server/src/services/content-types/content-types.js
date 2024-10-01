@@ -125,7 +125,7 @@ module.exports = ({ strapi }) => ({
    * More information: https://docs.strapi.io/developer-docs/latest/developer-resources/database-apis-reference/entity-service/crud.html#findone
    *
    * @param  {object} options
-   * @param  {string | number} [options.id] - Id of the entry.
+   * @param  {string | number} [options.documentId] - DocumentId of the entry.
    * @param  {object} [options.entriesQuery={}] - Options to apply when fetching entries from the database.
    * @param  {string | string[]} [options.entriesQuery.fields] - Fields present in the returned entry.
    * @param  {object} [options.entriesQuery.populate] - Relations, components and dynamic zones to populate.
@@ -134,22 +134,24 @@ module.exports = ({ strapi }) => ({
    *
    * @returns  {Promise<object>} - Entries.
    */
-  async getEntry({ contentType, id, entriesQuery = {} }) {
+  async getEntry({ contentType, documentId, entriesQuery = {} }) {
     const { populate = '*', fields = '*' } = entriesQuery
     const contentTypeUid = this.getContentTypeUid({ contentType })
     if (contentTypeUid === undefined) return {}
 
     const entry = await strapi.documents(contentTypeUid).findOne({
-      documentId: '__TODO__',
+      documentId,
       fields,
       populate,
     })
 
     if (entry == null) {
-      strapi.log.error(`Could not find entry with id ${id} in ${contentType}`)
+      strapi.log.error(
+        `Could not find entry with id ${documentId} in ${contentType}`,
+      )
     }
 
-    return entry || { id }
+    return entry || { documentId }
   },
 
   /**
