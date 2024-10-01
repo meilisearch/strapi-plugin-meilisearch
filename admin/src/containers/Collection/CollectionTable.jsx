@@ -1,11 +1,16 @@
-import React, { memo, useEffect, useState } from 'react'
 import { Box, Button, Table, Tbody } from '@strapi/design-system'
-// import { request, useAutoReloadOverlayBlocker } from '@strapi/helper-plugin'
-import CollectionTableHeader from './CollectionTableHeader'
-import CollectionColumn from './CollectionColumn'
+import {
+  private_useAutoReloadOverlayBlocker,
+  useFetchClient,
+} from '@strapi/strapi/admin'
+
+import React, { memo, useEffect, useState } from 'react'
+
 import useCollection from '../../Hooks/useCollection'
-import pluginId from '../../pluginId'
 import { useI18n } from '../../Hooks/useI18n'
+import pluginId from '../../pluginId'
+import CollectionColumn from './CollectionColumn'
+import CollectionTableHeader from './CollectionTableHeader'
 
 const Collection = () => {
   const {
@@ -16,8 +21,10 @@ const Collection = () => {
     reloadNeeded,
     refetchCollection,
   } = useCollection()
-  // const { lockAppWithAutoreload, unlockAppWithAutoreload } =
-    // useAutoReloadOverlayBlocker()
+  const { lockAppWithAutoreload, unlockAppWithAutoreload } =
+    private_useAutoReloadOverlayBlocker()
+  const { get } = useFetchClient()
+
   const [reload, setReload] = useState(false)
 
   const { i18n } = useI18n()
@@ -31,10 +38,7 @@ const Collection = () => {
   const reloadServer = async () => {
     try {
       // lockAppWithAutoreload()
-      await get(
-        `/${pluginId}/reload`,
-        true,
-      )
+      await get(`/${pluginId}/reload`, true)
       setReload(false)
     } catch (err) {
       console.error(err)
@@ -47,6 +51,7 @@ const Collection = () => {
   useEffect(() => {
     if (reload) reloadServer()
   }, [reload])
+
   return (
     <Box background="neutral100">
       <Table colCount={COL_COUNT} rowCount={ROW_COUNT}>

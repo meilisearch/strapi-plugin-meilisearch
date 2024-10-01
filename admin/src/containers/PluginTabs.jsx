@@ -1,42 +1,55 @@
-import React, { memo } from 'react'
 import { Box, Tabs } from '@strapi/design-system'
-// import { CollectionTable } from './Collection'
-import { Settings } from './Settings/index'
+import { useRBAC } from '@strapi/strapi/admin'
+import React from 'react'
+
 import { useI18n } from '../Hooks/useI18n'
-// import { CheckPermissions } from '@strapi/helper-plugin'
 import { PERMISSIONS } from '../constants'
+import { CollectionTable } from './Collection'
+import { Settings } from './Settings/index'
 
 const PluginTabs = () => {
   const { i18n } = useI18n()
 
+  const { allowedActions: allowedActionsCollection } = useRBAC(
+    PERMISSIONS.collections,
+  )
+  const { allowedActions: allowedActionsSettings } = useRBAC(
+    PERMISSIONS.settings,
+  )
+
+  const canSeeCollections = Object.values(allowedActionsCollection).some(
+    value => !!value,
+  )
+  const canSeeSettings = Object.values(allowedActionsSettings).some(
+    value => !!value,
+  )
+
   return (
-    <Box padding={8} margin={10} background="neutral">
-      <Tabs.Root>
-        <Tabs.List>
-          <Tabs.Trigger value="collections">
-            {i18n('plugin.tab.collections', 'Collections')}
-          </Tabs.Trigger>
-          <Tabs.Trigger value="settings">
-            {i18n('plugin.tab.settings', 'Settings')}
-          </Tabs.Trigger>
-        </Tabs.List>
-        <Tabs.Content value="collections">
-          {/* <Page.Protect permissions={PERMISSIONS.collections}> */}
+    <Tabs.Root defaultValue="collections">
+      <Tabs.List>
+        <Tabs.Trigger value="collections">
+          {i18n('plugin.tab.collections', 'Collections')}
+        </Tabs.Trigger>
+        <Tabs.Trigger value="settings">
+          {i18n('plugin.tab.settings', 'Settings')}
+        </Tabs.Trigger>
+      </Tabs.List>
+      <Tabs.Content value="collections">
+        {canSeeCollections && (
           <Box color="neutral800" padding={4} background="neutral0">
-            {/* <CollectionTable /> */}
+            <CollectionTable />
           </Box>
-          {/* </Page.Protect> */}
-        </Tabs.Content>
-        <Tabs.Content value="settings">
-          {/* <Page.Protect permissions={PERMISSIONS.settings}> */}
+        )}
+      </Tabs.Content>
+      <Tabs.Content value="settings">
+        {canSeeSettings && (
           <Box color="neutral800" padding={4} background="neutral0">
             <Settings />
           </Box>
-          {/* </Page.Protect> */}
-        </Tabs.Content>
-      </Tabs.Root>
-    </Box>
+        )}
+      </Tabs.Content>
+    </Tabs.Root>
   )
 }
 
-export default memo(PluginTabs)
+export default PluginTabs

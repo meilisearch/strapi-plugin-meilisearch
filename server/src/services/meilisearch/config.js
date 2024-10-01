@@ -221,7 +221,7 @@ module.exports = ({ strapi }) => {
 
     /**
      * Remove unpublished entries from array of entries
-     * unless `publicationState` is set to true.
+     * unless `status` is set to 'draft'.
      *
      * @param {object} options
      * @param {Array<Object>} options.entries - The entries to filter.
@@ -235,7 +235,7 @@ module.exports = ({ strapi }) => {
 
       const entriesQuery = contentTypeConfig.entriesQuery || {}
 
-      if (entriesQuery.publicationState === 'preview') {
+      if (entriesQuery.status === 'draft') {
         return entries
       } else {
         return entries.filter(entry => !(entry?.publishedAt === null))

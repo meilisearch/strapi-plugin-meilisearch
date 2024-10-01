@@ -1,16 +1,27 @@
-import React, { memo } from 'react'
-import { Main } from '@strapi/design-system'
+import React from 'react'
 
-// import PluginHeader from '../containers/PluginHeader'
+import { BackButton, Layouts, Page } from '@strapi/strapi/admin'
+
+import { useI18n } from '../Hooks/useI18n'
 import PluginTabs from '../containers/PluginTabs'
 
 const HomePage = () => {
+  const { i18n } = useI18n()
+
   return (
-    <Main>
-      <div>welcome</div>
-      {/* <PluginHeader /> */}
-      <PluginTabs />
-    </Main>
+    <Page.Main>
+      <Layouts.Header
+        title={i18n('plugin.name', 'Meilisearch')}
+        subtitle={i18n(
+          'plugin.description',
+          'Search in your content-types with the Meilisearch plugin',
+        )}
+        navigationAction={<BackButton />}
+      />
+      <Layouts.Content>
+        <PluginTabs />
+      </Layouts.Content>
+    </Page.Main>
   )
 }
 

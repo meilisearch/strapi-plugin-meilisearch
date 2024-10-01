@@ -27,7 +27,7 @@ module.exports = ({ strapi }) => {
           // partial.
           const entry = await contentTypeService.getEntry({
             contentType: contentTypeUid,
-            id: result.id,
+            documentId: result.documentId,
             entriesQuery: meilisearch.entriesQuery({ contentType }),
           })
 
@@ -57,7 +57,7 @@ module.exports = ({ strapi }) => {
           // partial.
           const entry = await contentTypeService.getEntry({
             contentType: contentTypeUid,
-            id: result.id,
+            documentId: result.documentId,
             entriesQuery: meilisearch.entriesQuery({ contentType }),
           })
 

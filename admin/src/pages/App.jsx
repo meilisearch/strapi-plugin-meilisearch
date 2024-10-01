@@ -24,14 +24,12 @@ const theme = {
 
 const App = () => {
   return (
-    <DesignSystemProvider theme={theme}>
-      <Page.Protect permissions={PERMISSIONS.main}>
-        <Routes>
-          <Route index element={<HomePage />} />
-          <Route path="*" element={<Page.Error />} />
-        </Routes>
-      </Page.Protect>
-    </DesignSystemProvider>
+    <Page.Protect permissions={PERMISSIONS.main}>
+      <Routes>
+        <Route index element={<HomePage />} />
+        <Route path="*" element={<Page.Error />} />
+      </Routes>
+    </Page.Protect>
   )
 }
 

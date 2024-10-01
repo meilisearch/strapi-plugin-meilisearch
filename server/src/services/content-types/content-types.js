@@ -1,6 +1,12 @@
 'use strict'
 
-const IGNORED_PLUGINS = ['admin', 'upload', 'i18n']
+const IGNORED_PLUGINS = [
+  'admin',
+  'upload',
+  'i18n',
+  'review-workflows',
+  'content-releases',
+]
 const IGNORED_CONTENT_TYPES = [
   'plugin::users-permissions.permission',
   'plugin::users-permissions.role',
@@ -179,7 +185,7 @@ module.exports = ({ strapi }) => ({
     filters = {},
     sort = 'id',
     populate = '*',
-    publicationState = 'live',
+    publicationState = 'published',
     locale,
   }) {
     const contentTypeUid = this.getContentTypeUid({ contentType })

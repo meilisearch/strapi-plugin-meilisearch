@@ -1,5 +1,5 @@
 'use strict'
-const Meilisearch = require('./client')
+const Meilisearch = require('./client').default
 
 /**
  * Add one entry from a contentType to its index in Meilisearch.

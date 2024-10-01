@@ -1,6 +1,6 @@
 import React, { memo } from 'react'
 import {
-  BaseCheckbox,
+  Checkbox,
   Box,
   Button,
   Flex,
@@ -9,7 +9,6 @@ import {
   Typography,
 } from '@strapi/design-system'
 import { useI18n } from '../../Hooks/useI18n'
-// import { CheckPermissions } from '@strapi/helper-plugin'
 import { PERMISSIONS } from '../../constants'
 
 const CollectionColumn = ({
@@ -19,20 +18,21 @@ const CollectionColumn = ({
   updateCollection,
 }) => {
   const { i18n } = useI18n()
+
   return (
     <Tr key={entry.contentType}>
       {/* <CheckPermissions permissions={PERMISSIONS.createAndDelete}> */}
-        <Td>
-          <BaseCheckbox
-            aria-label={`Select ${entry.collection}`}
-            onValueChange={() => {
-              if (entry.indexed)
-                deleteCollection({ contentType: entry.contentType })
-              else addCollection({ contentType: entry.contentType })
-            }}
-            value={entry.indexed}
-          />
-        </Td>
+      <Td>
+        <Checkbox
+          aria-label={`Select ${entry.collection}`}
+          onCheckedChange={() => {
+            if (entry.indexed)
+              deleteCollection({ contentType: entry.contentType })
+            else addCollection({ contentType: entry.contentType })
+          }}
+          checked={entry.indexed}
+        />
+      </Td>
       {/* </CheckPermissions> */}
       {/* // Name */}
       <Td>
@@ -69,23 +69,23 @@ const CollectionColumn = ({
         <Typography textColor="neutral800">{entry.reloadNeeded}</Typography>
       </Td>
       {/* <CheckPermissions permissions={PERMISSIONS.update}> */}
-        <Td>
-          <Flex>
-            <Box paddingLeft={1}>
-              {entry.indexed && (
-                <Button
-                  onClick={() =>
-                    updateCollection({ contentType: entry.contentType })
-                  }
-                  size="S"
-                  variant="secondary"
-                >
-                  {i18n('plugin.update', 'Update')}
-                </Button>
-              )}
-            </Box>
-          </Flex>
-        </Td>
+      <Td>
+        <Flex>
+          <Box paddingLeft={1}>
+            {entry.indexed && (
+              <Button
+                onClick={() =>
+                  updateCollection({ contentType: entry.contentType })
+                }
+                size="S"
+                variant="secondary"
+              >
+                {i18n('plugin.update', 'Update')}
+              </Button>
+            )}
+          </Box>
+        </Flex>
+      </Td>
       {/* </CheckPermissions> */}
     </Tr>
   )

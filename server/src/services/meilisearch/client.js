@@ -1,6 +1,6 @@
 'use strict'
-const { MeiliSearch: Meilisearch } = require('meilisearch')
-const packageJson = require('../../../../package.json')
+import { MeiliSearch as Meilisearch } from 'meilisearch'
+import { version } from '../../../../package.json'
 
 /**
  * Create a Meilisearch client instance.
@@ -9,8 +9,9 @@ const packageJson = require('../../../../package.json')
  *
  * @returns { object } - Meilisearch client instance.
  */
-module.exports = config =>
-  new Meilisearch({
+export default config => {
+  return new Meilisearch({
     ...config,
-    clientAgents: [`Meilisearch Strapi (v${packageJson.version})`],
+    clientAgents: [`Meilisearch Strapi (v${version})`],
   })
+}
