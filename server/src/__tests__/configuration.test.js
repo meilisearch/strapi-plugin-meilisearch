@@ -393,12 +393,12 @@ describe('Test Meilisearch plugin configurations', () => {
     expect(entries).toEqual([{ id: 1, locale: 'fr' }])
   })
 
-  test('Test should keep unpublished entries when publicationState is set to preview', async () => {
+  test('Test should keep unpublished entries when status is set to draft', async () => {
     const customStrapi = createStrapiMock({
       restaurantConfig: {
         transformEntry: () => {},
         entriesQuery: {
-          publicationState: 'preview',
+          status: 'draft',
         },
       },
     })

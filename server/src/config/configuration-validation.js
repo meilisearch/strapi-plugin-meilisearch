@@ -13,7 +13,7 @@ import { isObject } from '../utils'
  * @param  {number} options.configuration.limit
  * @param  {any} options.configuration.sort
  * @param  {any} options.configuration.populate
- * @param  {any} options.configuration.publicationState
+ * @param  {any} options.configuration.status
  * @param  {any} options.configuration.locale
  *
  * @returns {object} - All validating functions
@@ -28,7 +28,7 @@ function EntriesQuery({ configuration, collectionName }) {
     limit,
     sort,
     populate,
-    publicationState,
+    status,
     locale,
     ...unknownKeys
   } = configuration
@@ -118,17 +118,17 @@ function EntriesQuery({ configuration, collectionName }) {
       return this
     },
 
-    validatePublicationState() {
+    validateStatus() {
       if (
-        publicationState !== undefined &&
-        publicationState !== 'live' &&
-        publicationState !== 'preview'
+        status !== undefined &&
+        status !== 'draft' &&
+        status !== 'published'
       ) {
         log.error(
-          `The "publicationState" option in "queryOptions" of "${collectionName}" should be either "preview" or "live".`,
+          `The "status" option in "queryOptions" of "${collectionName}" should be either "draft" or "published".`,
         )
-      } else if (publicationState !== undefined) {
-        options.publicationState = publicationState
+      } else if (status !== undefined) {
+        options.status = status
       }
 
       return this
@@ -263,7 +263,7 @@ function CollectionConfig({ collectionName, configuration }) {
           .validateLimit()
           .validateSort()
           .validatePopulate()
-          .validatePublicationState()
+          .validateStatus()
           .validateLocale()
           .addUnknownKeys()
           .get()

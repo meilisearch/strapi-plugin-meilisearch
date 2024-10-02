@@ -55,9 +55,12 @@
     "styled-components": "^6.1.13"
   },
   "devDependencies": {
+    "@babel/core": "^7.25.2",
+    "@babel/preset-env": "^7.25.4",
     "@strapi/sdk-plugin": "^5.2.6",
     "@strapi/strapi": "^5.0.1",
     "@types/jest": "^29.5.12",
+    "babel-jest": "^29.7.0",
     "concurrently": "^8.2.2",
     "cypress": "^13.14.2",
     "eslint": "^8.2.0",

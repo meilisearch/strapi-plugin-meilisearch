@@ -77,10 +77,12 @@ function createStrapiMock({
     return [{ id: 1 }]
   })
 
-  const mockEntityService = {
-    findMany: mockFindMany,
-    findOne: mockFindOne,
-  }
+  const mockDocumentService = jest.fn(() => {
+    return {
+      findMany: mockFindMany,
+      findOne: mockFindOne,
+    }
+  })
 
   const mockStrapi = {
     log: mockLogger,
@@ -88,7 +90,7 @@ function createStrapiMock({
     contentTypes,
     config: mockConfig,
     db: mockDb,
-    entityService: mockEntityService,
+    documents: mockDocumentService,
   }
   return mockStrapi
 }
