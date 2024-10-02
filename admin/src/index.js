@@ -5,6 +5,7 @@ import pluginId from './pluginId'
 import PluginIcon from './components/PluginIcon'
 import Initializer from './components/Initializer'
 import { PERMISSIONS } from './constants'
+import { getTranslation } from './utils/getTranslation'
 
 const name = pluginPkg.strapi.name
 
@@ -36,8 +37,7 @@ export default {
   async registerTrads({ locales }) {
     const importedTranslations = await Promise.all(
       locales.map(locale => {
-        return import(`./translations/${locale}.json`
-        )
+        return import(`./translations/${locale}.json`)
           .then(({ default: data }) => {
             return {
               data: getTranslation(data),
