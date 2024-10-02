@@ -2,7 +2,7 @@
   "version": "v1",
   "packages": {
     "strapi-plugin-meilisearch": {
-      "signature": "c21a9a19853ecbd61a4e6b02a16acc80",
+      "signature": "14b19b6bf5e47bba8083d6cfa91af13b",
       "link": true
     }
   }

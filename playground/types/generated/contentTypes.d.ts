@@ -485,6 +485,7 @@ export interface ApiAboutUsAboutUs extends Struct.SingleTypeSchema {
     singularName: 'about-us'
     pluralName: 'about-uses'
     displayName: 'About us'
+    description: ''
   }
   options: {
     draftAndPublish: false
@@ -544,6 +545,7 @@ export interface ApiHomepageHomepage extends Struct.SingleTypeSchema {
     singularName: 'homepage'
     pluralName: 'homepages'
     displayName: 'Homepage'
+    description: ''
   }
   options: {
     draftAndPublish: false
@@ -572,14 +574,15 @@ export interface ApiRestaurantRestaurant extends Struct.CollectionTypeSchema {
     singularName: 'restaurant'
     pluralName: 'restaurants'
     displayName: 'restaurant'
+    description: ''
   }
   options: {
     draftAndPublish: false
   }
   attributes: {
     title: Schema.Attribute.String
-    description: Schema.Attribute.String
-    internal_notes: Schema.Attribute.String & Schema.Attribute.Private
+    description: Schema.Attribute.Text
+    internal_notes: Schema.Attribute.Text & Schema.Attribute.Private
     categories: Schema.Attribute.Relation<
       'manyToMany',
       'api::category.category'
