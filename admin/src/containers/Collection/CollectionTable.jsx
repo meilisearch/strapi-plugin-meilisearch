@@ -1,6 +1,6 @@
 import { Box, Button, Table, Tbody } from '@strapi/design-system'
 import {
-  // private_useAutoReloadOverlayBlocker,
+  private_useAutoReloadOverlayBlocker,
   useFetchClient,
 } from '@strapi/strapi/admin'
 
@@ -11,6 +11,7 @@ import { useI18n } from '../../Hooks/useI18n'
 import pluginId from '../../pluginId'
 import CollectionColumn from './CollectionColumn'
 import CollectionTableHeader from './CollectionTableHeader'
+import { serverRestartWatcher } from '../../utils/serverRestartWatcher'
 
 const Collection = () => {
   const {
@@ -21,8 +22,8 @@ const Collection = () => {
     reloadNeeded,
     refetchCollection,
   } = useCollection()
-  // const { lockAppWithAutoreload, unlockAppWithAutoreload } =
-  //   private_useAutoReloadOverlayBlocker()
+  const { lockAppWithAutoreload, unlockAppWithAutoreload } =
+    private_useAutoReloadOverlayBlocker()
   const { get } = useFetchClient()
 
   const [reload, setReload] = useState(false)
@@ -37,13 +38,14 @@ const Collection = () => {
    */
   const reloadServer = async () => {
     try {
-      // lockAppWithAutoreload()
+      lockAppWithAutoreload()
       await get(`/${pluginId}/reload`, true)
+      await serverRestartWatcher(true)
       setReload(false)
     } catch (err) {
       console.error(err)
     } finally {
-      // unlockAppWithAutoreload()
+      unlockAppWithAutoreload()
       refetchCollection()
     }
   }
