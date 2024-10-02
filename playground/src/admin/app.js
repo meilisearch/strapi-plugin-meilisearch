@@ -28,6 +28,9 @@ export default {
       // 'zh-Hans',
       // 'zh',
     ],
+    notifications: {
+      releases: false,
+    },
   },
   bootstrap() {},
-};
+}
