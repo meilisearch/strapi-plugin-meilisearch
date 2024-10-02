@@ -1,6 +1,6 @@
 import { Box, Button, Table, Tbody } from '@strapi/design-system'
 import {
-  private_useAutoReloadOverlayBlocker,
+  // private_useAutoReloadOverlayBlocker,
   useFetchClient,
 } from '@strapi/strapi/admin'
 
@@ -21,8 +21,8 @@ const Collection = () => {
     reloadNeeded,
     refetchCollection,
   } = useCollection()
-  const { lockAppWithAutoreload, unlockAppWithAutoreload } =
-    private_useAutoReloadOverlayBlocker()
+  // const { lockAppWithAutoreload, unlockAppWithAutoreload } =
+  //   private_useAutoReloadOverlayBlocker()
   const { get } = useFetchClient()
 
   const [reload, setReload] = useState(false)
