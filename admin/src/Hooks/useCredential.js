@@ -22,7 +22,9 @@ export function useCredential() {
     setRefetchIndex(prevRefetchIndex => !prevRefetchIndex)
 
   const updateCredentials = async () => {
-    const { error } = await post(`/${pluginId}/credential`, {
+    const {
+      data: { error },
+    } = await post(`/${pluginId}/credential`, {
       apiKey: apiKey,
       host: host,
     })

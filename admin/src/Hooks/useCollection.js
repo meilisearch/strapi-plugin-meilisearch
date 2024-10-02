@@ -66,7 +66,9 @@ export function useCollection() {
 
   const deleteCollection = async ({ contentType }) => {
     try {
-      const { error } = await del(`/${pluginId}/content-type/${contentType}`)
+      const {
+        data: { error },
+      } = await del(`/${pluginId}/content-type/${contentType}`)
       if (error) {
         handleNotification({
           type: 'warning',
@@ -91,9 +93,12 @@ export function useCollection() {
 
   const addCollection = async ({ contentType }) => {
     try {
-      const { error } = await post(`/${pluginId}/content-type`, {
+      const {
+        data: { error },
+      } = await post(`/${pluginId}/content-type`, {
         contentType,
       })
+      console.log(error)
       if (error) {
         handleNotification({
           type: 'warning',
@@ -118,7 +123,9 @@ export function useCollection() {
 
   const updateCollection = async ({ contentType }) => {
     try {
-      const { error } = await put(`/${pluginId}/content-type`, {
+      const {
+        data: { error },
+      } = await put(`/${pluginId}/content-type`, {
         contentType,
       })
 
