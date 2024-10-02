@@ -1,6 +1,4 @@
-'use strict'
-
-module.exports = ({ strapi }) => {
+export default ({ strapi }) => {
   const strapiStore = strapi.store({
     type: 'plugin',
     name: 'meilisearch',

@@ -1,10 +1,10 @@
-const contentType = require('./content-types')
-const store = require('./store')
-const meilisearch = require('./meilisearch')
-const lifecycle = require('./lifecycle')
-const error = require('./error')
+import contentType from './content-types'
+import store from './store'
+import meilisearch from './meilisearch'
+import lifecycle from './lifecycle'
+import error from './error'
 
-module.exports = {
+export default {
   contentType,
   store,
   meilisearch,

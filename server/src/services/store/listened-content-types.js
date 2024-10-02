@@ -1,6 +1,4 @@
-'use strict'
-
-module.exports = ({ store }) => ({
+export default ({ store }) => ({
   /**
    * Get listened contentTypes from the store.
    *

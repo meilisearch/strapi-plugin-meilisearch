@@ -1,5 +1,4 @@
-'use strict'
-module.exports = ({ strapi }) => {
+export default ({ strapi }) => {
   const contentTypeService = strapi.plugin('meilisearch').service('contentType')
   return {
     /**

@@ -1,6 +1,6 @@
-const createMeilisearchService = require('../services/meilisearch')
+import createMeilisearchService from '../services/meilisearch'
 
-const { createStrapiMock } = require('../__mocks__/strapi')
+import { createStrapiMock } from '../__mocks__/strapi'
 jest.mock('meilisearch')
 
 const strapiMock = createStrapiMock({})

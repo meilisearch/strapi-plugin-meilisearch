@@ -1,5 +1,3 @@
-const { isObject } = require('./type-checking')
+import { isObject } from './type-checking'
 
-module.exports = {
-  isObject,
-}
+export { isObject }

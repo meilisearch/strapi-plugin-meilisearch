@@ -1,5 +1,3 @@
-'use strict'
-
 async function reloadServer({ strapi }) {
   const {
     config: { autoReload },
@@ -19,7 +17,7 @@ async function reloadServer({ strapi }) {
   }
 }
 
-module.exports = ({ strapi }) => {
+export default ({ strapi }) => {
   return {
     /**
      * Reloads the server. Only works in development mode.

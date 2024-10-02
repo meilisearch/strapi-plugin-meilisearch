@@ -1,9 +1,8 @@
-'use strict'
-const credentialController = require('./credential')
-const contentTypeController = require('./content-type')
-const reloadController = require('./reload')
+import credentialController from './credential'
+import contentTypeController from './content-type'
+import reloadController from './reload'
 
-module.exports = {
+export default {
   credentialController,
   contentTypeController,
   reloadController,

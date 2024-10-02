@@ -1,6 +1,6 @@
-const { validatePluginConfig } = require('../config/configuration-validation')
+import { validatePluginConfig } from '../config/configuration-validation'
 
-const { createStrapiMock } = require('../__mocks__/strapi')
+import { createStrapiMock } from '../__mocks__/strapi'
 
 const strapiMock = createStrapiMock({})
 global.strapi = strapiMock

@@ -1,6 +1,6 @@
-const { validatePluginConfig } = require('./configuration-validation')
+import { validatePluginConfig } from './configuration-validation'
 
-module.exports = {
+export default {
   default: {},
   validator: validatePluginConfig,
 }

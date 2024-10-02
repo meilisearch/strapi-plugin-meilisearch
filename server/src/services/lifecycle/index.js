@@ -1,6 +1,6 @@
-const lifecycleService = require('./lifecycle')
+import lifecycleService from './lifecycle'
 
-module.exports = ({ strapi }) => {
+export default ({ strapi }) => {
   return {
     ...lifecycleService({ strapi }),
   }

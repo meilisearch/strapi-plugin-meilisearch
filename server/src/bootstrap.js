@@ -1,4 +1,3 @@
-'use strict'
 /**
  * Add listeners to the collection indexed in Meilisearch.
  *
@@ -96,7 +95,7 @@ const registerPermissionActions = async () => {
   )
 }
 
-module.exports = async ({ strapi }) => {
+export default async ({ strapi }) => {
   const store = strapi.plugin('meilisearch').service('store')
   const lifecycle = strapi.plugin('meilisearch').service('lifecycle')
   const meilisearch = strapi.plugin('meilisearch').service('meilisearch')

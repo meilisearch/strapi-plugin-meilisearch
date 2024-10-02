@@ -1,4 +1,4 @@
-const defaultContentTypes = require('../__tests__/utils/content-types-list')
+import defaultContentTypes from '../__tests__/utils/content-types-list'
 
 const mockLogger = {
   error: jest.fn(() => {}),
@@ -93,7 +93,4 @@ function createStrapiMock({
   return mockStrapi
 }
 
-module.exports = {
-  createStrapiMock,
-  mockLogger,
-}
+export { createStrapiMock, mockLogger }

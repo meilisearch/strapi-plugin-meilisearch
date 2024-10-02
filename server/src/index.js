@@ -1,22 +1,20 @@
-'use strict'
-
 /**
  * Application methods
  */
-const bootstrap = require('./bootstrap')
-const destroy = require('./destroy')
-const register = require('./register')
+import bootstrap from './bootstrap'
+import destroy from './destroy'
+import register from './register'
 
 /**
  * Plugin server methods
  */
-const config = require('./config')
-const controllers = require('./controllers')
-const policies = require('./policies')
-const routes = require('./routes')
-const services = require('./services')
+import config from './config'
+import controllers from './controllers'
+import policies from './policies'
+import routes from './routes'
+import services from './services'
 
-module.exports = {
+export default {
   bootstrap,
   destroy,
   register,

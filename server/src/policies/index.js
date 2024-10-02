@@ -1,5 +1,5 @@
-const isAdmin = require('./isAdmin')
+import isAdmin from './isAdmin'
 
-module.exports = {
+export default {
   isAdmin,
 }

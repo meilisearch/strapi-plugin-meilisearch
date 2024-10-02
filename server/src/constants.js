@@ -1,5 +1,3 @@
-'use strict'
-
 const ACTIONS = {
   read: 'plugin::meilisearch.read',
   settings: 'plugin::meilisearch.settings.edit',
@@ -8,6 +6,4 @@ const ACTIONS = {
   delete: 'plugin::meilisearch.collections.delete',
 }
 
-module.exports = {
-  ACTIONS,
-}
+export { ACTIONS }

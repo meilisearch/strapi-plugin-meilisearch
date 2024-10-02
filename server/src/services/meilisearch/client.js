@@ -1,4 +1,3 @@
-'use strict'
 import { MeiliSearch as Meilisearch } from 'meilisearch'
 import { version } from '../../../../package.json'
 

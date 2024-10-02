@@ -1,6 +1,6 @@
-const { ACTIONS } = require('../constants')
+import { ACTIONS } from '../constants'
 
-module.exports = [
+export default [
   {
     method: 'GET',
     path: '/credential',

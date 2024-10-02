@@ -1,4 +1,4 @@
-const { isObject } = require('../utils')
+import { isObject } from '../utils'
 /**
  * Validate and cleans the DB query settings.
  * These will be used when fetching documents from the user's database.
@@ -392,6 +392,4 @@ function validatePluginConfig(configuration) {
   return configuration
 }
 
-module.exports = {
-  validatePluginConfig,
-}
+export { validatePluginConfig }

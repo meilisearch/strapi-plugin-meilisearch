@@ -1,6 +1,6 @@
-const createContentTypeService = require('../services/content-types')
+import createContentTypeService from '../services/content-types'
 
-const { createStrapiMock } = require('../__mocks__/strapi')
+import { createStrapiMock } from '../__mocks__/strapi'
 
 const strapiMock = createStrapiMock({})
 global.strapi = strapiMock

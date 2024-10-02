@@ -1,5 +1,4 @@
-'use strict'
-const { isObject } = require('../../utils')
+import { isObject } from '../../utils'
 /**
  * Log an error message on a failed action on a contentType.
  *
@@ -16,7 +15,7 @@ const aborted = ({ contentType, action }) => {
   return [] // return empty array to avoid indexing entries that might contain sensitive data
 }
 
-module.exports = ({ strapi }) => {
+export default ({ strapi }) => {
   const meilisearchConfig = strapi.config.get('plugin::meilisearch') || {}
   const contentTypeService = strapi.plugin('meilisearch').service('contentType')
   return {

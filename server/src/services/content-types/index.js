@@ -1,7 +1,6 @@
-'use strict'
-const contentTypeService = require('./content-types')
+import contentTypeService from './content-types'
 
-module.exports = ({ strapi }) => {
+export default ({ strapi }) => {
   return {
     ...contentTypeService({ strapi }),
   }

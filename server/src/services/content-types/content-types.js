@@ -1,5 +1,3 @@
-'use strict'
-
 const IGNORED_PLUGINS = [
   'admin',
   'upload',
@@ -28,7 +26,7 @@ const removeIgnoredAPIs = ({ contentTypes }) => {
   }, {})
 }
 
-module.exports = ({ strapi }) => ({
+export default ({ strapi }) => ({
   /**
    * Get all content types name being plugins or API's existing in Strapi instance.
    *
