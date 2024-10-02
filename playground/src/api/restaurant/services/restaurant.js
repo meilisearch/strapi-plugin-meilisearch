@@ -6,5 +6,4 @@
 
 const { createCoreService } = require('@strapi/strapi').factories;
 
-module.exports = createCoreService('api::restaurant.restaurant', ({ strapi }) => {
-  return {}});
+module.exports = createCoreService('api::restaurant.restaurant');
