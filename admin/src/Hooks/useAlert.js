@@ -40,7 +40,7 @@ export function useAlert() {
   }
 
   const checkForbiddenError = ({ response }) => {
-    const status = response?.payload?.error?.status
+    const status = response?.data?.error?.status
     if (status && status === 403) {
       handleNotification({
         title: i18n('plugin.message.forbidden.title', 'Forbidden'),
