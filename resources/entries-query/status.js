@@ -2,8 +2,10 @@
 module.exports = {
   meilisearch: {
     config: {
-      restaurant: {
-        status: 'draft',
+      category: {
+        entriesQuery: {
+          status: 'draft',
+        },
       },
     },
   },
