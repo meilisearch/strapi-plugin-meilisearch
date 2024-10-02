@@ -32,14 +32,12 @@ jobs:
             ./playground/node_modules
           key: ${{ hashFiles('playground/yarn.lock') }}
 
-      - name: Install yalc
-        run: yarn global add yalc
-
       - name: Install dependencies
         run: yarn --dev && yarn --cwd ./playground
 
       - name: Build and link the package
         run: |
+          npm install -g yalc
           yarn build
           yalc publish
           yarn --cwd ./playground dlx  yalc add --link strapi-plugin-meilisearch 
