@@ -4,7 +4,8 @@
   "info": {
     "singularName": "restaurant",
     "pluralName": "restaurants",
-    "displayName": "restaurant"
+    "displayName": "restaurant",
+    "description": ""
   },
   "options": {
     "draftAndPublish": false
@@ -15,10 +16,10 @@
       "type": "string"
     },
     "description": {
-      "type": "string"
+      "type": "text"
     },
     "internal_notes": {
-      "type": "string",
+      "type": "text",
       "private": true
     },
     "categories": {
