@@ -40,7 +40,10 @@ jobs:
           npm install -g yalc
           yarn build
           yalc publish
-          yarn --cwd ./playground dlx  yalc add --link strapi-plugin-meilisearch 
+          cd playground
+          npx yalc add strapi-plugin-meilisearch
+          npx yalc link strapi-plugin-meilisearch 
+          cd .. 
           yarn --cwd ./playground install
 
       - name: Run e2e browser tests
