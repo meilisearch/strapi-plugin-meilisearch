@@ -1,4 +1,4 @@
-const register = ({ strapi }) => {
+const register = () => {
   // register phase
 }
 

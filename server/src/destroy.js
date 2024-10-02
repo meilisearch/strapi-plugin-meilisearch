@@ -1,4 +1,4 @@
-const destroy = ({ strapi }) => {
+const destroy = () => {
   // destroy phase
 }
 
