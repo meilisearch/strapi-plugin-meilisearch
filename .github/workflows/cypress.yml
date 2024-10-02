@@ -31,22 +31,19 @@ jobs:
           path: |
             ./playground/node_modules
           key: ${{ hashFiles('playground/yarn.lock') }}
+
+      - name: Install yalc
+        run: yarn global add yalc
+
       - name: Install dependencies
         run: yarn --dev && yarn --cwd ./playground
-      - name: Remove plugin symlink
-        run: rm ./playground/src/plugins/meilisearch
-      - name: Move plugin inside playground
-        # Since the plugin is located at the root of the project but a symlink links
-        # to it in ./playground/plugins/meilisearch it causes a circular
-        # chaining problem.
-        # Now that we removed the symlink (see previous step), we need to move our plugin in the
-        # plugin directory of the playground.
-        run: mkdir ./playground/src/plugins/meilisearch &&
-          mv admin ./playground/src/plugins/meilisearch &&
-          mv server ./playground/src/plugins/meilisearch &&
-          mv strapi-admin.js ./playground/src/plugins/meilisearch &&
-          mv strapi-server.js ./playground/src/plugins/meilisearch &&
-          cp package.json ./playground/src/plugins/meilisearch
+
+      - name: Build and link the package
+        run: |
+          yarn build
+          yalc publish
+          yarn --cwd ./playground dlx  yalc add --link strapi-plugin-meilisearch 
+          yarn --cwd ./playground install
 
       - name: Run e2e browser tests
         uses: cypress-io/github-action@v6
