@@ -1,5 +1,4 @@
-'use strict'
-const Meilisearch = require('./client').default
+import Meilisearch from './client'
 
 /**
  * Add one entry from a contentType to its index in Meilisearch.
@@ -58,7 +57,7 @@ const sanitizeEntries = async function ({
   return entries
 }
 
-module.exports = ({ strapi, adapter, config }) => {
+export default ({ strapi, adapter, config }) => {
   const store = strapi.plugin('meilisearch').service('store')
   const contentTypeService = strapi.plugin('meilisearch').service('contentType')
   const lifecycle = strapi.plugin('meilisearch').service('lifecycle')

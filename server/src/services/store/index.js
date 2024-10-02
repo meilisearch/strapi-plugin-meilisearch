@@ -1,9 +1,9 @@
-const createStoreConnector = require('./store')
-const credential = require('./credential')
-const indexedContentTypes = require('./indexed-content-types')
-const listenedContentTypes = require('./listened-content-types')
+import createStoreConnector from './store'
+import credential from './credential'
+import indexedContentTypes from './indexed-content-types'
+import listenedContentTypes from './listened-content-types'
 
-module.exports = ({ strapi }) => {
+export default ({ strapi }) => {
   const store = createStoreConnector({ strapi })
   return {
     ...credential({ store, strapi }),

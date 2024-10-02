@@ -1,6 +1,6 @@
-const error = require('./error')
+import error from './error'
 
-module.exports = ({ strapi }) => {
+export default ({ strapi }) => {
   return {
     ...error({ strapi }),
   }

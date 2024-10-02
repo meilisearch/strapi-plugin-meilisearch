@@ -54,4 +54,4 @@ const mock = jest.fn().mockImplementation(() => {
   }
 })
 
-module.exports = { MeiliSearch: mock }
+export const MeiliSearch = mock

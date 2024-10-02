@@ -1,4 +1,4 @@
-module.exports = ({ strapi }) => {
+export default ({ strapi }) => {
   // const store = strapi.plugin('meilisearch').service('store')
   const contentTypeService = strapi.plugin('meilisearch').service('contentType')
   const store = strapi.plugin('meilisearch').service('store')

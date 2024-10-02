@@ -1,8 +1,8 @@
-const configurationService = require('./config')
-const connectorService = require('./connector')
-const adapterService = require('./adapter')
+import configurationService from './config'
+import connectorService from './connector'
+import adapterService from './adapter'
 
-module.exports = ({ strapi }) => {
+export default ({ strapi }) => {
   const adapter = adapterService({ strapi })
   const config = configurationService({ strapi })
   return {

@@ -1,6 +1,4 @@
-'use strict'
-
-module.exports = ({ store, strapi }) => ({
+export default ({ store, strapi }) => ({
   /**
    * Get the API key of Meilisearch from the store.
    *
