@@ -29,8 +29,5 @@
   "author": {
     "name": "A Strapi developer"
   },
-  "strapi": {
-    "uuid": "227ce342-a655-4ff3-9374-17704b534984"
-  },
   "license": "MIT"
 }
