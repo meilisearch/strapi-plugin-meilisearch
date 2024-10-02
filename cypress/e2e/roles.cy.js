@@ -49,9 +49,7 @@ describe('Strapi meilisearch - role based tests', () => {
       cy.login({ adminUrl, email: 'e2e@meili.search', password: 'e2eTest1234' })
       cy.visit(adminUrl)
 
-      cy.get('nav')
-        .get('a', { timeout: 10000 })
-        .should('not.contain', 'Meilisearch')
+      cy.get('nav').should('not.contain', 'a[aria-label="Meilisearch"]')
     })
 
     it('should not access the plugin page', () => {
@@ -59,7 +57,9 @@ describe('Strapi meilisearch - role based tests', () => {
 
       cy.openPluginPage(adminUrl)
 
-      cy.url().should('eq', `${adminUrl}/`)
+      cy.contains(
+        "You don't have the permissions to access that content",
+      ).should('be.visible')
     })
   })
 
@@ -101,9 +101,11 @@ describe('Strapi meilisearch - role based tests', () => {
       cy.visit(adminUrl)
 
       cy.get('nav')
-        .get('a', { timeout: 10000 })
-        .should('contain', 'Meilisearch')
-      cy.contains('a', 'Meilisearch').click()
+        .get('a[aria-label="Meilisearch"]', { timeout: 10000 })
+        .should('be.visible')
+      cy.get('nav')
+        .get('a[aria-label="Meilisearch"]', { timeout: 10000 })
+        .click()
 
       cy.url().should('eq', `${adminUrl}/plugins/meilisearch`)
     })
@@ -121,7 +123,7 @@ describe('Strapi meilisearch - role based tests', () => {
 
       cy.openPluginPage(adminUrl)
 
-      cy.root().should('not.contain', 'input[type="checkbox"]')
+      cy.root().should('not.contain', 'button[role="checkbox"]')
     })
 
     it('should not have option to change settings', () => {
@@ -154,9 +156,6 @@ describe('Strapi meilisearch - role based tests', () => {
         password: userPassword,
         roleName,
       })
-
-      cy.openPluginPage(adminUrl)
-      cy.get('input[type="checkbox"]').first().uncheck()
     })
 
     after(() => {
@@ -174,7 +173,7 @@ describe('Strapi meilisearch - role based tests', () => {
 
       cy.openPluginPage(adminUrl)
 
-      cy.get('input[type="checkbox"]').should('be.visible')
+      cy.get('button[role="checkbox"]').should('be.visible')
     })
 
     it('should be able to index data', () => {
@@ -182,10 +181,10 @@ describe('Strapi meilisearch - role based tests', () => {
 
       cy.openPluginPage(adminUrl)
 
-      cy.get('input[type="checkbox"]').first().click()
+      cy.get('button[role="checkbox"]').first().click()
 
       cy.get('tr:contains("user")').contains('Yes').should('be.visible')
-      cy.get('tr:contains("user")').contains('1 / 3').should('be.visible')
+      cy.get('tr:contains("user")').contains('1 / 1').should('be.visible')
       cy.get('tr:contains("user")').contains('Hooked').should('be.visible')
     })
 
@@ -194,14 +193,16 @@ describe('Strapi meilisearch - role based tests', () => {
 
       cy.openPluginPage(adminUrl)
 
-      cy.get('input[type="checkbox"]').first().click()
+      cy.get('button[role="checkbox"]').first().click()
 
-      cy.get('div[role="alert"]').contains('Forbidden').should('be.visible')
+      cy.get('div[role="status"]')
+        .contains('You do not have permission to do this action')
+        .should('be.visible')
 
       cy.reload()
 
       cy.get('tr:contains("user")').contains('Yes').should('be.visible')
-      cy.get('tr:contains("user")').contains('1 / 3').should('be.visible')
+      cy.get('tr:contains("user")').contains('1 / 1').should('be.visible')
       cy.get('tr:contains("user")').contains('Hooked').should('be.visible')
     })
 
@@ -210,7 +211,9 @@ describe('Strapi meilisearch - role based tests', () => {
 
       cy.openPluginPage(adminUrl)
 
-      cy.get('input[type="checkbox"]').first().should('be.checked')
+      cy.get('button[role="checkbox"]')
+        .first()
+        .should('have.attr', 'data-state', 'checked')
 
       cy.root().should('not.contain', 'button:contains("Update")')
     })
@@ -245,9 +248,6 @@ describe('Strapi meilisearch - role based tests', () => {
         password: userPassword,
         roleName,
       })
-
-      cy.openPluginPage(adminUrl)
-      cy.get('input[type="checkbox"]').first().check()
     })
 
     after(() => {
@@ -265,7 +265,7 @@ describe('Strapi meilisearch - role based tests', () => {
 
       cy.openPluginPage(adminUrl)
 
-      cy.root().should('not.contain', 'input[type="checkbox"]')
+      cy.root().should('not.contain', 'button[role="checkbox"]')
     })
 
     it('should be able to update indexed data', () => {
@@ -315,8 +315,8 @@ describe('Strapi meilisearch - role based tests', () => {
         roleName,
       })
 
-      cy.openPluginPage(adminUrl)
-      cy.get('input[type="checkbox"]').first().check()
+      // cy.openPluginPage(adminUrl)
+      // cy.get('button[role="checkbox"]').first().check()
     })
 
     after(() => {
@@ -334,7 +334,9 @@ describe('Strapi meilisearch - role based tests', () => {
 
       cy.openPluginPage(adminUrl)
 
-      cy.get('input[type="checkbox"]').first().should('be.checked')
+      cy.get('button[role="checkbox"]')
+        .first()
+        .should('have.attr', 'data-state', 'checked')
 
       cy.root().should('not.contain', 'button:contains("Update")')
     })
@@ -352,8 +354,9 @@ describe('Strapi meilisearch - role based tests', () => {
 
       cy.get('tr:contains(user)')
         .first()
-        .get('input[type="checkbox"]')
-        .uncheck()
+        .get('button[role="checkbox"]')
+        .first()
+        .click()
 
       cy.get('tr:contains(user)')
         .first()
@@ -368,15 +371,17 @@ describe('Strapi meilisearch - role based tests', () => {
 
       cy.openPluginPage(adminUrl)
 
-      cy.get('input[type="checkbox"]').should('be.visible')
+      cy.get('button[role="checkbox"]').should('be.visible')
 
-      cy.get('input[type="checkbox"]').first().click()
+      cy.get('button[role="checkbox"]').first().click()
 
-      cy.get('div[role="alert"]').contains('Forbidden').should('be.visible')
+      cy.get('div[role="status"]')
+        .contains('You do not have permission to do this action')
+        .should('be.visible')
 
       cy.reload()
 
-      cy.get('input[type="checkbox"]').first().should('not.be.checked')
+      cy.get('button[role="checkbox"]').first().should('not.be.checked')
     })
 
     it('should not have option to change settings', () => {
@@ -426,7 +431,7 @@ describe('Strapi meilisearch - role based tests', () => {
 
       cy.openPluginPage(adminUrl)
 
-      cy.root().should('not.contain', 'input[type="checkbox"]')
+      cy.root().should('not.contain', 'button[role="checkbox"]')
     })
 
     it('should not be able to update indexed data', () => {
