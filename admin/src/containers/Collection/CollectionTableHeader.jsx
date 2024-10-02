@@ -6,20 +6,26 @@ import {
   Typography,
   VisuallyHidden,
 } from '@strapi/design-system'
+import { useRBAC } from '@strapi/strapi/admin'
+
 import { useI18n } from '../../Hooks/useI18n'
-// import { CheckPermissions } from '@strapi/helper-plugin'
 import { PERMISSIONS } from '../../constants'
 
 const CollectionTableHeader = () => {
   const { i18n } = useI18n()
+
+  const {
+    allowedActions: { canCreate, canUpdate, canDelete },
+  } = useRBAC(PERMISSIONS.collections)
+
   return (
     <Thead>
       <Tr>
-        {/* <CheckPermissions permissions={PERMISSIONS.createAndDelete}> */}
+        {(canCreate || canDelete) && (
           <Th>
             <VisuallyHidden>INDEX</VisuallyHidden>
           </Th>
-        {/* </CheckPermissions> */}
+        )}
         <Th>
           <Typography variant="sigma">
             {i18n('plugin.table.header.name', 'NAME')}
@@ -50,11 +56,11 @@ const CollectionTableHeader = () => {
             {i18n('plugin.table.header.hooks', 'HOOKS')}
           </Typography>
         </Th>
-        {/* <CheckPermissions permissions={PERMISSIONS.update}> */}
+        {canUpdate && (
           <Th>
             <VisuallyHidden>Actions</VisuallyHidden>
           </Th>
-        {/* </CheckPermissions> */}
+        )}
       </Tr>
     </Thead>
   )

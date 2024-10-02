@@ -8,19 +8,11 @@
 import React from 'react'
 import { Route, Routes } from 'react-router-dom'
 import { Page } from '@strapi/strapi/admin'
-import { DesignSystemProvider } from '@strapi/design-system'
 
 // Constants
 import { PERMISSIONS } from '../constants'
 // Pages
 import { HomePage } from './HomePage'
-
-const theme = {
-  colors: {
-    backgroundColor: '#ffffff',
-    shadows: '#e3e9f3',
-  },
-}
 
 const App = () => {
   return (
