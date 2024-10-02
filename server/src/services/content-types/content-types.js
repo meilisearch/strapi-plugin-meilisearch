@@ -169,7 +169,7 @@ export default ({ strapi }) => ({
    * @param  {object} [options.filters] - Filters to use.
    * @param  {object|string} [options.sort] - Order definition.
    * @param  {object} [options.populate] - Relations, components and dynamic zones to populate.
-   * @param  {object} [options.publicationState] - Publication state: live or preview.
+   * @param  {object} [options.status] - Publication state: draft or published.
    * @param  {string} options.contentType - Content type.
    * @param  {string} [options.locale] - When using internalization, the language to fetch.
    *
@@ -183,7 +183,7 @@ export default ({ strapi }) => ({
     filters = {},
     sort = 'id',
     populate = '*',
-    publicationState = 'published',
+    status = 'published',
     locale,
   }) {
     const contentTypeUid = this.getContentTypeUid({ contentType })
@@ -196,7 +196,7 @@ export default ({ strapi }) => ({
       filters,
       sort,
       populate,
-      status: publicationState,
+      status,
     }
     // To avoid issue if internalization is not installed by the user
     if (locale) {

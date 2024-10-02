@@ -107,19 +107,16 @@ describe('Tests content types', () => {
       contentType: 'api::restaurant.restaurant',
     })
 
-    expect(strapiMock.entityService.findMany).toHaveBeenCalledWith(
-      'api::restaurant.restaurant',
-      {
-        fields: '*',
-        start: 0,
-        limit: 500,
-        filters: {},
-        sort: 'id',
-        populate: '*',
-        publicationState: 'live',
-      },
-    )
-    expect(strapiMock.entityService.findMany).toHaveBeenCalledTimes(1)
+    expect(strapiMock.documents('').findMany).toHaveBeenCalledWith({
+      fields: '*',
+      start: 0,
+      limit: 500,
+      filters: {},
+      sort: 'id',
+      populate: '*',
+      status: 'published',
+    })
+    expect(strapiMock.documents('').findMany).toHaveBeenCalledTimes(1)
     expect(count).toEqual([{ id: 1 }])
   })
 
@@ -136,22 +133,19 @@ describe('Tests content types', () => {
       filters: { where: { title: 'hello' } },
       sort: 'id',
       populate: {},
-      publicationState: 'preview',
+      status: 'published',
     })
 
-    expect(strapiMock.entityService.findMany).toHaveBeenCalledWith(
-      'api::restaurant.restaurant',
-      {
-        fields: 'title',
-        start: 1,
-        limit: 2,
-        filters: { where: { title: 'hello' } },
-        sort: 'id',
-        populate: {},
-        publicationState: 'preview',
-      },
-    )
-    expect(strapiMock.entityService.findMany).toHaveBeenCalledTimes(1)
+    expect(strapiMock.documents('').findMany).toHaveBeenCalledWith({
+      fields: 'title',
+      start: 1,
+      limit: 2,
+      filters: { where: { title: 'hello' } },
+      sort: 'id',
+      populate: {},
+      status: 'published',
+    })
+    expect(strapiMock.documents('').findMany).toHaveBeenCalledTimes(1)
     expect(count).toEqual([{ id: 1 }])
   })
 
@@ -164,7 +158,7 @@ describe('Tests content types', () => {
       contentType: 'api::test.test',
     })
 
-    expect(strapiMock.entityService.findMany).toHaveBeenCalledTimes(0)
+    expect(strapiMock.documents('').findMany).toHaveBeenCalledTimes(0)
     expect(entry).toEqual([])
   })
 
@@ -175,18 +169,15 @@ describe('Tests content types', () => {
 
     const entry = await contentTypeServices.getEntry({
       contentType: 'api::restaurant.restaurant',
-      id: 200,
+      documentId: '200',
     })
 
-    expect(strapiMock.entityService.findOne).toHaveBeenCalledWith(
-      'api::restaurant.restaurant',
-      200,
-      {
-        fields: '*',
-        populate: '*',
-      },
-    )
-    expect(strapiMock.entityService.findOne).toHaveBeenCalledTimes(1)
+    expect(strapiMock.documents('').findOne).toHaveBeenCalledWith({
+      documentId: '200',
+      fields: '*',
+      populate: '*',
+    })
+    expect(strapiMock.documents('').findOne).toHaveBeenCalledTimes(1)
     expect(entry).toEqual([{ id: 1 }])
   })
 
@@ -197,7 +188,7 @@ describe('Tests content types', () => {
 
     const entry = await contentTypeServices.getEntry({
       contentType: 'api::restaurant.restaurant',
-      id: 200,
+      documentId: '200',
       entriesQuery: {
         fields: ['title'],
         populate: {
@@ -206,17 +197,14 @@ describe('Tests content types', () => {
       },
     })
 
-    expect(strapiMock.entityService.findOne).toHaveBeenCalledWith(
-      'api::restaurant.restaurant',
-      200,
-      {
-        fields: ['title'],
-        populate: {
-          subClass: true,
-        },
+    expect(strapiMock.documents('').findOne).toHaveBeenCalledWith({
+      documentId: '200',
+      fields: ['title'],
+      populate: {
+        subClass: true,
       },
-    )
-    expect(strapiMock.entityService.findOne).toHaveBeenCalledTimes(1)
+    })
+    expect(strapiMock.documents('').findOne).toHaveBeenCalledTimes(1)
     expect(entry).toEqual([{ id: 1 }])
   })
 
@@ -229,7 +217,7 @@ describe('Tests content types', () => {
       contentType: 'api::test.test',
     })
 
-    expect(strapiMock.entityService.findOne).toHaveBeenCalledTimes(0)
+    expect(strapiMock.documents('').findOne).toHaveBeenCalledTimes(0)
     expect(count).toEqual({})
   })
 

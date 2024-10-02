@@ -671,11 +671,11 @@ describe('Test entriesQuery configuration', () => {
 
   // PUBLICATION STATE
 
-  test('publicationState as undefined should succeed', async () => {
+  test('status as undefined should succeed', async () => {
     const configuration = validatePluginConfig({
       restaurant: {
         entriesQuery: {
-          publicationState: undefined,
+          status: undefined,
         },
       },
     })
@@ -685,11 +685,11 @@ describe('Test entriesQuery configuration', () => {
     expect(configuration.restaurant.entriesQuery).toEqual({})
   })
 
-  test('publicationState as "live" should succeed', async () => {
+  test('status as "published" should succeed', async () => {
     const configuration = validatePluginConfig({
       restaurant: {
         entriesQuery: {
-          publicationState: 'live',
+          status: 'published',
         },
       },
     })
@@ -697,15 +697,15 @@ describe('Test entriesQuery configuration', () => {
     expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
     expect(strapiMock.log.error).toHaveBeenCalledTimes(0)
     expect(configuration.restaurant.entriesQuery).toEqual({
-      publicationState: 'live',
+      status: 'published',
     })
   })
 
-  test('publicationState as "preview" should succeed', async () => {
+  test('status as "draft" should succeed', async () => {
     const configuration = validatePluginConfig({
       restaurant: {
         entriesQuery: {
-          publicationState: 'preview',
+          status: 'draft',
         },
       },
     })
@@ -713,35 +713,35 @@ describe('Test entriesQuery configuration', () => {
     expect(strapiMock.log.warn).toHaveBeenCalledTimes(0)
     expect(strapiMock.log.error).toHaveBeenCalledTimes(0)
     expect(configuration.restaurant.entriesQuery).toEqual({
-      publicationState: 'preview',
+      status: 'draft',
     })
   })
 
-  test('publicationState a none accepted string value should log error', async () => {
+  test('status a none accepted string value should log error', async () => {
     validatePluginConfig({
       restaurant: {
         entriesQuery: {
-          publicationState: 'incorrect',
+          status: 'incorrect',
         },
       },
     })
 
     expect(strapiMock.log.error).toHaveBeenCalledWith(
-      'The "publicationState" option in "queryOptions" of "restaurant" should be either "preview" or "live".',
+      'The "status" option in "queryOptions" of "restaurant" should be either "draft" or "published".',
     )
   })
 
-  test('publicationState as a none-string should log error', async () => {
+  test('status as a none-string should log error', async () => {
     validatePluginConfig({
       restaurant: {
         entriesQuery: {
-          publicationState: 0,
+          status: 0,
         },
       },
     })
 
     expect(strapiMock.log.error).toHaveBeenCalledWith(
-      'The "publicationState" option in "queryOptions" of "restaurant" should be either "preview" or "live".',
+      'The "status" option in "queryOptions" of "restaurant" should be either "draft" or "published".',
     )
   })
 

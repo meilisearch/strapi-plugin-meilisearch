@@ -3,7 +3,7 @@ module.exports = {
   meilisearch: {
     config: {
       restaurant: {
-        publicationState: 'preview',
+        status: 'draft',
       },
     },
   },
