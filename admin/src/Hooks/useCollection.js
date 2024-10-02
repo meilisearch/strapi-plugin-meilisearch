@@ -28,39 +28,43 @@ export function useCollection() {
   }
 
   const fetchCollections = async () => {
-    const {
-      data: { data, error },
-    } = await get(`/${pluginId}/content-type/`)
+    try {
+      const {
+        data: { data, error },
+      } = await get(`/${pluginId}/content-type/`)
 
-    if (error) {
-      handleNotification({
-        type: 'warning',
-        message: error.message,
-        link: error.link,
-      })
-    } else {
-      const collections = data.contentTypes.map(collection => {
-        collection['reloadNeeded'] = hookingTextRendering({
-          indexed: collection.indexed,
-          listened: collection.listened,
+      if (error) {
+        handleNotification({
+          type: 'warning',
+          message: error.message,
+          link: error.link,
         })
-        return collection
-      })
-      const reload = collections.find(
-        col =>
-          col.reloadNeeded ===
-          i18n('plugin.table.td.hookingText.reload', 'Reload needed'),
-      )
+      } else {
+        const collections = data.contentTypes.map(collection => {
+          collection['reloadNeeded'] = hookingTextRendering({
+            indexed: collection.indexed,
+            listened: collection.listened,
+          })
+          return collection
+        })
+        const reload = collections.find(
+          col =>
+            col.reloadNeeded ===
+            i18n('plugin.table.td.hookingText.reload', 'Reload needed'),
+        )
 
-      const isIndexing = collections.find(col => col.isIndexing === true)
+        const isIndexing = collections.find(col => col.isIndexing === true)
 
-      if (!isIndexing) setRealTimeReports(false)
-      else setRealTimeReports(true)
+        if (!isIndexing) setRealTimeReports(false)
+        else setRealTimeReports(true)
 
-      if (reload) {
-        setReloadNeeded(true)
-      } else setReloadNeeded(false)
-      setCollections(collections)
+        if (reload) {
+          setReloadNeeded(true)
+        } else setReloadNeeded(false)
+        setCollections(collections)
+      }
+    } catch (error) {
+      checkForbiddenError(error)
     }
   }
 
