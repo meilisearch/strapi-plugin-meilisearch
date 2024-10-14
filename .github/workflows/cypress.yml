@@ -1,0 +1,68 @@
+name: Cypress Tests using Cypress Docker Image
+
+on: push
+
+jobs:
+  cypress-run:
+    runs-on: ubuntu-22.04
+    container:
+      image: cypress/browsers:node-20.14.0-chrome-126.0.6478.114-1-ff-127.0.1-edge-126.0.2592.61-1
+      options: --user 1001
+    services:
+      meilisearch:
+        image: getmeili/meilisearch:latest
+        env:
+          MEILI_MASTER_KEY: 'masterKey'
+          MEILI_NO_ANALYTICS: 'true'
+        ports:
+          - '7700:7700'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20.x'
+          cache: yarn
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ./playground/node_modules
+          key: ${{ hashFiles('playground/yarn.lock') }}
+      - name: Install dependencies
+        run: yarn --dev && yarn --cwd ./playground
+      - name: Remove plugin symlink
+        run: rm ./playground/src/plugins/meilisearch
+      - name: Move plugin inside playground
+        # Since the plugin is located at the root of the project but a symlink links
+        # to it in ./playground/plugins/meilisearch it causes a circular
+        # chaining problem.
+        # Now that we removed the symlink (see previous step), we need to move our plugin in the
+        # plugin directory of the playground.
+        run: mkdir ./playground/src/plugins/meilisearch &&
+          mv admin ./playground/src/plugins/meilisearch &&
+          mv server ./playground/src/plugins/meilisearch &&
+          mv strapi-admin.js ./playground/src/plugins/meilisearch &&
+          mv strapi-server.js ./playground/src/plugins/meilisearch &&
+          cp package.json ./playground/src/plugins/meilisearch
+
+      - name: Run e2e browser tests
+        uses: cypress-io/github-action@v6
+        with:
+          build: yarn playground:build
+          start: yarn playground:dev
+          env: env=ci
+          browser: chrome
+
+      - uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: cypress-screenshots
+          path: cypress/screenshots
+      - uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: cypress-videos
+          path: cypress/videos
