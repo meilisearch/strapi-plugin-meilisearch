@@ -38,21 +38,21 @@ const login = ({ adminUrl, email, password }) => {
       cy.get('form', { timeout: 10000 }).should('be.visible')
       cy.get('input[name="email"]').type(email)
       cy.get('input[name="password"]').type(password)
+      cy.get('button[role="checkbox"]').click()
       cy.get('button[type="submit"]').click()
     },
     {
       validate() {
+        cy.wait(1000)
         cy.visit(adminUrl)
-        cy.contains('Strapi Dashboard', { timeout: 10000 }).should('be.visible')
+        cy.contains('Welcome 👋', { timeout: 10000 }).should('be.visible')
       },
     },
   )
 }
 
 const confirmDialog = () => {
-  cy.get('div[role="dialog"]').within(() => {
-    cy.contains('button', 'Confirm').click()
-  })
+  cy.get('div[role="alertdialog"]').contains('button', 'Confirm').click()
 }
 
 /**
@@ -78,7 +78,7 @@ const openContentManager = adminUrl => {
 
 const openRestaurants = adminUrl => {
   cy.visit(
-    `${adminUrl}/content-manager/collectionType/api::restaurant.restaurant`,
+    `${adminUrl}/content-manager/collection-types/api::restaurant.restaurant`,
   )
 }
 
@@ -108,15 +108,21 @@ const createRole = ({ adminUrl, roleName, permissions }) => {
 
   cy.get('main').contains('Meilisearch').click()
 
-  cy.get('div #accordion-content-accordion-meilisearch')
-    .first()
+  cy.get('main')
+    .get('div[role="region"][data-state="open"]')
+    .should('be.visible')
+
+  cy.wait(100)
+  cy.get('main')
+    .get('div[role="region"][data-state="open"]')
     .within(() => {
-      permissions?.forEach(permission => {
-        cy.get('div').contains(permission).click()
+      permissions.forEach(permission => {
+        cy.contains('label', permission).should('be.visible')
+        cy.contains('label', permission).click()
       })
     })
 
-  cy.contains('button[type="button"]', 'Save').click()
+  cy.get('form').submit()
 
   cy.contains('Edit a role').should('be.visible')
 }
@@ -150,7 +156,7 @@ const createUser = ({ adminUrl, email, password, roleName }) => {
     cy.get('input[name="lastname"]').type('test')
     cy.get('input[name="email"]').type(email)
 
-    cy.get('div[role="combobox"]#roles').click()
+    cy.get('div[role="combobox"][name="roles"]').click()
   })
 
   cy.get('div[role="listbox"]').contains('div[role="option"]', roleName).click()
@@ -162,9 +168,7 @@ const createUser = ({ adminUrl, email, password, roleName }) => {
   })
 
   cy.contains('tr', email, { timeout: 10000 }).should('be.visible')
-  cy.contains('tr', email, { timeout: 10000 })
-    .contains('button', /^Edit/)
-    .click()
+  cy.contains('tr', email, { timeout: 10000 }).contains('a', /^Edit/).click()
 
   cy.get('form').within(() => {
     cy.get('input[type="checkbox"][name="isActive"]').click()
@@ -193,12 +197,12 @@ const removeUser = ({ adminUrl, email }) => {
 }
 
 const removeNotifications = () => {
-  cy.get('button[aria-label="Close"]').click()
+  cy.get('button:contains("Close")').click()
 }
 
 const clickCollection = ({ rowNb }) => {
   const row = `table[role='grid'] tbody tr:nth-child(${rowNb})`
-  cy.get(`${row} input[type="checkbox"]`, { timeout: 10000 }).click({
+  cy.get(`${row} button[role="checkbox"]`, { timeout: 10000 }).click({
     timeout: 10000,
   })
 }
@@ -216,7 +220,7 @@ const checkCollectionContent = ({ rowNb, contains }) => {
 
 const reloadServer = () => {
   cy.get(`button`).contains('Reload server').click({ force: true })
-  cy.wait(2000)
+  cy.wait(10000)
 }
 const clickAndCheckRowContent = ({ rowNb, contains }) => {
   clickCollection({ rowNb })

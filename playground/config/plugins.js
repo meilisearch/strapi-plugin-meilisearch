@@ -1,9 +1,6 @@
-const path = require('path')
-
 module.exports = ({ env }) => ({
   meilisearch: {
     enabled: true,
-    resolve: path.resolve(__dirname, '../src/plugins/meilisearch'),
     config: {
       'restaurant': {
         filterEntry({ entry }) {

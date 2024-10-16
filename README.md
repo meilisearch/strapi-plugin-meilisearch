@@ -58,20 +58,22 @@ This package version works with the [v4 of Strapi](https://docs.strapi.io/develo
 Inside your Strapi app, add the package:
 
 With `npm`:
+
 ```bash
 npm install strapi-plugin-meilisearch
 ```
 
 With `yarn`:
+
 ```bash
 yarn add strapi-plugin-meilisearch
 ```
 
 To apply the plugin to Strapi, a re-build is needed:
+
 ```bash
 strapi build
 ```
-
 
 You will need both a running Strapi app and a running Meilisearch instance. For [specific version compatibility see this section](#-compatibility-with-meilisearch-and-strapi).
 
@@ -92,9 +94,19 @@ If you don't have a running Strapi project yet, you can either launch the [playg
 
 We recommend indexing your content-types to Meilisearch in development mode to allow the server reloads needed to apply or remove listeners.
 
+To start playground project you first need to run from the root of the repo
+
 ```bash
+yarn watch:link
+```
+
+and after that in the playground
+
+```bash
+yarn dlx yalc add --link strapi-plugin-meilisearch && yarn install
 strapi develop
 // or
+yarn dlx yalc add --link strapi-plugin-meilisearch && yarn install
 yarn develop
 ```
 
@@ -114,6 +126,7 @@ On the left-navbar, `Meilisearch` appears under the `PLUGINS` category. If it do
 
 First, you need to configure credentials via the Strapi config, or on the plugin page.
 The credentials are composed of:
+
 - The `host`: The url to your running Meilisearch instance.
 - The `api_key`: The `master` or `private` key as the plugin requires administration permission on Meilisearch.[More about permissions here](https://www.meilisearch.com/docs/reference/features/authentication.html).
 
@@ -143,16 +156,15 @@ module.exports = () => ({
   meilisearch: {
     config: {
       // Your meili host
-      host: "http://localhost:7700",
+      host: 'http://localhost:7700',
       // Your master key or private key
-      apiKey: "masterKey",
-    }
-  }
+      apiKey: 'masterKey',
+    },
+  },
 })
 ```
 
 Note that if you use both methods, the config file overwrites the credentials added through the plugin page.
-
 
 ### 🚛 Add your content-types to Meilisearch <!-- omit in toc -->
 
@@ -167,7 +179,6 @@ On your plugin homepage, you should have two content-types appearing: `restauran
 </p>
 
 By clicking on the left checkbox, the content-type is automatically indexed in Meilisearch. For example, if you click on the `restaurant` checkbox, the indexing to Meilisearch starts.
-
 
 <p align="center">
 <img src="./assets/indexing.gif" alt="Content-types" width="600"/>
@@ -187,7 +198,6 @@ The reload is only possible in develop mode; click on the `Reload Server` button
 <img src="./assets/un-check.png" alt="Remove hook from content-type" width="600"/>
 </p>
 
-
 ## 💅 Customization
 
 It is possible to add settings for every collection. Start by creating a sub-object with the name of the collection inside your `plugins.js` file.
@@ -199,13 +209,14 @@ module.exports = () => ({
   //...
   meilisearch: {
     config: {
-      restaurant: {}
-    }
-  }
+      restaurant: {},
+    },
+  },
 })
 ```
 
 Settings:
+
 - [🏷 Custom index name](#-custom-index-name)
 - [🪄 Transform entries](#-transform-entries)
 - [🤚 Filter entries](#-filter-entries)
@@ -231,10 +242,10 @@ module.exports = () => ({
   meilisearch: {
     config: {
       restaurant: {
-        indexName: "my_restaurants",
-      }
-    }
-  }
+        indexName: 'my_restaurants',
+      },
+    },
+  },
 })
 ```
 
@@ -246,10 +257,10 @@ module.exports = () => ({
   meilisearch: {
     config: {
       restaurant: {
-        indexName: ["my_restaurants"],
-      }
-    }
-  }
+        indexName: ['my_restaurants'],
+      },
+    },
+  },
 })
 ```
 
@@ -290,18 +301,18 @@ module.exports = () => ({
     config: {
       restaurant: {
         indexName: ['my_restaurants', 'all_food_places'],
-      }
-    }
-  }
+      },
+    },
+  },
 })
 ```
-
 
 **disclaimer**
 
 Nonetheless, it is not possible to know how many entries from each content-type is added to Meilisearch.
 
 For example, given two content-types:
+
 - `Shoes`: with 300 entries and an `indexName` set to `product`
 - `Shirts`: 200 entries and an `indexName` set to `product`
 
@@ -339,29 +350,28 @@ module.exports = {
   meilisearch: {
     config: {
       restaurant: {
-        transformEntry({ entry }) { // can also be async
+        transformEntry({ entry }) {
+          // can also be async
           return {
             ...entry,
-            categories: entry.categories.map(category => category.name)
+            categories: entry.categories.map(category => category.name),
           }
         },
-      }
-    }
+      },
+    },
   },
 }
 ```
 
 Result:
+
 ```json
-  {
-    "id": 2,
-    "name": "Squared Pizza",
-    "categories": [
-      "Brunch",
-      "Italian"
-    ],
-    // other fields
-  }
+{
+  "id": 2,
+  "name": "Squared Pizza",
+  "categories": ["Brunch", "Italian"]
+  // other fields
+}
 ```
 
 By transforming the `categories` into an array of names, it is now compatible with the [`filtering` feature](https://www.meilisearch.com/docs/reference/features/filtering_and_faceted_search.html#configuring-filters) in Meilisearch.
@@ -381,7 +391,8 @@ module.exports = {
   meilisearch: {
     config: {
       restaurant: {
-        filterEntry({ entry }) { // can also be async
+        filterEntry({ entry }) {
+          // can also be async
           return entry.title !== `Alfredo`
         },
       },
@@ -399,6 +410,7 @@ Each index in Meilisearch can be customized with specific settings. It is possib
 The settings are added when either: adding a content-type to Meilisearch or when updating a content-type in Meilisearch. The settings are not updated when documents are added through the [`listeners`](-apply-hooks).
 
 **For example**
+
 ```js
 module.exports = {
   meilisearch: {
@@ -407,11 +419,11 @@ module.exports = {
         settings: {
           filterableAttributes: ['categories'],
           synonyms: {
-            healthy: ['pokeball', 'vegan']
-          }
-        }
-      }
-    }
+            healthy: ['pokeball', 'vegan'],
+          },
+        },
+      },
+    },
   },
 }
 ```
@@ -455,10 +467,10 @@ module.exports = {
     config: {
       restaurant: {
         entriesQuery: {
-          limit: 1000
-        }
-      }
-    }
+          limit: 1000,
+        },
+      },
+    },
   },
 }
 ```
@@ -476,10 +488,10 @@ module.exports = {
   meilisearch: {
     config: {
       restaurant: {
-        noSanitizePrivateFields: ["internal_notes"], // All attributes: ["*"]
-        settings:  {
-          "searchableAttributes": ["internal_notes"],
-        }
+        noSanitizePrivateFields: ['internal_notes'], // All attributes: ["*"]
+        settings: {
+          searchableAttributes: ['internal_notes'],
+        },
       },
     },
   },
@@ -505,11 +517,14 @@ In Instant Meilisearch, you only have to provide your credentials and index name
 You can have a quick preview with the following code in an HTML file. Create an HTML file, copy-paste the code below and open the file in your browser (or find it in `/front_examples/restaurant.html`).
 
 ```html
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@meilisearch/instant-meilisearch/templates/basic_search.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@meilisearch/instant-meilisearch/templates/basic_search.css"
+    />
   </head>
   <body>
     <div class="wrapper">
@@ -519,33 +534,33 @@ You can have a quick preview with the following code in an HTML file. Create an 
     <script src="https://cdn.jsdelivr.net/npm/@meilisearch/instant-meilisearch/dist/instant-meilisearch.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/instantsearch.js@4"></script>
     <script>
-        const search = instantsearch({
-            indexName: "restaurant",
-            searchClient: instantMeiliSearch(
-                "http://localhost:7700",
-                'publicKey', // Use the public key not the private or master key to search.
-            )
-            });
+      const search = instantsearch({
+        indexName: 'restaurant',
+        searchClient: instantMeiliSearch(
+          'http://localhost:7700',
+          'publicKey', // Use the public key not the private or master key to search.
+        ),
+      })
 
-            search.addWidgets([
-              instantsearch.widgets.searchBox({
-                  container: "#searchbox"
-              }),
-              instantsearch.widgets.configure({ hitsPerPage: 8 }),
-              instantsearch.widgets.hits({
-                  container: "#hits",
-                  templates: {
-                  item: `
+      search.addWidgets([
+        instantsearch.widgets.searchBox({
+          container: '#searchbox',
+        }),
+        instantsearch.widgets.configure({ hitsPerPage: 8 }),
+        instantsearch.widgets.hits({
+          container: '#hits',
+          templates: {
+            item: `
                       <div>
                       <div class="hit-name">
                           {{#helpers.highlight}}{ "attribute": "name" }{{/helpers.highlight}}
                       </div>
                       </div>
-                  `
-                  }
-              })
-            ]);
-            search.start();
+                  `,
+          },
+        }),
+      ])
+      search.start()
     </script>
   </body>
 </html>
@@ -559,7 +574,6 @@ The following code is a setup that will output a restaurant after a search.
 
 ```javascript
 import { MeiliSearch } from 'meilisearch'
-
 ;(async () => {
   const client = new MeiliSearch({
     host: 'http://127.0.0.1:7700',
@@ -572,6 +586,7 @@ import { MeiliSearch } from 'meilisearch'
 ```
 
 **response content**:
+
 ```json
 {
   "hits": [
@@ -596,6 +611,12 @@ import { MeiliSearch } from 'meilisearch'
 Instead of adding the plugin to an existing project, you can try it out using the playground in this project.
 
 ```bash
+# Root of repository
+yarn watch:link # Build the plugin and release it with yalc
+
+# Playground dir
+yarn dlx yalc add --link strapi-plugin-meilisearch && yarn install
+
 # Root of repository
 yarn playground:build # Build the playground
 yarn playground:dev # Start the development server

@@ -22,7 +22,7 @@ First of all, thank you for contributing to Meilisearch! The goal of this docume
 4. Review the [Development Workflow](#development-workflow) section that describes the steps to maintain the repository.
 5. Make the changes on your branch.
 6. [Submit the branch as a PR](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request-from-a-fork) pointing to the `main` branch of the main strapi-plugin-meilisearch repository. A maintainer should comment and/or review your Pull Request within a few days. Although depending on the circumstances, it may take longer.<br>
- We do not enforce a naming convention for the PRs, but **please use something descriptive of your changes**, having in mind that the title of your PR will be automatically added to the next [release changelog](https://github.com/meilisearch/strapi-plugin-meilisearch/releases/).
+   We do not enforce a naming convention for the PRs, but **please use something descriptive of your changes**, having in mind that the title of your PR will be automatically added to the next [release changelog](https://github.com/meilisearch/strapi-plugin-meilisearch/releases/).
 
 ## Development Workflow
 
@@ -31,6 +31,7 @@ First of all, thank you for contributing to Meilisearch! The goal of this docume
 You can set up your local environment natively or using `docker`, check out the [`docker-compose.yml`](/docker-compose.yml).
 
 Example of running all the checks with docker:
+
 ```bash
 docker-compose run --rm package bash -c "yarn install && yarn test && yarn playground:build && yarn style"
 ```
@@ -56,6 +57,8 @@ yarn test
 yarn style
 # Linter with fixing
 yarn style:fix
+# E2E tests
+yarn dlx cypress open
 ```
 
 ### Run Playground
@@ -64,13 +67,21 @@ To test directly your changes on the plugin in Strapi, you can run the Strapi pl
 
 ```bash
 # Root of repository
+yarn watch:link # Build the plugin and release it with yalc
+
+# Playground dir
+yarn dlx yalc add --link strapi-plugin-meilisearch && yarn install
+
+# Root of repository
 yarn playground:build # Build the playground
+# or
 yarn playground:dev # Start the development server
 ```
 
 This command will install required dependencies and launch the app in development mode. You should be able to reach it on the [port 8000 of your localhost](http://localhost:8000/admin/).
 
 Once on the admin panel, you are required to log-in. Here are the credentials:
+
 - email: `jolene@doe.com`
 - password: `Qwertyuiop1`
 
@@ -84,6 +95,7 @@ We do not enforce any branch naming style, but please use something descriptive 
 ### Git Commits <!-- omit in toc -->
 
 As minimal requirements, your commit message should:
+
 - be capitalized
 - not finish by a dot or any other punctuation character (!,?)
 - start with a verb so that we can read your commit message this way: "This commit will ...", where "..." is the commit message.
@@ -134,7 +146,7 @@ GitHub Actions will be triggered and push the package to [npm](https://www.npmjs
 Here are the steps to release a beta version of this package:
 
 - Create a new branch originating the branch containing the "beta" changes. For example, if during the Meilisearch pre-release, create a branch originating `bump-meilisearch-v*.*.*`.<br>
-`vX.X.X` is the next version of the package, NOT the version of Meilisearch!
+  `vX.X.X` is the next version of the package, NOT the version of Meilisearch!
 
 ```bash
 git checkout bump-meilisearch-v*.*.*
@@ -143,7 +155,6 @@ git checkout -b vX.X.X-beta.0
 ```
 
 - Change the version in [`package.json`](/package.json) and commit it to the `beta` branch.
-
 
 - Go to the [GitHub interface for releasing](https://github.com/meilisearch/strapi-plugin-meilisearch/releases): on this page, click on `Draft a new release`.
 
@@ -158,6 +169,7 @@ git checkout -b vX.X.X-beta.0
 GitHub Actions will be triggered and push the beta version to [npm](https://www.npmjs.com/package/meilisearch).
 
 💡 If you need to release a new beta for the same version (i.e. `vX.X.X-beta.1`):
+
 - merge the change into `bump-meilisearch-v*.*.*`
 - rebase the `vX.X.X-beta.0` branch
 - change the version name in `package.json`
