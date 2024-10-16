@@ -42,8 +42,8 @@ jobs:
           yalc publish
           cd playground
           npx yalc add strapi-plugin-meilisearch
-          npx yalc link strapi-plugin-meilisearch 
-          cd .. 
+          npx yalc link strapi-plugin-meilisearch
+          cd ..
           yarn --cwd ./playground install
 
       - name: Run e2e browser tests
