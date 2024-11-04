@@ -18,6 +18,7 @@ module.exports = ({ strapi }) => {
       await strapi.db.lifecycles.subscribe({
         models: [contentTypeUid],
         async afterCreate(event) {
+          console.log('AFTER CREATE' + event)
           const { result } = event
           const meilisearch = strapi
             .plugin('meilisearch')
@@ -42,10 +43,41 @@ module.exports = ({ strapi }) => {
               )
             })
         },
-        async afterCreateMany() {
-          strapi.log.error(
-            `Meilisearch does not work with \`afterCreateMany\` hook as the entries are provided without their id`,
-          )
+        async afterCreateMany(event) {
+          const { result } = event
+          const meilisearch = strapi
+            .plugin('meilisearch')
+            .service('meilisearch')
+
+          const nbrEntries = result.count
+          const ids = result.ids
+
+          const entries = []
+          const BATCH_SIZE = 500
+          for (let pos = 0; pos < nbrEntries; pos += BATCH_SIZE) {
+            const batch = await contentTypeService.getEntries({
+              contentType: contentTypeUid,
+              start: pos,
+              limit: BATCH_SIZE,
+              filters: {
+                id: {
+                  $in: ids,
+                },
+              },
+            })
+            entries.push(...batch)
+          }
+
+          meilisearch
+            .updateEntriesInMeilisearch({
+              contentType: contentTypeUid,
+              entries: entries,
+            })
+            .catch(e => {
+              strapi.log.error(
+                `Meilisearch could not update the entries: ${e.message}`,
+              )
+            })
         },
         async afterUpdate(event) {
           const { result } = event
