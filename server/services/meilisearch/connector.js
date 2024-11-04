@@ -145,19 +145,18 @@ module.exports = ({ strapi, adapter, config }) => {
       const deleteDocuments = entries.filter(
         entry => !addDocuments.map(document => document.id).includes(entry.id),
       )
-
       // Collect delete tasks
       const deleteTasks = await Promise.all(
         indexUids.map(async indexUid => {
           const tasks = await Promise.all(
-            deleteDocuments.map(async entryId => {
+            deleteDocuments.map(async document => {
               const task = await client.index(indexUid).deleteDocument(
                 adapter.addCollectionNamePrefixToId({
                   contentType,
-                  entryId: entryId,
+                  entryId: document.id,
                 }),
               )
-              console.log('task', task)
+
               strapi.log.info(
                 `A task to delete one document from the Meilisearch index "${indexUid}" has been enqueued (Task uid: ${task.taskUid}).`,
               )
