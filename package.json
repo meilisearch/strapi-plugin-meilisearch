@@ -33,7 +33,7 @@
     "meilisearch": "^0.42.0"
   },
   "peerDependencies": {
-    "@strapi/strapi": "^4.0.0"
+    "@strapi/strapi": "^4.9.0"
   },
   "author": {
     "name": "Charlotte Vermandel <charlotte@meilisearch.com>"
