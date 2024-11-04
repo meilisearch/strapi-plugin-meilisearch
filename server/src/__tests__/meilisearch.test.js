@@ -345,23 +345,34 @@ describe('Tests content types', () => {
       },
     })
 
-    const mockEntry = { attributes: { id: 1 } }
+    const mockEntryUpdate = { attributes: { id: 1 } }
+
+    const mockEntryCreate = {
+      _meilisearch_id: 'restaurant-1',
+      id: 3,
+      title: 'title',
+      internal_notes: 'note123',
+      publishedAt: null,
+    }
+
     const tasks = await meilisearchService.updateEntriesInMeilisearch({
       contentType: 'restaurant',
-      entries: [mockEntry, mockEntry],
+      entries: [mockEntryUpdate, mockEntryCreate],
     })
 
-    expect(strapi.log.info).toHaveBeenCalledTimes(2)
+    expect(strapi.log.info).toHaveBeenCalledTimes(4)
     expect(strapi.log.info).toHaveBeenCalledWith(
-      'A task to update 2 documents to the Meilisearch index "customIndex" has been enqueued.',
+      'A task to update 1 documents to the Meilisearch index "customIndex" has been enqueued.',
     )
     expect(strapi.log.info).toHaveBeenCalledWith(
-      'A task to update 2 documents to the Meilisearch index "anotherIndex" has been enqueued.',
+      'A task to update 1 documents to the Meilisearch index "anotherIndex" has been enqueued.',
     )
     expect(client.index('').updateDocuments).toHaveBeenCalledTimes(2)
+    expect(client.index('').deleteDocument).toHaveBeenCalledTimes(2)
+
     expect(client.index).toHaveBeenCalledWith('customIndex')
     expect(client.index).toHaveBeenCalledWith('anotherIndex')
-    expect(tasks).toEqual([10, 10])
+    expect(tasks).toEqual([3, 3, 10, 10])
   })
 
   test('Test to get stats', async () => {
