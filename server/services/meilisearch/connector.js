@@ -1,5 +1,4 @@
 'use strict'
-const { create } = require('domain')
 const Meilisearch = require('./client')
 
 /**
