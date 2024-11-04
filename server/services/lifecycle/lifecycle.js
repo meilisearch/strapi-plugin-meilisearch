@@ -18,7 +18,6 @@ module.exports = ({ strapi }) => {
       await strapi.db.lifecycles.subscribe({
         models: [contentTypeUid],
         async afterCreate(event) {
-          console.log('AFTER CREATE' + event)
           const { result } = event
           const meilisearch = strapi
             .plugin('meilisearch')
