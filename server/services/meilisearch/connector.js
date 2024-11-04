@@ -146,8 +146,8 @@ module.exports = ({ strapi, adapter, config }) => {
         entry => !addDocuments.map(document => document.id).includes(entry.id),
       )
 
-      await Promise.all(
-        // Create tasks to delete documents
+      // Collect delete tasks
+      const deleteTasks = await Promise.all(
         indexUids.map(async indexUid => {
           const tasks = await Promise.all(
             deleteDocuments.map(async entryId => {
@@ -157,7 +157,7 @@ module.exports = ({ strapi, adapter, config }) => {
                   entryId: entryId,
                 }),
               )
-
+              console.log('task', task)
               strapi.log.info(
                 `A task to delete one document from the Meilisearch index "${indexUid}" has been enqueued (Task uid: ${task.taskUid}).`,
               )
@@ -165,9 +165,12 @@ module.exports = ({ strapi, adapter, config }) => {
               return task
             }),
           )
-          return tasks.flat()
+          return tasks
         }),
-        // Create batched tasks to add documents
+      )
+
+      // Collect update tasks
+      const updateTasks = await Promise.all(
         indexUids.map(async indexUid => {
           const task = client.index(indexUid).updateDocuments(addDocuments, {
             primaryKey: '_meilisearch_id',
@@ -180,6 +183,9 @@ module.exports = ({ strapi, adapter, config }) => {
           return task
         }),
       )
+
+      const tasks = [...deleteTasks.flat(), ...updateTasks]
+      return tasks
     },
 
     /**
