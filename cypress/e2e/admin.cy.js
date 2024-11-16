@@ -127,7 +127,7 @@ describe('Strapi meilisearch plugin - administrator', () => {
 
     cy.checkCollectionContent({ rowNb: 1, contains: ['1 / 1'] })
     cy.checkCollectionContent({ rowNb: 2, contains: ['2 / 2'] })
-    cy.checkCollectionContent({ rowNb: 3, contains: ['3 / 6'] })
+    cy.checkCollectionContent({ rowNb: 3, contains: ['3 / 3'] })
     cy.checkCollectionContent({ rowNb: 4, contains: ['2 / 2'] })
     cy.checkCollectionContent({
       rowNb: 5,
@@ -204,7 +204,7 @@ describe('Strapi meilisearch plugin - administrator', () => {
 
     cy.checkCollectionContent({ rowNb: 1, contains: ['0 / 1'] })
     cy.checkCollectionContent({ rowNb: 2, contains: ['2 / 2'] })
-    cy.checkCollectionContent({ rowNb: 3, contains: ['3 / 6'] })
+    cy.checkCollectionContent({ rowNb: 3, contains: ['3 / 3'] })
     cy.checkCollectionContent({ rowNb: 4, contains: ['2 / 2'] })
     cy.checkCollectionContent({
       rowNb: 5,
@@ -239,11 +239,27 @@ describe('Strapi meilisearch plugin - administrator', () => {
 
     cy.checkCollectionContent({ rowNb: 1, contains: ['0 / 1'] })
     cy.checkCollectionContent({ rowNb: 2, contains: ['0 / 2'] })
-    cy.checkCollectionContent({ rowNb: 3, contains: ['0 / 6'] })
+    cy.checkCollectionContent({ rowNb: 3, contains: ['0 / 3'] })
     cy.checkCollectionContent({ rowNb: 4, contains: ['0 / 2'] })
     cy.checkCollectionContent({
       rowNb: 5,
       contains: ['0 / 6200'],
+    })
+  })
+
+  it('Add about-us collection back to Meilisearch, should index of only 1 as multiple collections are in single index', () => {
+    cy.openPluginPage(adminUrl)
+
+    cy.clickAndCheckRowContent({
+      rowNb: 2,
+      contains: ['about-us', 'Yes', 'Hooked'],
+    })
+
+    cy.checkCollectionContent({ rowNb: 2, contains: ['1 / 2'] })
+
+    cy.clickAndCheckRowContent({
+      rowNb: 2,
+      contains: ['No', 'Reload needed'],
     })
   })
 
