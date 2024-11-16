@@ -81,6 +81,7 @@ function createStrapiMock({
     return {
       findMany: mockFindMany,
       findOne: mockFindOne,
+      count: mockFindWithCount,
     }
   })
 
