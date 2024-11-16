@@ -244,6 +244,7 @@ export default ({ strapi, adapter, config }) => {
               const numberOfEntries =
                 await contentTypeService.totalNumberOfEntries({
                   contentTypes: contentTypesWithSameIndexUid,
+                  ...config.entriesQuery({ contentType }),
                 })
               return {
                 collection: collectionName,

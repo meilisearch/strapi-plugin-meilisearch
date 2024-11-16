@@ -92,12 +92,20 @@ export default ({ strapi }) => ({
    *
    * @returns  {Promise<number>} number of entries in the content type.
    */
-  numberOfEntries: async function ({ contentType, where = {} }) {
+  numberOfEntries: async function ({
+    contentType,
+    filters = {},
+    status = 'published',
+  }) {
     const contentTypeUid = this.getContentTypeUid({ contentType })
     if (contentTypeUid === undefined) return 0
 
     try {
-      const count = await strapi.db.query(contentTypeUid).count({ where })
+      const count = await strapi.documents(contentTypeUid).count({
+        filters,
+        status,
+      })
+
       return count
     } catch (e) {
       strapi.log.warn(e)
@@ -114,10 +122,14 @@ export default ({ strapi }) => ({
    *
    * @returns {Promise<number>} Total entries number of the content types.
    */
-  totalNumberOfEntries: async function ({ contentTypes, where = {} }) {
+  totalNumberOfEntries: async function ({
+    contentTypes,
+    filters = {},
+    status = 'published',
+  }) {
     let numberOfEntries = await Promise.all(
       contentTypes.map(async contentType =>
-        this.numberOfEntries({ contentType, where }),
+        this.numberOfEntries({ contentType, filters, status }),
       ),
     )
     const entriesSum = numberOfEntries.reduce((acc, curr) => (acc += curr), 0)
@@ -232,6 +244,7 @@ export default ({ strapi }) => ({
     // Need total number of entries in contentType
     const entries_count = await this.numberOfEntries({
       contentType,
+      ...entriesQuery,
     })
     const cbResponse = []
     for (let index = 0; index < entries_count; index += batchSize) {

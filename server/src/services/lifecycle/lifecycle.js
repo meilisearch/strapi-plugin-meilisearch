@@ -79,7 +79,7 @@ export default ({ strapi }) => {
 
           const nbrEntries = await contentTypeService.numberOfEntries({
             contentType: contentTypeUid,
-            where: event.params.where,
+            filters: event.params.where,
           })
 
           const entries = []
