@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { request } from '@strapi/helper-plugin'
+import { useFetchClient } from '@strapi/strapi/admin'
+
 import pluginId from '../pluginId'
 import useAlert from './useAlert'
 import { useI18n } from './useI18n'
@@ -12,6 +13,7 @@ export function useCollection() {
 
   const { handleNotification, checkForbiddenError } = useAlert()
   const { i18n } = useI18n()
+  const { get, del, post, put } = useFetchClient()
 
   const refetchCollection = () =>
     setRefetchIndex(prevRefetchIndex => !prevRefetchIndex)
@@ -26,50 +28,51 @@ export function useCollection() {
   }
 
   const fetchCollections = async () => {
-    const { data, error } = await request(`/${pluginId}/content-type/`, {
-      method: 'GET',
-    })
+    try {
+      const {
+        data: { data, error },
+      } = await get(`/${pluginId}/content-type/`)
 
-    if (error) {
-      handleNotification({
-        type: 'warning',
-        message: error.message,
-        link: error.link,
-      })
-    } else {
-      const collections = data.contentTypes.map(collection => {
-        collection['reloadNeeded'] = hookingTextRendering({
-          indexed: collection.indexed,
-          listened: collection.listened,
+      if (error) {
+        handleNotification({
+          type: 'warning',
+          message: error.message,
+          link: error.link,
         })
-        return collection
-      })
-      const reload = collections.find(
-        col =>
-          col.reloadNeeded ===
-          i18n('plugin.table.td.hookingText.reload', 'Reload needed'),
-      )
+      } else {
+        const collections = data.contentTypes.map(collection => {
+          collection['reloadNeeded'] = hookingTextRendering({
+            indexed: collection.indexed,
+            listened: collection.listened,
+          })
+          return collection
+        })
+        const reload = collections.find(
+          col =>
+            col.reloadNeeded ===
+            i18n('plugin.table.td.hookingText.reload', 'Reload needed'),
+        )
 
-      const isIndexing = collections.find(col => col.isIndexing === true)
+        const isIndexing = collections.find(col => col.isIndexing === true)
 
-      if (!isIndexing) setRealTimeReports(false)
-      else setRealTimeReports(true)
+        if (!isIndexing) setRealTimeReports(false)
+        else setRealTimeReports(true)
 
-      if (reload) {
-        setReloadNeeded(true)
-      } else setReloadNeeded(false)
-      setCollections(collections)
+        if (reload) {
+          setReloadNeeded(true)
+        } else setReloadNeeded(false)
+        setCollections(collections)
+      }
+    } catch (error) {
+      checkForbiddenError(error)
     }
   }
 
   const deleteCollection = async ({ contentType }) => {
     try {
-      const { error } = await request(
-        `/${pluginId}/content-type/${contentType}`,
-        {
-          method: 'DELETE',
-        },
-      )
+      const {
+        data: { error },
+      } = await del(`/${pluginId}/content-type/${contentType}`)
       if (error) {
         handleNotification({
           type: 'warning',
@@ -94,12 +97,12 @@ export function useCollection() {
 
   const addCollection = async ({ contentType }) => {
     try {
-      const { error } = await request(`/${pluginId}/content-type`, {
-        method: 'POST',
-        body: {
-          contentType,
-        },
+      const {
+        data: { error },
+      } = await post(`/${pluginId}/content-type`, {
+        contentType,
       })
+      console.log(error)
       if (error) {
         handleNotification({
           type: 'warning',
@@ -124,11 +127,10 @@ export function useCollection() {
 
   const updateCollection = async ({ contentType }) => {
     try {
-      const { error } = await request(`/${pluginId}/content-type`, {
-        method: 'PUT',
-        body: {
-          contentType,
-        },
+      const {
+        data: { error },
+      } = await put(`/${pluginId}/content-type`, {
+        contentType,
       })
 
       if (error) {
