@@ -56,24 +56,22 @@ describe('Strapi meilisearch plugin - administrator', () => {
 
   it('Enter to the plugin Home Page', () => {
     cy.visit(adminUrl)
-    cy.contains('Meilisearch', { timeout: 10000 }).click()
+    cy.get('a[aria-label="Meilisearch"]', { timeout: 10000 }).click()
     cy.url().should('include', '/plugins/meilisearch', { timeout: 10000 })
   })
 
   it('Add credentials', () => {
     cy.openPluginSettings(adminUrl)
 
-    cy.contains('Strapi Dashboard', { timeout: 10000 }).should('be.visible')
-
     cy.get('input[name="host"]').clear()
     cy.get('input[name="host"]').type(host)
     cy.get('input[name="apiKey"]').clear()
     cy.get('input[name="apiKey"]').type(apiKey)
-    cy.get('button[type="button"]').contains('Save').click({ force: true })
+    cy.contains('button', 'Save').click({ force: true })
 
     cy.get('div[role="status').contains('success').should('be.visible')
     cy.get('div[role="status')
-      .contains('Credentials sucessfully updated')
+      .contains('Credentials successfully updated')
       .should('be.visible')
     cy.removeNotifications()
   })
@@ -127,7 +125,7 @@ describe('Strapi meilisearch plugin - administrator', () => {
   it('Check for right number of documents indexed', () => {
     cy.openPluginPage(adminUrl)
 
-    cy.checkCollectionContent({ rowNb: 1, contains: ['1 / 2'] })
+    cy.checkCollectionContent({ rowNb: 1, contains: ['1 / 1'] })
     cy.checkCollectionContent({ rowNb: 2, contains: ['2 / 2'] })
     cy.checkCollectionContent({ rowNb: 3, contains: ['3 / 3'] })
     cy.checkCollectionContent({ rowNb: 4, contains: ['2 / 2'] })
@@ -141,12 +139,12 @@ describe('Strapi meilisearch plugin - administrator', () => {
 
   it('Add new restaurant', () => {
     cy.openRestaurants(adminUrl)
-    cy.get('a[type="button"]').should('have.text', 'Create new entry').click()
+    cy.contains('a', 'Create new entry').click()
     cy.url().should('include', '/create')
 
     cy.get('input[name="title').type('The slimy snail')
 
-    cy.get('form').contains('button[type="submit"]', 'Save').click()
+    cy.get('form').contains('button', 'Save').click()
 
     cy.removeNotifications()
   })
@@ -163,16 +161,21 @@ describe('Strapi meilisearch plugin - administrator', () => {
   it('Remove restaurant', () => {
     cy.openRestaurants(adminUrl)
 
-    cy.get('main').contains('button[type="button"]', 'Search').click()
+    cy.get('main').contains('button', 'Search').click()
     cy.get('main').get('input[name="search"]').type('The slimy snail{enter}')
     cy.get('main').contains('tr', 'The slimy snail').should('be.visible')
     cy.get('main')
       .contains('tr', 'The slimy snail')
-      .contains('button[type="button"]', 'Delete')
+      .contains('button[type="button"]', 'Row actions')
       .click()
-    cy.get('div[role="dialog"]')
-      .contains('button[type="button"]', 'Confirm')
+    cy.get('div[role="menu"]')
+      .contains('div[role="menuitem"]', 'Delete')
       .click()
+    cy.confirm()
+
+    cy.get('main').contains('button', 'Search').click()
+    cy.get('main').get('input[name="search"]').type('The slimy snail{enter}')
+
     cy.contains('No content found').should('be.visible')
   })
 
@@ -199,7 +202,7 @@ describe('Strapi meilisearch plugin - administrator', () => {
   it('should show that first collection is not indexed', () => {
     cy.openPluginPage(adminUrl)
 
-    cy.checkCollectionContent({ rowNb: 1, contains: ['0 / 2'] })
+    cy.checkCollectionContent({ rowNb: 1, contains: ['0 / 1'] })
     cy.checkCollectionContent({ rowNb: 2, contains: ['2 / 2'] })
     cy.checkCollectionContent({ rowNb: 3, contains: ['3 / 3'] })
     cy.checkCollectionContent({ rowNb: 4, contains: ['2 / 2'] })
@@ -234,13 +237,29 @@ describe('Strapi meilisearch plugin - administrator', () => {
   it('Check that collections are not in Meilisearch anymore', () => {
     cy.openPluginPage(adminUrl)
 
-    cy.checkCollectionContent({ rowNb: 1, contains: ['0 / 2'] })
+    cy.checkCollectionContent({ rowNb: 1, contains: ['0 / 1'] })
     cy.checkCollectionContent({ rowNb: 2, contains: ['0 / 2'] })
     cy.checkCollectionContent({ rowNb: 3, contains: ['0 / 3'] })
     cy.checkCollectionContent({ rowNb: 4, contains: ['0 / 2'] })
     cy.checkCollectionContent({
       rowNb: 5,
       contains: ['0 / 6200'],
+    })
+  })
+
+  it('Add about-us collection back to Meilisearch, should index of only 1 as multiple collections are in single index', () => {
+    cy.openPluginPage(adminUrl)
+
+    cy.clickAndCheckRowContent({
+      rowNb: 2,
+      contains: ['about-us', 'Yes', 'Hooked'],
+    })
+
+    cy.checkCollectionContent({ rowNb: 2, contains: ['1 / 2'] })
+
+    cy.clickAndCheckRowContent({
+      rowNb: 2,
+      contains: ['No', 'Reload needed'],
     })
   })
 
@@ -252,14 +271,14 @@ describe('Strapi meilisearch plugin - administrator', () => {
     cy.get('input[name="host"]').clear()
     cy.get('input[name="host"').type(wrongHost)
 
-    cy.contains('button[type="button"]', 'Save').click()
+    cy.contains('button', 'Save').click()
 
-    cy.contains('Credentials sucessfully updated').should('be.visible')
+    cy.get('input[name="host"]').should('have.value', wrongHost)
 
     cy.removeNotifications()
 
     cy.openPluginPage(adminUrl)
-    const row = `table[role='grid'] tbody tr:nth-child(1) input[type="checkbox"]`
+    const row = `table[role='grid'] tbody tr:nth-child(1) button[role="checkbox"]`
 
     cy.get(row).click()
     cy.removeNotifications()
@@ -270,7 +289,7 @@ describe('Strapi meilisearch plugin - administrator', () => {
     cy.get('input[name="host"]').should('have.value', wrongHost)
     cy.get('input[name="host"]').clear()
     cy.get('input[name="host"]').type(host)
-    cy.contains('button[type="button"]', 'Save').click()
+    cy.contains('button', 'Save').click()
     cy.removeNotifications()
   })
 
@@ -279,13 +298,13 @@ describe('Strapi meilisearch plugin - administrator', () => {
 
     cy.get('input[name="host"]').clear()
 
-    cy.contains('button[type="button"]', 'Save').click()
+    cy.contains('button', 'Save').click()
 
-    cy.contains('Credentials sucessfully updated').should('be.visible')
     cy.removeNotifications()
+    cy.get('input[name="host"]').should('have.value', '')
 
     cy.openPluginPage(adminUrl)
-    const row = `table[role='grid'] tbody tr:nth-child(1) input[type="checkbox"]`
+    const row = `table[role='grid'] tbody tr:nth-child(1) button[role="checkbox"]`
 
     cy.get(row).click()
     cy.contains('The provided host is not valid.').should('be.visible')
@@ -297,7 +316,7 @@ describe('Strapi meilisearch plugin - administrator', () => {
     cy.get('input[name="host"]').should('have.value', '')
     cy.get('input[name="host"]').clear()
     cy.get('input[name="host"]').type(host)
-    cy.contains('button[type="button"]', 'Save').click()
+    cy.contains('button', 'Save').click()
     cy.removeNotifications()
   })
 })
