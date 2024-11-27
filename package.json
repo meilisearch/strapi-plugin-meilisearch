@@ -102,7 +102,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/meilisearch/strapi-plugin-meilisearch.git"
+    "url": "git+https://github.com/meilisearch/strapi-plugin-meilisearch.git"
   },
   "homepage": "https://github.com/meilisearch/strapi-plugin-meilisearch#readme"
 }
