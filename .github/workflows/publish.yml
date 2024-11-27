@@ -16,8 +16,10 @@ jobs:
         run: sh .github/scripts/check-release.sh
       - name: Check tag format
         run: sh .github/scripts/check-tag-format.sh "${{ github.event.release.prerelease }}"
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
       - name: Build
-        run: npm run build
+        run: yarn build
       - name: Publish with latest tag
         if: "!github.event.release.prerelease && !contains(github.ref, 'beta')"
         run: npm publish .
