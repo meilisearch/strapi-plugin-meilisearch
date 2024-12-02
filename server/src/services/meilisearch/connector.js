@@ -181,8 +181,7 @@ export default ({ strapi, adapter, config }) => {
         }),
       )
 
-      const tasks = [...deleteTasks.flat(), ...updateTasks]
-      return tasks
+      return [...deleteTasks.flat(), ...updateTasks]
     },
 
     /**
