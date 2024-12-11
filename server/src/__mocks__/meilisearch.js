@@ -4,6 +4,8 @@ const updateSettingsMock = jest.fn(() => 10)
 const deleteDocuments = jest.fn(() => {
   return [{ taskUid: 1 }, { taskUid: 2 }]
 })
+const deleteDocument = jest.fn(() => 3)
+
 const getStats = jest.fn(() => {
   return {
     databaseSize: 447819776,
@@ -41,6 +43,7 @@ const mockIndex = jest.fn(() => ({
   addDocuments: addDocumentsMock,
   updateDocuments: updateDocumentsMock,
   updateSettings: updateSettingsMock,
+  deleteDocument,
   deleteDocuments,
   getStats: getIndexStats,
 }))
