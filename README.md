@@ -31,9 +31,8 @@ Add your Strapi content-types into a Meilisearch instance. The plugin listens to
 ## Table of Contents <!-- omit in TOC -->
 
 - [📖 Documentation](#-documentation)
-- [⚡ Supercharge your Meilisearch experience](#-supercharge-your-meilisearch-experience)
 - [🔧 Installation](#-installation)
-- [🎬 Getting Started](#-getting-started)
+- [🚀 Getting started](#-getting-started)
 - [💅 Customization](#-customization)
 - [💡 Run the Playground](#-run-the-playground)
 - [🤖 Compatibility with Meilisearch and Strapi](#-compatibility-with-meilisearch-and-strapi)
@@ -46,10 +45,6 @@ Add your Strapi content-types into a Meilisearch instance. The plugin listens to
 To understand Meilisearch and how it works, see the [Meilisearch's documentation](https://www.meilisearch.com/docs/learn/getting_started/installation).
 
 To understand Strapi and how to create an app, see [Strapi's documentation](https://strapi.io/documentation/developer-docs/latest/getting-started/introduction.html).
-
-## ⚡ Supercharge your Meilisearch experience
-
-Say goodbye to server deployment and manual updates with [Meilisearch Cloud](https://www.meilisearch.com/cloud?utm_campaign=oss&utm_source=github&utm_medium=strapi-plugin-meilisearch). Get started with a 14-day free trial! No credit card required.
 
 ## 🔧 Installation
 
@@ -77,17 +72,11 @@ strapi build
 
 You will need both a running Strapi app and a running Meilisearch instance. For [specific version compatibility, see this section](#-compatibility-with-meilisearch-and-strapi).
 
-### 🏃‍♀️ Run Meilisearch <!-- omit in toc -->
+### Run Meilisearch <!-- omit in toc -->
 
-There are many easy ways to [download and run a Meilisearch instance](https://www.meilisearch.com/docs/reference/features/installation.html#download-and-launch).
+⚡️ **Launch, scale, and streamline in minutes with Meilisearch Cloud**—no maintenance, no commitment, cancel anytime. [Try it free now](https://cloud.meilisearch.com/login?utm_campaign=oss&utm_source=github&utm_medium=strapi-plugin-meilisearch).
 
-For example, if you use Docker:
-
-```bash
-docker pull getmeili/meilisearch:latest # Fetch the latest version of Meilisearch image from Docker Hub
-docker run -it --rm -p 7700:7700 getmeili/meilisearch:latest meilisearch --master-key=masterKey
-```
-
+🪨  Prefer to self-host? [Download and deploy](https://www.meilisearch.com/docs/learn/self_hosted/getting_started_with_self_hosted_meilisearch?utm_campaign=oss&utm_source=github&utm_medium=strapi-plugin-meilisearch) our fast, open-source search engine on your own infrastructure.
 ### 🏃‍♂️ Run Strapi <!-- omit in toc -->
 
 If you don't have a running Strapi project yet, you can either launch the [playground present in this project](#-run-the-playground) or [create a Strapi project](https://strapi.io/documentation/developer-docs/latest/getting-started/quick-start.html).
@@ -116,7 +105,8 @@ You can use Docker to run Meilisearch and Strapi on the same server. A Docker co
 
 To run the Docker script add both files `Dockerfile` and `docker-compose.yaml` at the root of your Strapi project and run it with the following command: `docker-compose up`.
 
-## 🎬 Getting Started
+
+## 🚀 Getting started
 
 Now that you have installed the plugin, a running Meilisearch instance and, a running Strapi app, let's go to the plugin page on your admin dashboard.
 
