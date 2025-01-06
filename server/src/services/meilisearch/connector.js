@@ -131,40 +131,57 @@ export default ({ strapi, adapter, config }) => {
       if (!Array.isArray(entries)) entries = [entries]
 
       const indexUids = config.getIndexNamesOfContentType({ contentType })
-      await Promise.all(
+
+      const addDocuments = await sanitizeEntries({
+        contentType,
+        entries,
+        config,
+        adapter,
+      })
+
+      // Check which documents are not in sanitized documents and need to be deleted
+      const deleteDocuments = entries.filter(
+        entry => !addDocuments.map(document => document.id).includes(entry.id),
+      )
+      // Collect delete tasks
+      const deleteTasks = await Promise.all(
         indexUids.map(async indexUid => {
           const tasks = await Promise.all(
-            entries.map(async entry => {
-              const sanitized = await sanitizeEntries({
-                entries: [entry],
-                contentType,
-                config,
-                adapter,
-              })
+            deleteDocuments.map(async document => {
+              const task = await client.index(indexUid).deleteDocument(
+                adapter.addCollectionNamePrefixToId({
+                  contentType,
+                  entryId: document.id,
+                }),
+              )
 
-              if (sanitized.length === 0) {
-                const task = await client.index(indexUid).deleteDocument(
-                  adapter.addCollectionNamePrefixToId({
-                    contentType,
-                    entryId: entry.id,
-                  }),
-                )
+              strapi.log.info(
+                `A task to delete one document from the Meilisearch index "${indexUid}" has been enqueued (Task uid: ${task.taskUid}).`,
+              )
 
-                strapi.log.info(
-                  `A task to delete one document from the Meilisearch index "${indexUid}" has been enqueued (Task uid: ${task.taskUid}).`,
-                )
-
-                return task
-              } else {
-                return client
-                  .index(indexUid)
-                  .updateDocuments(sanitized, { primaryKey: '_meilisearch_id' })
-              }
+              return task
             }),
           )
-          return tasks.flat()
+          return tasks
         }),
       )
+
+      // Collect update tasks
+      const updateTasks = await Promise.all(
+        indexUids.map(async indexUid => {
+          const task = client.index(indexUid).updateDocuments(addDocuments, {
+            primaryKey: '_meilisearch_id',
+          })
+
+          strapi.log.info(
+            `A task to update ${addDocuments.length} documents to the Meilisearch index "${indexUid}" has been enqueued.`,
+          )
+
+          return task
+        }),
+      )
+
+      return [...deleteTasks.flat(), ...updateTasks]
     },
 
     /**
