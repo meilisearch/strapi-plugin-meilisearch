@@ -18,7 +18,7 @@
  * }
  *
  * Since Meilisearch is expecting `category: ["Italian", "french"]` and
- * also `category` to be in `filterableAttributes` we can use the model configuration file to provide all these informations.
+ * also `category` to be in `filterableAttributes` we can use the model configuration file to provide all this information.
  */
 
 module.exports = {

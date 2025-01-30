@@ -308,7 +308,7 @@ For example, given two content-types:
 
 The index `product` has both the entries of shoes and shirts. If the index `product` has `350` documents in Meilisearch, it is not possible to know how many of them are from `shoes` or `shirts`.
 
-When removing `shoes` or `shirts` from Meilisearch, both are removed as it would require to much processing to only remove one. You can still re-index only one after that.
+When removing `shoes` or `shirts` from Meilisearch, both are removed as it would require too much processing to only remove one. You can still re-index only one after that.
 
 <p align="center">Example with two single types:</p>
 <p align="center">
@@ -652,5 +652,5 @@ If you want to know more about the development workflow or want to contribute, p
 Using the [foodadvisor](https://github.com/strapi/foodadvisor) restaurant demo Strapi provided. We added a searchbar to it using [instant-meilisearch](https://github.com/meilisearch/meilisearch-js-plugins/tree/main/packages/instant-meilisearch).
 
 <p align="center">
-<img src="./assets/restaurant.gif" alt="Fooradvisor demo" width="600"/>
+<img src="./assets/restaurant.gif" alt="Foodadvisor demo" width="600"/>
 </p>

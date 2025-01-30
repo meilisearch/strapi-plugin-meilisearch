@@ -173,7 +173,7 @@ GitHub Actions will be triggered and push the beta version to [npm](https://www.
 - merge the change into `bump-meilisearch-v*.*.*`
 - rebase the `vX.X.X-beta.0` branch
 - change the version name in `package.json`
-- creata a pre-release via the GitHub interface
+- create a pre-release via the GitHub interface
 
 <hr>
 
