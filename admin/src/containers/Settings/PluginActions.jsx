@@ -35,7 +35,7 @@ const PluginActions = () => {
       </Box>
       <Box paddingTop={0} paddingLeft={2} paddingRight={2} paddingBottom={2}>
         <Typography variant="omega" textColor="neutral800">
-          Applies the same cleaning as when you remove the plugin. Additionnaly,
+          Applies the same cleaning as when you remove the plugin. Additionally,
           it also uninstalls the plugin.
         </Typography>
       </Box>

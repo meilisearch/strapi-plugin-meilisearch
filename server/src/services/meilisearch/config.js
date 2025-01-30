@@ -121,7 +121,7 @@ export default ({ strapi }) => {
                 contentType,
               })
 
-              // If the entry does not answers the predicate
+              // If the entry does not answer the predicate
               if (!isValid) return filteredEntries
 
               const syncFilteredEntries = await filteredEntries

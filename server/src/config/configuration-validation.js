@@ -135,7 +135,7 @@ function EntriesQuery({ configuration, collectionName }) {
     },
 
     validateLocale() {
-      // locale is either undefined or a none empty string
+      // locale is either undefined or a non-empty string
       if (
         (locale !== undefined && typeof locale !== 'string') ||
         locale === ''
@@ -321,7 +321,7 @@ function PluginConfig({ configuration }) {
     },
 
     validateHost() {
-      // apiKey is either undefined or a none empty string
+      // host is either undefined or a non-empty string
       if ((host !== undefined && typeof host !== 'string') || host === '') {
         log.error('The "host" option should be a non-empty string')
       } else if (host !== undefined) {
@@ -331,7 +331,7 @@ function PluginConfig({ configuration }) {
     },
 
     validateCollections() {
-      // Itterate over all collections to validate their configuration
+      // Iterate over all collections to validate their configuration
       for (const collection in collections) {
         if (!isObject(collections[collection])) {
           log.error(

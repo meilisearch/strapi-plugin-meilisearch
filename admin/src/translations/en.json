@@ -29,7 +29,7 @@
   "plugin.message.success.add": "Request to add a content-type is successful",
   "plugin.message.success.update": "Request to update content-type is successful",
   "plugin.message.success.credentials": "Credentials successfully updated!",
-  "plugin.message.something": "Something occured in Meilisearch",
+  "plugin.message.something": "Something occurred in Meilisearch",
   "plugin.message.forbidden.title": "Forbidden",
   "plugin.message.forbidden.description": "You do not have permission to do this action"
 }

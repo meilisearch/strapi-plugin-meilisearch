@@ -8,7 +8,7 @@ export function useAlert() {
   /**
    * @param  {object} options
    * @param  {string} [options.type='info']
-   * @param  {string} [options.message='SomethingoccuredinMeilisearch']
+   * @param  {string} [options.message='SomethingoccurredinMeilisearch']
    * @param  {object} [options.link]
    * @param  {boolean} [options.blockTransition]
    */
@@ -16,7 +16,7 @@ export function useAlert() {
     type = 'info',
     message = i18n(
       'plugin.message.something',
-      'Something occured in Meilisearch',
+      'Something occurred in Meilisearch',
     ),
     link,
     blockTransition = true,

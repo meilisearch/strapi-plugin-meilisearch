@@ -4,8 +4,8 @@ import Meilisearch from './client'
  * Add one entry from a contentType to its index in Meilisearch.
  *
  * @param  {object} options
- * @param  {object} options.config - Configuration utililites.
- * @param  {object} options.adapter - Adapter utililites.
+ * @param  {object} options.config - Configuration utilities.
+ * @param  {object} options.adapter - Adapter utilities.
  * @param  {string} options.contentType - ContentType name.
  * @param  {object[] | object} options.entries - Entries to sanitize.
  * @returns {Promise<object[] | object>} - Sanitized entries.

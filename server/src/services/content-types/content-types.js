@@ -57,11 +57,11 @@ export default ({ strapi }) => ({
     const contentTypeUids = Object.keys(contentTypes)
     if (contentTypeUids.includes(contentType)) return contentType
 
-    const contentTypdUid = contentTypeUids.find(uid => {
+    const contentTypeUid = contentTypeUids.find(uid => {
       return contentTypes[uid].modelName === contentType
     })
 
-    return contentTypdUid
+    return contentTypeUid
   },
 
   /**
