@@ -47,8 +47,8 @@
     "meilisearch": "0.48.2"
   },
   "peerDependencies": {
-    "@strapi/sdk-plugin": "^5.2.8",
-    "@strapi/strapi": "^5.6.0",
+    "@strapi/sdk-plugin": "^5.3.0",
+    "@strapi/strapi": "^5.9.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.28.1",
@@ -57,8 +57,8 @@
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@babel/preset-env": "^7.25.4",
-    "@strapi/sdk-plugin": "^5.2.8",
-    "@strapi/strapi": "^5.6.0",
+    "@strapi/sdk-plugin": "^5.3.0",
+    "@strapi/strapi": "^5.9.0",
     "@types/jest": "^29.5.12",
     "babel-jest": "^29.7.0",
     "concurrently": "^8.2.2",
