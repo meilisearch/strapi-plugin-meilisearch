@@ -32,6 +32,7 @@ function createStrapiMock({
   const mockPluginService = jest.fn(() => {
     return {
       getContentTypesUid: () => ['restaurant', 'about'],
+      getContentTypeUid: ({ contentType }) => contentType,
       getCollectionName: ({ contentType }) => contentType,
       getCredentials: () => ({
         host: 'http://localhost:7700',
@@ -64,6 +65,9 @@ function createStrapiMock({
     return 1
   })
   const mockDb = {
+    lifecycles: {
+      subscribe: jest.fn()
+    },
     query: jest.fn(() => ({
       count: mockFindWithCount,
     })),
@@ -92,6 +96,7 @@ function createStrapiMock({
     config: mockConfig,
     db: mockDb,
     documents: mockDocumentService,
+
   }
   return mockStrapi
 }
