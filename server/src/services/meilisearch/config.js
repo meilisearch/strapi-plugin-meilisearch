@@ -243,8 +243,10 @@ export default ({ strapi }) => {
 
     /**
      * Remove language entries.
-     * In the plugin entriesQuery, if `locale` is set and not equal to `all`
-     * all entries that do not have the specified language are removed.
+     * In the plugin entriesQuery, if `locale` is set and not equal to
+     * `all` (used with the i18n plugin for Strapi) or `*` (used with Strapi 5
+     * native localization), all entries that do not have the specified
+     * language are removed.
      *
      * @param {object} options
      * @param {Array<Object>} options.entries - The entries to filter.
@@ -258,7 +260,11 @@ export default ({ strapi }) => {
 
       const entriesQuery = contentTypeConfig.entriesQuery || {}
 
-      if (!entriesQuery.locale || entriesQuery.locale === 'all') {
+      if (
+        !entriesQuery.locale ||
+        entriesQuery.locale === 'all' ||
+        entriesQuery.locale === '*'
+      ) {
         return entries
       } else {
         return entries.filter(entry => entry.locale === entriesQuery.locale)

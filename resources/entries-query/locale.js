@@ -4,7 +4,7 @@ module.exports = {
     config: {
       restaurant: {
         entriesQuery: {
-          locale: 'all',
+          locale: '*',
         },
       },
     },
