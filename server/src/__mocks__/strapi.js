@@ -28,10 +28,12 @@ function createStrapiMock({
   })
 
   const mockAddIndexedContentType = jest.fn(() => {})
+  const mockAddListenedContentType = jest.fn(() => {})
 
   const mockPluginService = jest.fn(() => {
     return {
       getContentTypesUid: () => ['restaurant', 'about'],
+      getContentTypeUid: ({ contentType }) => contentType,
       getCollectionName: ({ contentType }) => contentType,
       getCredentials: () => ({
         host: 'http://localhost:7700',
@@ -48,6 +50,10 @@ function createStrapiMock({
       subscribeContentType: () => {
         return
       },
+      // Add methods for Meilisearch operations
+      addEntriesToMeilisearch: jest.fn(),
+      updateEntriesInMeilisearch: jest.fn(),
+      deleteEntriesFromMeiliSearch: jest.fn(),
     }
   })
 
@@ -64,6 +70,9 @@ function createStrapiMock({
     return 1
   })
   const mockDb = {
+    lifecycles: {
+      subscribe: jest.fn()
+    },
     query: jest.fn(() => ({
       count: mockFindWithCount,
     })),
@@ -92,6 +101,7 @@ function createStrapiMock({
     config: mockConfig,
     db: mockDb,
     documents: mockDocumentService,
+
   }
   return mockStrapi
 }
