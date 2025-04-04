@@ -52,7 +52,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.29.0",
-    "styled-components": "^6.1.14"
+    "styled-components": "^6.1.17"
   },
   "devDependencies": {
     "@babel/core": "^7.26.7",
@@ -76,7 +76,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.29.0",
-    "styled-components": "^6.1.14"
+    "styled-components": "^6.1.17"
   },
   "author": {
     "name": "Charlotte Vermandel <charlotte@meilisearch.com>"
