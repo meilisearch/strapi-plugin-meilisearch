@@ -28,7 +28,6 @@ function createStrapiMock({
   })
 
   const mockAddIndexedContentType = jest.fn(() => {})
-  const mockAddListenedContentType = jest.fn(() => {})
 
   const mockPluginService = jest.fn(() => {
     return {
@@ -71,7 +70,7 @@ function createStrapiMock({
   })
   const mockDb = {
     lifecycles: {
-      subscribe: jest.fn()
+      subscribe: jest.fn(),
     },
     query: jest.fn(() => ({
       count: mockFindWithCount,
@@ -101,7 +100,6 @@ function createStrapiMock({
     config: mockConfig,
     db: mockDb,
     documents: mockDocumentService,
-
   }
   return mockStrapi
 }
