@@ -23,18 +23,10 @@ export default ({ strapi }) => {
             .plugin('meilisearch')
             .service('meilisearch')
 
-          // Fetch complete entry instead of using result that is possibly
-          // partial.
-          const entry = await contentTypeService.getEntry({
-            contentType: contentTypeUid,
-            documentId: result.documentId,
-            entriesQuery: meilisearch.entriesQuery({ contentType }),
-          })
-
-          meilisearch
+          await meilisearch
             .addEntriesToMeilisearch({
               contentType: contentTypeUid,
-              entries: [entry],
+              entries: [result],
             })
             .catch(e => {
               strapi.log.error(
@@ -84,18 +76,10 @@ export default ({ strapi }) => {
             .plugin('meilisearch')
             .service('meilisearch')
 
-          // Fetch complete entry instead of using result that is possibly
-          // partial.
-          const entry = await contentTypeService.getEntry({
-            contentType: contentTypeUid,
-            documentId: result.documentId,
-            entriesQuery: meilisearch.entriesQuery({ contentType }),
-          })
-
-          meilisearch
+          await meilisearch
             .updateEntriesInMeilisearch({
               contentType: contentTypeUid,
-              entries: [entry],
+              entries: [result],
             })
             .catch(e => {
               strapi.log.error(

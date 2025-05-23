@@ -22,6 +22,7 @@ module.exports = {
     '**/__tests__/**/content-types.test.[jt]s?(x)',
     '**/__tests__/**/meilisearch.test.[jt]s?(x)',
     '**/__tests__/**/configuration.test.[jt]s?(x)',
+    '**/__tests__/**/lifecycle.test.[jt]s?(x)',
     '**/__tests__/**/configuration-validation.test.[jt]s?(x)',
   ],
 }
