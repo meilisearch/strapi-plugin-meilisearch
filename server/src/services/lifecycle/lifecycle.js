@@ -40,7 +40,7 @@ export default ({ strapi }) => {
           await meilisearch
             .addEntriesToMeilisearch({
               contentType: contentTypeUid,
-              entries: entry,
+              entries: [entry],
             })
             .catch(e => {
               strapi.log.error(
@@ -107,7 +107,7 @@ export default ({ strapi }) => {
           await meilisearch
             .updateEntriesInMeilisearch({
               contentType: contentTypeUid,
-              entries: entry,
+              entries: [entry],
             })
             .catch(e => {
               strapi.log.error(
