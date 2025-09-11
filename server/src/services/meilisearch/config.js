@@ -237,7 +237,10 @@ export default ({ strapi }) => {
       if (entriesQuery.status === 'draft') {
         return entries
       } else {
-        return entries.filter(entry => !(entry?.publishedAt === null))
+        return entries.filter(
+          entry =>
+            !(entry?.publishedAt === undefined || entry?.publishedAt === null),
+        )
       }
     },
 

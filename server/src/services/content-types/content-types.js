@@ -145,13 +145,19 @@ export default ({ strapi }) => ({
    * @param  {object} [options.entriesQuery={}] - Options to apply when fetching entries from the database.
    * @param  {string | string[]} [options.entriesQuery.fields] - Fields present in the returned entry.
    * @param  {object} [options.entriesQuery.populate] - Relations, components and dynamic zones to populate.
-   * @param  {object} [options.entriesQuery.locale] - When using internalization, the language to fetch.
+   * @param  {string} [options.entriesQuery.status] - Publication state: draft or published.
+   * @param  {string} [options.entriesQuery.locale] - When using internalization, the language to fetch.
    * @param  {string} options.contentType - Content type.
    *
    * @returns  {Promise<object>} - Entries.
    */
   async getEntry({ contentType, documentId, entriesQuery = {} }) {
-    const { populate = '*', fields = '*' } = entriesQuery
+    const {
+      populate = '*',
+      fields = '*',
+      status = 'published',
+      locale,
+    } = entriesQuery
     const contentTypeUid = this.getContentTypeUid({ contentType })
     if (contentTypeUid === undefined) return {}
 
@@ -159,6 +165,8 @@ export default ({ strapi }) => ({
       documentId,
       fields,
       populate,
+      status,
+      locale,
     })
 
     if (entry == null) {
