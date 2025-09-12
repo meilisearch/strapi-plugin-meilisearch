@@ -692,7 +692,9 @@ describe('Lifecycle Meilisearch integration', () => {
       contentTypeService.getEntry.mockResolvedValueOnce(fetchedEntry)
       meilisearchService.entriesQuery.mockReturnValueOnce(baseEntriesQuery)
 
-      await lifecycleHandler.subscribeContentType({ contentType: contentTypeUid })
+      await lifecycleHandler.subscribeContentType({
+        contentType: contentTypeUid,
+      })
       await strapiMock.db.lifecycles.subscribe.mock.calls[0][0].afterCreate({
         result,
       })
@@ -723,12 +725,17 @@ describe('Lifecycle Meilisearch integration', () => {
         title: 'Test Entry',
         publishedAt: null,
       }
-      const baseEntriesQuery = { populate: { category: true }, fields: ['title'] }
+      const baseEntriesQuery = {
+        populate: { category: true },
+        fields: ['title'],
+      }
 
       contentTypeService.getEntry.mockResolvedValueOnce(fetchedEntry)
       meilisearchService.entriesQuery.mockReturnValueOnce(baseEntriesQuery)
 
-      await lifecycleHandler.subscribeContentType({ contentType: contentTypeUid })
+      await lifecycleHandler.subscribeContentType({
+        contentType: contentTypeUid,
+      })
       await strapiMock.db.lifecycles.subscribe.mock.calls[0][0].afterUpdate({
         result,
       })
@@ -756,7 +763,7 @@ describe('Lifecycle Meilisearch integration', () => {
         roles: { count: 2 }, // Only count, not actual role data
         profile: { count: 1 }, // Only count, not actual profile data
       }
-      
+
       // getEntry returns complete entry with full relation objects
       const fetchedEntryWithRelations = {
         documentId: '456',
@@ -773,13 +780,17 @@ describe('Lifecycle Meilisearch integration', () => {
           avatar: 'avatar.jpg',
         },
       }
-      
+
       const entriesQuery = { populate: '*', fields: '*' }
 
-      contentTypeService.getEntry.mockResolvedValueOnce(fetchedEntryWithRelations)
+      contentTypeService.getEntry.mockResolvedValueOnce(
+        fetchedEntryWithRelations,
+      )
       meilisearchService.entriesQuery.mockReturnValueOnce(entriesQuery)
 
-      await lifecycleHandler.subscribeContentType({ contentType: contentTypeUid })
+      await lifecycleHandler.subscribeContentType({
+        contentType: contentTypeUid,
+      })
       await strapiMock.db.lifecycles.subscribe.mock.calls[0][0].afterCreate({
         result: lifecycleResult,
       })
@@ -792,7 +803,8 @@ describe('Lifecycle Meilisearch integration', () => {
 
       // The key fix: fetchedEntryWithRelations contains full relation objects,
       // not the counts from lifecycleResult
-      const actualCallArgs = meilisearchService.addEntriesToMeilisearch.mock.calls[0][0]
+      const actualCallArgs =
+        meilisearchService.addEntriesToMeilisearch.mock.calls[0][0]
       expect(actualCallArgs.entries.roles).toEqual([
         { id: 1, name: 'Admin', permissions: ['read', 'write'] },
         { id: 2, name: 'Editor', permissions: ['read'] },
@@ -817,13 +829,15 @@ describe('Lifecycle Meilisearch integration', () => {
       contentTypeService.getEntry.mockResolvedValueOnce(null)
       meilisearchService.entriesQuery.mockReturnValueOnce({ populate: '*' })
 
-      await lifecycleHandler.subscribeContentType({ contentType: contentTypeUid })
-      
+      await lifecycleHandler.subscribeContentType({
+        contentType: contentTypeUid,
+      })
+
       // Should not throw error when getEntry returns null
       await expect(
         strapiMock.db.lifecycles.subscribe.mock.calls[0][0].afterCreate({
           result,
-        })
+        }),
       ).resolves.not.toThrow()
 
       // Should still attempt to add to Meilisearch (with null entry)
@@ -864,15 +878,19 @@ describe('Lifecycle Meilisearch integration', () => {
         ],
       }
 
-      const entriesQuery = { 
-        populate: { category: true, tags: true }, 
-        fields: ['name', 'description'] 
+      const entriesQuery = {
+        populate: { category: true, tags: true },
+        fields: ['name', 'description'],
       }
 
-      contentTypeService.getEntry.mockResolvedValueOnce(fetchedEntryWithCompleteRelations)
+      contentTypeService.getEntry.mockResolvedValueOnce(
+        fetchedEntryWithCompleteRelations,
+      )
       meilisearchService.entriesQuery.mockReturnValueOnce(entriesQuery)
 
-      await lifecycleHandler.subscribeContentType({ contentType: contentTypeUid })
+      await lifecycleHandler.subscribeContentType({
+        contentType: contentTypeUid,
+      })
       await strapiMock.db.lifecycles.subscribe.mock.calls[0][0].afterUpdate({
         result,
       })
@@ -892,13 +910,16 @@ describe('Lifecycle Meilisearch integration', () => {
       })
 
       // Verify complete relations are sent to Meilisearch (not counts)
-      expect(meilisearchService.updateEntriesInMeilisearch).toHaveBeenCalledWith({
+      expect(
+        meilisearchService.updateEntriesInMeilisearch,
+      ).toHaveBeenCalledWith({
         contentType: contentTypeUid,
         entries: fetchedEntryWithCompleteRelations,
       })
 
       // Specifically verify relations are complete objects, not counts
-      const actualEntry = meilisearchService.updateEntriesInMeilisearch.mock.calls[0][0].entries
+      const actualEntry =
+        meilisearchService.updateEntriesInMeilisearch.mock.calls[0][0].entries
       expect(actualEntry.category).toEqual({
         id: 5,
         name: 'Electronics',
@@ -930,7 +951,9 @@ describe('Lifecycle Meilisearch integration', () => {
       contentTypeService.getEntry.mockResolvedValueOnce(fetchedEntry)
       meilisearchService.entriesQuery.mockReturnValueOnce({ populate: '*' })
 
-      await lifecycleHandler.subscribeContentType({ contentType: contentTypeUid })
+      await lifecycleHandler.subscribeContentType({
+        contentType: contentTypeUid,
+      })
       await strapiMock.db.lifecycles.subscribe.mock.calls[0][0].afterCreate({
         result,
       })
