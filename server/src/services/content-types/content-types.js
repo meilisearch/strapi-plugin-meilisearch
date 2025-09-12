@@ -217,10 +217,7 @@ export default ({ strapi }) => ({
       sort,
       populate,
       status,
-    }
-    // To avoid issue if internationalization (i18n) is not installed by the user
-    if (locale) {
-      queryOptions.locale = locale
+      locale,
     }
 
     const entries = await strapi
