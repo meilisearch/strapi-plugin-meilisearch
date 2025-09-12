@@ -158,16 +158,11 @@ export default ({ strapi }) => ({
       status = 'published',
       locale,
     } = entriesQuery
+    const queryOptions = { documentId, fields, populate, status, locale }
     const contentTypeUid = this.getContentTypeUid({ contentType })
     if (contentTypeUid === undefined) return {}
 
-    const entry = await strapi.documents(contentTypeUid).findOne({
-      documentId,
-      fields,
-      populate,
-      status,
-      locale,
-    })
+    const entry = await strapi.documents(contentTypeUid).findOne(queryOptions)
 
     if (entry == null) {
       strapi.log.error(
