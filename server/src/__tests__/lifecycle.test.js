@@ -118,7 +118,7 @@ describe('Lifecycle Meilisearch integration', () => {
     // Verify the fetched entry is passed to Meilisearch
     expect(meilisearchService.addEntriesToMeilisearch).toHaveBeenCalledWith({
       contentType: contentTypeUid,
-      entries: fetchedEntry,
+      entries: [fetchedEntry],
     })
     expect(storeService.addListenedContentType).toHaveBeenCalledWith({
       contentType: contentTypeUid,
@@ -271,7 +271,7 @@ describe('Lifecycle Meilisearch integration', () => {
     // Verify the fetched entry is passed to Meilisearch
     expect(meilisearchService.updateEntriesInMeilisearch).toHaveBeenCalledWith({
       contentType: contentTypeUid,
-      entries: fetchedEntry,
+      entries: [fetchedEntry],
     })
   })
 
@@ -339,7 +339,7 @@ describe('Lifecycle Meilisearch integration', () => {
     // Verify the entry sent to Meilisearch is the fetched entry
     expect(meilisearchService.addEntriesToMeilisearch).toHaveBeenCalledWith({
       contentType: contentTypeUid,
-      entries: fetchedEntry,
+      entries: [fetchedEntry],
     })
   })
 
@@ -373,7 +373,7 @@ describe('Lifecycle Meilisearch integration', () => {
     // Verify the entry sent to Meilisearch is the fetched entry
     expect(meilisearchService.updateEntriesInMeilisearch).toHaveBeenCalledWith({
       contentType: contentTypeUid,
-      entries: fetchedEntry,
+      entries: [fetchedEntry],
     })
   })
 
@@ -407,7 +407,7 @@ describe('Lifecycle Meilisearch integration', () => {
     // Verify the entry sent to Meilisearch is the fetched entry
     expect(meilisearchService.addEntriesToMeilisearch).toHaveBeenCalledWith({
       contentType: contentTypeUid,
-      entries: fetchedEntry,
+      entries: [fetchedEntry],
     })
   })
 
@@ -486,7 +486,7 @@ describe('Lifecycle Meilisearch integration', () => {
     // Verify the entry sent to Meilisearch is the fetched entry
     expect(meilisearchService.addEntriesToMeilisearch).toHaveBeenCalledWith({
       contentType: contentTypeUid,
-      entries: fetchedEntry,
+      entries: [fetchedEntry],
     })
   })
 
@@ -520,7 +520,7 @@ describe('Lifecycle Meilisearch integration', () => {
     // Verify the entry sent to Meilisearch is the fetched entry
     expect(meilisearchService.updateEntriesInMeilisearch).toHaveBeenCalledWith({
       contentType: contentTypeUid,
-      entries: fetchedEntry,
+      entries: [fetchedEntry],
     })
   })
 
@@ -798,18 +798,18 @@ describe('Lifecycle Meilisearch integration', () => {
       // Verify the complete entry with full relations is sent to Meilisearch, not the lifecycle result with counts
       expect(meilisearchService.addEntriesToMeilisearch).toHaveBeenCalledWith({
         contentType: contentTypeUid,
-        entries: fetchedEntryWithRelations,
+        entries: [fetchedEntryWithRelations],
       })
 
       // The key fix: fetchedEntryWithRelations contains full relation objects,
       // not the counts from lifecycleResult
       const actualCallArgs =
-        meilisearchService.addEntriesToMeilisearch.mock.calls[0][0]
-      expect(actualCallArgs.entries.roles).toEqual([
+        meilisearchService.addEntriesToMeilisearch.mock.calls[0][0].entries[0]
+      expect(actualCallArgs.roles).toEqual([
         { id: 1, name: 'Admin', permissions: ['read', 'write'] },
         { id: 2, name: 'Editor', permissions: ['read'] },
       ])
-      expect(actualCallArgs.entries.profile).toEqual({
+      expect(actualCallArgs.profile).toEqual({
         id: 10,
         bio: 'User biography',
         avatar: 'avatar.jpg',
@@ -843,7 +843,7 @@ describe('Lifecycle Meilisearch integration', () => {
       // Should still attempt to add to Meilisearch (with null entry)
       expect(meilisearchService.addEntriesToMeilisearch).toHaveBeenCalledWith({
         contentType: contentTypeUid,
-        entries: null,
+        entries: [null],
       })
     })
 
@@ -914,12 +914,13 @@ describe('Lifecycle Meilisearch integration', () => {
         meilisearchService.updateEntriesInMeilisearch,
       ).toHaveBeenCalledWith({
         contentType: contentTypeUid,
-        entries: fetchedEntryWithCompleteRelations,
+        entries: [fetchedEntryWithCompleteRelations],
       })
 
       // Specifically verify relations are complete objects, not counts
       const actualEntry =
-        meilisearchService.updateEntriesInMeilisearch.mock.calls[0][0].entries
+        meilisearchService.updateEntriesInMeilisearch.mock.calls[0][0]
+          .entries[0]
       expect(actualEntry.category).toEqual({
         id: 5,
         name: 'Electronics',
