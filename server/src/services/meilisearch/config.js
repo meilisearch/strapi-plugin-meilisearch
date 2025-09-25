@@ -237,7 +237,12 @@ export default ({ strapi }) => {
       if (entriesQuery.status === 'draft') {
         return entries
       } else {
-        return entries.filter(entry => !(entry?.publishedAt === null))
+        // In strapi 5, publishedAt is always set even draftAndPublish is disabled
+        // More information: https://docs.strapi.io/cms/migration/v4-to-v5/breaking-changes/publishedat-always-set-when-dandp-disabled
+        return entries.filter(
+          entry =>
+            !(entry?.publishedAt === undefined || entry?.publishedAt === null),
+        )
       }
     },
 

@@ -29,6 +29,7 @@ describe('Tests content types', () => {
     expect(contentTypes.sort()).toEqual(
       [
         'api::about.about',
+        'api::article.article',
         'api::movie.movie',
         'api::restaurant.restaurant',
         'plugin::users-permissions.user',
@@ -176,6 +177,8 @@ describe('Tests content types', () => {
       documentId: '200',
       fields: '*',
       populate: '*',
+      locale: undefined,
+      status: 'published',
     })
     expect(strapiMock.documents('').findOne).toHaveBeenCalledTimes(1)
     expect(entry).toEqual([{ id: 1 }])
@@ -203,6 +206,8 @@ describe('Tests content types', () => {
       populate: {
         subClass: true,
       },
+      locale: undefined,
+      status: 'published',
     })
     expect(strapiMock.documents('').findOne).toHaveBeenCalledTimes(1)
     expect(entry).toEqual([{ id: 1 }])

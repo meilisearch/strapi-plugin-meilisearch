@@ -98,7 +98,12 @@ describe('Tests content types', () => {
       },
     })
 
-    const mockEntry = { attributes: { id: 1 } }
+    // In Strapi v5 - If Draft & Publish is disabled, publishedAt is set to the latest creation or edition date of the document
+    // More information: https://docs.strapi.io/cms/migration/v4-to-v5/breaking-changes/publishedat-always-set-when-dandp-disabled
+    const mockEntry = {
+      attributes: { id: 1 },
+      publishedAt: '2022-01-01T00:00:00.000Z',
+    }
     const tasks = await meilisearchService.addEntriesToMeilisearch({
       contentType: 'restaurant',
       entries: [mockEntry, mockEntry],
@@ -183,7 +188,12 @@ describe('Tests content types', () => {
       },
     })
 
-    const mockEntry = { attributes: { id: 1 } }
+    // In Strapi v5 - If Draft & Publish is disabled, publishedAt is set to the latest creation or edition date of the document
+    // More information: https://docs.strapi.io/cms/migration/v4-to-v5/breaking-changes/publishedat-always-set-when-dandp-disabled
+    const mockEntry = {
+      attributes: { id: 1 },
+      publishedAt: '2022-01-01T00:00:00.000Z',
+    }
     const tasks = await meilisearchService.addEntriesToMeilisearch({
       contentType: 'restaurant',
       entries: [mockEntry, mockEntry],
@@ -345,7 +355,12 @@ describe('Tests content types', () => {
       },
     })
 
-    const mockEntryUpdate = { attributes: { id: 1 } }
+    // In Strapi v5 - If Draft & Publish is disabled, publishedAt is set to the latest creation or edition date of the document
+    // More information: https://docs.strapi.io/cms/migration/v4-to-v5/breaking-changes/publishedat-always-set-when-dandp-disabled
+    const mockEntryUpdate = {
+      attributes: { id: 1 },
+      publishedAt: '2022-01-01T00:00:00.000Z',
+    }
 
     const mockEntryCreate = {
       _meilisearch_id: 'restaurant-1',
@@ -579,12 +594,14 @@ describe('Tests content types', () => {
                   title: 'title',
                   internal_notes: 'note123',
                   secret: '123',
+                  publishedAt: '2022-01-01T00:00:00.000Z', // In Strapi v5 - If Draft & Publish is disabled, publishedAt is set to the latest creation or edition date of the document
                 },
                 {
                   id: 2,
                   title: 'abc',
                   internal_notes: 'note234',
                   secret: '234',
+                  publishedAt: '2022-01-01T00:00:00.000Z', // In Strapi v5 - If Draft & Publish is disabled, publishedAt is set to the latest creation or edition date of the document
                 },
               ],
               contentType,
@@ -634,12 +651,14 @@ describe('Tests content types', () => {
           id: 1,
           title: 'title',
           internal_notes: 'note123',
+          publishedAt: '2022-01-01T00:00:00.000Z',
         },
         {
           _meilisearch_id: 'restaurant-2',
           id: 2,
           title: 'abc',
           internal_notes: 'note234',
+          publishedAt: '2022-01-01T00:00:00.000Z',
         },
       ],
       { primaryKey: '_meilisearch_id' },

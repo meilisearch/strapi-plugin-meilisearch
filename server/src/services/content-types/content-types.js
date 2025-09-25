@@ -145,21 +145,24 @@ export default ({ strapi }) => ({
    * @param  {object} [options.entriesQuery={}] - Options to apply when fetching entries from the database.
    * @param  {string | string[]} [options.entriesQuery.fields] - Fields present in the returned entry.
    * @param  {object} [options.entriesQuery.populate] - Relations, components and dynamic zones to populate.
-   * @param  {object} [options.entriesQuery.locale] - When using internalization, the language to fetch.
+   * @param  {string} [options.entriesQuery.status] - Publication state: draft or published.
+   * @param  {string} [options.entriesQuery.locale] - When using internationalization (i18n), the language to fetch.
    * @param  {string} options.contentType - Content type.
    *
    * @returns  {Promise<object>} - Entries.
    */
   async getEntry({ contentType, documentId, entriesQuery = {} }) {
-    const { populate = '*', fields = '*' } = entriesQuery
+    const {
+      populate = '*',
+      fields = '*',
+      status = 'published',
+      locale,
+    } = entriesQuery
+    const queryOptions = { documentId, fields, populate, status, locale }
     const contentTypeUid = this.getContentTypeUid({ contentType })
     if (contentTypeUid === undefined) return {}
 
-    const entry = await strapi.documents(contentTypeUid).findOne({
-      documentId,
-      fields,
-      populate,
-    })
+    const entry = await strapi.documents(contentTypeUid).findOne(queryOptions)
 
     if (entry == null) {
       strapi.log.error(
@@ -183,7 +186,7 @@ export default ({ strapi }) => ({
    * @param  {object} [options.populate] - Relations, components and dynamic zones to populate.
    * @param  {object} [options.status] - Publication state: draft or published.
    * @param  {string} options.contentType - Content type.
-   * @param  {string} [options.locale] - When using internalization, the language to fetch.
+   * @param  {string} [options.locale] - When using internationalization (i18n), the language to fetch.
    *
    * @returns  {Promise<object[]>} - Entries.
    */
@@ -209,10 +212,7 @@ export default ({ strapi }) => ({
       sort,
       populate,
       status,
-    }
-    // To avoid issue if internalization is not installed by the user
-    if (locale) {
-      queryOptions.locale = locale
+      locale,
     }
 
     const entries = await strapi
