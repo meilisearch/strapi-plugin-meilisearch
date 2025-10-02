@@ -23,10 +23,24 @@ export default ({ strapi }) => {
             .plugin('meilisearch')
             .service('meilisearch')
 
+          // Lifecycle result only contains relation counts (e.g., roles: { count: 0 })
+          // instead of full relation objects. Fetch complete entry to preserve relations (fixes #1040).
+          const entry = await contentTypeService.getEntry({
+            contentType: contentTypeUid,
+            documentId: result.documentId,
+            entriesQuery: {
+              ...meilisearch.entriesQuery({ contentType }),
+              locale: result.locale,
+              status: 'published',
+            },
+          })
+
+          // Pass locale from lifecycle result to maintain i18n consistency.
+          // Status 'published' ensures we only index published content to Meilisearch.
           await meilisearch
             .addEntriesToMeilisearch({
               contentType: contentTypeUid,
-              entries: [result],
+              entries: [entry],
             })
             .catch(e => {
               strapi.log.error(
@@ -76,10 +90,24 @@ export default ({ strapi }) => {
             .plugin('meilisearch')
             .service('meilisearch')
 
+          // Lifecycle result only contains relation counts (e.g., roles: { count: 0 })
+          // instead of full relation objects. Fetch complete entry to preserve relations (fixes #1040).
+          const entry = await contentTypeService.getEntry({
+            contentType: contentTypeUid,
+            documentId: result.documentId,
+            entriesQuery: {
+              ...meilisearch.entriesQuery({ contentType }),
+              locale: result.locale,
+              status: 'published',
+            },
+          })
+
+          // Pass locale from lifecycle result to maintain i18n consistency.
+          // Status 'published' ensures we only index published content to Meilisearch.
           await meilisearch
             .updateEntriesInMeilisearch({
               contentType: contentTypeUid,
-              entries: [result],
+              entries: [entry],
             })
             .catch(e => {
               strapi.log.error(
