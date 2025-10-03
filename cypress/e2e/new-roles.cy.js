@@ -101,12 +101,15 @@ describe('wip test refactor', () => {
       expect(true).to.be.true
     })
 
-    it('should not see plugin in sidepanel', () => {
-      loginAsAdmin(userCredentials.email, userCredentials.password).then(
-        response => {
-          expect(response.status).to.eq(200)
-        },
-      )
+    it('should not see the Meilisearch plugin in sidepanel', () => {
+      cy.login({
+        adminUrl: 'http://localhost:1337/admin',
+        email: userCredentials.email,
+        password: userCredentials.password,
+        shouldContain: 'Hello Admin No Access',
+      })
+      cy.visit('http://localhost:1337/admin')
+      cy.get('nav').should('not.contain', 'a[aria-label="Meilisearch"]')
     })
   })
 
