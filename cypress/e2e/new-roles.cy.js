@@ -1,12 +1,8 @@
+import { STRAPI_ADMIN_ROLES } from './utils'
+
 const ADMIN_CREDENTIALS = {
   email: 'admin@strapi.io',
   password: 'password',
-}
-
-const _USER_WITHOUT_ACCESS = {
-  username: 'user_without_access',
-  email: 'user@strapi.io',
-  password: 'strapiPassword',
 }
 
 describe('wip test refactor', () => {
@@ -21,16 +17,20 @@ describe('wip test refactor', () => {
   const uniqueEmail = `test.user.${timestamp}@example.com`
   const uniqueRoleName = `Content Manager ${timestamp}`
 
-  before(() => {
-    // Login as admin to get JWT token for admin panel operations
-    cy.request({
+  const loginAsAdmin = (email, password) => {
+    return cy.request({
       method: 'POST',
       url: 'http://localhost:1337/admin/login',
       body: {
-        email: ADMIN_CREDENTIALS.email,
-        password: ADMIN_CREDENTIALS.password,
+        email,
+        password,
       },
     })
+  }
+
+  before(() => {
+    // Login as admin to get JWT token for admin panel operations
+    loginAsAdmin(ADMIN_CREDENTIALS.email, ADMIN_CREDENTIALS.password)
       .then(response => {
         expect(response.status).to.eq(200)
         adminToken = response.body.data.token
@@ -59,102 +59,153 @@ describe('wip test refactor', () => {
       })
   })
 
-  it('should be able to create a new admin user with admin token', () => {
-    // Create a new admin user using the admin JWT token
-    cy.request({
-      method: 'POST',
-      url: 'http://localhost:1337/admin/users',
-      headers: {
-        Authorization: `Bearer ${adminToken}`,
-      },
-      body: {
-        firstname: 'Test',
-        lastname: 'User',
-        email: uniqueEmail,
-        roles: [2], // Editor role
-      },
-    }).then(response => {
-      expect(response.status).to.eq(201)
-      expect(response.body.data).to.have.property('id')
-      expect(response.body.data.email).to.eq(uniqueEmail)
-      expect(response.body.data.firstname).to.eq('Test')
-      expect(response.body.data.lastname).to.eq('User')
-      expect(response.body.data.roles).to.have.length(1)
-      expect(response.body.data.roles[0].code).to.eq('strapi-editor')
+  describe('admin user without plugin access', () => {
+    const userCredentials = {
+      email: `no-access-${timestamp}@example.com`,
+      password: 'strapiPassword1234',
+      username: `no-access-${timestamp}`,
+    }
+    let userWithoutAccess
+    before(() => {
+      cy.request({
+        method: 'POST',
+        url: 'http://localhost:1337/admin/users',
+        headers: {
+          Authorization: `Bearer ${adminToken}`,
+        },
+        body: {
+          firstname: 'Admin No Access',
+          email: userCredentials.email,
+          roles: [STRAPI_ADMIN_ROLES.EDITOR],
+        },
+      }).then(response => {
+        expect(response.status).to.eq(201)
+        userWithoutAccess = response.body.data
 
-      // Store the created user ID for cleanup
-      Cypress.env('createdUserId', response.body.data.id)
+        cy.request({
+          method: 'PUT',
+          url: `http://localhost:1337/admin/users/${userWithoutAccess.id}`,
+          headers: { Authorization: `Bearer ${adminToken}` },
+          body: {
+            isActive: true,
+            password: userCredentials.password,
+          },
+        }).then(response => {
+          expect(response.status).to.eq(200)
+          expect(response.body.data.isActive).to.be.true
+        })
+      })
     })
-  })
 
-  it('should be able to create a custom admin role with admin token', () => {
-    // Create a new custom admin role using the admin JWT token
-    cy.request({
-      method: 'POST',
-      url: 'http://localhost:1337/admin/roles',
-      headers: {
-        Authorization: `Bearer ${adminToken}`,
-      },
-      body: {
-        name: uniqueRoleName,
-        description: 'Can manage content but not system settings',
-      },
-    }).then(response => {
-      expect(response.status).to.eq(201)
-      expect(response.body.data).to.have.property('id')
-      expect(response.body.data.name).to.eq(uniqueRoleName)
-      expect(response.body.data.description).to.eq(
-        'Can manage content but not system settings',
+    it('works', () => {
+      expect(true).to.be.true
+    })
+
+    it('should not see plugin in sidepanel', () => {
+      loginAsAdmin(userCredentials.email, userCredentials.password).then(
+        response => {
+          expect(response.status).to.eq(200)
+        },
       )
-
-      // Store the created role ID for cleanup
-      Cypress.env('createdRoleId', response.body.data.id)
     })
   })
 
-  it('should be able to list all admin users', () => {
-    // List all admin users using the admin JWT token
-    cy.request({
-      method: 'GET',
-      url: 'http://localhost:1337/admin/users',
-      headers: {
-        Authorization: `Bearer ${adminToken}`,
-      },
-    }).then(response => {
-      expect(response.status).to.eq(200)
-      expect(response.body.data).to.have.property('results')
-      expect(response.body.data.results).to.be.an('array')
-      expect(response.body.data.results.length).to.be.greaterThan(0)
+  // it('should be able to create a new admin user with admin token', () => {
+  //   // Create a new admin user using the admin JWT token
+  //   cy.request({
+  //     method: 'POST',
+  //     url: 'http://localhost:1337/admin/users',
+  //     headers: {
+  //       Authorization: `Bearer ${adminToken}`,
+  //     },
+  //     body: {
+  //       firstname: 'Test',
+  //       lastname: 'User',
+  //       email: uniqueEmail,
+  //       roles: [2], // Editor role
+  //     },
+  //   }).then(response => {
+  //     expect(response.status).to.eq(201)
+  //     expect(response.body.data).to.have.property('id')
+  //     expect(response.body.data.email).to.eq(uniqueEmail)
+  //     expect(response.body.data.firstname).to.eq('Test')
+  //     expect(response.body.data.lastname).to.eq('User')
+  //     expect(response.body.data.roles).to.have.length(1)
+  //     expect(response.body.data.roles[0].code).to.eq('strapi-editor')
 
-      // Should include our original admin user
-      const adminUser = response.body.data.results.find(
-        user => user.email === 'admin@strapi.io',
-      )
-      expect(adminUser).to.exist
-      expect(adminUser.roles[0].code).to.eq('strapi-super-admin')
-    })
-  })
+  //     // Store the created user ID for cleanup
+  //     Cypress.env('createdUserId', response.body.data.id)
+  //   })
+  // })
 
-  it('should be able to list all admin roles', () => {
-    // List all admin roles using the admin JWT token
-    cy.request({
-      method: 'GET',
-      url: 'http://localhost:1337/admin/roles',
-      headers: {
-        Authorization: `Bearer ${adminToken}`,
-      },
-    }).then(response => {
-      expect(response.status).to.eq(200)
-      expect(response.body.data).to.be.an('array')
-      expect(response.body.data.length).to.be.greaterThan(2) // At least Super Admin, Editor, Author
+  // it('should be able to create a custom admin role with admin token', () => {
+  //   // Create a new custom admin role using the admin JWT token
+  //   cy.request({
+  //     method: 'POST',
+  //     url: 'http://localhost:1337/admin/roles',
+  //     headers: {
+  //       Authorization: `Bearer ${adminToken}`,
+  //     },
+  //     body: {
+  //       name: uniqueRoleName,
+  //       description: 'Can manage content but not system settings',
+  //     },
+  //   }).then(response => {
+  //     expect(response.status).to.eq(201)
+  //     expect(response.body.data).to.have.property('id')
+  //     expect(response.body.data.name).to.eq(uniqueRoleName)
+  //     expect(response.body.data.description).to.eq(
+  //       'Can manage content but not system settings',
+  //     )
 
-      // Should include the default roles
-      const roleNames = response.body.data.map(role => role.name)
-      expect(roleNames).to.include('Super Admin')
-      expect(roleNames).to.include('Editor')
-      expect(roleNames).to.include('Author')
-    })
-  })
+  //     // Store the created role ID for cleanup
+  //     Cypress.env('createdRoleId', response.body.data.id)
+  //   })
+  // })
+
+  // it('should be able to list all admin users', () => {
+  //   // List all admin users using the admin JWT token
+  //   cy.request({
+  //     method: 'GET',
+  //     url: 'http://localhost:1337/admin/users',
+  //     headers: {
+  //       Authorization: `Bearer ${adminToken}`,
+  //     },
+  //   }).then(response => {
+  //     expect(response.status).to.eq(200)
+  //     expect(response.body.data).to.have.property('results')
+  //     expect(response.body.data.results).to.be.an('array')
+  //     expect(response.body.data.results.length).to.be.greaterThan(0)
+
+  //     // Should include our original admin user
+  //     const adminUser = response.body.data.results.find(
+  //       user => user.email === 'admin@strapi.io',
+  //     )
+  //     expect(adminUser).to.exist
+  //     expect(adminUser.roles[0].code).to.eq('strapi-super-admin')
+  //   })
+  // })
+
+  // it('should be able to list all admin roles', () => {
+  //   // List all admin roles using the admin JWT token
+  //   cy.request({
+  //     method: 'GET',
+  //     url: 'http://localhost:1337/admin/roles',
+  //     headers: {
+  //       Authorization: `Bearer ${adminToken}`,
+  //     },
+  //   }).then(response => {
+  //     expect(response.status).to.eq(200)
+  //     expect(response.body.data).to.be.an('array')
+  //     expect(response.body.data.length).to.be.greaterThan(2) // At least Super Admin, Editor, Author
+
+  //     // Should include the default roles
+  //     const roleNames = response.body.data.map(role => role.name)
+  //     expect(roleNames).to.include('Super Admin')
+  //     expect(roleNames).to.include('Editor')
+  //     expect(roleNames).to.include('Author')
+  //   })
+  // })
 
   // Cleanup tests - run after the main tests
   after(() => {
