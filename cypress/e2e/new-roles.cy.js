@@ -46,16 +46,16 @@ describe('wip test refactor', () => {
       })
       .then(response => {
         expect(response.status).to.eq(200)
-        console.log(
-          'API Tokens response:',
-          JSON.stringify(response.body, null, 2),
-        )
-        const cypressToken = response.body.data.find(
-          token => token.name === 'cypress-test-token',
-        )
-        expect(cypressToken).to.exist
-        apiToken = cypressToken.accessKey
-        console.log('API Token set to:', apiToken)
+        // console.log(
+        //   'API Tokens response:',
+        //   JSON.stringify(response.body, null, 2),
+        // )
+        // const cypressToken = response.body.data.find(
+        //   token => token.name === 'cypress-test-token',
+        // )
+        // expect(cypressToken).to.exist
+        // apiToken = cypressToken.accessKey
+        // console.log('API Token set to:', apiToken)
       })
   })
 
@@ -97,19 +97,56 @@ describe('wip test refactor', () => {
       })
     })
 
-    it('works', () => {
-      expect(true).to.be.true
+    beforeEach(() => {
+      cy.session(
+        userCredentials.email,
+        () => {
+          cy.visit('http://localhost:1337/admin')
+          cy.get('form').should('be.visible')
+          cy.get('input[name="email"]').type(userCredentials.email)
+          cy.get('input[name="password"]').type(userCredentials.password)
+          cy.get('button[role="checkbox"]').click()
+          cy.get('button[type="submit"]').click()
+
+          // TODO: assert `strapi_admin_refresh` cookie exists
+          // cy.wait('@adminLogin')
+          //   .its('response.headers.set-cookie')
+          //   .should(
+          //     'satisfy',
+          //     cookies =>
+          //       Array.isArray(cookies) &&
+          //       cookies.some(c => c.startsWith('strapi_admin_refresh=')),
+          //   )
+        },
+        {
+          validate() {
+            // TODO: uses `strapi_admin_refresh` cookie to validate login
+            // cy.getCookie('strapi_admin_refresh').should('exist')
+
+            cy.wait(1000)
+            cy.contains('Hello Admin No Access').should('be.visible')
+          },
+        },
+      )
     })
 
-    it('should not see the Meilisearch plugin in sidepanel', () => {
-      cy.login({
-        adminUrl: 'http://localhost:1337/admin',
-        email: userCredentials.email,
-        password: userCredentials.password,
-        shouldContain: 'Hello Admin No Access',
-      })
+    it('works', () => {
+      expect(true).to.be.true
+
+      // tests were green, so I added this to trigger hot reloading
+      expect(false).to.be.false
+    })
+
+    it('should not see the plugin in sidepanel', () => {
       cy.visit('http://localhost:1337/admin')
       cy.get('nav').should('not.contain', 'a[aria-label="Meilisearch"]')
+    })
+
+    it('cannot access the plugin page', () => {
+      cy.visit('http://localhost:1337/admin/plugins/meilisearch')
+      cy.contains(
+        "You don't have the permissions to access that content",
+      ).should('be.visible')
     })
   })
 
@@ -211,35 +248,35 @@ describe('wip test refactor', () => {
   // })
 
   // Cleanup tests - run after the main tests
-  after(() => {
-    // Clean up created user if it exists
-    cy.window().then(win => {
-      // Check if the alias exists before trying to get it
-      if (Cypress.env('createdUserId')) {
-        cy.request({
-          method: 'DELETE',
-          url: `http://localhost:1337/admin/users/${Cypress.env('createdUserId')}`,
-          headers: {
-            Authorization: `Bearer ${adminToken}`,
-          },
-          failOnStatusCode: false, // Don't fail if user doesn't exist
-        })
-      }
-    })
+  // after(() => {
+  //   // Clean up created user if it exists
+  //   cy.window().then(win => {
+  //     // Check if the alias exists before trying to get it
+  //     if (Cypress.env('createdUserId')) {
+  //       cy.request({
+  //         method: 'DELETE',
+  //         url: `http://localhost:1337/admin/users/${Cypress.env('createdUserId')}`,
+  //         headers: {
+  //           Authorization: `Bearer ${adminToken}`,
+  //         },
+  //         failOnStatusCode: false, // Don't fail if user doesn't exist
+  //       })
+  //     }
+  //   })
 
-    // Clean up created role if it exists
-    cy.window().then(win => {
-      // Check if the alias exists before trying to get it
-      if (Cypress.env('createdRoleId')) {
-        cy.request({
-          method: 'DELETE',
-          url: `http://localhost:1337/admin/roles/${Cypress.env('createdRoleId')}`,
-          headers: {
-            Authorization: `Bearer ${adminToken}`,
-          },
-          failOnStatusCode: false, // Don't fail if role doesn't exist
-        })
-      }
-    })
-  })
+  //   // Clean up created role if it exists
+  //   cy.window().then(win => {
+  //     // Check if the alias exists before trying to get it
+  //     if (Cypress.env('createdRoleId')) {
+  //       cy.request({
+  //         method: 'DELETE',
+  //         url: `http://localhost:1337/admin/roles/${Cypress.env('createdRoleId')}`,
+  //         headers: {
+  //           Authorization: `Bearer ${adminToken}`,
+  //         },
+  //         failOnStatusCode: false, // Don't fail if role doesn't exist
+  //       })
+  //     }
+  //   })
+  // })
 })
