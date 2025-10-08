@@ -18,7 +18,7 @@ const USER_CREDENTIALS = {
   },
 }
 
-describe('Roles', () => {
+describe('Permissions', () => {
   // TODO: refactor as Cypress command
   const loginUser = ({ email, password }) => {
     cy.visit(`${adminUrl}`)
@@ -36,7 +36,7 @@ describe('Roles', () => {
     cy.contains('Settings').should('be.visible')
   }
 
-  describe('User without plugin access', () => {
+  describe('User without permission', () => {
     beforeEach(() => {
       cy.session(
         USER_CREDENTIALS.NO_ACCESS.email,
@@ -55,7 +55,7 @@ describe('Roles', () => {
       )
     })
 
-    it('should not see the plugin in sidepanel', () => {
+    it('cannot see the plugin in the sidepanel', () => {
       cy.visit(`${adminUrl}`)
       cy.get('nav').should('not.contain', 'a[aria-label="Meilisearch"]')
     })
@@ -68,7 +68,7 @@ describe('Roles', () => {
     })
   })
 
-  describe('User with `read` access', () => {
+  describe('User with `read` permission', () => {
     beforeEach(() => {
       cy.session(
         USER_CREDENTIALS.CAN_ACCESS.email,
@@ -111,7 +111,7 @@ describe('Roles', () => {
     })
   })
 
-  describe('User with `create` access', () => {
+  describe('User with `collections.create` permission', () => {
     beforeEach(() => {
       cy.session(
         USER_CREDENTIALS.CAN_CREATE.email,
@@ -137,7 +137,7 @@ describe('Roles', () => {
       cy.get('button[role="checkbox"]').should('be.visible')
     })
 
-    it.only('can index the user collection', () => {
+    it('can index a collection', () => {
       visitPluginPage()
 
       cy.get('tr:contains("user") button[role="checkbox"]').first().click()
@@ -145,6 +145,38 @@ describe('Roles', () => {
       cy.get('tr:contains("user")').contains('Yes').should('be.visible')
       cy.get('tr:contains("user")').contains('1 / 1').should('be.visible')
       cy.get('tr:contains("user")').contains('Hooked').should('be.visible')
+    })
+
+    it('cannot disable the collection indexing', () => {
+      visitPluginPage()
+
+      cy.get('tr:contains("user") button[role="checkbox"]').first().click()
+
+      cy.get('div[role="status"]')
+        .contains('You do not have permission to do this action')
+        .should('be.visible')
+
+      cy.reload()
+
+      cy.get('tr:contains("user")').contains('Yes').should('be.visible')
+      cy.get('tr:contains("user")').contains('1 / 1').should('be.visible')
+      cy.get('tr:contains("user")').contains('Hooked').should('be.visible')
+    })
+
+    it('cannot update indexed data', () => {
+      visitPluginPage()
+
+      cy.get('tr:contains("user") button[role="checkbox"]')
+        .first()
+        .should('have.attr', 'data-state', 'checked')
+
+      cy.root().should('not.contain', 'button:contains("Update")')
+    })
+
+    it('cannot update settings', () => {
+      visitPluginPage()
+
+      cy.root().should('not.contain', 'button:contains("Save")')
     })
   })
 })
