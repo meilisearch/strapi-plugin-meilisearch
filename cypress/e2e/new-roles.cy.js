@@ -13,7 +13,7 @@ const USER_WITHOUT_ACCESS_CREDENTIALS = {
   password: 'Password1234',
 }
 
-describe('wip test refactor', () => {
+describe('Roles', () => {
   // TODO: refactor as Cypress command
   const loginUser = ({ email, password }) => {
     cy.visit(`${adminUrl}`)
@@ -24,7 +24,14 @@ describe('wip test refactor', () => {
     cy.get('button[type="submit"]').click()
   }
 
-  describe('admin user without plugin access', () => {
+  // TODO: refactor as Cypress command
+  const visitPluginPage = () => {
+    cy.visit(`${adminUrl}/plugins/meilisearch`)
+    cy.contains('Collections').should('be.visible')
+    cy.contains('Settings').should('be.visible')
+  }
+
+  describe('User without plugin access', () => {
     beforeEach(() => {
       cy.session(
         USER_WITHOUT_ACCESS_CREDENTIALS.email,
@@ -56,7 +63,7 @@ describe('wip test refactor', () => {
     })
   })
 
-  describe('admin user with plugin access', () => {
+  describe('User with `read` access', () => {
     beforeEach(() => {
       cy.session(
         USER_WITH_ACCESS_CREDENTIALS.email,
@@ -75,7 +82,7 @@ describe('wip test refactor', () => {
       )
     })
 
-    it.only('can access the plugin page', () => {
+    it('can access the plugin page', () => {
       cy.visit(`${adminUrl}`)
       cy.get('nav')
         .get('a[aria-label="Meilisearch"]', { timeout: 10000 })
@@ -85,6 +92,16 @@ describe('wip test refactor', () => {
         .click()
 
       cy.url().should('eq', `${adminUrl}/plugins/meilisearch`)
+    })
+
+    it('cannot create an index', () => {
+      visitPluginPage()
+      cy.root().should('not.contain', 'button[role="checkbox"]')
+    })
+
+    it.only('cannot change settings', () => {
+      visitPluginPage()
+      cy.root().should('not.contain', 'button:contains("Save")')
     })
   })
 })
