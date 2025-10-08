@@ -1,6 +1,7 @@
 module.exports = {
   async bootstrap({ strapi }) {
     console.log('🚀 Bootstrap function called!');
+    // TODO: clean up this boostrap script
     // Only run seeding in development/test environments
     if (process.env.NODE_ENV !== 'production') {
       try {

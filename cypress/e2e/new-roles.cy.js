@@ -5,6 +5,16 @@ const ADMIN_CREDENTIALS = {
   password: 'password',
 }
 
+const USER_WITH_ACCESS_CREDENTIALS = {
+  email: 'can-access@meilisearch.com',
+  password: 'Password1234',
+}
+
+const USER_WITHOUT_ACCESS_CREDENTIALS = {
+  email: 'cannot-access@meilisearch.com',
+  password: 'Password1234',
+}
+
 describe('wip test refactor', () => {
   // JWT token for admin panel operations (creating users, roles, permissions)
   let adminToken
@@ -75,60 +85,54 @@ describe('wip test refactor', () => {
     cy.get('button[type="submit"]').click()
   }
 
-  before(() => {
-    // Login as admin to get JWT token for admin panel operations
-    loginAsAdmin(ADMIN_CREDENTIALS.email, ADMIN_CREDENTIALS.password)
-      .then(response => {
-        expect(response.status).to.eq(200)
-        adminToken = response.body.data.token
+  // before(() => {
+  //   // Login as admin to get JWT token for admin panel operations
+  //   loginAsAdmin(ADMIN_CREDENTIALS.email, ADMIN_CREDENTIALS.password)
+  //     .then(response => {
+  //       expect(response.status).to.eq(200)
+  //       adminToken = response.body.data.token
 
-        // Get the API token created during bootstrap for content/plugin operations
-        return cy.request({
-          method: 'GET',
-          url: 'http://localhost:1337/admin/api-tokens',
-          headers: {
-            Authorization: `Bearer ${adminToken}`,
-          },
-        })
-      })
-      .then(response => {
-        expect(response.status).to.eq(200)
-        // console.log(
-        //   'API Tokens response:',
-        //   JSON.stringify(response.body, null, 2),
-        // )
-        // const cypressToken = response.body.data.find(
-        //   token => token.name === 'cypress-test-token',
-        // )
-        // expect(cypressToken).to.exist
-        // apiToken = cypressToken.accessKey
-        // console.log('API Token set to:', apiToken)
-      })
-  })
+  //       // Get the API token created during bootstrap for content/plugin operations
+  //       return cy.request({
+  //         method: 'GET',
+  //         url: 'http://localhost:1337/admin/api-tokens',
+  //         headers: {
+  //           Authorization: `Bearer ${adminToken}`,
+  //         },
+  //       })
+  //     })
+  //     .then(response => {
+  //       expect(response.status).to.eq(200)
+  //       // console.log(
+  //       //   'API Tokens response:',
+  //       //   JSON.stringify(response.body, null, 2),
+  //       // )
+  //       // const cypressToken = response.body.data.find(
+  //       //   token => token.name === 'cypress-test-token',
+  //       // )
+  //       // expect(cypressToken).to.exist
+  //       // apiToken = cypressToken.accessKey
+  //       // console.log('API Token set to:', apiToken)
+  //     })
+  // })
 
   describe('admin user without plugin access', () => {
-    const userCredentials = {
-      email: `no-access-${timestamp}@example.com`,
-      password: 'strapiPassword1234',
-      username: `no-access-${timestamp}`,
-    }
-
-    before(() => {
-      createUser({
-        firstname: 'Admin No Access',
-        email: userCredentials.email,
-        password: userCredentials.password,
-        roleIds: [STRAPI_ADMIN_ROLES.EDITOR],
-      })
-    })
+    // before(() => {
+    //   createUser({
+    //     firstname: 'Admin No Access',
+    //     email: userCredentials.email,
+    //     password: userCredentials.password,
+    //     roleIds: [STRAPI_ADMIN_ROLES.EDITOR],
+    //   })
+    // })
 
     beforeEach(() => {
       cy.session(
-        userCredentials.email,
+        USER_WITHOUT_ACCESS_CREDENTIALS.email,
         () => {
           loginUser({
-            email: userCredentials.email,
-            password: userCredentials.password,
+            email: USER_WITHOUT_ACCESS_CREDENTIALS.email,
+            password: USER_WITHOUT_ACCESS_CREDENTIALS.password,
           })
 
           // TODO: assert `strapi_admin_refresh` cookie exists
@@ -147,7 +151,7 @@ describe('wip test refactor', () => {
             // cy.getCookie('strapi_admin_refresh').should('exist')
 
             cy.wait(1000)
-            cy.contains('Hello Admin No Access').should('be.visible')
+            cy.contains('Hello User without access').should('be.visible')
           },
         },
       )
