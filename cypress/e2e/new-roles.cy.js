@@ -20,6 +20,10 @@ const USER_CREDENTIALS = {
     email: 'can-update@meilisearch.com',
     password: 'Password1234',
   },
+  CAN_DELETE: {
+    email: 'can-delete@meilisearch.com',
+    password: 'Password1234',
+  },
 }
 
 describe('Permissions', () => {
@@ -184,7 +188,7 @@ describe('Permissions', () => {
     })
   })
 
-  describe.only('User with `collections.update` permission', () => {
+  describe('User with `collections.update` permission', () => {
     beforeEach(() => {
       cy.session(
         USER_CREDENTIALS.CAN_UPDATE.email,
@@ -224,6 +228,80 @@ describe('Permissions', () => {
 
     it('cannot change settings', () => {
       visitPluginPage()
+      cy.root().should('not.contain', 'button:contains("Save")')
+    })
+  })
+
+  describe.only('User with `collections.delete` permission', () => {
+    beforeEach(() => {
+      cy.session(
+        USER_CREDENTIALS.CAN_DELETE.email,
+        () => {
+          loginUser({
+            email: USER_CREDENTIALS.CAN_DELETE.email,
+            password: USER_CREDENTIALS.CAN_DELETE.password,
+          })
+        },
+        {
+          validate() {
+            cy.wait(1000)
+            cy.contains('Hello User who can delete').should('be.visible')
+          },
+        },
+      )
+    })
+
+    it('cannot update indexed data', () => {
+      visitPluginPage()
+
+      cy.get('button[role="checkbox"]')
+        .first()
+        .should('have.attr', 'data-state', 'checked')
+      cy.root().should('not.contain', 'button:contains("Update")')
+    })
+
+    it('can clear the collection index', () => {
+      visitPluginPage()
+
+      cy.get('tr:contains(user)').first().contains('Yes').should('be.visible')
+      cy.get('tr:contains(user)')
+        .first()
+        .contains('Hooked')
+        .should('be.visible')
+
+      cy.get('tr:contains(user)')
+        .first()
+        .get('button[role="checkbox"]')
+        .first()
+        .click()
+
+      cy.get('tr:contains(user)')
+        .first()
+        .contains('Reload needed')
+        .should('be.visible')
+
+      cy.reloadServer()
+    })
+
+    it('cannot index data', () => {
+      visitPluginPage()
+
+      cy.get('button[role="checkbox"]').should('be.visible')
+
+      cy.get('button[role="checkbox"]').first().click()
+
+      cy.get('div[role="status"]')
+        .contains('You do not have permission to do this action')
+        .should('be.visible')
+
+      cy.reload()
+
+      cy.get('button[role="checkbox"]').first().should('not.be.checked')
+    })
+
+    it('cannot update settings', () => {
+      visitPluginPage()
+
       cy.root().should('not.contain', 'button:contains("Save")')
     })
   })
