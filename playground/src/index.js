@@ -19,9 +19,8 @@ module.exports = {
           });
 
           await adminUserService.create({
-            firstname: 'Admin',
-            lastname: 'User',
-            email: 'admin@strapi.io',
+            firstname: 'Super Admin User',
+            email: 'superadmin@meilisearch.com',
             password: 'password',
             isActive: true,
             roles: [superAdminRole.id],
