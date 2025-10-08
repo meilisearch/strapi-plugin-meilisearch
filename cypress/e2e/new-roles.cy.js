@@ -3,14 +3,19 @@ const {
   [env]: { adminUrl },
 } = Cypress.env()
 
-const USER_WITH_ACCESS_CREDENTIALS = {
-  email: 'can-access@meilisearch.com',
-  password: 'Password1234',
-}
-
-const USER_WITHOUT_ACCESS_CREDENTIALS = {
-  email: 'cannot-access@meilisearch.com',
-  password: 'Password1234',
+const USER_CREDENTIALS = {
+  NO_ACCESS: {
+    email: 'cannot-access@meilisearch.com',
+    password: 'Password1234',
+  },
+  CAN_ACCESS: {
+    email: 'can-access@meilisearch.com',
+    password: 'Password1234',
+  },
+  CAN_CREATE: {
+    email: 'can-create@meilisearch.com',
+    password: 'Password1234',
+  },
 }
 
 describe('Roles', () => {
@@ -34,11 +39,11 @@ describe('Roles', () => {
   describe('User without plugin access', () => {
     beforeEach(() => {
       cy.session(
-        USER_WITHOUT_ACCESS_CREDENTIALS.email,
+        USER_CREDENTIALS.NO_ACCESS.email,
         () => {
           loginUser({
-            email: USER_WITHOUT_ACCESS_CREDENTIALS.email,
-            password: USER_WITHOUT_ACCESS_CREDENTIALS.password,
+            email: USER_CREDENTIALS.NO_ACCESS.email,
+            password: USER_CREDENTIALS.NO_ACCESS.password,
           })
         },
         {
@@ -66,11 +71,11 @@ describe('Roles', () => {
   describe('User with `read` access', () => {
     beforeEach(() => {
       cy.session(
-        USER_WITH_ACCESS_CREDENTIALS.email,
+        USER_CREDENTIALS.CAN_ACCESS.email,
         () => {
           loginUser({
-            email: USER_WITH_ACCESS_CREDENTIALS.email,
-            password: USER_WITH_ACCESS_CREDENTIALS.password,
+            email: USER_CREDENTIALS.CAN_ACCESS.email,
+            password: USER_CREDENTIALS.CAN_ACCESS.password,
           })
         },
         {
@@ -96,12 +101,50 @@ describe('Roles', () => {
 
     it('cannot create an index', () => {
       visitPluginPage()
+      // There are checkboxes in front of each collection
       cy.root().should('not.contain', 'button[role="checkbox"]')
     })
 
-    it.only('cannot change settings', () => {
+    it('cannot change settings', () => {
       visitPluginPage()
       cy.root().should('not.contain', 'button:contains("Save")')
+    })
+  })
+
+  describe('User with `create` access', () => {
+    beforeEach(() => {
+      cy.session(
+        USER_CREDENTIALS.CAN_CREATE.email,
+        () => {
+          loginUser({
+            email: USER_CREDENTIALS.CAN_CREATE.email,
+            password: USER_CREDENTIALS.CAN_CREATE.password,
+          })
+        },
+        {
+          validate() {
+            cy.wait(1000)
+            cy.contains('Hello User who can create').should('be.visible')
+          },
+        },
+      )
+    })
+
+    it('can create an index', () => {
+      visitPluginPage()
+
+      // There are checkboxes in front of each collection
+      cy.get('button[role="checkbox"]').should('be.visible')
+    })
+
+    it.only('can index the user collection', () => {
+      visitPluginPage()
+
+      cy.get('tr:contains("user") button[role="checkbox"]').first().click()
+
+      cy.get('tr:contains("user")').contains('Yes').should('be.visible')
+      cy.get('tr:contains("user")').contains('1 / 1').should('be.visible')
+      cy.get('tr:contains("user")').contains('Hooked').should('be.visible')
     })
   })
 })
