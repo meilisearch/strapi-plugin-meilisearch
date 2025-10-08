@@ -16,6 +16,10 @@ const USER_CREDENTIALS = {
     email: 'can-create@meilisearch.com',
     password: 'Password1234',
   },
+  CAN_UPDATE: {
+    email: 'can-update@meilisearch.com',
+    password: 'Password1234',
+  },
 }
 
 describe('Permissions', () => {
@@ -176,6 +180,50 @@ describe('Permissions', () => {
     it('cannot update settings', () => {
       visitPluginPage()
 
+      cy.root().should('not.contain', 'button:contains("Save")')
+    })
+  })
+
+  describe.only('User with `collections.update` permission', () => {
+    beforeEach(() => {
+      cy.session(
+        USER_CREDENTIALS.CAN_UPDATE.email,
+        () => {
+          loginUser({
+            email: USER_CREDENTIALS.CAN_UPDATE.email,
+            password: USER_CREDENTIALS.CAN_UPDATE.password,
+          })
+        },
+        {
+          validate() {
+            cy.wait(1000)
+            cy.contains('Hello User who can update').should('be.visible')
+          },
+        },
+      )
+    })
+
+    it('cannot create/clear index', () => {
+      visitPluginPage()
+      cy.root().should('not.contain', 'button[role="checkbox"]')
+    })
+
+    it('can update indexed data', () => {
+      visitPluginPage()
+
+      cy.get('tr:contains(user)').first().contains('Yes').should('be.visible')
+      cy.get('tr:contains(user)')
+        .first()
+        .contains('Hooked')
+        .should('be.visible')
+
+      cy.get('tr:contains(user)').first().contains('button', 'Update').click()
+
+      cy.contains('div[role="status"]', 'success').should('be.visible')
+    })
+
+    it('cannot change settings', () => {
+      visitPluginPage()
       cy.root().should('not.contain', 'button:contains("Save")')
     })
   })
