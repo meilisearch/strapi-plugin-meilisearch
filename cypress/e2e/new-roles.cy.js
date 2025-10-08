@@ -1,6 +1,7 @@
 const {
+  apiKey,
   env,
-  [env]: { adminUrl },
+  [env]: { host, adminUrl },
 } = Cypress.env()
 
 const USER_CREDENTIALS = {
@@ -22,6 +23,10 @@ const USER_CREDENTIALS = {
   },
   CAN_DELETE: {
     email: 'can-delete@meilisearch.com',
+    password: 'Password1234',
+  },
+  CAN_MANAGE: {
+    email: 'can-manage@meilisearch.com',
     password: 'Password1234',
   },
 }
@@ -232,7 +237,7 @@ describe('Permissions', () => {
     })
   })
 
-  describe.only('User with `collections.delete` permission', () => {
+  describe('User with `collections.delete` permission', () => {
     beforeEach(() => {
       cy.session(
         USER_CREDENTIALS.CAN_DELETE.email,
@@ -303,6 +308,70 @@ describe('Permissions', () => {
       visitPluginPage()
 
       cy.root().should('not.contain', 'button:contains("Save")')
+    })
+  })
+
+  describe('User with `settings.edit` permission', () => {
+    beforeEach(() => {
+      cy.session(
+        USER_CREDENTIALS.CAN_MANAGE.email,
+        () => {
+          loginUser({
+            email: USER_CREDENTIALS.CAN_MANAGE.email,
+            password: USER_CREDENTIALS.CAN_MANAGE.password,
+          })
+        },
+        {
+          validate() {
+            cy.wait(1000)
+            cy.contains('Hello User who can manage settings').should(
+              'be.visible',
+            )
+          },
+        },
+      )
+    })
+
+    it('cannot create/clear index', () => {
+      visitPluginPage()
+      cy.root().should('not.contain', 'button[role="checkbox"]')
+    })
+
+    it('cannot update indexed data', () => {
+      visitPluginPage()
+      cy.root().should('not.contain', 'button:contains("Update")')
+    })
+
+    it('can update settings', () => {
+      visitPluginPage()
+      cy.get('button:contains("Settings")').click()
+
+      cy.contains('button', 'Save').should('be.visible')
+
+      cy.get('input[name="host"]').clear()
+      cy.get('input[name="host"]').type('http://localhost:7777')
+      cy.get('input[name="apiKey"]').clear()
+      cy.get('input[name="apiKey"]').type('test')
+
+      cy.contains('button', 'Save').click()
+
+      visitPluginPage()
+      cy.get('button:contains("Settings")').click()
+
+      cy.get('input[name="host"]').should('have.value', 'http://localhost:7777')
+      cy.get('input[name="apiKey"]').should('have.value', 'test')
+
+      cy.get('input[name="host"]').clear()
+      cy.get('input[name="host"]').type(host)
+      cy.get('input[name="apiKey"]').clear()
+      cy.get('input[name="apiKey"]').type(apiKey)
+      cy.contains('button', 'Save').click()
+
+      visitPluginPage()
+      cy.get('button:contains("Settings")').click()
+
+      cy.get('input[name="host"]').should('have.value', host)
+      cy.get('input[name="apiKey"]').should('have.value', apiKey)
     })
   })
 })
