@@ -17,6 +17,7 @@ describe('wip test refactor', () => {
   const uniqueEmail = `test.user.${timestamp}@example.com`
   const uniqueRoleName = `Content Manager ${timestamp}`
 
+  // TODO: refactor as Cypress command
   const loginAsAdmin = (email, password) => {
     return cy.request({
       method: 'POST',
@@ -26,6 +27,52 @@ describe('wip test refactor', () => {
         password,
       },
     })
+  }
+
+  // TODO: refactor as Cypress command
+  const createUser = ({ firstname, password, email, roleIds }) => {
+    return cy
+      .request({
+        method: 'POST',
+        url: 'http://localhost:1337/admin/users',
+        headers: {
+          Authorization: `Bearer ${adminToken}`,
+        },
+        body: {
+          firstname: firstname,
+          email: email,
+          roles: roleIds,
+        },
+      })
+      .then(createdUser => {
+        expect(createdUser.status).to.eq(201)
+
+        return cy
+          .request({
+            method: 'PUT',
+            url: `http://localhost:1337/admin/users/${createdUser.body.data.id}`,
+            headers: { Authorization: `Bearer ${adminToken}` },
+            body: {
+              isActive: true,
+              password: password,
+            },
+          })
+          .then(updatedUser => {
+            expect(updatedUser.status).to.eq(200)
+            expect(updatedUser.body.data.isActive).to.be.true
+            return updatedUser.body.data
+          })
+      })
+  }
+
+  // TODO: refactor as Cypress command
+  const loginUser = ({ email, password }) => {
+    cy.visit('http://localhost:1337/admin')
+    cy.get('form').should('be.visible')
+    cy.get('input[name="email"]').type(email)
+    cy.get('input[name="password"]').type(password)
+    cy.get('button[role="checkbox"]').click()
+    cy.get('button[type="submit"]').click()
   }
 
   before(() => {
@@ -65,35 +112,13 @@ describe('wip test refactor', () => {
       password: 'strapiPassword1234',
       username: `no-access-${timestamp}`,
     }
-    let userWithoutAccess
-    before(() => {
-      cy.request({
-        method: 'POST',
-        url: 'http://localhost:1337/admin/users',
-        headers: {
-          Authorization: `Bearer ${adminToken}`,
-        },
-        body: {
-          firstname: 'Admin No Access',
-          email: userCredentials.email,
-          roles: [STRAPI_ADMIN_ROLES.EDITOR],
-        },
-      }).then(response => {
-        expect(response.status).to.eq(201)
-        userWithoutAccess = response.body.data
 
-        cy.request({
-          method: 'PUT',
-          url: `http://localhost:1337/admin/users/${userWithoutAccess.id}`,
-          headers: { Authorization: `Bearer ${adminToken}` },
-          body: {
-            isActive: true,
-            password: userCredentials.password,
-          },
-        }).then(response => {
-          expect(response.status).to.eq(200)
-          expect(response.body.data.isActive).to.be.true
-        })
+    before(() => {
+      createUser({
+        firstname: 'Admin No Access',
+        email: userCredentials.email,
+        password: userCredentials.password,
+        roleIds: [STRAPI_ADMIN_ROLES.EDITOR],
       })
     })
 
@@ -101,12 +126,10 @@ describe('wip test refactor', () => {
       cy.session(
         userCredentials.email,
         () => {
-          cy.visit('http://localhost:1337/admin')
-          cy.get('form').should('be.visible')
-          cy.get('input[name="email"]').type(userCredentials.email)
-          cy.get('input[name="password"]').type(userCredentials.password)
-          cy.get('button[role="checkbox"]').click()
-          cy.get('button[type="submit"]').click()
+          loginUser({
+            email: userCredentials.email,
+            password: userCredentials.password,
+          })
 
           // TODO: assert `strapi_admin_refresh` cookie exists
           // cy.wait('@adminLogin')
@@ -130,12 +153,12 @@ describe('wip test refactor', () => {
       )
     })
 
-    it('works', () => {
-      expect(true).to.be.true
+    // it('works', () => {
+    //   expect(true).to.be.true
 
-      // tests were green, so I added this to trigger hot reloading
-      expect(false).to.be.false
-    })
+    //   // tests were green, so I added this to trigger hot reloading
+    //   expect(false).to.be.false
+    // })
 
     it('should not see the plugin in sidepanel', () => {
       cy.visit('http://localhost:1337/admin')
@@ -147,6 +170,23 @@ describe('wip test refactor', () => {
       cy.contains(
         "You don't have the permissions to access that content",
       ).should('be.visible')
+    })
+  })
+
+  describe('admin user with plugin access', () => {
+    const userCredentials = {
+      email: `with-access-${timestamp}@example.com`,
+      password: 'strapiPassword1234',
+      username: `with-access-${timestamp}`,
+    }
+
+    before(() => {
+      createUser({
+        firstname: 'Admin With Access',
+        email: userCredentials.email,
+        password: userCredentials.password,
+        roleIds: [STRAPI_ADMIN_ROLES.EDITOR],
+      })
     })
   })
 
