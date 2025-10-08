@@ -125,11 +125,6 @@ cypress/videos
 cypress/plugins
 cypress/fixtures
 
-playground/src/plugins
-
-# Sqlite Database from the playground
-data.db
-
 ############################
 # Local
 ############################
@@ -137,6 +132,5 @@ data.db
 .prettierignore
 .prettierrc.js
 .vscode
-
 
 dist
