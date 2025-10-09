@@ -465,7 +465,7 @@ export interface ApiRestaurantRestaurant extends Struct.CollectionTypeSchema {
   collectionName: 'restaurants'
   info: {
     description: ''
-    displayName: 'restaurant'
+    displayName: 'Restaurant'
     pluralName: 'restaurants'
     singularName: 'restaurant'
   }
