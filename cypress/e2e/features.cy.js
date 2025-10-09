@@ -132,6 +132,7 @@ describe('Meilisearch features', () => {
       })
   })
 
+  // This test assumes that the collections are indexed (in previous test)
   it('displays the number of inxed documents for each collection', () => {
     visitPluginPage()
 
