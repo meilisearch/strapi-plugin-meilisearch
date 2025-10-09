@@ -25,8 +25,8 @@ const USER_CREDENTIALS = {
     email: 'can-delete@meilisearch.com',
     password: 'Password1234',
   },
-  CAN_MANAGE: {
-    email: 'can-manage@meilisearch.com',
+  CAN_EDIT_SETTINGS: {
+    email: 'can-edit-settings@meilisearch.com',
     password: 'Password1234',
   },
 }
@@ -314,19 +314,17 @@ describe('Permissions', () => {
   describe('User with `settings.edit` permission', () => {
     beforeEach(() => {
       cy.session(
-        USER_CREDENTIALS.CAN_MANAGE.email,
+        USER_CREDENTIALS.CAN_EDIT_SETTINGS.email,
         () => {
           loginUser({
-            email: USER_CREDENTIALS.CAN_MANAGE.email,
-            password: USER_CREDENTIALS.CAN_MANAGE.password,
+            email: USER_CREDENTIALS.CAN_EDIT_SETTINGS.email,
+            password: USER_CREDENTIALS.CAN_EDIT_SETTINGS.password,
           })
         },
         {
           validate() {
             cy.wait(1000)
-            cy.contains('Hello User who can manage settings').should(
-              'be.visible',
-            )
+            cy.contains('Hello User who can edit settings').should('be.visible')
           },
         },
       )
