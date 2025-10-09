@@ -88,9 +88,37 @@ describe('Meilisearch features', () => {
       cy.get('input[name="host"]').should('have.value', host)
       cy.get('input[name="apiKey"]').should('have.value', apiKey)
     })
+
+    it.only('displays error when setting empty host', () => {
+      visitPluginPage()
+      cy.get('button:contains("Settings")').click()
+
+      cy.get('input[name="host"]').clear()
+      cy.contains('button', 'Save').click()
+
+      cy.removeNotifications()
+      cy.get('input[name="host"]').should('have.value', '')
+
+      visitPluginPage()
+      const row = `table[role='grid'] tbody tr:nth-child(1) button[role="checkbox"]`
+
+      cy.get(row).click()
+      cy.contains('The provided host is not valid.').should('be.visible')
+      cy.removeNotifications()
+
+      cy.get(row).should('not.be.checked')
+
+      visitPluginPage()
+      cy.get('button:contains("Settings")').click()
+      cy.get('input[name="host"]').should('have.value', '')
+      cy.get('input[name="host"]').clear()
+      cy.get('input[name="host"]').type(host)
+      cy.contains('button', 'Save').click()
+      cy.removeNotifications()
+    })
   })
 
-  describe.only('Collections panel', () => {
+  describe('Collections panel', () => {
     it('displays all collections', () => {
       visitPluginPage()
 
