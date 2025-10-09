@@ -152,7 +152,7 @@ describe('Meilisearch features', () => {
   })
 
   describe.only('Content hooks', () => {
-    it('indexes new content in the collections', () => {
+    it('reindexes after adding content', () => {
       cy.visit(
         `${adminUrl}/content-manager/collection-types/api::restaurant.restaurant`,
       )
@@ -171,6 +171,37 @@ describe('Meilisearch features', () => {
       cy.checkCollectionContent({
         rowNb: 5,
         contains: [`${expectedNb} / ${expectedNb}`],
+      })
+    })
+
+    it('reindexes after removing content', () => {
+      cy.visit(
+        `${adminUrl}/content-manager/collection-types/api::restaurant.restaurant`,
+      )
+
+      cy.get('main').contains('button', 'Search').click()
+      cy.get('main').get('input[name="search"]').type('The slimy snail{enter}')
+      cy.get('main').contains('tr', 'The slimy snail').should('be.visible')
+      cy.get('main')
+        .contains('tr', 'The slimy snail')
+        .contains('button[type="button"]', 'Row actions')
+        .click()
+      cy.get('div[role="menu"]')
+        .contains('div[role="menuitem"]', 'Delete')
+        .click()
+      cy.confirm()
+
+      cy.get('main').contains('button', 'Search').click()
+      cy.get('main').get('input[name="search"]').type('The slimy snail{enter}')
+
+      cy.contains('No content found').should('be.visible')
+      visitPluginPage()
+
+      cy.checkCollectionContent({
+        rowNb: 5,
+        contains: [
+          `${FIXTURES.RESTAURANTS_COUNT} / ${FIXTURES.RESTAURANTS_COUNT}`,
+        ],
       })
     })
   })
