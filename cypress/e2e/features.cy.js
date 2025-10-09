@@ -89,7 +89,7 @@ describe('Meilisearch features', () => {
       cy.get('input[name="apiKey"]').should('have.value', apiKey)
     })
 
-    it.only('displays error when setting empty host', () => {
+    it('shows an error when setting an empty host', () => {
       visitPluginPage()
       cy.get('button:contains("Settings")').click()
 
