@@ -30,12 +30,12 @@
  * @param {string} email
  * @param {string} password
  */
-const login = ({ adminUrl, email, password }) => {
+const login = ({ adminUrl, email, password, shouldContain }) => {
   cy.session(
     [email, password],
     () => {
       cy.visit(adminUrl)
-      cy.get('form', { timeout: 10000 }).should('be.visible')
+      cy.get('form').should('be.visible')
       cy.get('input[name="email"]').type(email)
       cy.get('input[name="password"]').type(password)
       cy.get('button[role="checkbox"]').click()
@@ -43,9 +43,8 @@ const login = ({ adminUrl, email, password }) => {
     },
     {
       validate() {
-        cy.wait(1000)
         cy.visit(adminUrl)
-        cy.contains('Welcome 👋', { timeout: 10000 }).should('be.visible')
+        cy.contains(shouldContain).should('be.visible')
       },
     },
   )

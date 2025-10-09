@@ -2125,6 +2125,37 @@
     "@uiw/react-codemirror" "4.22.2"
     react-remove-scroll "2.5.10"
 
+"@strapi/design-system@^2.0.0-rc.14":
+  version "2.0.0-rc.30"
+  resolved "https://registry.yarnpkg.com/@strapi/design-system/-/design-system-2.0.0-rc.30.tgz#51abd8ca368d9cc97469b591aa6986ff15aed21f"
+  integrity sha512-RJSUzAXfWlZZz01vX975FekB5ZWqd7eoVH2+p+KZR06BJSbem06UHZStlrsak6v+UyLcaAW+fzTUIq3Sjpn32g==
+  dependencies:
+    "@codemirror/lang-json" "6.0.1"
+    "@floating-ui/react-dom" "2.1.0"
+    "@internationalized/date" "3.5.4"
+    "@internationalized/number" "3.5.3"
+    "@radix-ui/react-accordion" "1.1.2"
+    "@radix-ui/react-alert-dialog" "1.0.5"
+    "@radix-ui/react-avatar" "1.0.4"
+    "@radix-ui/react-checkbox" "1.0.4"
+    "@radix-ui/react-dialog" "1.0.5"
+    "@radix-ui/react-dismissable-layer" "1.0.5"
+    "@radix-ui/react-dropdown-menu" "2.0.6"
+    "@radix-ui/react-focus-guards" "1.0.1"
+    "@radix-ui/react-focus-scope" "1.0.4"
+    "@radix-ui/react-popover" "1.0.7"
+    "@radix-ui/react-progress" "1.0.3"
+    "@radix-ui/react-radio-group" "1.1.3"
+    "@radix-ui/react-scroll-area" "1.0.5"
+    "@radix-ui/react-switch" "1.0.3"
+    "@radix-ui/react-tabs" "1.0.4"
+    "@radix-ui/react-tooltip" "1.0.7"
+    "@radix-ui/react-use-callback-ref" "1.0.1"
+    "@strapi/ui-primitives" "2.0.0-rc.30"
+    "@uiw/react-codemirror" "4.22.2"
+    lodash "4.17.21"
+    react-remove-scroll "2.5.10"
+
 "@strapi/email@5.9.0":
   version "5.9.0"
   resolved "https://registry.yarnpkg.com/@strapi/email/-/email-5.9.0.tgz#c3aa80a5d5106ba333082d4dc644b8532738666f"
@@ -2173,6 +2204,11 @@
   version "2.0.0-rc.14"
   resolved "https://registry.yarnpkg.com/@strapi/icons/-/icons-2.0.0-rc.14.tgz#ff3179c2c3c51ec70ac5e29982b74e1f2b531e87"
   integrity sha512-6kamFHcsoFpffp96HmFGgpM8FDezwb86sJ4c3Ydp7+eTgtEsHd8yLekAQhpaWXd2ZsHwRDbLLR0Tu1orgvRVYg==
+
+"@strapi/icons@^2.0.0-rc.14":
+  version "2.0.0-rc.30"
+  resolved "https://registry.yarnpkg.com/@strapi/icons/-/icons-2.0.0-rc.30.tgz#0162156f2cb963930e1c70055210e8545f91d5f9"
+  integrity sha512-XOqbr573AP8eOwyMPTn7tDtFV1HFlqDlwr8qNgPzo29V2+449NE8Bk0aG8PZ+kGmbnxzyQC8OQDtWlvRBEL5uA==
 
 "@strapi/logger@5.9.0":
   version "5.9.0"
@@ -2401,6 +2437,32 @@
     "@radix-ui/react-primitive" "1.0.3"
     "@radix-ui/react-slot" "1.0.2"
     "@radix-ui/react-use-callback-ref" "1.0.1"
+    "@radix-ui/react-use-controllable-state" "1.0.1"
+    "@radix-ui/react-use-layout-effect" "1.0.1"
+    "@radix-ui/react-use-previous" "1.0.1"
+    "@radix-ui/react-visually-hidden" "1.0.3"
+    aria-hidden "1.2.4"
+    react-remove-scroll "2.5.10"
+
+"@strapi/ui-primitives@2.0.0-rc.30":
+  version "2.0.0-rc.30"
+  resolved "https://registry.yarnpkg.com/@strapi/ui-primitives/-/ui-primitives-2.0.0-rc.30.tgz#192f12fc0b804c601205095486666b42bc028a89"
+  integrity sha512-K1jYRfbdb0uSgSjf1xKEB2bAQhYojBUCSfBUaSf/oDjS+eHXjb6IpC5jz50B2UpugZBvhZuqVfXJqhO+Q9yiXA==
+  dependencies:
+    "@radix-ui/number" "1.0.1"
+    "@radix-ui/primitive" "1.0.1"
+    "@radix-ui/react-collection" "1.0.3"
+    "@radix-ui/react-compose-refs" "1.0.1"
+    "@radix-ui/react-context" "1.0.1"
+    "@radix-ui/react-direction" "1.0.1"
+    "@radix-ui/react-dismissable-layer" "1.0.5"
+    "@radix-ui/react-focus-guards" "1.0.1"
+    "@radix-ui/react-focus-scope" "1.0.4"
+    "@radix-ui/react-id" "1.0.1"
+    "@radix-ui/react-popper" "1.1.3"
+    "@radix-ui/react-portal" "1.0.4"
+    "@radix-ui/react-primitive" "1.0.3"
+    "@radix-ui/react-slot" "1.0.2"
     "@radix-ui/react-use-controllable-state" "1.0.1"
     "@radix-ui/react-use-layout-effect" "1.0.1"
     "@radix-ui/react-use-previous" "1.0.1"
@@ -9309,6 +9371,7 @@ stdin-discarder@^0.2.2:
 
 "strapi-plugin-meilisearch@link:.yalc/strapi-plugin-meilisearch":
   version "0.0.0"
+  uid ""
 
 stream-chain@2.2.5, stream-chain@^2.2.5:
   version "2.2.5"
