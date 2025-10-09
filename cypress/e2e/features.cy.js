@@ -137,7 +137,7 @@ describe('Meilisearch features', () => {
         })
     })
 
-    // This test assumes that the collections are indexed (in previous test)
+    // This test assumes that the collections are indexed by previous tests
     it('displays the number of inxed documents for each collection', () => {
       visitPluginPage()
 
@@ -167,6 +167,7 @@ describe('Meilisearch features', () => {
       })
     })
 
+    // This test assumes that indexing is enabled by previous tests
     it('can disable collection indexing', () => {
       visitPluginPage()
 
@@ -181,25 +182,44 @@ describe('Meilisearch features', () => {
 
       visitPluginPage()
 
-      cy.checkCollectionContent({
+      checkCollectionContent({
         rowNb: 1,
         contains: [`0 / ${FIXTURES.USERS_COUNT}`],
       })
-      cy.checkCollectionContent({
+      checkCollectionContent({
         rowNb: 2,
         contains: [`0 / ${FIXTURES.CONTENT_COUNT}`],
       })
-      cy.checkCollectionContent({
+      checkCollectionContent({
         rowNb: 3,
         contains: [`0 / ${FIXTURES.CATEGORIES_COUNT}`],
       })
-      cy.checkCollectionContent({
+      checkCollectionContent({
         rowNb: 4,
         contains: [`0 / ${FIXTURES.CONTENT_COUNT}`],
       })
-      cy.checkCollectionContent({
+      checkCollectionContent({
         rowNb: 5,
         contains: [`0 / ${FIXTURES.RESTAURANTS_COUNT}`],
+      })
+    })
+
+    it('enabling indexing for single-type content only indexes 1 document', () => {
+      visitPluginPage()
+
+      cy.clickAndCheckRowContent({
+        rowNb: 2,
+        contains: ['about-us', 'Yes', 'Hooked'],
+      })
+
+      checkCollectionContent({
+        rowNb: 2,
+        contains: [`1 / ${FIXTURES.CONTENT_COUNT}`],
+      })
+
+      cy.clickAndCheckRowContent({
+        rowNb: 2,
+        contains: ['No', 'Reload needed'],
       })
     })
   })
@@ -221,7 +241,7 @@ describe('Meilisearch features', () => {
       visitPluginPage()
 
       const expectedNb = FIXTURES.RESTAURANTS_COUNT + 1
-      cy.checkCollectionContent({
+      checkCollectionContent({
         rowNb: 5,
         contains: [`${expectedNb} / ${expectedNb}`],
       })
@@ -250,7 +270,7 @@ describe('Meilisearch features', () => {
       cy.contains('No content found').should('be.visible')
       visitPluginPage()
 
-      cy.checkCollectionContent({
+      checkCollectionContent({
         rowNb: 5,
         contains: [
           `${FIXTURES.RESTAURANTS_COUNT} / ${FIXTURES.RESTAURANTS_COUNT}`,
