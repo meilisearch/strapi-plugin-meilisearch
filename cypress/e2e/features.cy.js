@@ -10,6 +10,9 @@ const USER_CREDENTIALS = {
 }
 
 const FIXTURES = {
+  USERS_COUNT: 1,
+  CATEGORIES_COUNT: 2,
+  CONTENT_COUNT: 2,
   RESTAURANTS_COUNT: 2,
 }
 
@@ -87,7 +90,7 @@ describe('Meilisearch features', () => {
     })
   })
 
-  describe('Collections panel', () => {
+  describe.only('Collections panel', () => {
     it('displays all collections', () => {
       visitPluginPage()
 
@@ -98,7 +101,7 @@ describe('Meilisearch features', () => {
       cy.contains('restaurant')
     })
 
-    it('can add collections to index', () => {
+    it('can enable collections indexing', () => {
       visitPluginPage()
 
       // Intercepts used to wait for the UI to refresh after toggles
@@ -138,20 +141,70 @@ describe('Meilisearch features', () => {
     it('displays the number of inxed documents for each collection', () => {
       visitPluginPage()
 
-      // 1 user in database -> 1 document in `user` index
-      checkCollectionContent({ rowNb: 1, contains: ['1 / 1'] })
-      // `about-us` is in the `content` index (2 documents)
-      checkCollectionContent({ rowNb: 2, contains: ['2 / 2'] })
-      // 2 categories in db -> 2 documents in `category` index
-      checkCollectionContent({ rowNb: 3, contains: ['2 / 2'] })
-      // `homepage` is in the `content` index (2 documents)
-      checkCollectionContent({ rowNb: 4, contains: ['2 / 2'] })
-      // 2 restaurants in db -> 2 documents in `restaurant` index
-      checkCollectionContent({ rowNb: 5, contains: ['2 / 2'] })
+      checkCollectionContent({
+        rowNb: 1,
+        contains: [`${FIXTURES.USERS_COUNT} / ${FIXTURES.USERS_COUNT}`],
+      })
+      checkCollectionContent({
+        rowNb: 2,
+        contains: [`${FIXTURES.CONTENT_COUNT} / ${FIXTURES.CONTENT_COUNT}`],
+      })
+      checkCollectionContent({
+        rowNb: 3,
+        contains: [
+          `${FIXTURES.CATEGORIES_COUNT} / ${FIXTURES.CATEGORIES_COUNT}`,
+        ],
+      })
+      checkCollectionContent({
+        rowNb: 4,
+        contains: [`${FIXTURES.CONTENT_COUNT} / ${FIXTURES.CONTENT_COUNT}`],
+      })
+      checkCollectionContent({
+        rowNb: 5,
+        contains: [
+          `${FIXTURES.RESTAURANTS_COUNT} / ${FIXTURES.RESTAURANTS_COUNT}`,
+        ],
+      })
+    })
+
+    it('can disable collection indexing', () => {
+      visitPluginPage()
+
+      for (let i = 1; i <= 5; i++) {
+        cy.clickAndCheckRowContent({
+          rowNb: i,
+          contains: ['No', 'Reload needed'],
+        })
+      }
+
+      cy.reloadServer()
+
+      visitPluginPage()
+
+      cy.checkCollectionContent({
+        rowNb: 1,
+        contains: [`0 / ${FIXTURES.USERS_COUNT}`],
+      })
+      cy.checkCollectionContent({
+        rowNb: 2,
+        contains: [`0 / ${FIXTURES.CONTENT_COUNT}`],
+      })
+      cy.checkCollectionContent({
+        rowNb: 3,
+        contains: [`0 / ${FIXTURES.CATEGORIES_COUNT}`],
+      })
+      cy.checkCollectionContent({
+        rowNb: 4,
+        contains: [`0 / ${FIXTURES.CONTENT_COUNT}`],
+      })
+      cy.checkCollectionContent({
+        rowNb: 5,
+        contains: [`0 / ${FIXTURES.RESTAURANTS_COUNT}`],
+      })
     })
   })
 
-  describe.only('Content hooks', () => {
+  describe('Content hooks', () => {
     it('reindexes after adding content', () => {
       cy.visit(
         `${adminUrl}/content-manager/collection-types/api::restaurant.restaurant`,
@@ -203,21 +256,6 @@ describe('Meilisearch features', () => {
           `${FIXTURES.RESTAURANTS_COUNT} / ${FIXTURES.RESTAURANTS_COUNT}`,
         ],
       })
-    })
-
-    it('can disable collection indexing', () => {
-      visitPluginPage()
-
-      cy.clickAndCheckRowContent({
-        rowNb: 1,
-        contains: ['No', 'Reload needed'],
-      })
-
-      cy.reloadServer()
-
-      visitPluginPage()
-
-      cy.checkCollectionContent({ rowNb: 1, contains: ['0 / 1'] })
     })
   })
 })
