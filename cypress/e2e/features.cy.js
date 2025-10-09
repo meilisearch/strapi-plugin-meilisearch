@@ -43,11 +43,6 @@ describe('Meilisearch features', () => {
     )
   }
 
-  const clickAndCheckRowContent = ({ rowNb, contains }) => {
-    clickCollection({ rowNb })
-    checkCollectionContent({ rowNb, contains })
-  }
-
   beforeEach(() => {
     cy.session(
       USER_CREDENTIALS.email,
@@ -103,7 +98,7 @@ describe('Meilisearch features', () => {
     cy.contains('restaurant')
   })
 
-  it.only('can add collections to index', () => {
+  it('can add collections to index', () => {
     visitPluginPage()
 
     // Intercepts used to wait for the UI to refresh after toggles
@@ -135,5 +130,20 @@ describe('Meilisearch features', () => {
           .should('contain.text', 'Yes')
           .and('contain.text', 'Hooked')
       })
+  })
+
+  it('displays the number of inxed documents for each collection', () => {
+    visitPluginPage()
+
+    // 1 user in database -> 1 document in `user` index
+    checkCollectionContent({ rowNb: 1, contains: ['1 / 1'] })
+    // `about-us` is in the `content` index (2 documents)
+    checkCollectionContent({ rowNb: 2, contains: ['2 / 2'] })
+    // 2 categories in db -> 2 documents in `category` index
+    checkCollectionContent({ rowNb: 3, contains: ['2 / 2'] })
+    // `homepage` is in the `content` index (2 documents)
+    checkCollectionContent({ rowNb: 4, contains: ['2 / 2'] })
+    // 2 restaurants in db -> 2 documents in `restaurant` index
+    checkCollectionContent({ rowNb: 5, contains: ['2 / 2'] })
   })
 })
