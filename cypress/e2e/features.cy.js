@@ -154,8 +154,9 @@ describe('Meilisearch features', () => {
   describe.only('Content hooks', () => {
     it('indexes new content in the collections', () => {
       cy.visit(
-        `${adminUrl}/admin/content-manager/collection-types/api::restaurant.restaurant`,
+        `${adminUrl}/content-manager/collection-types/api::restaurant.restaurant`,
       )
+      cy.wait(1000)
 
       cy.contains('a', 'Create new entry').click()
       cy.url().should('include', '/create')
