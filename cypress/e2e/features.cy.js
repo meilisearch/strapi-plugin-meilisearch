@@ -204,5 +204,20 @@ describe('Meilisearch features', () => {
         ],
       })
     })
+
+    it('can disable collection indexing', () => {
+      visitPluginPage()
+
+      cy.clickAndCheckRowContent({
+        rowNb: 1,
+        contains: ['No', 'Reload needed'],
+      })
+
+      cy.reloadServer()
+
+      visitPluginPage()
+
+      cy.checkCollectionContent({ rowNb: 1, contains: ['0 / 1'] })
+    })
   })
 })
