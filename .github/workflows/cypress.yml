@@ -12,10 +12,10 @@ jobs:
       meilisearch:
         image: getmeili/meilisearch:latest
         env:
-          MEILI_MASTER_KEY: 'masterKey'
-          MEILI_NO_ANALYTICS: 'true'
+          MEILI_MASTER_KEY: "masterKey"
+          MEILI_NO_ANALYTICS: "true"
         ports:
-          - '7700:7700'
+          - "7700:7700"
 
     steps:
       - name: Checkout
@@ -23,7 +23,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: "20.x"
           cache: yarn
       - name: Cache dependencies
         uses: actions/cache@v3
@@ -45,6 +45,11 @@ jobs:
           npx yalc link strapi-plugin-meilisearch
           cd ..
           yarn --cwd ./playground install
+
+      - name: Seed playground database
+        run: |
+          mkdir -p playground/.tmp
+          yarn playground:setup
 
       - name: Run e2e browser tests
         uses: cypress-io/github-action@v6
