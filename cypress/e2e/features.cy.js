@@ -13,7 +13,7 @@ const FIXTURES = {
   USERS_COUNT: 1,
   CATEGORIES_COUNT: 2,
   CONTENT_COUNT: 2,
-  RESTAURANTS_COUNT: 2,
+  RESTAURANTS_COUNT: 3,
 }
 
 describe('Meilisearch features', () => {
@@ -155,13 +155,15 @@ describe('Meilisearch features', () => {
               cy.wrap(checkbox).click({ force: true })
               cy.wait('@addCollection')
               cy.wait('@fetchCollections') // wait for the refetch after the POST
+            } else {
+              cy.fail('The checkbox should not be checked')
             }
           })
 
           // Re-select the row after the network sync to avoid stale element references
-          cy.get(rowSelector)
-            .should('contain.text', 'Yes')
-            .and('contain.text', 'Hooked')
+          // There can be delays until the state is updated, so wait for each separately
+          cy.get(rowSelector).contains('Yes') // First, wait for the 'Yes' to appear
+          cy.get(rowSelector).contains('Hooked') // Then, wait for the 'Hooked' to appear
         })
     })
 
