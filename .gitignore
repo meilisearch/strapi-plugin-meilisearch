@@ -72,7 +72,7 @@ $RECYCLE.BIN/
 # Logs and databases
 ############################
 
-# .tmp
+.tmp
 *.log
 *.sql
 *.sqlite
@@ -125,11 +125,6 @@ cypress/videos
 cypress/plugins
 cypress/fixtures
 
-playground/src/plugins
-
-# Sqlite Database from the playground
-data.db
-
 ############################
 # Local
 ############################
@@ -138,5 +133,7 @@ data.db
 .prettierrc.js
 .vscode
 
-
 dist
+
+# Keep the sqlite database for tests
+!playground/.tmp/data.db

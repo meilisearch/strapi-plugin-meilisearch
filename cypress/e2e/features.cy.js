@@ -1,0 +1,311 @@
+const {
+  env,
+  apiKey,
+  [env]: { adminUrl, host },
+} = Cypress.env()
+
+const USER_CREDENTIALS = {
+  email: 'can-manage@meilisearch.com',
+  password: 'Password1234',
+}
+
+const FIXTURES = {
+  USERS_COUNT: 1,
+  CATEGORIES_COUNT: 2,
+  CONTENT_COUNT: 2,
+  RESTAURANTS_COUNT: 3,
+}
+
+describe('Meilisearch features', () => {
+  const loginUser = ({ email, password }) => {
+    cy.visit(`${adminUrl}`)
+    cy.get('form').should('be.visible')
+    cy.get('input[name="email"]').type(email)
+    cy.get('input[name="password"]').type(password)
+    cy.get('button[role="checkbox"]').click()
+    cy.get('button[type="submit"]').click()
+  }
+
+  const visitPluginPage = () => {
+    cy.visit(`${adminUrl}/plugins/meilisearch`)
+    cy.contains('Collections').should('be.visible')
+    cy.contains('Settings').should('be.visible')
+  }
+
+  const checkCollectionContent = ({ rowNb, contains }) => {
+    const row = `table[role='grid'] tbody tr:nth-child(${rowNb})`
+    contains.map(value =>
+      cy
+        .get(row, {
+          timeout: 10000,
+        })
+        .contains(value, { timeout: 10000 }),
+    )
+  }
+
+  beforeEach(() => {
+    cy.session(
+      USER_CREDENTIALS.email,
+      () => {
+        loginUser({
+          email: USER_CREDENTIALS.email,
+          password: USER_CREDENTIALS.password,
+        })
+      },
+      {
+        validate() {
+          cy.wait(1000)
+          cy.contains('Hello User who can manage Meilisearch').should(
+            'be.visible',
+          )
+        },
+      },
+    )
+  })
+
+  describe('Settings panel', () => {
+    it('allows to update credentials', () => {
+      visitPluginPage()
+      cy.get('button:contains("Settings")').click()
+
+      cy.get('input[name="host"]').clear()
+      cy.get('input[name="host"]').type(host)
+      cy.get('input[name="apiKey"]').clear()
+      cy.get('input[name="apiKey"]').type(apiKey)
+      cy.contains('button', 'Save').click({ force: true })
+
+      cy.get('div[role="status').contains('success').should('be.visible')
+      cy.get('div[role="status')
+        .contains('Credentials successfully updated')
+        .should('be.visible')
+      cy.removeNotifications()
+    })
+
+    it('displays credentials', () => {
+      visitPluginPage()
+      cy.get('button:contains("Settings")').click()
+
+      cy.get('input[name="host"]').should('have.value', host)
+      cy.get('input[name="apiKey"]').should('have.value', apiKey)
+    })
+
+    it('shows an error when setting an empty host', () => {
+      visitPluginPage()
+      cy.get('button:contains("Settings")').click()
+
+      cy.get('input[name="host"]').clear()
+      cy.contains('button', 'Save').click()
+
+      cy.removeNotifications()
+      cy.get('input[name="host"]').should('have.value', '')
+
+      visitPluginPage()
+      const row = `table[role='grid'] tbody tr:nth-child(1) button[role="checkbox"]`
+
+      cy.get(row).click()
+      cy.contains('The provided host is not valid.').should('be.visible')
+      cy.removeNotifications()
+
+      cy.get(row).should('not.be.checked')
+
+      visitPluginPage()
+      cy.get('button:contains("Settings")').click()
+      cy.get('input[name="host"]').should('have.value', '')
+      cy.get('input[name="host"]').clear()
+      cy.get('input[name="host"]').type(host)
+      cy.contains('button', 'Save').click()
+      cy.removeNotifications()
+    })
+  })
+
+  describe('Collections panel', () => {
+    it('displays all collections', () => {
+      visitPluginPage()
+
+      cy.contains('user')
+      cy.contains('about-us')
+      cy.contains('category')
+      cy.contains('homepage')
+      cy.contains('restaurant')
+    })
+
+    it('can enable collections indexing', () => {
+      visitPluginPage()
+
+      // Intercepts used to wait for the UI to refresh after toggles
+      cy.intercept('POST', '**/meilisearch/content-type').as('addCollection')
+      cy.intercept('GET', '**/meilisearch/content-type/**').as(
+        'fetchCollections',
+      )
+
+      cy.get("table[role='grid'] tbody tr")
+        .should('have.length.at.least', 1)
+        .each((_row, idx) => {
+          const rowIndex = idx + 1
+          const rowSelector = `table[role='grid'] tbody tr:nth-child(${rowIndex})`
+          const checkboxSelector = `${rowSelector} button[role="checkbox"]`
+
+          // Click only if not already checked to avoid deleting the collection
+          cy.get(checkboxSelector).then(checkbox => {
+            const isChecked =
+              checkbox.attr('aria-checked') === 'true' ||
+              checkbox.attr('data-state') === 'checked'
+
+            if (!isChecked) {
+              cy.wrap(checkbox).click({ force: true })
+              cy.wait('@addCollection')
+              cy.wait('@fetchCollections') // wait for the refetch after the POST
+            } else {
+              cy.fail('The checkbox should not be checked')
+            }
+          })
+
+          // Re-select the row after the network sync to avoid stale element references
+          // There can be delays until the state is updated, so wait for each separately
+          cy.get(rowSelector).contains('Yes') // First, wait for the 'Yes' to appear
+          cy.get(rowSelector).contains('Hooked') // Then, wait for the 'Hooked' to appear
+        })
+    })
+
+    // This test assumes that the collections are indexed by previous tests
+    it('displays the number of inxed documents for each collection', () => {
+      visitPluginPage()
+
+      checkCollectionContent({
+        rowNb: 1,
+        contains: [`${FIXTURES.USERS_COUNT} / ${FIXTURES.USERS_COUNT}`],
+      })
+      checkCollectionContent({
+        rowNb: 2,
+        contains: [`${FIXTURES.CONTENT_COUNT} / ${FIXTURES.CONTENT_COUNT}`],
+      })
+      checkCollectionContent({
+        rowNb: 3,
+        contains: [
+          `${FIXTURES.CATEGORIES_COUNT} / ${FIXTURES.CATEGORIES_COUNT}`,
+        ],
+      })
+      checkCollectionContent({
+        rowNb: 4,
+        contains: [`${FIXTURES.CONTENT_COUNT} / ${FIXTURES.CONTENT_COUNT}`],
+      })
+      checkCollectionContent({
+        rowNb: 5,
+        contains: [
+          `${FIXTURES.RESTAURANTS_COUNT} / ${FIXTURES.RESTAURANTS_COUNT}`,
+        ],
+      })
+    })
+
+    // This test assumes that indexing is enabled by previous tests
+    it('can disable collection indexing', () => {
+      visitPluginPage()
+
+      for (let i = 1; i <= 5; i++) {
+        cy.clickAndCheckRowContent({
+          rowNb: i,
+          contains: ['No', 'Reload needed'],
+        })
+      }
+
+      cy.reloadServer()
+
+      visitPluginPage()
+
+      checkCollectionContent({
+        rowNb: 1,
+        contains: [`0 / ${FIXTURES.USERS_COUNT}`],
+      })
+      checkCollectionContent({
+        rowNb: 2,
+        contains: [`0 / ${FIXTURES.CONTENT_COUNT}`],
+      })
+      checkCollectionContent({
+        rowNb: 3,
+        contains: [`0 / ${FIXTURES.CATEGORIES_COUNT}`],
+      })
+      checkCollectionContent({
+        rowNb: 4,
+        contains: [`0 / ${FIXTURES.CONTENT_COUNT}`],
+      })
+      checkCollectionContent({
+        rowNb: 5,
+        contains: [`0 / ${FIXTURES.RESTAURANTS_COUNT}`],
+      })
+    })
+
+    it('enabling indexing for single-type content only indexes 1 document', () => {
+      visitPluginPage()
+
+      cy.clickAndCheckRowContent({
+        rowNb: 2,
+        contains: ['about-us', 'Yes', 'Hooked'],
+      })
+
+      checkCollectionContent({
+        rowNb: 2,
+        contains: [`1 / ${FIXTURES.CONTENT_COUNT}`],
+      })
+
+      cy.clickAndCheckRowContent({
+        rowNb: 2,
+        contains: ['No', 'Reload needed'],
+      })
+    })
+  })
+
+  describe('Content hooks', () => {
+    it('reindexes after adding content', () => {
+      cy.visit(
+        `${adminUrl}/content-manager/collection-types/api::restaurant.restaurant`,
+      )
+      cy.wait(1000)
+
+      cy.contains('a', 'Create new entry').click()
+      cy.url().should('include', '/create')
+
+      cy.get('input[name="title').type('The slimy snail')
+      cy.get('form').contains('button', 'Save').click()
+
+      cy.removeNotifications()
+      visitPluginPage()
+
+      const expectedNb = FIXTURES.RESTAURANTS_COUNT + 1
+      checkCollectionContent({
+        rowNb: 5,
+        contains: [`${expectedNb} / ${expectedNb}`],
+      })
+    })
+
+    it('reindexes after removing content', () => {
+      cy.visit(
+        `${adminUrl}/content-manager/collection-types/api::restaurant.restaurant`,
+      )
+
+      cy.get('main').contains('button', 'Search').click()
+      cy.get('main').get('input[name="search"]').type('The slimy snail{enter}')
+      cy.get('main').contains('tr', 'The slimy snail').should('be.visible')
+      cy.get('main')
+        .contains('tr', 'The slimy snail')
+        .contains('button[type="button"]', 'Row actions')
+        .click()
+      cy.get('div[role="menu"]')
+        .contains('div[role="menuitem"]', 'Delete')
+        .click()
+      cy.confirm()
+
+      cy.get('main').contains('button', 'Search').click()
+      cy.get('main').get('input[name="search"]').type('The slimy snail{enter}')
+
+      cy.contains('No content found').should('be.visible')
+      visitPluginPage()
+
+      checkCollectionContent({
+        rowNb: 5,
+        contains: [
+          `${FIXTURES.RESTAURANTS_COUNT} / ${FIXTURES.RESTAURANTS_COUNT}`,
+        ],
+      })
+    })
+  })
+})
