@@ -5,13 +5,6 @@ on: push
 jobs:
   cypress-run:
     runs-on: ubuntu-22.04
-    # Runs tests in parallel with matrix strategy https://docs.cypress.io/guides/guides/parallelization
-    # https://docs.github.com/en/actions/using-jobs/using-a-matrix-for-your-jobs
-    # Also see warning here https://github.com/cypress-io/github-action#parallel
-    strategy:
-      fail-fast: false # https://github.com/cypress-io/github-action/issues/48
-      matrix:
-        containers: [1, 2] # Uses 2 parallel instances
     container:
       image: cypress/browsers:node-20.14.0-chrome-126.0.6478.114-1-ff-127.0.1-edge-126.0.2592.61-1
       options: --user 1001
@@ -66,7 +59,6 @@ jobs:
           env: env=ci
           browser: chrome
           record: true
-          parallel: true # Runs test in parallel using settings above
         env:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           # Allows Cypress to detect new build vs re-run build
