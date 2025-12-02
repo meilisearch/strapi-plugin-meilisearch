@@ -1,9 +1,0 @@
-status = [
-  'playground-build (Node.js 18)',
-  'playground-build (Node.js 20)',
-  'integration-tests (Node.js 18)',
-  'integration-tests (Node.js 20)',
-  'style-check',
-]
-# 1 hour timeout
-timeout-sec = 3600
