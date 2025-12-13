@@ -3,6 +3,10 @@ on:
   release:
     types: [published]
 
+permissions:
+  id-token: write # Required for OIDC
+  contents: read
+
 jobs:
   publish-npm:
     runs-on: ubuntu-latest
@@ -23,10 +27,6 @@ jobs:
       - name: Publish with latest tag
         if: "!github.event.release.prerelease && !contains(github.ref, 'beta')"
         run: npm publish .
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
       - name: Publish with beta tag
         if: "github.event.release.prerelease && contains(github.ref, 'beta')"
         run: npm publish . --tag beta
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
