@@ -244,3 +244,30 @@ Cypress.Commands.add('clickAndCheckRowContent', clickAndCheckRowContent)
 Cypress.Commands.add('checkCollectionContent', checkCollectionContent)
 Cypress.Commands.add('reloadServer', reloadServer)
 Cypress.Commands.add('removeNotifications', removeNotifications)
+
+const clearMeilisearchIndexes = () => {
+  const {
+    apiKey,
+    env,
+    [env]: { host },
+  } = Cypress.env()
+
+  // List all indexes
+  cy.request({
+    method: 'GET',
+    url: `${host}/indexes`,
+    headers: { Authorization: `Bearer ${apiKey}` },
+  }).then(response => {
+    const indexes = response.body.results || []
+    // Delete each index
+    indexes.forEach(index => {
+      cy.request({
+        method: 'DELETE',
+        url: `${host}/indexes/${index.uid}`,
+        headers: { Authorization: `Bearer ${apiKey}` },
+      })
+    })
+  })
+}
+
+Cypress.Commands.add('clearMeilisearchIndexes', clearMeilisearchIndexes)

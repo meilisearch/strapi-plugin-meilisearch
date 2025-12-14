@@ -17,6 +17,10 @@ const FIXTURES = {
 }
 
 describe('Meilisearch features', () => {
+  before(() => {
+    cy.clearMeilisearchIndexes()
+  })
+
   const loginUser = ({ email, password }) => {
     cy.visit(`${adminUrl}`)
     cy.get('form').should('be.visible')

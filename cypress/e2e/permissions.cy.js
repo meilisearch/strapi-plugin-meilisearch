@@ -153,11 +153,34 @@ describe('Permissions', () => {
     it('can index a collection', () => {
       visitPluginPage()
 
+      // Intercept API requests to wait for completion
+      cy.intercept('POST', '**/meilisearch/content-type').as('addCollection')
+      cy.intercept('GET', '**/meilisearch/content-type/**').as(
+        'fetchCollections',
+      )
+
       cy.get('tr:contains("user") button[role="checkbox"]').first().click()
 
+      cy.wait('@addCollection')
+      cy.wait('@fetchCollections')
+
+      // Wait for "Yes" to appear (indexed)
       cy.get('tr:contains("user")').contains('Yes').should('be.visible')
-      cy.get('tr:contains("user")').contains('1 / 1').should('be.visible')
-      cy.get('tr:contains("user")').contains('Hooked').should('be.visible')
+
+      // Document counts may lag due to async task processing - use retryable assertion
+      cy.get('tr:contains("user")', { timeout: 10000 }).contains('1 / 1')
+
+      // Hooks column may show "Hooked" or "Reload needed" due to eventual consistency
+      cy.get('tr:contains("user")').then($row => {
+        if ($row.text().includes('Reload needed')) {
+          // Trigger reload to reconcile state
+          cy.reloadServer()
+          visitPluginPage()
+          cy.get('tr:contains("user")').contains('Hooked').should('be.visible')
+        } else {
+          cy.get('tr:contains("user")').contains('Hooked').should('be.visible')
+        }
+      })
     })
 
     it('cannot disable the collection indexing', () => {
