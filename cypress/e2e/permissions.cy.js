@@ -32,6 +32,10 @@ const USER_CREDENTIALS = {
 }
 
 describe('Permissions', () => {
+  before(() => {
+    cy.clearMeilisearchIndexes()
+  })
+
   // TODO: refactor as Cypress command
   const loginUser = ({ email, password }) => {
     cy.visit(`${adminUrl}`)
