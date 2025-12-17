@@ -218,8 +218,18 @@ const checkCollectionContent = ({ rowNb, contains }) => {
 }
 
 const reloadServer = () => {
-  cy.get(`button`).contains('Reload server').click({ force: true })
-  cy.wait(10000)
+  // Intercept the reload request
+  cy.intercept('GET', '**/meilisearch/reload').as('reloadServer')
+
+  cy.get('button').contains('Reload server').click({ force: true })
+
+  // Wait for the reload request to complete
+  cy.wait('@reloadServer')
+
+  // After reload, the server may take time to restart; poll the plugin page until it responds
+  // by checking that Collections and Settings tabs are visible
+  cy.contains('Collections', { timeout: 15000 }).should('be.visible')
+  cy.contains('Settings', { timeout: 15000 }).should('be.visible')
 }
 const clickAndCheckRowContent = ({ rowNb, contains }) => {
   clickCollection({ rowNb })
