@@ -233,7 +233,14 @@ describe('Meilisearch features', () => {
       cy.contains('The provided host is not valid.').should('be.visible')
       cy.removeNotifications()
 
-      getRow('user').find('button[role="checkbox"]').should('not.be.checked')
+      getRow('user')
+        .find('button[role="checkbox"]')
+        .should($checkbox => {
+          const isChecked =
+            $checkbox.attr('aria-checked') === 'true' ||
+            $checkbox.attr('data-state') === 'checked'
+          expect(isChecked).to.be.false
+        })
 
       // Restore valid host
       visitPluginPage()
@@ -349,8 +356,9 @@ describe('Meilisearch features', () => {
         })
 
         // Reload only if needed (check for Reload server button)
-        cy.get('body').then($body => {
-          if ($body.find('button:contains("Reload server")').length > 0) {
+        cy.get('button').then($buttons => {
+          const reloadButton = $buttons.filter(':contains("Reload server")')
+          if (reloadButton.length > 0) {
             cy.reloadServer()
             visitPluginPage()
           }
@@ -472,7 +480,7 @@ describe('Meilisearch features', () => {
           `${adminUrl}/content-manager/collection-types/api::restaurant.restaurant`,
         )
         cy.get('main').contains('button', 'Search').click()
-        cy.get('main').get('input[name="search"]').type(`${uniqueName}{enter}`)
+        cy.get('main').find('input[name="search"]').type(`${uniqueName}{enter}`)
         cy.get('main', { timeout: 10000 })
           .contains('tr', uniqueName)
           .should('be.visible')
@@ -487,7 +495,7 @@ describe('Meilisearch features', () => {
 
         // Verify entry is gone
         cy.get('main').contains('button', 'Search').click()
-        cy.get('main').get('input[name="search"]').clear()
+        cy.get('main').find('input[name="search"]').clear()
         cy.get('input[name="search"]').type(`${uniqueName}{enter}`)
         cy.contains('No content found', { timeout: 10000 }).should('be.visible')
 
