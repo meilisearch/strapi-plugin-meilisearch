@@ -269,8 +269,8 @@ const clearMeilisearchIndexes = () => {
     headers: { Authorization: `Bearer ${apiKey}` },
   }).then(response => {
     const indexes = response.body.results || []
-    // Delete each index
-    indexes.forEach(index => {
+    // Delete each index sequentially using cy.wrap().each() to ensure proper awaiting
+    cy.wrap(indexes).each(index => {
       cy.request({
         method: 'DELETE',
         url: `${host}/indexes/${index.uid}`,

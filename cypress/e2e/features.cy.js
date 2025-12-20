@@ -9,6 +9,8 @@ const USER_CREDENTIALS = {
   password: 'Password1234',
 }
 
+const TIMEOUT_MS = 15000
+
 // Collection names in the plugin UI
 const COLLECTIONS = ['user', 'about-us', 'category', 'homepage', 'restaurant']
 
@@ -39,10 +41,11 @@ describe('Meilisearch features', () => {
   /**
    * Get a row by collection name (row-by-name selection).
    * @param {string} name - Collection name (e.g., 'restaurant')
+   * @param {object} options - Cypress options (e.g., { timeout: 15000 })
    * @returns Cypress chainable for the row element
    */
-  const getRow = name => {
-    return cy.contains("table[role='grid'] tbody tr", name)
+  const getRow = (name, options = {}) => {
+    return cy.contains("table[role='grid'] tbody tr", name, options)
   }
 
   /**
@@ -54,7 +57,49 @@ describe('Meilisearch features', () => {
     cy.intercept('DELETE', '**/meilisearch/content-type/**').as(
       'deleteCollection',
     )
-    cy.intercept('GET', '**/meilisearch/content-type/**').as('fetchCollections')
+    cy.intercept('GET', '**/meilisearch/content-type').as('fetchCollections')
+  }
+
+  /**
+   * Poll by refreshing the page until a collection shows the expected indexed state.
+   * This handles Meilisearch's eventual consistency.
+   * @param {string} collectionName - Collection name
+   * @param {string} expectedText - Expected text in the row ('Yes' or 'No')
+   * @param {number} maxAttempts - Max polling attempts
+   * @param {number} intervalMs - Interval between polls in ms
+   */
+  const pollUntilState = (
+    collectionName,
+    expectedText,
+    maxAttempts = 15,
+    intervalMs = 2000,
+  ) => {
+    const poll = attempt => {
+      if (attempt >= maxAttempts) {
+        throw new Error(
+          `Timed out waiting for "${collectionName}" to contain "${expectedText}"`,
+        )
+      }
+
+      // Use getRow helper and check the row text
+      return getRow(collectionName, { timeout: 10000 }).then($row => {
+        const rowText = $row.text()
+
+        // Check if row contains the expected text
+        if (rowText.includes(expectedText)) {
+          // Found expected state
+          return
+        }
+
+        // Not yet in expected state, wait then refresh
+        cy.wait(intervalMs)
+        cy.reload()
+        cy.contains('Collections', { timeout: 10000 }).should('be.visible')
+        return poll(attempt + 1)
+      })
+    }
+
+    return poll(0)
   }
 
   /**
@@ -79,8 +124,8 @@ describe('Meilisearch features', () => {
         }
       })
 
-    // Assert indexed state with retry
-    getRow(name).contains('Yes', { timeout: 10000 }).should('be.visible')
+    // Assert indexed state with retry (longer timeout for eventual consistency)
+    getRow(name, { timeout: TIMEOUT_MS }).should('contain.text', 'Yes')
   }
 
   /**
@@ -105,8 +150,8 @@ describe('Meilisearch features', () => {
         }
       })
 
-    // Assert unindexed state with retry
-    getRow(name).contains('No', { timeout: 10000 }).should('be.visible')
+    // Assert unindexed state with retry (longer timeout for eventual consistency)
+    getRow(name, { timeout: TIMEOUT_MS }).should('contain.text', 'No')
   }
 
   /**
@@ -120,7 +165,7 @@ describe('Meilisearch features', () => {
         cy.reloadServer()
         visitPluginPage()
       }
-      getRow(name).contains('Hooked', { timeout: 10000 }).should('be.visible')
+      getRow(name).should('contain.text', 'Hooked')
     })
   }
 
@@ -160,7 +205,7 @@ describe('Meilisearch features', () => {
    * @param {string} countText - Expected count text (e.g., "2 / 2")
    */
   const assertCounts = (name, countText) => {
-    getRow(name).contains(countText, { timeout: 20000 }).should('be.visible')
+    getRow(name).should('contain.text', countText)
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -261,7 +306,7 @@ describe('Meilisearch features', () => {
     it('displays all collections', () => {
       visitPluginPage()
 
-      COLLECTIONS.forEach(name => {
+      cy.wrap(COLLECTIONS).each(name => {
         cy.contains(name).should('be.visible')
       })
     })
@@ -289,10 +334,8 @@ describe('Meilisearch features', () => {
         // Now enable indexing
         ensureIndexed(testCollection)
 
-        // Verify Yes is shown
-        getRow(testCollection)
-          .contains('Yes', { timeout: 10000 })
-          .should('be.visible')
+        // Verify Yes is shown (retry-safe assertion)
+        getRow(testCollection).should('contain.text', 'Yes')
 
         // Handle Reload needed vs Hooked
         ensureHooked(testCollection)
@@ -316,10 +359,8 @@ describe('Meilisearch features', () => {
         // Now disable it
         ensureUnindexed(testCollection)
 
-        // Verify No is shown
-        getRow(testCollection)
-          .contains('No', { timeout: 10000 })
-          .should('be.visible')
+        // Verify No is shown (retry-safe assertion)
+        getRow(testCollection).should('contain.text', 'No')
 
         // Reload server to detach hooks
         cy.reloadServer()
@@ -338,24 +379,25 @@ describe('Meilisearch features', () => {
         visitPluginPage()
 
         // First pass: ensure all collections are unindexed (sync plugin store)
-        COLLECTIONS.forEach(name => {
-          setupContentTypeIntercepts()
+        cy.wrap(COLLECTIONS).each(name => {
           getRow(name)
             .find('button[role="checkbox"]')
-            .then($checkbox => {
-              const isChecked =
-                $checkbox.attr('aria-checked') === 'true' ||
-                $checkbox.attr('data-state') === 'checked'
-
-              if (isChecked) {
-                cy.wrap($checkbox).click({ force: true })
-                cy.wait('@deleteCollection')
-                cy.wait('@fetchCollections')
+            .invoke('attr', 'data-state')
+            .then(state => {
+              if (state === 'checked') {
+                getRow(name)
+                  .find('button[role="checkbox"]')
+                  .click({ force: true })
+                // Poll by refreshing page until we see 'No'
+                pollUntilState(name, 'No')
               }
             })
+
+          // Verify the row shows 'No'
+          getRow(name, { timeout: TIMEOUT_MS }).should('contain.text', 'No')
         })
 
-        // Reload only if needed (check for Reload server button)
+        // Reload once after all unindexing is done (if needed)
         cy.get('button').then($buttons => {
           const reloadButton = $buttons.filter(':contains("Reload server")')
           if (reloadButton.length > 0) {
@@ -364,38 +406,37 @@ describe('Meilisearch features', () => {
           }
         })
 
-        // Second pass: enable each collection
-        COLLECTIONS.forEach(name => {
-          setupContentTypeIntercepts()
+        // Second pass: enable each collection sequentially
+        cy.wrap(COLLECTIONS).each(name => {
           getRow(name)
             .find('button[role="checkbox"]')
-            .then($checkbox => {
-              const isChecked =
-                $checkbox.attr('aria-checked') === 'true' ||
-                $checkbox.attr('data-state') === 'checked'
-
-              if (!isChecked) {
-                cy.wrap($checkbox).click({ force: true })
-                cy.wait('@addCollection')
-                cy.wait('@fetchCollections')
+            .invoke('attr', 'data-state')
+            .then(state => {
+              if (state === 'unchecked') {
+                getRow(name)
+                  .find('button[role="checkbox"]')
+                  .click({ force: true })
+                // Poll by refreshing page until we see 'Yes'
+                pollUntilState(name, 'Yes')
               }
             })
 
-          // Verify Yes appears
-          getRow(name).contains('Yes', { timeout: 10000 }).should('be.visible')
+          // Verify the row shows 'Yes'
+          getRow(name, { timeout: TIMEOUT_MS }).should('contain.text', 'Yes')
+        })
 
-          // Handle reload if needed
-          getRow(name).then($row => {
-            if ($row.text().includes('Reload needed')) {
-              cy.reloadServer()
-              visitPluginPage()
-            }
-          })
+        // Reload once after all indexing is done (if needed)
+        cy.get('button').then($buttons => {
+          const reloadButton = $buttons.filter(':contains("Reload server")')
+          if (reloadButton.length > 0) {
+            cy.reloadServer()
+            visitPluginPage()
+          }
         })
 
         // All collections should show matching counts (X / Y format)
-        COLLECTIONS.forEach(name => {
-          getRow(name).should($row => {
+        cy.wrap(COLLECTIONS).each(name => {
+          getRow(name, { timeout: TIMEOUT_MS }).should($row => {
             expect($row.text()).to.match(/\d+\s*\/\s*\d+/)
           })
         })
@@ -422,15 +463,13 @@ describe('Meilisearch features', () => {
         ensureHooked('about-us')
 
         // Single-type content should only index 1 document regardless of total
-        getRow('about-us')
-          .contains(/1\s*\/\s*\d+/, { timeout: 10000 })
-          .should('be.visible')
+        getRow('about-us').should($row => {
+          expect($row.text()).to.match(/1\s*\/\s*\d+/)
+        })
 
         // Clean up: disable indexing
         ensureUnindexed('about-us')
-        getRow('about-us')
-          .contains('No', { timeout: 10000 })
-          .should('be.visible')
+        getRow('about-us').should('contain.text', 'No')
       })
     })
   })
@@ -458,13 +497,13 @@ describe('Meilisearch features', () => {
         cy.visit(
           `${adminUrl}/content-manager/collection-types/api::restaurant.restaurant`,
         )
-        cy.contains('a', 'Create new entry', { timeout: 10000 }).click()
+        cy.contains('a', 'Create new entry', { timeout: TIMEOUT_MS }).click()
         cy.url().should('include', '/create')
 
         cy.get('input[name="title"]').type(uniqueName)
         cy.get('form').contains('button', 'Save').click()
 
-        cy.get('div[role="status"]', { timeout: 10000 })
+        cy.get('div[role="status"]', { timeout: TIMEOUT_MS })
           .contains(/success|saved/i)
           .should('be.visible')
         cy.removeNotifications()
@@ -481,7 +520,7 @@ describe('Meilisearch features', () => {
         )
         cy.get('main').contains('button', 'Search').click()
         cy.get('main').find('input[name="search"]').type(`${uniqueName}{enter}`)
-        cy.get('main', { timeout: 10000 })
+        cy.get('main', { timeout: TIMEOUT_MS })
           .contains('tr', uniqueName)
           .should('be.visible')
         cy.get('main')
@@ -497,7 +536,9 @@ describe('Meilisearch features', () => {
         cy.get('main').contains('button', 'Search').click()
         cy.get('main').find('input[name="search"]').clear()
         cy.get('main').find('input[name="search"]').type(`${uniqueName}{enter}`)
-        cy.contains('No content found', { timeout: 10000 }).should('be.visible')
+        cy.contains('No content found', { timeout: TIMEOUT_MS }).should(
+          'be.visible',
+        )
 
         // Verify count returned to baseline
         visitPluginPage()
