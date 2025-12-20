@@ -496,7 +496,7 @@ describe('Meilisearch features', () => {
         // Verify entry is gone
         cy.get('main').contains('button', 'Search').click()
         cy.get('main').find('input[name="search"]').clear()
-        cy.get('input[name="search"]').type(`${uniqueName}{enter}`)
+        cy.get('main').find('input[name="search"]').type(`${uniqueName}{enter}`)
         cy.contains('No content found', { timeout: 10000 }).should('be.visible')
 
         // Verify count returned to baseline
