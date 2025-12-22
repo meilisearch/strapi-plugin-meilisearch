@@ -48,8 +48,8 @@ Each PR should pass the tests and the linter to be accepted.
 
 ```bash
 # Run a Meilisearch instance
-docker pull getmeili/meilisearch:latest # Fetch the latest version of Meilisearch image from Docker Hub
-docker run -p 7700:7700 getmeili/meilisearch:latest meilisearch --master-key=masterKey --no-analytics
+docker pull getmeili/meilisearch-enterprise:latest # Fetch the latest version of Meilisearch image from Docker Hub
+docker run -p 7700:7700 getmeili/meilisearch-enterprise:latest meilisearch --master-key=masterKey --no-analytics
 
 # Integration tests
 yarn test
@@ -109,18 +109,12 @@ Some notes on GitHub PRs:
 
 - [Convert your PR as a draft](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/changing-the-stage-of-a-pull-request) if your changes are a work in progress: no one will review it until you pass your PR as ready for review.<br>
   The draft PR can be very useful if you want to show that you are working on something and make your work visible.
-- The branch related to the PR must be **up-to-date with `main`** before merging. Fortunately, this project [integrates a bot](https://github.com/meilisearch/integration-guides/blob/main/resources/bors.md) to automatically enforce this requirement without the PR author having to do it manually.
 - All PRs must be reviewed and approved by at least one maintainer.
 - The PR title should be accurate and descriptive of the changes. The title of the PR will be indeed automatically added to the next [release changelogs](https://github.com/meilisearch/strapi-plugin-meilisearch/releases/).
 
 ## Release Process (for the internal team only)
 
 Meilisearch tools follow the [Semantic Versioning Convention](https://semver.org/).
-
-### Automation to Rebase and Merge the PRs <!-- omit in toc -->
-
-This project integrates a bot that helps us manage pull requests merging.<br>
-_[Read more about this](https://github.com/meilisearch/integration-guides/blob/main/resources/bors.md)._
 
 ### Automated Changelogs
 

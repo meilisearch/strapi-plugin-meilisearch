@@ -10,7 +10,7 @@ jobs:
       options: --user 1001
     services:
       meilisearch:
-        image: getmeili/meilisearch:latest
+        image: getmeili/meilisearch-enterprise:latest
         env:
           MEILI_MASTER_KEY: "masterKey"
           MEILI_NO_ANALYTICS: "true"
@@ -21,7 +21,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Setup node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: "20.x"
           cache: yarn

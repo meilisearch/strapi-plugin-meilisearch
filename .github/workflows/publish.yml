@@ -3,12 +3,16 @@ on:
   release:
     types: [published]
 
+permissions:
+  id-token: write # Required for OIDC
+  contents: read
+
 jobs:
   publish-npm:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 20
           registry-url: https://registry.npmjs.org/
@@ -23,10 +27,6 @@ jobs:
       - name: Publish with latest tag
         if: "!github.event.release.prerelease && !contains(github.ref, 'beta')"
         run: npm publish .
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
       - name: Publish with beta tag
         if: "github.event.release.prerelease && contains(github.ref, 'beta')"
         run: npm publish . --tag beta
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}

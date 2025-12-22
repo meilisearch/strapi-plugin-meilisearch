@@ -7,7 +7,7 @@ services:
     depends_on:
       - meilisearch
   meilisearch:
-    image: getmeili/meilisearch
+    image: getmeili/meilisearch-enterprise
     command: meilisearch
     volumes:
       - ../meilisearch/data.ms:/data.ms
