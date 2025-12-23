@@ -25,14 +25,11 @@ module.exports = {
         console.log('✅ Admin user created');
       } else {
         console.log('✅ Admin user already exists');
-        // Update the password if it's not hashed (for existing users)
-        if (adminUser.password === 'password') {
-          const adminUserService = strapi.service('admin::user');
-          await adminUserService.updateById(adminUser.id, {
-            password: 'password'
-          });
-          console.log('✅ Admin user password updated with proper hash');
-        }
+        // Keep existing admin user as-is to avoid overriding credentials
+        // If you need to reset the password for tests, do it explicitly and unconditionally.
+        // Example (optional):
+        // const adminUserService = strapi.service('admin::user');
+        // await adminUserService.updateById(adminUser.id, { password: 'password' });
       }
 
       console.log('🌱 Seeding completed!');
