@@ -30,12 +30,12 @@
  * @param {string} email
  * @param {string} password
  */
-const login = ({ adminUrl, email, password }) => {
+const login = ({ adminUrl, email, password, shouldContain }) => {
   cy.session(
     [email, password],
     () => {
       cy.visit(adminUrl)
-      cy.get('form', { timeout: 10000 }).should('be.visible')
+      cy.get('form').should('be.visible')
       cy.get('input[name="email"]').type(email)
       cy.get('input[name="password"]').type(password)
       cy.get('button[role="checkbox"]').click()
@@ -43,9 +43,8 @@ const login = ({ adminUrl, email, password }) => {
     },
     {
       validate() {
-        cy.wait(1000)
         cy.visit(adminUrl)
-        cy.contains('Welcome 👋', { timeout: 10000 }).should('be.visible')
+        cy.contains(shouldContain).should('be.visible')
       },
     },
   )
@@ -219,8 +218,18 @@ const checkCollectionContent = ({ rowNb, contains }) => {
 }
 
 const reloadServer = () => {
-  cy.get(`button`).contains('Reload server').click({ force: true })
-  cy.wait(10000)
+  // Intercept the reload request
+  cy.intercept('GET', '**/meilisearch/reload').as('reloadServer')
+
+  cy.get('button').contains('Reload server').click({ force: true })
+
+  // Wait for the reload request to complete
+  cy.wait('@reloadServer')
+
+  // After reload, the server may take time to restart; poll the plugin page until it responds
+  // by checking that Collections and Settings tabs are visible
+  cy.contains('Collections', { timeout: 15000 }).should('be.visible')
+  cy.contains('Settings', { timeout: 15000 }).should('be.visible')
 }
 const clickAndCheckRowContent = ({ rowNb, contains }) => {
   clickCollection({ rowNb })
@@ -245,3 +254,30 @@ Cypress.Commands.add('clickAndCheckRowContent', clickAndCheckRowContent)
 Cypress.Commands.add('checkCollectionContent', checkCollectionContent)
 Cypress.Commands.add('reloadServer', reloadServer)
 Cypress.Commands.add('removeNotifications', removeNotifications)
+
+const clearMeilisearchIndexes = () => {
+  const {
+    apiKey,
+    env,
+    [env]: { host },
+  } = Cypress.env()
+
+  // List all indexes
+  cy.request({
+    method: 'GET',
+    url: `${host}/indexes`,
+    headers: { Authorization: `Bearer ${apiKey}` },
+  }).then(response => {
+    const indexes = response.body.results || []
+    // Delete each index sequentially using cy.wrap().each() to ensure proper awaiting
+    cy.wrap(indexes).each(index => {
+      cy.request({
+        method: 'DELETE',
+        url: `${host}/indexes/${index.uid}`,
+        headers: { Authorization: `Bearer ${apiKey}` },
+      })
+    })
+  })
+}
+
+Cypress.Commands.add('clearMeilisearchIndexes', clearMeilisearchIndexes)

@@ -1,0 +1,7 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+
+- This project uses `ni` as package manager; use `nlx` to execute packages

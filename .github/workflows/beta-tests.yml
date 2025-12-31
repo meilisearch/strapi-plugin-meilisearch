@@ -4,16 +4,16 @@ name: Beta tests
 # Will only run for PRs and pushes to *-beta
 on:
   push:
-    branches: ['**-beta', '!bump-meilisearch-v[0-9]*.[0-9]*.[0-9]*-beta']
+    branches: ["**-beta", "!bump-meilisearch-v[0-9]*.[0-9]*.[0-9]*-beta"]
   pull_request:
-    branches: ['**-beta', '!bump-meilisearch-v[0-9]*.[0-9]*.[0-9]*-beta']
+    branches: ["**-beta", "!bump-meilisearch-v[0-9]*.[0-9]*.[0-9]*-beta"]
 
 jobs:
   integration_tests:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: ['18', '20']
+        node: ["20"]
     name: integration-tests (Node.js ${{ matrix.node }})
     steps:
       - uses: actions/checkout@v4
@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: ['18', '20']
+        node: ["20"]
     name: playground-build (Node.js ${{ matrix.node }})
     steps:
       - uses: actions/checkout@v4

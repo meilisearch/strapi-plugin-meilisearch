@@ -46,6 +46,11 @@ jobs:
           cd ..
           yarn --cwd ./playground install
 
+      - name: Seed playground database
+        run: |
+          mkdir -p playground/.tmp
+          yarn playground:setup
+
       - name: Run e2e browser tests
         uses: cypress-io/github-action@v6
         with:
@@ -53,6 +58,11 @@ jobs:
           start: yarn playground:dev
           env: env=ci
           browser: chrome
+          record: true
+        env:
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          # Allows Cypress to detect new build vs re-run build
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
       - uses: actions/upload-artifact@v4
         if: failure()

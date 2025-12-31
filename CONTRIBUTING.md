@@ -28,19 +28,32 @@ First of all, thank you for contributing to Meilisearch! The goal of this docume
 
 ### Setup <!-- omit in toc -->
 
-You can set up your local environment natively or using `docker`, check out the [`docker-compose.yml`](/docker-compose.yml).
+You can set up your local environment natively or using `docker` (see
+[`docker-compose.yml`](./docker-compose.yml)).
 
-Example of running all the checks with docker:
-
-```bash
-docker-compose run --rm package bash -c "yarn install && yarn test && yarn playground:build && yarn style"
-```
-
-To install dependencies:
+Install root dependencies:
 
 ```bash
-yarn --dev
+yarn
 ```
+
+Install playground dependencies (once):
+
+```bash
+cd playground
+yarn
+cd ..
+```
+
+Seed the playground database (creates/updates `playground/.tmp/data.db` from
+`playground/pre-seeded-database.db`):
+
+```bash
+yarn playground:setup
+```
+
+You can re-run `yarn playground:setup` any time you need to reset the playground
+database to a known good state for e2e tests.
 
 ### Tests and Linter <!-- omit in toc -->
 
@@ -48,42 +61,66 @@ Each PR should pass the tests and the linter to be accepted.
 
 ```bash
 # Run a Meilisearch instance
-docker pull getmeili/meilisearch-enterprise:latest # Fetch the latest version of Meilisearch image from Docker Hub
+docker pull getmeili/meilisearch-enterprise:latest
 docker run -p 7700:7700 getmeili/meilisearch-enterprise:latest meilisearch --master-key=masterKey --no-analytics
+```
 
+Make sure the playground database has been seeded (once, or whenever you want
+a clean state):
+
+```bash
+yarn playground:setup
+```
+
+Then:
+
+```bash
 # Integration tests
 yarn test
+
 # Linter
 yarn style
+
 # Linter with fixing
 yarn style:fix
-# E2E tests
-yarn dlx cypress open
+
+# E2E tests (watch mode, starts playground + Cypress)
+yarn test:e2e:watch
+```
+
+If you already have the playground running (e.g. via `yarn playground:dev`), you
+can run Cypress directly:
+
+```bash
+# With the same env preset used in watch mode
+yarn cypress open --env env=watch
 ```
 
 ### Run Playground
 
-To test directly your changes on the plugin in Strapi, you can run the Strapi playground:
+To test your changes on the plugin inside a Strapi app, use the playground.
 
 ```bash
 # Root of repository
-yarn watch:link # Build the plugin and release it with yalc
+yarn watch:link          # Build the plugin and release it with yalc
+yarn playground:setup    # Seed the playground DB into playground/.tmp/data.db
 
 # Playground dir
-yarn dlx yalc add --link strapi-plugin-meilisearch && yarn install
+cd playground
+yarn dlx yalc add --link strapi-plugin-meilisearch
+yarn install
+cd ..
 
 # Root of repository
-yarn playground:build # Build the playground
+yarn playground:build    # Build the playground
 # or
-yarn playground:dev # Start the development server
+yarn playground:dev      # Start the development server
 ```
 
-This command will install required dependencies and launch the app in development mode. You should be able to reach it on the [port 8000 of your localhost](http://localhost:8000/admin/).
+Once on the admin panel, log in with:
 
-Once on the admin panel, you are required to log-in. Here are the credentials:
-
-- email: `jolene@doe.com`
-- password: `Qwertyuiop1`
+- email: `superadmin@meilisearch.com`
+- password: `password`
 
 ## Git Guidelines
 
