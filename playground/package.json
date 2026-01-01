@@ -11,8 +11,8 @@
     "strapi": "strapi"
   },
   "dependencies": {
-    "@strapi/plugin-users-permissions": "5.30.0",
-    "@strapi/strapi": "5.30.0",
+    "@strapi/plugin-users-permissions": "5.33.1",
+    "@strapi/strapi": "5.33.1",
     "better-sqlite3": "9.4.3",
     "fs-extra": "^10.0.0",
     "meilisearch": "0.54.0",
