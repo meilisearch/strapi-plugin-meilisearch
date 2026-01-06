@@ -1,8 +1,4 @@
-const {
-  apiKey,
-  host,
-  adminUrl,
-} = Cypress.env()
+const { apiKey, host, adminUrl } = Cypress.env()
 
 const USER_CREDENTIALS = {
   NO_ACCESS: {

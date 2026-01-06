@@ -256,10 +256,7 @@ Cypress.Commands.add('reloadServer', reloadServer)
 Cypress.Commands.add('removeNotifications', removeNotifications)
 
 const clearMeilisearchIndexes = () => {
-  const {
-    apiKey,
-    host,
-  } = Cypress.env()
+  const { apiKey, host } = Cypress.env()
 
   // List all indexes
   cy.request({
