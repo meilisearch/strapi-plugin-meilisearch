@@ -1,7 +1,7 @@
 const {
   apiKey,
-  env,
-  [env]: { host, adminUrl },
+  host,
+  adminUrl,
 } = Cypress.env()
 
 const USER_CREDENTIALS = {

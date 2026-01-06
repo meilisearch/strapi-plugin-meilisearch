@@ -2,6 +2,8 @@ module.exports = ({ env }) => ({
   meilisearch: {
     enabled: true,
     config: {
+      host: env('MEILISEARCH_HOST', 'http://localhost:7700'),
+      apiKey: env('MEILISEARCH_API_KEY', 'masterKey'),
       'restaurant': {
         filterEntry({ entry }) {
           return entry.id !== 2
@@ -23,8 +25,6 @@ module.exports = ({ env }) => ({
       'homepage': {
         indexName: ['content'],
       },
-      // host: "http://localhost:7700",
-      // apiKey: "masterKey"
     },
   },
 })
