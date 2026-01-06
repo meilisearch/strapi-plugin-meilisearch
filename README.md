@@ -613,7 +613,7 @@ yarn playground:build # Build the playground
 yarn playground:dev # Start the development server
 ```
 
-This command will install the required dependencies and launch the app in development mode. You should be able to reach it on the [port 8000 of your localhost](http://localhost:8000/admin/).
+This command will install the required dependencies and launch the app in development mode. You should be able to reach it on the [port 1337 of your localhost](http://localhost:1337/admin/).
 
 ## 🤖 Compatibility with Meilisearch and Strapi
 

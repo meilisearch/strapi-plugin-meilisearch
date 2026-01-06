@@ -9,14 +9,6 @@ module.exports = defineConfig({
     },
     env: 'develop',
     apiKey: 'masterKey',
-    test: {
-      adminUrl: 'http://localhost:1337/admin',
-      host: 'http://localhost:7700',
-    },
-    watch: {
-      adminUrl: 'http://localhost:8000/admin',
-      host: 'http://localhost:7700',
-    },
     develop: {
       adminUrl: 'http://localhost:1337/admin',
       host: 'http://localhost:7700',
@@ -24,10 +16,6 @@ module.exports = defineConfig({
     ci: {
       adminUrl: 'http://localhost:1337/admin',
       host: 'http://meilisearch:7700',
-    },
-    prereleaseci: {
-      adminUrl: 'http://localhost:1337/admin',
-      host: 'http://localhost:7700',
     },
   },
   e2e: {
