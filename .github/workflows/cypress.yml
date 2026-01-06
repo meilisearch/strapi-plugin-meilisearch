@@ -63,6 +63,8 @@ jobs:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           # Allows Cypress to detect new build vs re-run build
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          MEILISEARCH_HOST: http://meilisearch:7700
+          MEILISEARCH_API_KEY: masterKey
 
       - uses: actions/upload-artifact@v5
         if: failure()

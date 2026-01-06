@@ -15,7 +15,7 @@
     "style:fix": "eslint --ext .js,.test.js . --fix",
     "test": "jest --testPathPattern=tests",
     "test:watch": "jest --watch --testPathPattern=tests --verbose",
-    "test:e2e:watch": "concurrently --kill-others -s first \"NODE_ENV=test yarn playground:dev\" \"cypress open --env env=watch\""
+    "test:e2e": "concurrently --kill-others -s first \"yarn playground:dev\" \"cypress run\""
   },
   "strapi": {
     "name": "meilisearch",

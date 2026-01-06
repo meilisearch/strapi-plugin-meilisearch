@@ -1,6 +1,0 @@
----
-globs: cypress/**.*
-alwaysApply: false
----
-
-- The playground is already running, you don't need to start it

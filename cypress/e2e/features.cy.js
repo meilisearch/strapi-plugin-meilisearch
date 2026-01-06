@@ -1,8 +1,4 @@
-const {
-  env,
-  apiKey,
-  [env]: { adminUrl, host },
-} = Cypress.env()
+const { apiKey, adminUrl, host } = Cypress.env()
 
 const USER_CREDENTIALS = {
   email: 'can-manage@meilisearch.com',

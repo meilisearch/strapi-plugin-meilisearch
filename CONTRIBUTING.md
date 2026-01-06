@@ -24,81 +24,37 @@ First of all, thank you for contributing to Meilisearch! The goal of this docume
 6. [Submit the branch as a PR](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request-from-a-fork) pointing to the `main` branch of the main strapi-plugin-meilisearch repository. A maintainer should comment and/or review your Pull Request within a few days. Although depending on the circumstances, it may take longer.<br>
    We do not enforce a naming convention for the PRs, but **please use something descriptive of your changes**, having in mind that the title of your PR will be automatically added to the next [release changelog](https://github.com/meilisearch/strapi-plugin-meilisearch/releases/).
 
-## Development Workflow
+## Getting Started
+
+This repository contains two packages:
+- the **Plugin**: the Meilisearch Strapi plugin, located at the root of the repository
+- the **Playground**: an example Strapi app that uses the plugin for testing purposes, located in the `playground` directory
 
 ### Setup <!-- omit in toc -->
 
-You can set up your local environment natively or using `docker` (see
-[`docker-compose.yml`](./docker-compose.yml)).
+You can set up your local environment natively or using `docker` (see [`docker-compose.yml`](./docker-compose.yml)).
 
-Install root dependencies:
+Install dependencies of the Strapi plugin:
 
 ```bash
+# in the root folder
 yarn
 ```
 
-Install playground dependencies (once):
+Install dependencies of the playground:
 
 ```bash
+# from the root folder
 cd playground
+# now, in the playground folder
 yarn
-cd ..
 ```
 
-Seed the playground database (creates/updates `playground/.tmp/data.db` from
-`playground/pre-seeded-database.db`):
+### Playground Setup
 
-```bash
-yarn playground:setup
-```
+To test your changes, you can use the playground.
 
-You can re-run `yarn playground:setup` any time you need to reset the playground
-database to a known good state for e2e tests.
-
-### Tests and Linter <!-- omit in toc -->
-
-Each PR should pass the tests and the linter to be accepted.
-
-```bash
-# Run a Meilisearch instance
-docker pull getmeili/meilisearch-enterprise:latest
-docker run -p 7700:7700 getmeili/meilisearch-enterprise:latest meilisearch --master-key=masterKey --no-analytics
-```
-
-Make sure the playground database has been seeded (once, or whenever you want
-a clean state):
-
-```bash
-yarn playground:setup
-```
-
-Then:
-
-```bash
-# Integration tests
-yarn test
-
-# Linter
-yarn style
-
-# Linter with fixing
-yarn style:fix
-
-# E2E tests (watch mode, starts playground + Cypress)
-yarn test:e2e:watch
-```
-
-If you already have the playground running (e.g. via `yarn playground:dev`), you
-can run Cypress directly:
-
-```bash
-# With the same env preset used in watch mode
-yarn cypress open --env env=watch
-```
-
-### Run Playground
-
-To test your changes on the plugin inside a Strapi app, use the playground.
+Install playground dependencies:
 
 ```bash
 # Root of repository
@@ -109,18 +65,76 @@ yarn playground:setup    # Seed the playground DB into playground/.tmp/data.db
 cd playground
 yarn dlx yalc add --link strapi-plugin-meilisearch
 yarn install
-cd ..
+```
 
-# Root of repository
+For practicity, you can run these commands from the root directory:
+
+```bash
 yarn playground:build    # Build the playground
-# or
 yarn playground:dev      # Start the development server
 ```
 
-Once on the admin panel, log in with:
-
+You can log in on the admin panel with these credentials:
 - email: `superadmin@meilisearch.com`
 - password: `password`
+
+## Testing
+
+Running the tests require to have a Meilisearch instance running. We recommend running it with Docker:
+
+```bash
+# Run a Meilisearch instance
+docker pull getmeili/meilisearch-enterprise:latest
+docker run -p 7700:7700 getmeili/meilisearch-enterprise:latest meilisearch --master-key=masterKey --no-analytics
+```
+
+### Integration Tests <!-- omit in toc -->
+
+Then:
+
+```bash
+# Integration tests
+yarn test
+```
+
+### Cypress E2E Tests <!-- omit in toc -->
+
+> [!info]
+> You should run `yarn playground:setup` any time you need to reset the playground database to its default state for end-to-end tests.
+
+**With the Cypress app**
+
+```bash
+# Starts playground + opens Cypress UI
+yarn test:e2e:watch
+```
+
+This command starts the Strapi playground via `yarn playground:dev` and opens Cypress in interactive mode using the default `develop` environment configuration.
+
+**In the Terminal**
+
+If you already have the playground running (e.g. via `yarn playground:dev`), you can run Cypress directly:
+
+```bash
+# Open Cypress UI
+yarn cypress open
+
+# Run tests in terminal
+yarn cypress run
+```
+
+### Linter and Formatter <!-- omit in toc -->
+
+You can run lint and fix the formatting errors with:
+
+```bash
+# Linter
+yarn style
+
+# Linter with fixing
+yarn style:fix
+```
+
 
 ## Git Guidelines
 
