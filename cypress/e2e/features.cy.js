@@ -542,4 +542,92 @@ describe('Meilisearch features', () => {
       })
     })
   })
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Relations indexing (Document middleware)
+  // ─────────────────────────────────────────────────────────────────────────────
+  describe('Relations indexing (Document middleware)', () => {
+    const apiBase = adminUrl.replace(/\/admin$/, '')
+
+    const fetchRestaurantWithCategories = () =>
+      cy
+        .request({
+          method: 'GET',
+          url: `${apiBase}/api/restaurants`,
+          qs: { populate: 'categories' },
+          headers: {
+            // rely on admin session cookies set in beforeEach
+          },
+        })
+        .then(response => {
+          const data = response.body?.data || []
+          if (!data.length) {
+            throw new Error('No restaurants found in seeded data')
+          }
+          const restaurant = data[0]
+          const categories =
+            restaurant?.attributes?.categories?.data?.map(cat => ({
+              id: cat.id,
+              name: cat.attributes?.name,
+            })) || []
+          return {
+            id: restaurant.id,
+            name: restaurant.attributes?.title,
+            categories,
+          }
+        })
+
+    const fetchMeiliRestaurant = restaurantId =>
+      cy.request({
+        method: 'GET',
+        url: `${host}/indexes/my_restaurant/documents/${restaurantId}`,
+        headers: { Authorization: `Bearer ${apiKey}` },
+        failOnStatusCode: false,
+      })
+
+    beforeEach(() => {
+      visitPluginPage()
+      ensureIndexedAndHooked('restaurant')
+    })
+
+    it('indexes restaurant with its related categories', () => {
+      fetchRestaurantWithCategories().then(({ id, categories }) => {
+        fetchMeiliRestaurant(id).then(({ status, body }) => {
+          expect(status).to.eq(200)
+          const categoryNames = categories.map(cat => cat.name).filter(Boolean)
+          expect(body.categories, 'Meilisearch document categories').to.be.an(
+            'array',
+          )
+          categoryNames.forEach(name => {
+            expect(body.categories).to.include(name)
+          })
+        })
+      })
+    })
+
+    it('updates index when adding a relation to existing restaurant', () => {
+      // This test documents expected behavior for the new document middleware:
+      // adding a category to a restaurant should reindex the restaurant with the new relation.
+      // Implementation will require creating a category and connecting it, then asserting Meilisearch contains it.
+      throw new Error(
+        'Expected behavior: adding a category relation reindexes restaurant with the new category',
+      )
+    })
+
+    it('updates index when removing a relation from restaurant', () => {
+      // This test documents expected behavior for the new document middleware:
+      // removing a category from a restaurant should reindex the restaurant without that category.
+      throw new Error(
+        'Expected behavior: removing a category relation reindexes restaurant without the removed category',
+      )
+    })
+
+    it('handles publish/unpublish for content with relations', () => {
+      // This test documents expected behavior for the new document middleware:
+      // publishing a draft category with restaurant relations indexes it; unpublishing removes it.
+      throw new Error(
+        'Expected behavior: publish/unpublish updates Meilisearch documents for related entries',
+      )
+    })
+  })
 })

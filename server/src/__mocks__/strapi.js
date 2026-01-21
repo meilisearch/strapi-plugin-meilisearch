@@ -93,13 +93,18 @@ function createStrapiMock({
     }
   })
 
+  const mockDocumentsUse = jest.fn()
+  const mockDocuments = Object.assign(mockDocumentService, {
+    use: mockDocumentsUse,
+  })
+
   const mockStrapi = {
     log: mockLogger,
     plugin: mockPlugin,
     contentTypes,
     config: mockConfig,
     db: mockDb,
-    documents: mockDocumentService,
+    documents: mockDocuments,
   }
   return mockStrapi
 }
