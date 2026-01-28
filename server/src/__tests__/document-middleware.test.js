@@ -77,9 +77,7 @@ describe('Document Service Middleware', () => {
       plugin: jest.fn(),
     }
 
-    await expect(
-      registerDocumentMiddleware({ strapi }),
-    ).resolves.not.toThrow()
+    await expect(registerDocumentMiddleware({ strapi })).resolves.not.toThrow()
   })
 
   test('processes create action for listened content types after next()', async () => {
