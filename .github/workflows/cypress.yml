@@ -52,7 +52,7 @@ jobs:
           yarn playground:setup
 
       - name: Run e2e browser tests
-        uses: cypress-io/github-action@v6
+        uses: cypress-io/github-action@v7
         with:
           build: yarn playground:build
           start: yarn playground:dev
