@@ -66,12 +66,12 @@ jobs:
           MEILISEARCH_HOST: http://meilisearch:7700
           MEILISEARCH_API_KEY: masterKey
 
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         if: failure()
         with:
           name: cypress-screenshots
           path: cypress/screenshots
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         if: failure()
         with:
           name: cypress-videos
