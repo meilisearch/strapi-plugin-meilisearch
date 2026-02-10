@@ -5,33 +5,52 @@ export default async function registerDocumentMiddleware({ strapi }) {
 
   // Hook document service (only when available) to mirror Strapi creates into Meilisearch.
   strapi.documents.use(async (ctx, next) => {
-    const result = await next()
-
     try {
-      if (!result) {
-        return result
-      }
-
       const plugin = strapi.plugin('meilisearch')
       const store = plugin.service('store')
       const meilisearch = plugin.service('meilisearch')
       const contentTypeService = plugin.service('contentType')
 
-      // Only act on content types the plugin is configured to listen to.
       const listenedContentTypes = await store.getListenedContentTypes()
       if (!listenedContentTypes.includes(ctx.uid)) {
-        return result
+        return next()
       }
 
       const contentType = ctx.uid
-      const id = result?.id
-      const documentId = result?.documentId
-
       const updateActions = ['create', 'update', 'publish']
-      const deleteActions = ['delete', 'unpublish', 'discardDraft']
+      const deleteActions = [
+        'delete',
+        'deleteMany',
+        'deleteOne',
+        'deleteDocument',
+        'unpublish',
+        'discardDraft',
+      ]
+
+      const preDeleteDocumentId =
+        deleteActions.includes(ctx.action) &&
+        (ctx?.params?.documentId ?? ctx?.params?.id)
+          ? ctx.params.documentId ?? ctx.params.id
+          : null
+      const preDeleteEntry =
+        preDeleteDocumentId != null
+          ? await contentTypeService.getEntry({
+              contentType,
+              documentId: preDeleteDocumentId,
+              entriesQuery: {},
+            })
+          : null
+
+      const result = await next()
+
+      const id = result?.id ?? preDeleteEntry?.id
+      const documentId =
+        result?.documentId ??
+        preDeleteEntry?.documentId ??
+        preDeleteDocumentId ??
+        null
 
       if (updateActions.includes(ctx.action) && documentId != null) {
-        // Re-fetch full entry (with relations per entriesQuery) after Strapi has persisted relations.
         const entriesQuery = meilisearch.entriesQuery({ contentType })
         const entry = await contentTypeService.getEntry({
           contentType,
@@ -50,18 +69,28 @@ export default async function registerDocumentMiddleware({ strapi }) {
             entriesId: [id],
           })
         }
-      } else if (deleteActions.includes(ctx.action) && id != null) {
-        await meilisearch.deleteEntriesFromMeiliSearch({
-          contentType,
-          entriesId: [id],
-        })
+      } else if (deleteActions.includes(ctx.action)) {
+        if (id != null) {
+          strapi.log.info(
+            `Meilisearch document middleware deleting ${contentType} ids=${id}`,
+          )
+          await meilisearch.deleteEntriesFromMeiliSearch({
+            contentType,
+            entriesId: [id],
+          })
+        } else {
+          strapi.log.info(
+            `Meilisearch document middleware could not delete ${contentType} for action ${ctx.action}: missing id`,
+          )
+        }
       }
+
+      return result
     } catch (error) {
       strapi.log.error(
         `Meilisearch document middleware error: ${error.message}`,
       )
+      return next()
     }
-
-    return result
   })
 }
