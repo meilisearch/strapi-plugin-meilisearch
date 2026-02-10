@@ -8,6 +8,10 @@ export default async function registerDocumentMiddleware({ strapi }) {
     const result = await next()
 
     try {
+      if (!result) {
+        return result
+      }
+
       const plugin = strapi.plugin('meilisearch')
       const store = plugin.service('store')
       const meilisearch = plugin.service('meilisearch')
@@ -19,21 +23,37 @@ export default async function registerDocumentMiddleware({ strapi }) {
         return result
       }
 
-      if (ctx.action === 'create' && result?.documentId != null) {
+      const contentType = ctx.uid
+      const id = result?.id
+      const documentId = result?.documentId
+
+      const updateActions = ['create', 'update', 'publish']
+      const deleteActions = ['delete', 'unpublish', 'discardDraft']
+
+      if (updateActions.includes(ctx.action) && documentId != null) {
         // Re-fetch full entry (with relations per entriesQuery) after Strapi has persisted relations.
-        const entriesQuery = meilisearch.entriesQuery({ contentType: ctx.uid })
+        const entriesQuery = meilisearch.entriesQuery({ contentType })
         const entry = await contentTypeService.getEntry({
-          contentType: ctx.uid,
-          documentId: result.documentId,
+          contentType,
+          documentId,
           entriesQuery: { ...entriesQuery },
         })
-        const entryWithResultIds = entry
-          ? { ...entry, id: result.id, documentId: result.documentId }
-          : { id: result.id, documentId: result.documentId }
 
-        await meilisearch.updateEntriesInMeilisearch({
-          contentType: ctx.uid,
-          entries: [entryWithResultIds],
+        if (entry) {
+          await meilisearch.updateEntriesInMeilisearch({
+            contentType,
+            entries: [{ ...entry, id, documentId }],
+          })
+        } else if (id != null) {
+          await meilisearch.deleteEntriesFromMeiliSearch({
+            contentType,
+            entriesId: [id],
+          })
+        }
+      } else if (deleteActions.includes(ctx.action) && id != null) {
+        await meilisearch.deleteEntriesFromMeiliSearch({
+          contentType,
+          entriesId: [id],
         })
       }
     } catch (error) {

@@ -51,6 +51,11 @@ const EXPECTED_DOCUMENTS = {
 }
 
 const INDEX_NAME = 'my_restaurant' // From playground/config/plugins.js
+const STRAPI_URL = process.env.STRAPI_URL || 'http://localhost:1337'
+const ADMIN_CREDENTIALS = {
+  email: 'superadmin@meilisearch.com',
+  password: 'password',
+}
 
 /**
  * Wait for all enqueued or processing tasks in Meilisearch to finish.
@@ -90,14 +95,78 @@ async function waitForMeilisearchTasksToFinish(
   }
 }
 
+async function getAdminToken() {
+  const response = await fetch(`${STRAPI_URL}/admin/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(ADMIN_CREDENTIALS),
+  })
+
+  if (!response.ok) {
+    const errorText = await response.text()
+    throw new Error(
+      `Failed to log in as admin: ${response.status} ${errorText}`,
+    )
+  }
+
+  const body = await response.json()
+  const token = body?.data?.token || body?.jwt || body?.token
+  if (!token) {
+    throw new Error('Admin token not found in login response')
+  }
+  return token
+}
+
+async function updateRestaurant({ id, data, token }) {
+  const response = await fetch(
+    `${STRAPI_URL}/content-manager/collection-types/api::restaurant.restaurant/${id}`,
+    {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ data }),
+    },
+  )
+
+  if (!response.ok) {
+    const text = await response.text()
+    throw new Error(
+      `Failed to update restaurant ${id}: ${response.status} ${text}`,
+    )
+  }
+}
+
+async function deleteRestaurant({ id, token }) {
+  const response = await fetch(
+    `${STRAPI_URL}/content-manager/collection-types/api::restaurant.restaurant/${id}`,
+    {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  )
+
+  if (!response.ok) {
+    const text = await response.text()
+    throw new Error(
+      `Failed to delete restaurant ${id}: ${response.status} ${text}`,
+    )
+  }
+}
+
 describe('Meilisearch Relations Integration Test', () => {
   let client
+  let adminToken
 
   beforeAll(async () => {
     const host = process.env.MEILISEARCH_HOST || 'http://localhost:7700'
     const apiKey = process.env.MEILISEARCH_API_KEY || 'masterKey'
 
     client = new MeiliSearch({ host, apiKey })
+    adminToken = await getAdminToken()
 
     // Wait for all pending tasks to finish before running tests
     await waitForMeilisearchTasksToFinish(client, { indexUid: INDEX_NAME })
@@ -160,5 +229,30 @@ describe('Meilisearch Relations Integration Test', () => {
         'restaurant-7',
       ]),
     )
+  })
+
+  test('updates restaurant 3 title and syncs to Meilisearch', async () => {
+    const newTitle = 'First restaurant (updated)'
+
+    await updateRestaurant({
+      id: 3,
+      data: { title: newTitle },
+      token: adminToken,
+    })
+
+    await waitForMeilisearchTasksToFinish(client, { indexUid: INDEX_NAME })
+
+    const doc = await client.index(INDEX_NAME).getDocument('restaurant-3')
+    expect(doc.title).toBe(newTitle)
+  })
+
+  test('deletes restaurant 7 and removes it from Meilisearch', async () => {
+    await deleteRestaurant({ id: 7, token: adminToken })
+
+    await waitForMeilisearchTasksToFinish(client, { indexUid: INDEX_NAME })
+
+    await expect(
+      client.index(INDEX_NAME).getDocument('restaurant-7'),
+    ).rejects.toHaveProperty('code', 'document_not_found')
   })
 })
