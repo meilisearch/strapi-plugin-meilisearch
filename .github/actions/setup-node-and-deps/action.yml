@@ -1,0 +1,41 @@
+name: Setup Node and dependencies
+description: Set up Node, cache node_modules, and install dependencies (Yarn 1).
+
+inputs:
+  node-version:
+    required: true
+    type: string
+  cache-playground:
+    required: false
+    default: "false"
+    type: string
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Node
+      uses: actions/setup-node@v6
+      with:
+        node-version: ${{ inputs.node-version }}
+
+    - name: Cache root node_modules
+      uses: actions/cache@v5
+      with:
+        path: ./node_modules
+        key: ${{ hashFiles('yarn.lock') }}
+
+    - name: Cache playground node_modules
+      if: ${{ inputs.cache-playground == 'true' }}
+      uses: actions/cache@v5
+      with:
+        path: ./playground/node_modules
+        key: ${{ hashFiles('playground/yarn.lock') }}
+
+    - name: Install root dependencies
+      shell: bash
+      run: yarn
+
+    - name: Install playground dependencies
+      if: ${{ inputs.cache-playground == 'true' }}
+      shell: bash
+      run: yarn --cwd ./playground
