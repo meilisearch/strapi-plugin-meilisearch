@@ -16,7 +16,7 @@
     "test": "jest --testPathPattern=tests",
     "test:watch": "jest --watch --testPathPattern=tests --verbose",
     "test:e2e": "concurrently --kill-others -s first \"yarn playground:dev\" \"cypress run\"",
-    "test:integration:meili-relations": "jest -c jest.integration.config.js"
+    "test:integrations": "jest -c jest.integration.config.js"
   },
   "strapi": {
     "name": "meilisearch",
