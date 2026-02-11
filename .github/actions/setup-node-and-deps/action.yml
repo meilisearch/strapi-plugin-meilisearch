@@ -4,11 +4,11 @@ description: Set up Node, cache node_modules, and install dependencies (Yarn 1).
 inputs:
   node-version:
     required: true
-    type: string
+    description: The Node.js version to use
   cache-playground:
     required: false
     default: "false"
-    type: string
+    description: Whether to cache the playground node_modules
 
 runs:
   using: composite
