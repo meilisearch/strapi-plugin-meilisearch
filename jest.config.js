@@ -16,13 +16,5 @@ module.exports = {
   // An object that configures minimum threshold enforcement for coverage results
   coverageThreshold: undefined,
 
-  // TODO: remove comment at the end of plugin migration
-  // testMatch: ['**/__tests__/**/*.test.[jt]s?(x)'],
-  testMatch: [
-    '**/__tests__/**/content-types.test.[jt]s?(x)',
-    '**/__tests__/**/meilisearch.test.[jt]s?(x)',
-    '**/__tests__/**/configuration.test.[jt]s?(x)',
-    '**/__tests__/**/lifecycle.test.[jt]s?(x)',
-    '**/__tests__/**/configuration-validation.test.[jt]s?(x)',
-  ],
+  testMatch: ['**/__tests__/**/*.test.[jt]s?(x)'],
 }

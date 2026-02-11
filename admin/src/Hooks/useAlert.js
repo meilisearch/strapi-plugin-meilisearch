@@ -1,4 +1,5 @@
 import { useNotification } from '@strapi/strapi/admin'
+import pluginId from '../pluginId'
 import { useI18n } from './useI18n'
 
 export function useAlert() {
@@ -22,6 +23,24 @@ export function useAlert() {
     blockTransition = true,
     title,
   }) {
+    const docsLabel = i18n(
+      'plugin.message.error.meilisearchDocsLink',
+      'See more',
+    )
+
+    let normalizedLink = link
+    if (link && link.label && typeof link.label === 'object') {
+      const { id, defaultMessage } = link.label
+      const normalizedId =
+        id?.replace(new RegExp(`^${pluginId}\\.`), '') || id
+      normalizedLink = {
+        ...link,
+        label: i18n(normalizedId, defaultMessage),
+      }
+    } else if (link && link.url && !link.label) {
+      normalizedLink = { ...link, label: docsLabel }
+    }
+
     toggleNotification({
       // optional
       title,
@@ -31,7 +50,7 @@ export function useAlert() {
       // required
       message: i18n('notification.meilisearch.message', message),
       // optional
-      link,
+      link: normalizedLink,
       // optional: default = false
       blockTransition,
       // optional
