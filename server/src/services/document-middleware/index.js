@@ -87,7 +87,6 @@ export default async function registerDocumentMiddleware({ strapi }) {
       }
 
       return result
-
     } catch (error) {
       strapi.log.error(
         `Meilisearch document middleware error: ${error.message}`,
