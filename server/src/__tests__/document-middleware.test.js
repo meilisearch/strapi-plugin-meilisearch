@@ -337,10 +337,14 @@ describe('Document Service Middleware', () => {
     }
 
     const result = { id: 17, documentId: 17 }
-    await expect(handler(ctx, () => Promise.resolve(result))).resolves.toBe(
-      result,
-    )
+    const next = jest
+      .fn()
+      .mockResolvedValueOnce(result)
+      .mockResolvedValue(undefined)
 
+    await expect(handler(ctx, next)).resolves.toBe(result)
+
+    expect(next).toHaveBeenCalledTimes(1)
     expect(updateEntriesInMeilisearch).toHaveBeenCalled()
     expect(deleteEntriesFromMeiliSearch).not.toHaveBeenCalled()
     expect(strapi.log.error).toHaveBeenCalled()

@@ -5,6 +5,7 @@ export default async function registerDocumentMiddleware({ strapi }) {
 
   // Hook document service (only when available) to mirror Strapi creates into Meilisearch.
   strapi.documents.use(async (ctx, next) => {
+    let result
     try {
       const plugin = strapi.plugin('meilisearch')
       const store = plugin.service('store')
@@ -41,7 +42,7 @@ export default async function registerDocumentMiddleware({ strapi }) {
             })
           : null
 
-      const result = await next()
+      result = await next()
 
       const id = result?.id ?? preDeleteEntry?.id
       const documentId =
@@ -86,11 +87,12 @@ export default async function registerDocumentMiddleware({ strapi }) {
       }
 
       return result
+
     } catch (error) {
       strapi.log.error(
         `Meilisearch document middleware error: ${error.message}`,
       )
-      return next()
+      return result
     }
   })
 }
