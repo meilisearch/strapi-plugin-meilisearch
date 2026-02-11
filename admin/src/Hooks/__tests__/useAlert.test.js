@@ -27,7 +27,10 @@ describe('useAlert.handleNotification', () => {
 
     const link = {
       url: 'https://www.meilisearch.com/docs',
-      label: { id: 'meilisearch.some.label', defaultMessage: 'See more default' },
+      label: {
+        id: 'meilisearch.some.label',
+        defaultMessage: 'See more default',
+      },
     }
 
     handleNotification({

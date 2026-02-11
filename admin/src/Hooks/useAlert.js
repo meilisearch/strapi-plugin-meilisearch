@@ -31,8 +31,7 @@ export function useAlert() {
     let normalizedLink = link
     if (link && link.label && typeof link.label === 'object') {
       const { id, defaultMessage } = link.label
-      const normalizedId =
-        id?.replace(new RegExp(`^${pluginId}\\.`), '') || id
+      const normalizedId = id?.replace(new RegExp(`^${pluginId}\\.`), '') || id
       normalizedLink = {
         ...link,
         label: i18n(normalizedId, defaultMessage),
