@@ -24,5 +24,6 @@ module.exports = {
     '**/__tests__/**/configuration.test.[jt]s?(x)',
     '**/__tests__/**/lifecycle.test.[jt]s?(x)',
     '**/__tests__/**/configuration-validation.test.[jt]s?(x)',
+    '**/__tests__/**/document-middleware.test.[jt]s?(x)',
   ],
 }
