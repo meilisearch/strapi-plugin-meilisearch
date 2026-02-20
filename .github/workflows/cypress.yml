@@ -58,7 +58,7 @@ jobs:
           start: yarn playground:dev
           env: env=ci
           browser: chrome
-          record: true
+          record: ${{ secrets.CYPRESS_RECORD_KEY != '' }}
         env:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           # Allows Cypress to detect new build vs re-run build
