@@ -8,7 +8,7 @@ on:
   merge_group:
 
 jobs:
-  integration_tests:
+  unit_tests:
     # Will not run if the event is a PR to bump-meilisearch-v* (so a pre-release PR)
     # Will still run for each push to bump-meilisearch-v*
     if: github.event_name != 'pull_request' || !startsWith(github.base_ref, 'bump-meilisearch-v')
@@ -16,23 +16,80 @@ jobs:
     strategy:
       matrix:
         node: ["20"]
-    name: integration-tests (Node.js ${{ matrix.node }})
+    name: unit-tests (Node.js ${{ matrix.node }})
     steps:
       - uses: actions/checkout@v4
-      - name: Setup node
-        uses: actions/setup-node@v6
+      - name: Setup Node + deps
+        uses: ./.github/actions/setup-node-and-deps
         with:
           node-version: ${{ matrix.node }}
-      - name: Cache dependencies
-        uses: actions/cache@v5
-        with:
-          path: |
-            ./node_modules
-          key: ${{ hashFiles('yarn.lock') }}
-      - name: Install dependencies
-        run: yarn
+          cache-playground: "false"
       - name: Launch tests
         run: yarn test
+
+  integration_tests:
+    strategy:
+      matrix:
+        node: ["20"]
+    name: integration-tests (Node.js ${{ matrix.node }})
+    runs-on: ubuntu-22.04
+    services:
+      meilisearch:
+        image: getmeili/meilisearch-enterprise:latest
+        env:
+          MEILI_MASTER_KEY: "masterKey"
+          MEILI_NO_ANALYTICS: "true"
+        ports:
+          - "7700:7700"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node + deps (root + playground)
+        uses: ./.github/actions/setup-node-and-deps
+        with:
+          node-version: ${{ matrix.node }}
+          cache-playground: "true"
+      - name: Build and link plugin
+        uses: ./.github/actions/build-and-link-plugin
+      - name: Seed playground database
+        run: |
+          mkdir -p playground/.tmp
+          yarn playground:setup
+      - name: Build Strapi playground
+        run: yarn playground:build
+      - name: Start Strapi playground
+        run: |
+          cd playground
+          yarn start &
+          STRAPI_PID=$!
+          echo "STRAPI_PID=$STRAPI_PID" >> $GITHUB_ENV
+        env:
+          MEILISEARCH_HOST: http://localhost:7700
+          MEILISEARCH_API_KEY: masterKey
+          MEILI_RELATIONS_TEST: "1"
+      - name: Wait for Strapi to be ready
+        run: |
+          echo "Waiting for Strapi to be ready..."
+          for i in {1..60}; do
+            if curl -s http://localhost:1337/_health > /dev/null; then
+              echo "Strapi is ready!"
+              exit 0
+            fi
+            echo "Attempt $i: Strapi not ready yet, waiting..."
+            sleep 5
+          done
+          echo "Timeout waiting for Strapi to start"
+          exit 1
+      - name: Run Meilisearch relations integration test
+        run: yarn test:integrations
+        env:
+          MEILISEARCH_HOST: http://localhost:7700
+          MEILISEARCH_API_KEY: masterKey
+      - name: Cleanup
+        if: always()
+        run: |
+          if [ ! -z "$STRAPI_PID" ]; then
+            kill $STRAPI_PID || true
+          fi
   playground_build_tests:
     runs-on: ubuntu-latest
     strategy:
@@ -41,43 +98,26 @@ jobs:
     name: playground-build (Node.js ${{ matrix.node }})
     steps:
       - uses: actions/checkout@v4
-      - name: Setup node
-        uses: actions/setup-node@v6
+      - name: Setup Node + deps (root + playground)
+        uses: ./.github/actions/setup-node-and-deps
         with:
           node-version: ${{ matrix.node }}
-      - name: Cache dependencies
-        uses: actions/cache@v5
-        with:
-          path: |
-            ./node_modules
-          key: ${{ hashFiles('yarn.lock') }}
-      - name: Cache dependencies
-        uses: actions/cache@v5
-        with:
-          path: |
-            ./playground/node_modules
-          key: ${{ hashFiles('playground/yarn.lock') }}
-      - name: Install dependencies
-        run: yarn --dev && yarn --cwd ./playground
+          cache-playground: "true"
       - name: Build Strapi playground
         run: yarn playground:build
   linter_check:
     runs-on: ubuntu-latest
-    name: style-check
+    strategy:
+      matrix:
+        node: ["20"]
+    name: style-check (Node.js ${{ matrix.node }})
     steps:
       - uses: actions/checkout@v4
-      - name: Setup node
-        uses: actions/setup-node@v6
+      - name: Setup Node + deps
+        uses: ./.github/actions/setup-node-and-deps
         with:
-          node-version: "20.x"
-      - name: Cache dependencies
-        uses: actions/cache@v5
-        with:
-          path: |
-            ./node_modules
-          key: ${{ hashFiles('yarn.lock') }}
-      - name: Install dependencies
-        run: yarn --dev
+          node-version: ${{ matrix.node }}
+          cache-playground: "false"
       - name: Run style check
         run: yarn style
       - name: Yaml Style
