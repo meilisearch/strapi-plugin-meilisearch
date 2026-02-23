@@ -31,5 +31,6 @@
   "plugin.message.success.credentials": "¡Credenciales actualizadas con éxito!",
   "plugin.message.something": "Algo ha ocurrido en Meilisearch",
   "plugin.message.forbidden.title": "Prohibido",
-  "plugin.message.forbidden.description": "No tiene permiso para realizar esta acción"
+  "plugin.message.forbidden.description": "No tiene permiso para realizar esta acción",
+  "plugin.message.error.meilisearchDocsLink": "Ver más"
 }
