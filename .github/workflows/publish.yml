@@ -12,10 +12,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v6
+      - uses: ./.github/actions/setup-node-and-deps
         with:
           node-version: 20
-          registry-url: https://registry.npmjs.org/
       - name: Check release validity
         run: sh .github/scripts/check-release.sh
       - name: Check tag format
@@ -26,7 +25,7 @@ jobs:
         run: yarn build
       - name: Publish with latest tag
         if: "!github.event.release.prerelease && !contains(github.ref, 'beta')"
-        run: npm publish .
+        run: npm publish . --access public --provenance
       - name: Publish with beta tag
         if: "github.event.release.prerelease && contains(github.ref, 'beta')"
-        run: npm publish . --tag beta
+        run: npm publish . --access public --provenance --tag beta
