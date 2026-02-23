@@ -17,6 +17,8 @@ runs:
       uses: actions/setup-node@v6
       with:
         node-version: ${{ inputs.node-version }}
+registry-url: https://registry.npmjs.org/
+
 
     - name: Cache root node_modules
       uses: actions/cache@v5
