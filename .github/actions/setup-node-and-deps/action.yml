@@ -19,9 +19,9 @@ runs:
         node-version: ${{ inputs.node-version }}
         registry-url: https://registry.npmjs.org/
 
-- name: Upgrade npm
-  shell: bash
-  run: npm install -g npm@latest
+    - name: Upgrade npm
+      shell: bash
+      run: npm install -g npm@latest
 
     - name: Cache root node_modules
       uses: actions/cache@v5
