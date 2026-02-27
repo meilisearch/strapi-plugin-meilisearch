@@ -304,7 +304,7 @@ describe('Tests content types', () => {
       strapi: customStrapi,
     })
 
-    const tasks = await meilisearchService.deleteEntriesFromMeiliSearch({
+    await meilisearchService.deleteEntriesFromMeiliSearch({
       contentType: 'restaurant',
       documentIds: ['doc-1', null, undefined, 'doc-2'],
     })
@@ -332,12 +332,12 @@ describe('Tests content types', () => {
       strapi: customStrapi,
     })
 
-    const tasks = await meilisearchService.deleteEntriesFromMeiliSearch({
+    const result = await meilisearchService.deleteEntriesFromMeiliSearch({
       contentType: 'restaurant',
       documentIds: [null, undefined],
     })
 
-    expect(tasks).toEqual([])
+    expect(result).toEqual([])
     expect(client.index('').deleteDocuments).not.toHaveBeenCalled()
     expect(customStrapi.log.info).not.toHaveBeenCalled()
   })
