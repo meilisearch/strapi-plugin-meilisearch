@@ -359,12 +359,14 @@ describe('Tests content types', () => {
     // More information: https://docs.strapi.io/cms/migration/v4-to-v5/breaking-changes/publishedat-always-set-when-dandp-disabled
     const mockEntryUpdate = {
       attributes: { id: 1 },
+      documentId: 'doc-update',
       publishedAt: '2022-01-01T00:00:00.000Z',
     }
 
     const mockEntryCreate = {
-      _meilisearch_id: 'restaurant-1',
+      _meilisearch_id: 'restaurant-doc-create',
       id: 3,
+      documentId: 'doc-create',
       title: 'title',
       internal_notes: 'note123',
       publishedAt: null,
@@ -591,6 +593,7 @@ describe('Tests content types', () => {
               entries: [
                 {
                   id: 1,
+                  documentId: 'doc-1',
                   title: 'title',
                   internal_notes: 'note123',
                   secret: '123',
@@ -598,6 +601,7 @@ describe('Tests content types', () => {
                 },
                 {
                   id: 2,
+                  documentId: 'doc-2',
                   title: 'abc',
                   internal_notes: 'note234',
                   secret: '234',
@@ -647,15 +651,17 @@ describe('Tests content types', () => {
       1,
       [
         {
-          _meilisearch_id: 'restaurant-1',
+          _meilisearch_id: 'restaurant-doc-1',
           id: 1,
+          documentId: 'doc-1',
           title: 'title',
           internal_notes: 'note123',
           publishedAt: '2022-01-01T00:00:00.000Z',
         },
         {
-          _meilisearch_id: 'restaurant-2',
+          _meilisearch_id: 'restaurant-doc-2',
           id: 2,
+          documentId: 'doc-2',
           title: 'abc',
           internal_notes: 'note234',
           publishedAt: '2022-01-01T00:00:00.000Z',

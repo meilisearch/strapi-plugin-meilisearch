@@ -20,7 +20,7 @@ describe('Document Service Middleware', () => {
     const updateEntriesInMeilisearch = jest.fn(() => Promise.resolve())
     const deleteEntriesFromMeiliSearch = jest.fn(() => Promise.resolve())
     const contentTypeGetEntry = jest.fn(() =>
-      Promise.resolve({ id: 1, title: 'Test entry' }),
+      Promise.resolve({ id: 1, documentId: 'doc-1', title: 'Test entry' }),
     )
 
     const service = jest.fn(name => {
@@ -200,12 +200,12 @@ describe('Document Service Middleware', () => {
       params: { data: { title: 'Updated title' } },
     }
 
-    const result = { id: 12, documentId: 12, title: 'Updated title' }
+    const result = { id: 12, documentId: 'doc-12', title: 'Updated title' }
     await handler(ctx, () => Promise.resolve(result))
 
     expect(deleteEntriesFromMeiliSearch).toHaveBeenCalledWith({
       contentType: ctx.uid,
-      entriesId: [result.id],
+      entriesId: [result.documentId],
     })
   })
 
@@ -221,12 +221,12 @@ describe('Document Service Middleware', () => {
       action: 'delete',
     }
 
-    const result = { id: 13, documentId: 13 }
+    const result = { id: 13, documentId: 'doc-13' }
     await handler(ctx, () => Promise.resolve(result))
 
     expect(deleteEntriesFromMeiliSearch).toHaveBeenCalledWith({
       contentType: ctx.uid,
-      entriesId: [result.id],
+      entriesId: [result.documentId],
     })
   })
 
@@ -242,12 +242,12 @@ describe('Document Service Middleware', () => {
       action: 'unpublish',
     }
 
-    const result = { id: 14, documentId: 14 }
+    const result = { id: 14, documentId: 'doc-14' }
     await handler(ctx, () => Promise.resolve(result))
 
     expect(deleteEntriesFromMeiliSearch).toHaveBeenCalledWith({
       contentType: ctx.uid,
-      entriesId: [result.id],
+      entriesId: [result.documentId],
     })
   })
 
@@ -263,12 +263,12 @@ describe('Document Service Middleware', () => {
       action: 'discardDraft',
     }
 
-    const result = { id: 15, documentId: 15 }
+    const result = { id: 15, documentId: 'doc-15' }
     await handler(ctx, () => Promise.resolve(result))
 
     expect(deleteEntriesFromMeiliSearch).toHaveBeenCalledWith({
       contentType: ctx.uid,
-      entriesId: [result.id],
+      entriesId: [result.documentId],
     })
   })
 
