@@ -291,6 +291,57 @@ describe('Tests content types', () => {
     ])
   })
 
+  test('Test deleteEntriesFromMeiliSearch filters out null and undefined documentIds', async () => {
+    const customStrapi = createStrapiMock({
+      restaurantConfig: {
+        indexName: ['customIndex'],
+      },
+    })
+
+    const client = new Meilisearch({ host: 'abc' })
+
+    const meilisearchService = createMeilisearchService({
+      strapi: customStrapi,
+    })
+
+    const tasks = await meilisearchService.deleteEntriesFromMeiliSearch({
+      contentType: 'restaurant',
+      documentIds: ['doc-1', null, undefined, 'doc-2'],
+    })
+
+    expect(client.index('').deleteDocuments).toHaveBeenCalledTimes(1)
+    expect(client.index('').deleteDocuments).toHaveBeenCalledWith([
+      'restaurant-doc-1',
+      'restaurant-doc-2',
+    ])
+    expect(customStrapi.log.info).toHaveBeenCalledWith(
+      'A task to delete 2 documents of the index "customIndex" in Meilisearch has been enqueued (Task uid: undefined).',
+    )
+  })
+
+  test('Test deleteEntriesFromMeiliSearch returns early when all documentIds are null', async () => {
+    const customStrapi = createStrapiMock({
+      restaurantConfig: {
+        indexName: ['customIndex'],
+      },
+    })
+
+    const client = new Meilisearch({ host: 'abc' })
+
+    const meilisearchService = createMeilisearchService({
+      strapi: customStrapi,
+    })
+
+    const tasks = await meilisearchService.deleteEntriesFromMeiliSearch({
+      contentType: 'restaurant',
+      documentIds: [null, undefined],
+    })
+
+    expect(tasks).toEqual([])
+    expect(client.index('').deleteDocuments).not.toHaveBeenCalled()
+    expect(customStrapi.log.info).not.toHaveBeenCalled()
+  })
+
   test('Test to update entries linked to multiple indexes in Meilisearch', async () => {
     const pluginMock = jest.fn(() => ({
       // This rewrites only the needed methods to reach the system under test (removeSensitiveFields)
@@ -398,6 +449,90 @@ describe('Tests content types', () => {
     expect(client.index).toHaveBeenCalledWith('customIndex')
     expect(client.index).toHaveBeenCalledWith('anotherIndex')
     expect(tasks).toEqual([3, 3, 10, 10])
+  })
+
+  test('Test updateEntriesInMeilisearch skips deletion for entries with null documentId', async () => {
+    const pluginMock = jest.fn(() => ({
+      service: jest.fn().mockImplementation(() => {
+        return {
+          async actionInBatches({ contentType = 'restaurant', callback }) {
+            await callback({
+              entries: [
+                {
+                  id: 1,
+                  documentId: 'doc1',
+                  title: 'title',
+                  internal_notes: 'note123',
+                  secret: '123',
+                },
+              ],
+              contentType,
+            })
+          },
+          getCollectionName: ({ contentType }) => contentType,
+          addIndexedContentType: jest.fn(),
+          subscribeContentType: jest.fn(),
+          getCredentials: () => ({}),
+        }
+      }),
+    }))
+
+    const client = new Meilisearch({ host: 'abc' })
+
+    const meilisearchService = createMeilisearchService({
+      strapi: {
+        plugin: pluginMock,
+        contentTypes: {
+          restaurant: {
+            attributes: {
+              id: { private: false },
+              title: { private: false },
+              internal_notes: { private: true },
+              secret: { private: true },
+            },
+          },
+        },
+        config: {
+          get: jest.fn(() => ({
+            restaurant: {
+              indexName: ['customIndex'],
+            },
+          })),
+        },
+        log: mockLogger,
+      },
+      contentTypes: {
+        restaurant: {
+          attributes: {
+            id: { private: false },
+            title: { private: false },
+            internal_notes: { private: true },
+            secret: { private: true },
+          },
+        },
+      },
+    })
+
+    // Entry with null documentId should not trigger a delete call
+    const mockEntryValid = {
+      attributes: { id: 1 },
+      documentId: 'doc-valid',
+      publishedAt: '2022-01-01T00:00:00.000Z',
+    }
+
+    const mockEntryNullId = {
+      attributes: { id: 2 },
+      documentId: null,
+      publishedAt: null,
+    }
+
+    await meilisearchService.updateEntriesInMeilisearch({
+      contentType: 'restaurant',
+      entries: [mockEntryValid, mockEntryNullId],
+    })
+
+    // The null-documentId entry should not trigger deleteDocument
+    expect(client.index('').deleteDocument).not.toHaveBeenCalled()
   })
 
   test('Test to get stats', async () => {

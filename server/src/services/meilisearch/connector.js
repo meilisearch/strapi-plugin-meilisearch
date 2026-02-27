@@ -97,7 +97,9 @@ export default ({ strapi, adapter, config }) => {
       const client = Meilisearch({ apiKey, host })
 
       const indexUids = config.getIndexNamesOfContentType({ contentType })
-      const documentsIds = documentIds.map(entryDocumentId =>
+      const validDocumentIds = documentIds.filter(id => id != null)
+      if (validDocumentIds.length === 0) return []
+      const documentsIds = validDocumentIds.map(entryDocumentId =>
         adapter.addCollectionNamePrefixToId({ entryDocumentId, contentType }),
       )
 
@@ -145,6 +147,7 @@ export default ({ strapi, adapter, config }) => {
       // Check which documents are not in sanitized documents and need to be deleted
       const deleteDocuments = entries.filter(
         entry =>
+          entry.documentId != null &&
           !addDocuments
             .map(document => document.documentId)
             .includes(entry.documentId),
