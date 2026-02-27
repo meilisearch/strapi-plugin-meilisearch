@@ -44,7 +44,6 @@ export default async function registerDocumentMiddleware({ strapi }) {
 
       result = await next()
 
-      const id = result?.id ?? preDeleteEntry?.id
       const documentId =
         result?.documentId ??
         preDeleteEntry?.documentId ??
@@ -62,15 +61,19 @@ export default async function registerDocumentMiddleware({ strapi }) {
         if (entry) {
           await meilisearch.updateEntriesInMeilisearch({
             contentType,
-            entries: [{ ...entry, id, documentId }],
+            entries: [entry],
           })
-        } else if (id != null) {
-          await meilisearch.deleteEntriesFromMeiliSearch({
-            contentType,
-            entriesId: [id],
-          })
+        } else {
+          const fallbackId = result?.id ?? preDeleteEntry?.id
+          if (fallbackId != null) {
+            await meilisearch.deleteEntriesFromMeiliSearch({
+              contentType,
+              entriesId: [fallbackId],
+            })
+          }
         }
       } else if (deleteActions.includes(ctx.action)) {
+        const id = result?.id ?? preDeleteEntry?.id
         if (id != null) {
           strapi.log.info(
             `Meilisearch document middleware deleting ${contentType} ids=${id}`,

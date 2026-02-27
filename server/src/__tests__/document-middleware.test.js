@@ -111,7 +111,7 @@ describe('Document Service Middleware', () => {
     })
     expect(updateEntriesInMeilisearch).toHaveBeenCalledWith({
       contentType: ctx.uid,
-      entries: [expect.objectContaining({ id: result.id })],
+      entries: [expect.objectContaining({ id: 1, title: 'Test entry' })],
     })
   })
 
@@ -144,7 +144,7 @@ describe('Document Service Middleware', () => {
     })
     expect(updateEntriesInMeilisearch).toHaveBeenCalledWith({
       contentType: ctx.uid,
-      entries: [expect.objectContaining({ id: result.id })],
+      entries: [expect.objectContaining({ id: 1, title: 'Test entry' })],
     })
   })
 
@@ -177,7 +177,7 @@ describe('Document Service Middleware', () => {
     })
     expect(updateEntriesInMeilisearch).toHaveBeenCalledWith({
       contentType: ctx.uid,
-      entries: [expect.objectContaining({ id: result.id })],
+      entries: [expect.objectContaining({ id: 1, title: 'Test entry' })],
     })
   })
 
@@ -269,6 +269,109 @@ describe('Document Service Middleware', () => {
     expect(deleteEntriesFromMeiliSearch).toHaveBeenCalledWith({
       contentType: ctx.uid,
       entriesId: [result.id],
+    })
+  })
+
+  test('update action uses id from getEntry, not from action result (D&P fix)', async () => {
+    const {
+      strapi,
+      middlewareFn,
+      updateEntriesInMeilisearch,
+      entriesQuery,
+      contentTypeGetEntry,
+    } = createStrapiStubs()
+
+    // getEntry returns the PUBLISHED version with id: 200
+    contentTypeGetEntry.mockResolvedValueOnce({
+      id: 200,
+      documentId: 'abc',
+      title: 'Published',
+      publishedAt: '2024-01-01',
+    })
+
+    await registerDocumentMiddleware({ strapi })
+
+    const handler = middlewareFn()
+    const ctx = {
+      uid: 'api::restaurant.restaurant',
+      action: 'update',
+      params: { data: { title: 'Draft update' } },
+    }
+
+    // result has the DRAFT id: 100, different from published id: 200
+    const result = { id: 100, documentId: 'abc', title: 'Draft update' }
+    await handler(ctx, () => Promise.resolve(result))
+
+    expect(updateEntriesInMeilisearch).toHaveBeenCalledWith({
+      contentType: ctx.uid,
+      entries: [expect.objectContaining({ id: 200, documentId: 'abc' })],
+    })
+  })
+
+  test('update action calls delete when getEntry returns null (no published version)', async () => {
+    const {
+      strapi,
+      middlewareFn,
+      updateEntriesInMeilisearch,
+      deleteEntriesFromMeiliSearch,
+      contentTypeGetEntry,
+    } = createStrapiStubs()
+
+    // getEntry returns null (no published version exists)
+    contentTypeGetEntry.mockResolvedValueOnce(null)
+
+    await registerDocumentMiddleware({ strapi })
+
+    const handler = middlewareFn()
+    const ctx = {
+      uid: 'api::restaurant.restaurant',
+      action: 'update',
+      params: { data: { title: 'Draft only' } },
+    }
+
+    const result = { id: 100, documentId: 'abc', title: 'Draft only' }
+    await handler(ctx, () => Promise.resolve(result))
+
+    expect(updateEntriesInMeilisearch).not.toHaveBeenCalled()
+    expect(deleteEntriesFromMeiliSearch).toHaveBeenCalledWith({
+      contentType: ctx.uid,
+      entriesId: [100],
+    })
+  })
+
+  test('publish action handles result without id at root level', async () => {
+    const {
+      strapi,
+      middlewareFn,
+      updateEntriesInMeilisearch,
+      entriesQuery,
+      contentTypeGetEntry,
+    } = createStrapiStubs()
+
+    // getEntry returns the published version
+    contentTypeGetEntry.mockResolvedValueOnce({
+      id: 200,
+      documentId: 'abc',
+      title: 'Published',
+      publishedAt: '2024-01-01',
+    })
+
+    await registerDocumentMiddleware({ strapi })
+
+    const handler = middlewareFn()
+    const ctx = {
+      uid: 'api::restaurant.restaurant',
+      action: 'publish',
+      params: { documentId: 'abc' },
+    }
+
+    // publish result may not have id at root (Strapi v5 can return array of versions)
+    const result = { documentId: 'abc', versions: [{ id: 200 }] }
+    await handler(ctx, () => Promise.resolve(result))
+
+    expect(updateEntriesInMeilisearch).toHaveBeenCalledWith({
+      contentType: ctx.uid,
+      entries: [expect.objectContaining({ id: 200, documentId: 'abc' })],
     })
   })
 
