@@ -333,9 +333,10 @@ describe('Document Service Middleware', () => {
     await handler(ctx, () => Promise.resolve(result))
 
     expect(updateEntriesInMeilisearch).not.toHaveBeenCalled()
+    // Uses documentId (not internal id) for deletion since _meilisearch_id is documentId-based
     expect(deleteEntriesFromMeiliSearch).toHaveBeenCalledWith({
       contentType: ctx.uid,
-      entriesId: [100],
+      entriesId: ['abc'],
     })
   })
 
