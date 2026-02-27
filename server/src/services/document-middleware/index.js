@@ -70,17 +70,13 @@ export default async function registerDocumentMiddleware({ strapi }) {
           })
         }
       } else if (deleteActions.includes(ctx.action)) {
-        const deleteDocumentId =
-          result?.documentId ??
-          preDeleteEntry?.documentId ??
-          preDeleteDocumentId
-        if (deleteDocumentId != null) {
+        if (documentId != null) {
           strapi.log.info(
-            `Meilisearch document middleware deleting ${contentType} documentId=${deleteDocumentId}`,
+            `Meilisearch document middleware deleting ${contentType} documentId=${documentId}`,
           )
           await meilisearch.deleteEntriesFromMeiliSearch({
             contentType,
-            documentIds: [deleteDocumentId],
+            documentIds: [documentId],
           })
         } else {
           strapi.log.info(

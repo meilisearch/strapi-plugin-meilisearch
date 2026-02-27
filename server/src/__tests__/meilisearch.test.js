@@ -38,12 +38,14 @@ describe('Tests content types', () => {
               entries: [
                 {
                   id: 1,
+                  documentId: 'doc1',
                   title: 'title',
                   internal_notes: 'note123',
                   secret: '123',
                 },
                 {
                   id: 2,
+                  documentId: 'doc2',
                   title: 'abc',
                   internal_notes: 'note234',
                   secret: '234',
@@ -129,12 +131,14 @@ describe('Tests content types', () => {
               entries: [
                 {
                   id: 1,
+                  documentId: 'doc1',
                   title: 'title',
                   internal_notes: 'note123',
                   secret: '123',
                 },
                 {
                   id: 2,
+                  documentId: 'doc2',
                   title: 'abc',
                   internal_notes: 'note234',
                   secret: '234',
@@ -297,12 +301,14 @@ describe('Tests content types', () => {
               entries: [
                 {
                   id: 1,
+                  documentId: 'doc1',
                   title: 'title',
                   internal_notes: 'note123',
                   secret: '123',
                 },
                 {
                   id: 2,
+                  documentId: 'doc2',
                   title: 'abc',
                   internal_notes: 'note234',
                   secret: '234',

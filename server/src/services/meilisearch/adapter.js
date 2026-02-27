@@ -15,7 +15,7 @@ export default ({ strapi }) => {
      * @param  {string} options.contentType - ContentType name.
      * @param  {string} options.entryDocumentId - Entry documentId.
      *
-     * @returns {string} - Formated id
+     * @returns {string} - Formatted id
      */
     addCollectionNamePrefixToId: function ({ contentType, entryDocumentId }) {
       const collectionName = contentTypeService.getCollectionName({

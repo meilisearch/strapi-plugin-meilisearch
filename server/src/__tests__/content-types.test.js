@@ -223,7 +223,7 @@ describe('Tests content types', () => {
     })
 
     expect(strapiMock.documents('').findOne).toHaveBeenCalledTimes(0)
-    expect(count).toEqual({})
+    expect(count).toBeNull()
   })
 
   test('Test operation in batches on entries', async () => {
