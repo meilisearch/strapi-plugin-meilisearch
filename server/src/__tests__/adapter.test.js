@@ -4,7 +4,7 @@ describe('Meilisearch Adapter', () => {
   const strapi = {
     plugin: jest.fn(() => ({
       service: jest.fn(() => ({
-        getCollectionName: ({ contentType }) => 'restaurant',
+        getCollectionName: () => 'restaurant',
       })),
     })),
   }

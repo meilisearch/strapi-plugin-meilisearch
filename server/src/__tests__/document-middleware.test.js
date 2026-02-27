@@ -277,7 +277,6 @@ describe('Document Service Middleware', () => {
       strapi,
       middlewareFn,
       updateEntriesInMeilisearch,
-      entriesQuery,
       contentTypeGetEntry,
     } = createStrapiStubs()
 
@@ -345,7 +344,6 @@ describe('Document Service Middleware', () => {
       strapi,
       middlewareFn,
       updateEntriesInMeilisearch,
-      entriesQuery,
       contentTypeGetEntry,
     } = createStrapiStubs()
 
