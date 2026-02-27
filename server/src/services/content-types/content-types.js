@@ -165,12 +165,13 @@ export default ({ strapi }) => ({
     const entry = await strapi.documents(contentTypeUid).findOne(queryOptions)
 
     if (entry == null) {
-      strapi.log.error(
-        `Could not find entry with id ${documentId} in ${contentType}`,
+      strapi.log.warn(
+        `Could not find entry with documentId ${documentId} in ${contentType}`,
       )
+      return null
     }
 
-    return entry || { documentId }
+    return entry
   },
 
   /**
