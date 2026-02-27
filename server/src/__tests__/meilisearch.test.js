@@ -102,6 +102,7 @@ describe('Tests content types', () => {
     // More information: https://docs.strapi.io/cms/migration/v4-to-v5/breaking-changes/publishedat-always-set-when-dandp-disabled
     const mockEntry = {
       attributes: { id: 1 },
+      documentId: 'doc-1',
       publishedAt: '2022-01-01T00:00:00.000Z',
     }
     const tasks = await meilisearchService.addEntriesToMeilisearch({
@@ -192,6 +193,7 @@ describe('Tests content types', () => {
     // More information: https://docs.strapi.io/cms/migration/v4-to-v5/breaking-changes/publishedat-always-set-when-dandp-disabled
     const mockEntry = {
       attributes: { id: 1 },
+      documentId: 'doc-1',
       publishedAt: '2022-01-01T00:00:00.000Z',
     }
     const tasks = await meilisearchService.addEntriesToMeilisearch({
@@ -228,7 +230,7 @@ describe('Tests content types', () => {
 
     const tasks = await meilisearchService.deleteEntriesFromMeiliSearch({
       contentType: 'restaurant',
-      entriesId: [1, 2],
+      documentIds: ['doc-1', 'doc-2'],
     })
 
     expect(customStrapi.log.info).toHaveBeenCalledTimes(1)
@@ -237,8 +239,8 @@ describe('Tests content types', () => {
     )
     expect(client.index('').deleteDocuments).toHaveBeenCalledTimes(1)
     expect(client.index('').deleteDocuments).toHaveBeenCalledWith([
-      'restaurant-1',
-      'restaurant-2',
+      'restaurant-doc-1',
+      'restaurant-doc-2',
     ])
     expect(client.index).toHaveBeenCalledWith('customIndex')
     expect(tasks).toEqual([{ taskUid: 1 }, { taskUid: 2 }])
@@ -260,7 +262,7 @@ describe('Tests content types', () => {
 
     const tasks = await meilisearchService.deleteEntriesFromMeiliSearch({
       contentType: 'restaurant',
-      entriesId: [1, 2],
+      documentIds: ['doc-1', 'doc-2'],
     })
 
     expect(customStrapi.log.info).toHaveBeenCalledTimes(2)
@@ -272,8 +274,8 @@ describe('Tests content types', () => {
     )
     expect(client.index('').deleteDocuments).toHaveBeenCalledTimes(2)
     expect(client.index('').deleteDocuments).toHaveBeenCalledWith([
-      'restaurant-1',
-      'restaurant-2',
+      'restaurant-doc-1',
+      'restaurant-doc-2',
     ])
     expect(client.index).toHaveBeenCalledWith('customIndex')
     expect(client.index).toHaveBeenCalledWith('anotherIndex')

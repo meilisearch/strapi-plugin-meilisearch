@@ -66,7 +66,7 @@ export default async function registerDocumentMiddleware({ strapi }) {
         } else {
           await meilisearch.deleteEntriesFromMeiliSearch({
             contentType,
-            entriesId: [documentId],
+            documentIds: [documentId],
           })
         }
       } else if (deleteActions.includes(ctx.action)) {
@@ -80,7 +80,7 @@ export default async function registerDocumentMiddleware({ strapi }) {
           )
           await meilisearch.deleteEntriesFromMeiliSearch({
             contentType,
-            entriesId: [deleteDocumentId],
+            documentIds: [deleteDocumentId],
           })
         } else {
           strapi.log.info(

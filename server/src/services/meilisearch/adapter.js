@@ -38,13 +38,22 @@ export default ({ strapi }) => {
      * @returns {object[]} - Formatted entries.
      */
     addCollectionNamePrefix: function ({ contentType, entries }) {
-      return entries.map(entry => ({
-        ...entry,
-        _meilisearch_id: this.addCollectionNamePrefixToId({
-          entryDocumentId: entry.documentId,
-          contentType,
-        }),
-      }))
+      return entries.reduce((acc, entry) => {
+        if (entry.documentId == null) {
+          strapi.log.warn(
+            `Entry in ${contentType} is missing documentId, skipping indexing for this entry`,
+          )
+          return acc
+        }
+        acc.push({
+          ...entry,
+          _meilisearch_id: this.addCollectionNamePrefixToId({
+            entryDocumentId: entry.documentId,
+            contentType,
+          }),
+        })
+        return acc
+      }, [])
     },
   }
 }

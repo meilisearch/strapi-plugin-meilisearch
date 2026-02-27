@@ -85,16 +85,19 @@ export default ({ strapi, adapter, config }) => {
      *
      * @param  {object} options
      * @param  {string} options.contentType - ContentType name.
-     * @param  {string[]} options.entriesId - Entry documentIds.
+     * @param  {string[]} options.documentIds - Entry documentIds.
      *
      * @returns  { Promise<import("meilisearch").Task>} p - Task body returned by Meilisearch API.
      */
-    deleteEntriesFromMeiliSearch: async function ({ contentType, entriesId }) {
+    deleteEntriesFromMeiliSearch: async function ({
+      contentType,
+      documentIds,
+    }) {
       const { apiKey, host } = await store.getCredentials()
       const client = Meilisearch({ apiKey, host })
 
       const indexUids = config.getIndexNamesOfContentType({ contentType })
-      const documentsIds = entriesId.map(entryDocumentId =>
+      const documentsIds = documentIds.map(entryDocumentId =>
         adapter.addCollectionNamePrefixToId({ entryDocumentId, contentType }),
       )
 
@@ -444,7 +447,7 @@ export default ({ strapi, adapter, config }) => {
         const deleteEntries = async ({ entries, contentType }) => {
           await this.deleteEntriesFromMeiliSearch({
             contentType,
-            entriesId: entries.map(entry => entry.documentId),
+            documentIds: entries.map(entry => entry.documentId),
           })
         }
         await contentTypeService.actionInBatches({

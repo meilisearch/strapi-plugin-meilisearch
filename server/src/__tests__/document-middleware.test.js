@@ -100,7 +100,7 @@ describe('Document Service Middleware', () => {
       params: { data: { title: 'My title' } },
     }
 
-    const result = { id: 10, documentId: 10, title: 'My title' }
+    const result = { id: 10, documentId: 'doc-10', title: 'My title' }
     await handler(ctx, () => Promise.resolve(result))
 
     expect(entriesQuery).toHaveBeenCalledWith({ contentType: ctx.uid })
@@ -133,7 +133,7 @@ describe('Document Service Middleware', () => {
       params: { data: { title: 'Updated title' } },
     }
 
-    const result = { id: 10, documentId: 10, title: 'Updated title' }
+    const result = { id: 10, documentId: 'doc-10', title: 'Updated title' }
     await handler(ctx, () => Promise.resolve(result))
 
     expect(entriesQuery).toHaveBeenCalledWith({ contentType: ctx.uid })
@@ -166,7 +166,7 @@ describe('Document Service Middleware', () => {
       params: { data: { title: 'Published title' } },
     }
 
-    const result = { id: 11, documentId: 11, title: 'Published title' }
+    const result = { id: 11, documentId: 'doc-11', title: 'Published title' }
     await handler(ctx, () => Promise.resolve(result))
 
     expect(entriesQuery).toHaveBeenCalledWith({ contentType: ctx.uid })
@@ -205,7 +205,7 @@ describe('Document Service Middleware', () => {
 
     expect(deleteEntriesFromMeiliSearch).toHaveBeenCalledWith({
       contentType: ctx.uid,
-      entriesId: [result.documentId],
+      documentIds: [result.documentId],
     })
   })
 
@@ -226,7 +226,7 @@ describe('Document Service Middleware', () => {
 
     expect(deleteEntriesFromMeiliSearch).toHaveBeenCalledWith({
       contentType: ctx.uid,
-      entriesId: [result.documentId],
+      documentIds: [result.documentId],
     })
   })
 
@@ -247,7 +247,7 @@ describe('Document Service Middleware', () => {
 
     expect(deleteEntriesFromMeiliSearch).toHaveBeenCalledWith({
       contentType: ctx.uid,
-      entriesId: [result.documentId],
+      documentIds: [result.documentId],
     })
   })
 
@@ -268,7 +268,7 @@ describe('Document Service Middleware', () => {
 
     expect(deleteEntriesFromMeiliSearch).toHaveBeenCalledWith({
       contentType: ctx.uid,
-      entriesId: [result.documentId],
+      documentIds: [result.documentId],
     })
   })
 
@@ -335,7 +335,7 @@ describe('Document Service Middleware', () => {
     // Uses documentId (not internal id) for deletion since _meilisearch_id is documentId-based
     expect(deleteEntriesFromMeiliSearch).toHaveBeenCalledWith({
       contentType: ctx.uid,
-      entriesId: ['abc'],
+      documentIds: ['abc'],
     })
   })
 
@@ -390,7 +390,7 @@ describe('Document Service Middleware', () => {
       action: 'update',
     }
 
-    const result = { id: 16, documentId: 16 }
+    const result = { id: 16, documentId: 'doc-16' }
     await handler(ctx, () => Promise.resolve(result))
 
     expect(updateEntriesInMeilisearch).not.toHaveBeenCalled()
@@ -438,7 +438,7 @@ describe('Document Service Middleware', () => {
       action: 'create',
     }
 
-    const result = { id: 17, documentId: 17 }
+    const result = { id: 17, documentId: 'doc-17' }
     const next = jest
       .fn()
       .mockResolvedValueOnce(result)
