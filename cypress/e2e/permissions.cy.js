@@ -103,10 +103,8 @@ describe('Permissions', () => {
     it('can access the plugin page', () => {
       cy.visit(`${adminUrl}`)
       cy.get('nav')
-        .get('a[aria-label="Meilisearch"]', { timeout: 10000 })
+        .find('a[aria-label="Meilisearch"]', { timeout: 10000 })
         .should('be.visible')
-      cy.get('nav')
-        .get('a[aria-label="Meilisearch"]', { timeout: 10000 })
         .click()
 
       cy.url().should('eq', `${adminUrl}/plugins/meilisearch`)
@@ -369,30 +367,53 @@ describe('Permissions', () => {
 
       cy.contains('button', 'Save').should('be.visible')
 
-      cy.get('input[name="host"]').clear()
-      cy.get('input[name="host"]').type('http://localhost:7777')
-      cy.get('input[name="apiKey"]').clear()
-      cy.get('input[name="apiKey"]').type('test')
+      // Wait for credential fetch to complete
+      cy.get('input[name="host"]', { timeout: 10000 }).should(
+        'have.value',
+        host,
+      )
 
-      cy.contains('button', 'Save').click()
+      cy.get('input[name="host"]').then($input => {
+        if ($input.is(':disabled')) {
+          // Credentials are from config file — verify user can see settings panel
+          // but inputs are locked (read-only) and Save is disabled
+          cy.get('input[name="host"]').should('be.disabled')
+          cy.get('input[name="apiKey"]').should('be.disabled')
+          cy.contains('button', 'Save').should('be.disabled')
+        } else {
+          // Credentials are from DB — full edit flow
+          cy.get('input[name="host"]').clear()
+          cy.get('input[name="host"]').type('http://localhost:7777')
+          cy.get('input[name="apiKey"]').clear()
+          cy.get('input[name="apiKey"]').type('test')
 
-      visitPluginPage()
-      cy.get('button:contains("Settings")').click()
+          cy.contains('button', 'Save').click()
 
-      cy.get('input[name="host"]').should('have.value', 'http://localhost:7777')
-      cy.get('input[name="apiKey"]').should('have.value', 'test')
+          visitPluginPage()
+          cy.get('button:contains("Settings")').click()
 
-      cy.get('input[name="host"]').clear()
-      cy.get('input[name="host"]').type(host)
-      cy.get('input[name="apiKey"]').clear()
-      cy.get('input[name="apiKey"]').type(apiKey)
-      cy.contains('button', 'Save').click()
+          cy.get('input[name="host"]', { timeout: 10000 }).should(
+            'have.value',
+            'http://localhost:7777',
+          )
+          cy.get('input[name="apiKey"]').should('have.value', 'test')
 
-      visitPluginPage()
-      cy.get('button:contains("Settings")').click()
+          cy.get('input[name="host"]').clear()
+          cy.get('input[name="host"]').type(host)
+          cy.get('input[name="apiKey"]').clear()
+          cy.get('input[name="apiKey"]').type(apiKey)
+          cy.contains('button', 'Save').click()
 
-      cy.get('input[name="host"]').should('have.value', host)
-      cy.get('input[name="apiKey"]').should('have.value', apiKey)
+          visitPluginPage()
+          cy.get('button:contains("Settings")').click()
+
+          cy.get('input[name="host"]', { timeout: 10000 }).should(
+            'have.value',
+            host,
+          )
+          cy.get('input[name="apiKey"]').should('have.value', apiKey)
+        }
+      })
     })
   })
 })
