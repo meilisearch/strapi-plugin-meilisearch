@@ -2092,7 +2092,7 @@
     semver "7.5.4"
     umzug "3.8.1"
 
-"@strapi/design-system@2.0.0-rc.30", "@strapi/design-system@^2.0.0-rc.14":
+"@strapi/design-system@2.0.0-rc.30":
   version "2.0.0-rc.30"
   resolved "https://registry.yarnpkg.com/@strapi/design-system/-/design-system-2.0.0-rc.30.tgz#51abd8ca368d9cc97469b591aa6986ff15aed21f"
   integrity sha512-RJSUzAXfWlZZz01vX975FekB5ZWqd7eoVH2+p+KZR06BJSbem06UHZStlrsak6v+UyLcaAW+fzTUIq3Sjpn32g==
@@ -2170,7 +2170,7 @@
     yup "0.32.9"
     zod "3.25.67"
 
-"@strapi/icons@2.0.0-rc.30", "@strapi/icons@^2.0.0-rc.14":
+"@strapi/icons@2.0.0-rc.30":
   version "2.0.0-rc.30"
   resolved "https://registry.yarnpkg.com/@strapi/icons/-/icons-2.0.0-rc.30.tgz#0162156f2cb963930e1c70055210e8545f91d5f9"
   integrity sha512-XOqbr573AP8eOwyMPTn7tDtFV1HFlqDlwr8qNgPzo29V2+449NE8Bk0aG8PZ+kGmbnxzyQC8OQDtWlvRBEL5uA==
@@ -7153,11 +7153,6 @@ media-typer@0.3.0:
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/media-typer/-/media-typer-0.3.0.tgz#8710d7af0aa626f8fffa1ce00168545263255748"
   integrity sha512-dq+qelQ9akHpcOl/gUVRTxVIOkAJ1wR3QAvb4RsVjS8oVoFjDGTc679wJYmUmknUF5HwMLOgb5O+a3KxfWapPQ==
-
-meilisearch@0.48.2:
-  version "0.48.2"
-  resolved "https://registry.yarnpkg.com/meilisearch/-/meilisearch-0.48.2.tgz#4c83e927d90b67e5100f504afcd824d4515acbf8"
-  integrity sha512-auDB6grs3f/+dVzzPiAOOFnrVN/L87/+SWZfy56TpimDinWjU4u6Jc2o6lgeLluotpbMOFY1WpTTbqtUdMduQw==
 
 meilisearch@0.54.0:
   version "0.54.0"
