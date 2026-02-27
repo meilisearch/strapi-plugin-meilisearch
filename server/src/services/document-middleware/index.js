@@ -63,7 +63,7 @@ export default async function registerDocumentMiddleware({ strapi }) {
             contentType,
             entries: [entry],
           })
-        } else if (documentId != null) {
+        } else {
           await meilisearch.deleteEntriesFromMeiliSearch({
             contentType,
             entriesId: [documentId],

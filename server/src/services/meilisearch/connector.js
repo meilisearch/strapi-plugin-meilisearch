@@ -85,7 +85,7 @@ export default ({ strapi, adapter, config }) => {
      *
      * @param  {object} options
      * @param  {string} options.contentType - ContentType name.
-     * @param  {number[]} options.entriesId - Entries id.
+     * @param  {string[]} options.entriesId - Entry documentIds.
      *
      * @returns  { Promise<import("meilisearch").Task>} p - Task body returned by Meilisearch API.
      */
