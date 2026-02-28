@@ -223,7 +223,7 @@ describe('Tests content types', () => {
     })
 
     expect(strapiMock.documents('').findOne).toHaveBeenCalledTimes(0)
-    expect(count).toEqual({})
+    expect(count).toBeNull()
   })
 
   test('Test operation in batches on entries', async () => {
@@ -243,6 +243,26 @@ describe('Tests content types', () => {
 
     expect(entries[0].id).toEqual(2)
     expect(entries[0].contentType).toEqual(contentType)
+  })
+
+  test('getEntry returns null when entry is not found', async () => {
+    const customStrapi = createStrapiMock({})
+    // Override findOne to return null (entry not found)
+    customStrapi.documents.mockImplementation(() => ({
+      findMany: jest.fn(() => []),
+      findOne: jest.fn(() => null),
+      count: jest.fn(() => 0),
+    }))
+
+    const contentTypeService = createContentTypeService({
+      strapi: customStrapi,
+    })
+    const result = await contentTypeService.getEntry({
+      contentType: 'api::restaurant.restaurant',
+      documentId: 'nonexistent-doc-id',
+    })
+
+    expect(result).toBeNull()
   })
 
   test('Test operation in batches on entries with callback returning nothing', async () => {

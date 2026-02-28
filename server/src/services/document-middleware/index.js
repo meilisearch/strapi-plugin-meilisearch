@@ -29,9 +29,8 @@ export default async function registerDocumentMiddleware({ strapi }) {
       ]
 
       const preDeleteDocumentId =
-        deleteActions.includes(ctx.action) &&
-        (ctx?.params?.documentId ?? ctx?.params?.id)
-          ? ctx.params.documentId ?? ctx.params.id
+        deleteActions.includes(ctx.action) && ctx?.params?.documentId
+          ? ctx.params.documentId
           : null
       const preDeleteEntry =
         preDeleteDocumentId != null
@@ -44,7 +43,6 @@ export default async function registerDocumentMiddleware({ strapi }) {
 
       result = await next()
 
-      const id = result?.id ?? preDeleteEntry?.id
       const documentId =
         result?.documentId ??
         preDeleteEntry?.documentId ??
@@ -62,26 +60,26 @@ export default async function registerDocumentMiddleware({ strapi }) {
         if (entry) {
           await meilisearch.updateEntriesInMeilisearch({
             contentType,
-            entries: [{ ...entry, id, documentId }],
+            entries: [entry],
           })
-        } else if (id != null) {
+        } else {
           await meilisearch.deleteEntriesFromMeiliSearch({
             contentType,
-            entriesId: [id],
+            documentIds: [documentId],
           })
         }
       } else if (deleteActions.includes(ctx.action)) {
-        if (id != null) {
+        if (documentId != null) {
           strapi.log.info(
-            `Meilisearch document middleware deleting ${contentType} ids=${id}`,
+            `Meilisearch document middleware deleting ${contentType} documentId=${documentId}`,
           )
           await meilisearch.deleteEntriesFromMeiliSearch({
             contentType,
-            entriesId: [id],
+            documentIds: [documentId],
           })
         } else {
           strapi.log.info(
-            `Meilisearch document middleware could not delete ${contentType} for action ${ctx.action}: missing id`,
+            `Meilisearch document middleware could not delete ${contentType} for action ${ctx.action}: missing documentId`,
           )
         }
       }

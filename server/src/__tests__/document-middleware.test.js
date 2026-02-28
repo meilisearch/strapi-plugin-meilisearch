@@ -20,7 +20,7 @@ describe('Document Service Middleware', () => {
     const updateEntriesInMeilisearch = jest.fn(() => Promise.resolve())
     const deleteEntriesFromMeiliSearch = jest.fn(() => Promise.resolve())
     const contentTypeGetEntry = jest.fn(() =>
-      Promise.resolve({ id: 1, title: 'Test entry' }),
+      Promise.resolve({ id: 1, documentId: 'doc-1', title: 'Test entry' }),
     )
 
     const service = jest.fn(name => {
@@ -100,7 +100,7 @@ describe('Document Service Middleware', () => {
       params: { data: { title: 'My title' } },
     }
 
-    const result = { id: 10, documentId: 10, title: 'My title' }
+    const result = { id: 10, documentId: 'doc-10', title: 'My title' }
     await handler(ctx, () => Promise.resolve(result))
 
     expect(entriesQuery).toHaveBeenCalledWith({ contentType: ctx.uid })
@@ -111,7 +111,7 @@ describe('Document Service Middleware', () => {
     })
     expect(updateEntriesInMeilisearch).toHaveBeenCalledWith({
       contentType: ctx.uid,
-      entries: [expect.objectContaining({ id: result.id })],
+      entries: [expect.objectContaining({ id: 1, title: 'Test entry' })],
     })
   })
 
@@ -133,7 +133,7 @@ describe('Document Service Middleware', () => {
       params: { data: { title: 'Updated title' } },
     }
 
-    const result = { id: 10, documentId: 10, title: 'Updated title' }
+    const result = { id: 10, documentId: 'doc-10', title: 'Updated title' }
     await handler(ctx, () => Promise.resolve(result))
 
     expect(entriesQuery).toHaveBeenCalledWith({ contentType: ctx.uid })
@@ -144,7 +144,7 @@ describe('Document Service Middleware', () => {
     })
     expect(updateEntriesInMeilisearch).toHaveBeenCalledWith({
       contentType: ctx.uid,
-      entries: [expect.objectContaining({ id: result.id })],
+      entries: [expect.objectContaining({ id: 1, title: 'Test entry' })],
     })
   })
 
@@ -166,7 +166,7 @@ describe('Document Service Middleware', () => {
       params: { data: { title: 'Published title' } },
     }
 
-    const result = { id: 11, documentId: 11, title: 'Published title' }
+    const result = { id: 11, documentId: 'doc-11', title: 'Published title' }
     await handler(ctx, () => Promise.resolve(result))
 
     expect(entriesQuery).toHaveBeenCalledWith({ contentType: ctx.uid })
@@ -177,7 +177,7 @@ describe('Document Service Middleware', () => {
     })
     expect(updateEntriesInMeilisearch).toHaveBeenCalledWith({
       contentType: ctx.uid,
-      entries: [expect.objectContaining({ id: result.id })],
+      entries: [expect.objectContaining({ id: 1, title: 'Test entry' })],
     })
   })
 
@@ -200,12 +200,12 @@ describe('Document Service Middleware', () => {
       params: { data: { title: 'Updated title' } },
     }
 
-    const result = { id: 12, documentId: 12, title: 'Updated title' }
+    const result = { id: 12, documentId: 'doc-12', title: 'Updated title' }
     await handler(ctx, () => Promise.resolve(result))
 
     expect(deleteEntriesFromMeiliSearch).toHaveBeenCalledWith({
       contentType: ctx.uid,
-      entriesId: [result.id],
+      documentIds: [result.documentId],
     })
   })
 
@@ -221,12 +221,12 @@ describe('Document Service Middleware', () => {
       action: 'delete',
     }
 
-    const result = { id: 13, documentId: 13 }
+    const result = { id: 13, documentId: 'doc-13' }
     await handler(ctx, () => Promise.resolve(result))
 
     expect(deleteEntriesFromMeiliSearch).toHaveBeenCalledWith({
       contentType: ctx.uid,
-      entriesId: [result.id],
+      documentIds: [result.documentId],
     })
   })
 
@@ -242,12 +242,12 @@ describe('Document Service Middleware', () => {
       action: 'unpublish',
     }
 
-    const result = { id: 14, documentId: 14 }
+    const result = { id: 14, documentId: 'doc-14' }
     await handler(ctx, () => Promise.resolve(result))
 
     expect(deleteEntriesFromMeiliSearch).toHaveBeenCalledWith({
       contentType: ctx.uid,
-      entriesId: [result.id],
+      documentIds: [result.documentId],
     })
   })
 
@@ -263,12 +263,114 @@ describe('Document Service Middleware', () => {
       action: 'discardDraft',
     }
 
-    const result = { id: 15, documentId: 15 }
+    const result = { id: 15, documentId: 'doc-15' }
     await handler(ctx, () => Promise.resolve(result))
 
     expect(deleteEntriesFromMeiliSearch).toHaveBeenCalledWith({
       contentType: ctx.uid,
-      entriesId: [result.id],
+      documentIds: [result.documentId],
+    })
+  })
+
+  test('update action uses id from getEntry, not from action result (D&P fix)', async () => {
+    const {
+      strapi,
+      middlewareFn,
+      updateEntriesInMeilisearch,
+      contentTypeGetEntry,
+    } = createStrapiStubs()
+
+    // getEntry returns the PUBLISHED version with id: 200
+    contentTypeGetEntry.mockResolvedValueOnce({
+      id: 200,
+      documentId: 'abc',
+      title: 'Published',
+      publishedAt: '2024-01-01',
+    })
+
+    await registerDocumentMiddleware({ strapi })
+
+    const handler = middlewareFn()
+    const ctx = {
+      uid: 'api::restaurant.restaurant',
+      action: 'update',
+      params: { data: { title: 'Draft update' } },
+    }
+
+    // result has the DRAFT id: 100, different from published id: 200
+    const result = { id: 100, documentId: 'abc', title: 'Draft update' }
+    await handler(ctx, () => Promise.resolve(result))
+
+    expect(updateEntriesInMeilisearch).toHaveBeenCalledWith({
+      contentType: ctx.uid,
+      entries: [expect.objectContaining({ id: 200, documentId: 'abc' })],
+    })
+  })
+
+  test('update action calls delete when getEntry returns null (no published version)', async () => {
+    const {
+      strapi,
+      middlewareFn,
+      updateEntriesInMeilisearch,
+      deleteEntriesFromMeiliSearch,
+      contentTypeGetEntry,
+    } = createStrapiStubs()
+
+    // getEntry returns null (no published version exists)
+    contentTypeGetEntry.mockResolvedValueOnce(null)
+
+    await registerDocumentMiddleware({ strapi })
+
+    const handler = middlewareFn()
+    const ctx = {
+      uid: 'api::restaurant.restaurant',
+      action: 'update',
+      params: { data: { title: 'Draft only' } },
+    }
+
+    const result = { id: 100, documentId: 'abc', title: 'Draft only' }
+    await handler(ctx, () => Promise.resolve(result))
+
+    expect(updateEntriesInMeilisearch).not.toHaveBeenCalled()
+    // Uses documentId (not internal id) for deletion since _meilisearch_id is documentId-based
+    expect(deleteEntriesFromMeiliSearch).toHaveBeenCalledWith({
+      contentType: ctx.uid,
+      documentIds: ['abc'],
+    })
+  })
+
+  test('publish action handles result without id at root level', async () => {
+    const {
+      strapi,
+      middlewareFn,
+      updateEntriesInMeilisearch,
+      contentTypeGetEntry,
+    } = createStrapiStubs()
+
+    // getEntry returns the published version
+    contentTypeGetEntry.mockResolvedValueOnce({
+      id: 200,
+      documentId: 'abc',
+      title: 'Published',
+      publishedAt: '2024-01-01',
+    })
+
+    await registerDocumentMiddleware({ strapi })
+
+    const handler = middlewareFn()
+    const ctx = {
+      uid: 'api::restaurant.restaurant',
+      action: 'publish',
+      params: { documentId: 'abc' },
+    }
+
+    // publish result may not have id at root (Strapi v5 can return array of versions)
+    const result = { documentId: 'abc', versions: [{ id: 200 }] }
+    await handler(ctx, () => Promise.resolve(result))
+
+    expect(updateEntriesInMeilisearch).toHaveBeenCalledWith({
+      contentType: ctx.uid,
+      entries: [expect.objectContaining({ id: 200, documentId: 'abc' })],
     })
   })
 
@@ -288,7 +390,7 @@ describe('Document Service Middleware', () => {
       action: 'update',
     }
 
-    const result = { id: 16, documentId: 16 }
+    const result = { id: 16, documentId: 'doc-16' }
     await handler(ctx, () => Promise.resolve(result))
 
     expect(updateEntriesInMeilisearch).not.toHaveBeenCalled()
@@ -336,7 +438,7 @@ describe('Document Service Middleware', () => {
       action: 'create',
     }
 
-    const result = { id: 17, documentId: 17 }
+    const result = { id: 17, documentId: 'doc-17' }
     const next = jest
       .fn()
       .mockResolvedValueOnce(result)

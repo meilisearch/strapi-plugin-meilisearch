@@ -38,12 +38,14 @@ describe('Tests content types', () => {
               entries: [
                 {
                   id: 1,
+                  documentId: 'doc1',
                   title: 'title',
                   internal_notes: 'note123',
                   secret: '123',
                 },
                 {
                   id: 2,
+                  documentId: 'doc2',
                   title: 'abc',
                   internal_notes: 'note234',
                   secret: '234',
@@ -102,6 +104,7 @@ describe('Tests content types', () => {
     // More information: https://docs.strapi.io/cms/migration/v4-to-v5/breaking-changes/publishedat-always-set-when-dandp-disabled
     const mockEntry = {
       attributes: { id: 1 },
+      documentId: 'doc-1',
       publishedAt: '2022-01-01T00:00:00.000Z',
     }
     const tasks = await meilisearchService.addEntriesToMeilisearch({
@@ -128,12 +131,14 @@ describe('Tests content types', () => {
               entries: [
                 {
                   id: 1,
+                  documentId: 'doc1',
                   title: 'title',
                   internal_notes: 'note123',
                   secret: '123',
                 },
                 {
                   id: 2,
+                  documentId: 'doc2',
                   title: 'abc',
                   internal_notes: 'note234',
                   secret: '234',
@@ -192,6 +197,7 @@ describe('Tests content types', () => {
     // More information: https://docs.strapi.io/cms/migration/v4-to-v5/breaking-changes/publishedat-always-set-when-dandp-disabled
     const mockEntry = {
       attributes: { id: 1 },
+      documentId: 'doc-1',
       publishedAt: '2022-01-01T00:00:00.000Z',
     }
     const tasks = await meilisearchService.addEntriesToMeilisearch({
@@ -228,7 +234,7 @@ describe('Tests content types', () => {
 
     const tasks = await meilisearchService.deleteEntriesFromMeiliSearch({
       contentType: 'restaurant',
-      entriesId: [1, 2],
+      documentIds: ['doc-1', 'doc-2'],
     })
 
     expect(customStrapi.log.info).toHaveBeenCalledTimes(1)
@@ -237,8 +243,8 @@ describe('Tests content types', () => {
     )
     expect(client.index('').deleteDocuments).toHaveBeenCalledTimes(1)
     expect(client.index('').deleteDocuments).toHaveBeenCalledWith([
-      'restaurant-1',
-      'restaurant-2',
+      'restaurant-doc-1',
+      'restaurant-doc-2',
     ])
     expect(client.index).toHaveBeenCalledWith('customIndex')
     expect(tasks).toEqual([{ taskUid: 1 }, { taskUid: 2 }])
@@ -260,7 +266,7 @@ describe('Tests content types', () => {
 
     const tasks = await meilisearchService.deleteEntriesFromMeiliSearch({
       contentType: 'restaurant',
-      entriesId: [1, 2],
+      documentIds: ['doc-1', 'doc-2'],
     })
 
     expect(customStrapi.log.info).toHaveBeenCalledTimes(2)
@@ -272,8 +278,8 @@ describe('Tests content types', () => {
     )
     expect(client.index('').deleteDocuments).toHaveBeenCalledTimes(2)
     expect(client.index('').deleteDocuments).toHaveBeenCalledWith([
-      'restaurant-1',
-      'restaurant-2',
+      'restaurant-doc-1',
+      'restaurant-doc-2',
     ])
     expect(client.index).toHaveBeenCalledWith('customIndex')
     expect(client.index).toHaveBeenCalledWith('anotherIndex')
@@ -283,6 +289,57 @@ describe('Tests content types', () => {
       { taskUid: 1 },
       { taskUid: 2 },
     ])
+  })
+
+  test('Test deleteEntriesFromMeiliSearch filters out null and undefined documentIds', async () => {
+    const customStrapi = createStrapiMock({
+      restaurantConfig: {
+        indexName: ['customIndex'],
+      },
+    })
+
+    const client = new Meilisearch({ host: 'abc' })
+
+    const meilisearchService = createMeilisearchService({
+      strapi: customStrapi,
+    })
+
+    await meilisearchService.deleteEntriesFromMeiliSearch({
+      contentType: 'restaurant',
+      documentIds: ['doc-1', null, undefined, 'doc-2'],
+    })
+
+    expect(client.index('').deleteDocuments).toHaveBeenCalledTimes(1)
+    expect(client.index('').deleteDocuments).toHaveBeenCalledWith([
+      'restaurant-doc-1',
+      'restaurant-doc-2',
+    ])
+    expect(customStrapi.log.info).toHaveBeenCalledWith(
+      'A task to delete 2 documents of the index "customIndex" in Meilisearch has been enqueued (Task uid: undefined).',
+    )
+  })
+
+  test('Test deleteEntriesFromMeiliSearch returns early when all documentIds are null', async () => {
+    const customStrapi = createStrapiMock({
+      restaurantConfig: {
+        indexName: ['customIndex'],
+      },
+    })
+
+    const client = new Meilisearch({ host: 'abc' })
+
+    const meilisearchService = createMeilisearchService({
+      strapi: customStrapi,
+    })
+
+    const result = await meilisearchService.deleteEntriesFromMeiliSearch({
+      contentType: 'restaurant',
+      documentIds: [null, undefined],
+    })
+
+    expect(result).toEqual([])
+    expect(client.index('').deleteDocuments).not.toHaveBeenCalled()
+    expect(customStrapi.log.info).not.toHaveBeenCalled()
   })
 
   test('Test to update entries linked to multiple indexes in Meilisearch', async () => {
@@ -295,12 +352,14 @@ describe('Tests content types', () => {
               entries: [
                 {
                   id: 1,
+                  documentId: 'doc1',
                   title: 'title',
                   internal_notes: 'note123',
                   secret: '123',
                 },
                 {
                   id: 2,
+                  documentId: 'doc2',
                   title: 'abc',
                   internal_notes: 'note234',
                   secret: '234',
@@ -359,12 +418,14 @@ describe('Tests content types', () => {
     // More information: https://docs.strapi.io/cms/migration/v4-to-v5/breaking-changes/publishedat-always-set-when-dandp-disabled
     const mockEntryUpdate = {
       attributes: { id: 1 },
+      documentId: 'doc-update',
       publishedAt: '2022-01-01T00:00:00.000Z',
     }
 
     const mockEntryCreate = {
-      _meilisearch_id: 'restaurant-1',
+      _meilisearch_id: 'restaurant-doc-create',
       id: 3,
+      documentId: 'doc-create',
       title: 'title',
       internal_notes: 'note123',
       publishedAt: null,
@@ -388,6 +449,90 @@ describe('Tests content types', () => {
     expect(client.index).toHaveBeenCalledWith('customIndex')
     expect(client.index).toHaveBeenCalledWith('anotherIndex')
     expect(tasks).toEqual([3, 3, 10, 10])
+  })
+
+  test('Test updateEntriesInMeilisearch skips deletion for entries with null documentId', async () => {
+    const pluginMock = jest.fn(() => ({
+      service: jest.fn().mockImplementation(() => {
+        return {
+          async actionInBatches({ contentType = 'restaurant', callback }) {
+            await callback({
+              entries: [
+                {
+                  id: 1,
+                  documentId: 'doc1',
+                  title: 'title',
+                  internal_notes: 'note123',
+                  secret: '123',
+                },
+              ],
+              contentType,
+            })
+          },
+          getCollectionName: ({ contentType }) => contentType,
+          addIndexedContentType: jest.fn(),
+          subscribeContentType: jest.fn(),
+          getCredentials: () => ({}),
+        }
+      }),
+    }))
+
+    const client = new Meilisearch({ host: 'abc' })
+
+    const meilisearchService = createMeilisearchService({
+      strapi: {
+        plugin: pluginMock,
+        contentTypes: {
+          restaurant: {
+            attributes: {
+              id: { private: false },
+              title: { private: false },
+              internal_notes: { private: true },
+              secret: { private: true },
+            },
+          },
+        },
+        config: {
+          get: jest.fn(() => ({
+            restaurant: {
+              indexName: ['customIndex'],
+            },
+          })),
+        },
+        log: mockLogger,
+      },
+      contentTypes: {
+        restaurant: {
+          attributes: {
+            id: { private: false },
+            title: { private: false },
+            internal_notes: { private: true },
+            secret: { private: true },
+          },
+        },
+      },
+    })
+
+    // Entry with null documentId should not trigger a delete call
+    const mockEntryValid = {
+      attributes: { id: 1 },
+      documentId: 'doc-valid',
+      publishedAt: '2022-01-01T00:00:00.000Z',
+    }
+
+    const mockEntryNullId = {
+      attributes: { id: 2 },
+      documentId: null,
+      publishedAt: null,
+    }
+
+    await meilisearchService.updateEntriesInMeilisearch({
+      contentType: 'restaurant',
+      entries: [mockEntryValid, mockEntryNullId],
+    })
+
+    // The null-documentId entry should not trigger deleteDocument
+    expect(client.index('').deleteDocument).not.toHaveBeenCalled()
   })
 
   test('Test to get stats', async () => {
@@ -591,6 +736,7 @@ describe('Tests content types', () => {
               entries: [
                 {
                   id: 1,
+                  documentId: 'doc-1',
                   title: 'title',
                   internal_notes: 'note123',
                   secret: '123',
@@ -598,6 +744,7 @@ describe('Tests content types', () => {
                 },
                 {
                   id: 2,
+                  documentId: 'doc-2',
                   title: 'abc',
                   internal_notes: 'note234',
                   secret: '234',
@@ -647,15 +794,17 @@ describe('Tests content types', () => {
       1,
       [
         {
-          _meilisearch_id: 'restaurant-1',
+          _meilisearch_id: 'restaurant-doc-1',
           id: 1,
+          documentId: 'doc-1',
           title: 'title',
           internal_notes: 'note123',
           publishedAt: '2022-01-01T00:00:00.000Z',
         },
         {
-          _meilisearch_id: 'restaurant-2',
+          _meilisearch_id: 'restaurant-doc-2',
           id: 2,
+          documentId: 'doc-2',
           title: 'abc',
           internal_notes: 'note234',
           publishedAt: '2022-01-01T00:00:00.000Z',
