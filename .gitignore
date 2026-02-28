@@ -134,7 +134,6 @@ cypress/fixtures
 .vscode
 
 dist
-docs
 
 # Keep the sqlite database for tests
 !playground/.tmp/data.db
