@@ -132,7 +132,7 @@ export default ({ strapi }) => ({
         this.numberOfEntries({ contentType, filters, status }),
       ),
     )
-    const entriesSum = numberOfEntries.reduce((acc, curr) => (acc += curr), 0)
+    const entriesSum = numberOfEntries.reduce((acc, curr) => acc + curr, 0)
     return entriesSum
   },
 
