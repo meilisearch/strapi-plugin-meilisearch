@@ -18,7 +18,7 @@ jobs:
         node: ["20"]
     name: unit-tests (Node.js ${{ matrix.node }})
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Setup Node + deps
         uses: ./.github/actions/setup-node-and-deps
         with:
@@ -42,7 +42,7 @@ jobs:
         ports:
           - "7700:7700"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Setup Node + deps (root + playground)
         uses: ./.github/actions/setup-node-and-deps
         with:
@@ -97,7 +97,7 @@ jobs:
         node: ["20"]
     name: playground-build (Node.js ${{ matrix.node }})
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Setup Node + deps (root + playground)
         uses: ./.github/actions/setup-node-and-deps
         with:
@@ -112,7 +112,7 @@ jobs:
         node: ["20"]
     name: style-check (Node.js ${{ matrix.node }})
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Setup Node + deps
         uses: ./.github/actions/setup-node-and-deps
         with:
