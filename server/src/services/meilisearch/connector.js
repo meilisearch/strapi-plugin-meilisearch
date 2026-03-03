@@ -206,7 +206,7 @@ export default ({ strapi, adapter, config }) => {
         const { apiKey, host } = await store.getCredentials()
         const client = Meilisearch({ apiKey, host })
         return await client.index(indexUid).getStats()
-      } catch (e) {
+      } catch {
         return {
           numberOfDocuments: 0,
           isIndexing: false,
