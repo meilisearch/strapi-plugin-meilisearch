@@ -13,8 +13,8 @@
     "playground:ci": "yarn --cwd ./playground ci",
     "style": "eslint .",
     "style:fix": "eslint . --fix",
-    "test": "jest --testPathPattern=tests",
-    "test:watch": "jest --watch --testPathPattern=tests --verbose",
+    "test": "jest --testPathPatterns=tests",
+    "test:watch": "jest --watch --testPathPatterns=tests --verbose",
     "test:e2e": "concurrently --kill-others -s first \"yarn playground:dev\" \"cypress run\"",
     "test:integrations": "jest -c jest.integration.config.js"
   },
