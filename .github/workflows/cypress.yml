@@ -58,7 +58,7 @@ jobs:
           start: yarn playground:dev
           env: env=ci
           browser: chrome
-          record: true
+          record: ${{ secrets.CYPRESS_RECORD_KEY != '' }}
         env:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           # Allows Cypress to detect new build vs re-run build
@@ -66,12 +66,12 @@ jobs:
           MEILISEARCH_HOST: http://meilisearch:7700
           MEILISEARCH_API_KEY: masterKey
 
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: cypress-screenshots
           path: cypress/screenshots
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: cypress-videos

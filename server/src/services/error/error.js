@@ -8,13 +8,9 @@ export default ({ strapi }) => {
         return {
           error: {
             message: e.message,
-            link: {
-              url: e.link || 'https://www.meilisearch.com/docs',
-              label: {
-                id: 'notification.meilisearch',
-                defaultMessage: 'See more',
-              },
-            },
+            link: e.link
+              ? { url: e.link }
+              : { url: 'https://www.meilisearch.com/docs' },
           },
         }
       } else if (e.type === 'MeiliSearchCommunicationError') {

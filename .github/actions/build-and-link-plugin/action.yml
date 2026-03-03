@@ -1,0 +1,25 @@
+name: Build and link plugin
+description: Build the plugin, publish via yalc, and link it into the playground.
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install yalc
+      shell: bash
+      run: npm install -g yalc
+
+    - name: Build plugin
+      shell: bash
+      run: yarn build
+
+    - name: Publish plugin via yalc
+      shell: bash
+      run: yalc publish
+
+    - name: Link plugin into playground
+      shell: bash
+      working-directory: playground
+      run: |
+        npx yalc add strapi-plugin-meilisearch
+        npx yalc link strapi-plugin-meilisearch
+        yarn install
