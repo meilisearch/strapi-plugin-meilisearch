@@ -19,7 +19,7 @@ importers:
         version: 0.48.2
     devDependencies:
       '@babel/core':
-        specifier: ^7.26.7
+        specifier: ^7.29.0
         version: 7.29.0
       '@babel/preset-env':
         specifier: ^7.29.0
@@ -85,7 +85,7 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       react-router-dom:
-        specifier: ^6.29.0
+        specifier: ^6.30.3
         version: 6.30.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       styled-components:
         specifier: ^6.3.11
@@ -13638,7 +13638,7 @@ snapshots:
       postcss-modules-scope: 3.2.1(postcss@8.5.8)
       postcss-modules-values: 4.0.0(postcss@8.5.8)
       postcss-value-parser: 4.2.0
-      semver: 7.5.4
+      semver: 7.7.4
     optionalDependencies:
       webpack: 5.105.3(esbuild@0.25.12)
 
@@ -14645,7 +14645,7 @@ snapshots:
       minimatch: 3.1.5
       node-abort-controller: 3.1.1
       schema-utils: 3.3.0
-      semver: 7.5.4
+      semver: 7.7.4
       tapable: 2.3.0
       typescript: 5.4.4
       webpack: 5.105.3(esbuild@0.25.12)
@@ -16720,7 +16720,7 @@ snapshots:
       ignore-by-default: 1.0.1
       minimatch: 3.1.5
       pstree.remy: 1.1.8
-      semver: 7.5.4
+      semver: 7.7.4
       simple-update-notifier: 2.0.0
       supports-color: 5.5.0
       touch: 3.1.1
