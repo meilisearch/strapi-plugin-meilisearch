@@ -43,7 +43,7 @@ importers:
         specifier: ^9.2.1
         version: 9.2.1
       cypress:
-        specifier: ^15.3.0
+        specifier: ^15.11.0
         version: 15.11.0
       eslint:
         specifier: ^10.0.2
@@ -88,7 +88,7 @@ importers:
         specifier: ^6.29.0
         version: 6.30.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       styled-components:
-        specifier: ^6.1.14
+        specifier: ^6.3.11
         version: 6.3.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
 
 packages:
@@ -10270,7 +10270,7 @@ snapshots:
 
   '@koa/router@12.0.2':
     dependencies:
-      debug: 4.3.4
+      debug: 4.4.3(supports-color@8.1.1)
       http-errors: 2.0.0
       koa-compose: 4.1.0
       methods: 1.1.2
@@ -16034,7 +16034,7 @@ snapshots:
 
   koa-send@5.0.1:
     dependencies:
-      debug: 4.3.4
+      debug: 4.4.3(supports-color@8.1.1)
       http-errors: 1.8.1
       resolve-path: 1.4.0
     transitivePeerDependencies:
@@ -16043,7 +16043,7 @@ snapshots:
   koa-session@6.4.0:
     dependencies:
       crc: 3.8.0
-      debug: 4.3.4
+      debug: 4.4.3(supports-color@8.1.1)
       is-type-of: 1.4.0
       uuid: 8.3.2
     transitivePeerDependencies:
@@ -16065,7 +16065,7 @@ snapshots:
       content-disposition: 0.5.4
       content-type: 1.0.5
       cookies: 0.9.1
-      debug: 4.3.4
+      debug: 4.4.3(supports-color@8.1.1)
       delegates: 1.0.0
       depd: 2.0.0
       destroy: 1.2.0
