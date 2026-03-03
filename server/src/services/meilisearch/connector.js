@@ -85,17 +85,22 @@ export default ({ strapi, adapter, config }) => {
      *
      * @param  {object} options
      * @param  {string} options.contentType - ContentType name.
-     * @param  {number[]} options.entriesId - Entries id.
+     * @param  {string[]} options.documentIds - Entry documentIds.
      *
      * @returns  { Promise<import("meilisearch").Task>} p - Task body returned by Meilisearch API.
      */
-    deleteEntriesFromMeiliSearch: async function ({ contentType, entriesId }) {
+    deleteEntriesFromMeiliSearch: async function ({
+      contentType,
+      documentIds,
+    }) {
       const { apiKey, host } = await store.getCredentials()
       const client = Meilisearch({ apiKey, host })
 
       const indexUids = config.getIndexNamesOfContentType({ contentType })
-      const documentsIds = entriesId.map(entryId =>
-        adapter.addCollectionNamePrefixToId({ entryId, contentType }),
+      const validDocumentIds = documentIds.filter(id => id != null)
+      if (validDocumentIds.length === 0) return []
+      const documentsIds = validDocumentIds.map(entryDocumentId =>
+        adapter.addCollectionNamePrefixToId({ entryDocumentId, contentType }),
       )
 
       const tasks = await Promise.all(
@@ -141,7 +146,11 @@ export default ({ strapi, adapter, config }) => {
 
       // Check which documents are not in sanitized documents and need to be deleted
       const deleteDocuments = entries.filter(
-        entry => !addDocuments.map(document => document.id).includes(entry.id),
+        entry =>
+          entry.documentId != null &&
+          !addDocuments
+            .map(document => document.documentId)
+            .includes(entry.documentId),
       )
       // Collect delete tasks
       const deleteTasks = await Promise.all(
@@ -151,7 +160,7 @@ export default ({ strapi, adapter, config }) => {
               const task = await client.index(indexUid).deleteDocument(
                 adapter.addCollectionNamePrefixToId({
                   contentType,
-                  entryId: document.id,
+                  entryDocumentId: document.documentId,
                 }),
               )
 
@@ -441,7 +450,7 @@ export default ({ strapi, adapter, config }) => {
         const deleteEntries = async ({ entries, contentType }) => {
           await this.deleteEntriesFromMeiliSearch({
             contentType,
-            entriesId: entries.map(entry => entry.id),
+            documentIds: entries.map(entry => entry.documentId),
           })
         }
         await contentTypeService.actionInBatches({

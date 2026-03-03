@@ -10,7 +10,7 @@ import { MeiliSearch } from 'meilisearch'
  * with seeded data. It verifies that the plugin's document middleware correctly:
  * - Indexes restaurant documents with their related categories
  * - Only includes published categories in the categories array
- * - Uses the correct _meilisearch_id format (restaurant-<id>)
+ * - Uses the correct _meilisearch_id format (restaurant-<documentId>)
  *
  * Expected seeded data (from playground/pre-seeded-database.db):
  * - Restaurant 3: "First restaurant" with published category "French" (id 2)
@@ -27,32 +27,39 @@ import { MeiliSearch } from 'meilisearch'
 
 // Expected documents based on playground/pre-seeded-database.db
 // Only published categories (publishedAt IS NOT NULL) are included
+// Keys use the documentId-based _meilisearch_id format: restaurant-<documentId>
 const EXPECTED_DOCUMENTS = {
-  'restaurant-3': {
+  'restaurant-mucw8kpobytdk767ulod8vxu': {
     id: 3,
     documentId: 'mucw8kpobytdk767ulod8vxu',
     title: 'First restaurant',
     categories: ['French'], // Only published French (id 2)
   },
-  'restaurant-4': {
+  'restaurant-okjubaltqvkmk3892res485a': {
     id: 4,
     documentId: 'okjubaltqvkmk3892res485a',
     title: 'Second restaurant',
     categories: ['Chinese'], // Only published Chinese (id 4)
   },
-  'restaurant-5': {
+  'restaurant-gztu8dl9j8h5ufidamichiao': {
     id: 5,
     documentId: 'gztu8dl9j8h5ufidamichiao',
     title: 'Yet Another One',
     categories: ['Chinese', 'French'], // Both published categories (sorted)
   },
-  'restaurant-7': {
+  'restaurant-xh0j5yhp03309oycn2ftj9s5': {
     id: 7,
     documentId: 'xh0j5yhp03309oycn2ftj9s5',
     title: 'Secret restaurant',
     categories: [], // Unpublished category (id 5) is not included
   },
 }
+
+// Shorthand references for readability in tests
+const REST_3 = 'restaurant-mucw8kpobytdk767ulod8vxu'
+const REST_4 = 'restaurant-okjubaltqvkmk3892res485a'
+const REST_5 = 'restaurant-gztu8dl9j8h5ufidamichiao'
+const REST_7 = 'restaurant-xh0j5yhp03309oycn2ftj9s5'
 
 const INDEX_NAME = 'my_restaurant' // From playground/config/plugins.js
 const STRAPI_URL = process.env.STRAPI_URL || 'http://localhost:1337'
@@ -172,8 +179,8 @@ describe('Meilisearch Relations Integration Test', () => {
 
   test('indexes restaurant 3 with its published categories', async () => {
     const index = client.index(INDEX_NAME)
-    const doc = await index.getDocument('restaurant-3')
-    const expected = EXPECTED_DOCUMENTS['restaurant-3']
+    const doc = await index.getDocument(REST_3)
+    const expected = EXPECTED_DOCUMENTS[REST_3]
 
     expect(doc.id).toBe(expected.id)
     expect(doc.title).toBe(expected.title)
@@ -182,8 +189,8 @@ describe('Meilisearch Relations Integration Test', () => {
   })
 
   test('indexes restaurant 4 with its published categories', async () => {
-    const doc = await client.index(INDEX_NAME).getDocument('restaurant-4')
-    const expected = EXPECTED_DOCUMENTS['restaurant-4']
+    const doc = await client.index(INDEX_NAME).getDocument(REST_4)
+    const expected = EXPECTED_DOCUMENTS[REST_4]
 
     expect(doc.id).toBe(expected.id)
     expect(doc.title).toBe(expected.title)
@@ -192,8 +199,8 @@ describe('Meilisearch Relations Integration Test', () => {
   })
 
   test('indexes restaurant 5 with its published categories', async () => {
-    const doc = await client.index(INDEX_NAME).getDocument('restaurant-5')
-    const expected = EXPECTED_DOCUMENTS['restaurant-5']
+    const doc = await client.index(INDEX_NAME).getDocument(REST_5)
+    const expected = EXPECTED_DOCUMENTS[REST_5]
 
     expect(doc.id).toBe(expected.id)
     expect(doc.title).toBe(expected.title)
@@ -202,8 +209,8 @@ describe('Meilisearch Relations Integration Test', () => {
   })
 
   test('indexes restaurant 7 with no published categories', async () => {
-    const doc = await client.index(INDEX_NAME).getDocument('restaurant-7')
-    const expected = EXPECTED_DOCUMENTS['restaurant-7']
+    const doc = await client.index(INDEX_NAME).getDocument(REST_7)
+    const expected = EXPECTED_DOCUMENTS[REST_7]
 
     expect(doc.id).toBe(expected.id)
     expect(doc.title).toBe(expected.title)
@@ -220,12 +227,7 @@ describe('Meilisearch Relations Integration Test', () => {
     // We expect all 4 seeded restaurants to be indexed
     // (Restaurant 2 is filtered out by filterEntry in playground config)
     expect(indexedIds).toEqual(
-      expect.arrayContaining([
-        'restaurant-3',
-        'restaurant-4',
-        'restaurant-5',
-        'restaurant-7',
-      ]),
+      expect.arrayContaining([REST_3, REST_4, REST_5, REST_7]),
     )
   })
 
@@ -233,19 +235,19 @@ describe('Meilisearch Relations Integration Test', () => {
     const newTitle = 'First restaurant (updated)'
 
     await updateRestaurant({
-      documentId: EXPECTED_DOCUMENTS['restaurant-3'].documentId,
+      documentId: EXPECTED_DOCUMENTS[REST_3].documentId,
       data: { title: newTitle },
     })
 
     await waitForMeilisearchTasksToFinish(client, { indexUid: INDEX_NAME })
 
-    const doc = await client.index(INDEX_NAME).getDocument('restaurant-3')
+    const doc = await client.index(INDEX_NAME).getDocument(REST_3)
     expect(doc.title).toBe(newTitle)
   })
 
   test('deletes restaurant 7 and removes it from Meilisearch', async () => {
     await deleteRestaurant({
-      documentId: EXPECTED_DOCUMENTS['restaurant-7'].documentId,
+      documentId: EXPECTED_DOCUMENTS[REST_7].documentId,
     })
 
     await waitForMeilisearchTasksToFinish(client, { indexUid: INDEX_NAME })
@@ -253,7 +255,7 @@ describe('Meilisearch Relations Integration Test', () => {
     await expectDocumentMissing({
       client,
       indexUid: INDEX_NAME,
-      documentId: 'restaurant-7',
+      documentId: REST_7,
     })
   })
 })

@@ -12,6 +12,13 @@ const COLLECTIONS = ['user', 'about-us', 'category', 'homepage', 'restaurant']
 
 describe('Meilisearch features', () => {
   before(() => {
+    // Wait for Strapi to be ready before running any tests.
+    // Uses cy.exec + curl because cy.request() cannot catch network-level
+    // errors (ECONNREFUSED) that occur when Strapi hasn't started yet.
+    cy.exec(
+      `for i in $(seq 1 30); do curl -sf ${adminUrl} > /dev/null 2>&1 && exit 0; sleep 2; done; echo "Strapi did not start in time" >&2; exit 1`,
+      { timeout: 70000 },
+    )
     cy.clearMeilisearchIndexes()
   })
 
@@ -237,24 +244,44 @@ describe('Meilisearch features', () => {
       visitPluginPage()
       cy.get('button:contains("Settings")').click()
 
-      cy.get('input[name="host"]').clear()
-      cy.get('input[name="host"]').type(host)
-      cy.get('input[name="apiKey"]').clear()
-      cy.get('input[name="apiKey"]').type(apiKey)
-      cy.contains('button', 'Save').click({ force: true })
+      // Wait for credential fetch to complete
+      cy.get('input[name="host"]', { timeout: 10000 }).should(
+        'have.value',
+        host,
+      )
 
-      cy.get('div[role="status"]').contains('success').should('be.visible')
-      cy.get('div[role="status"]')
-        .contains('Credentials successfully updated')
-        .should('be.visible')
-      cy.removeNotifications()
+      cy.get('input[name="host"]').then($input => {
+        if ($input.is(':disabled')) {
+          // Credentials are from config file — inputs are read-only, Save is disabled
+          cy.get('input[name="host"]').should('be.disabled')
+          cy.get('input[name="apiKey"]').should('be.disabled')
+          cy.contains('button', 'Save').should('be.disabled')
+        } else {
+          // Credentials are from DB — full edit flow
+          cy.get('input[name="host"]').clear()
+          cy.get('input[name="host"]').type(host)
+          cy.get('input[name="apiKey"]').clear()
+          cy.get('input[name="apiKey"]').type(apiKey)
+          cy.contains('button', 'Save').click({ force: true })
+
+          cy.get('div[role="status"]').contains('success').should('be.visible')
+          cy.get('div[role="status"]')
+            .contains('Credentials successfully updated')
+            .should('be.visible')
+          cy.removeNotifications()
+        }
+      })
     })
 
     it('displays credentials', () => {
       visitPluginPage()
       cy.get('button:contains("Settings")').click()
 
-      cy.get('input[name="host"]').should('have.value', host)
+      // Wait for credential fetch to complete
+      cy.get('input[name="host"]', { timeout: 10000 }).should(
+        'have.value',
+        host,
+      )
       cy.get('input[name="apiKey"]').should('have.value', apiKey)
     })
 
@@ -262,35 +289,48 @@ describe('Meilisearch features', () => {
       visitPluginPage()
       cy.get('button:contains("Settings")').click()
 
-      cy.get('input[name="host"]').clear()
-      cy.contains('button', 'Save').click()
+      // Wait for credential fetch to complete
+      cy.get('input[name="host"]', { timeout: 10000 }).should(
+        'have.value',
+        host,
+      )
 
-      cy.removeNotifications()
-      cy.get('input[name="host"]').should('have.value', '')
+      cy.get('input[name="host"]').then($input => {
+        if ($input.is(':disabled')) {
+          // Credentials are from config file — cannot empty host, verify read-only
+          cy.get('input[name="host"]').should('be.disabled')
+        } else {
+          cy.get('input[name="host"]').clear()
+          cy.contains('button', 'Save').click()
 
-      visitPluginPage()
-      // Use first row's checkbox (user collection)
-      getRow('user').find('button[role="checkbox"]').click({ force: true })
-      cy.contains('The provided host is not valid.').should('be.visible')
-      cy.removeNotifications()
+          cy.removeNotifications()
+          cy.get('input[name="host"]').should('have.value', '')
 
-      getRow('user')
-        .find('button[role="checkbox"]')
-        .should($checkbox => {
-          const isChecked =
-            $checkbox.attr('aria-checked') === 'true' ||
-            $checkbox.attr('data-state') === 'checked'
-          expect(isChecked).to.be.false
-        })
+          visitPluginPage()
+          // Use first row's checkbox (user collection)
+          getRow('user').find('button[role="checkbox"]').click({ force: true })
+          cy.contains('The provided host is not valid.').should('be.visible')
+          cy.removeNotifications()
 
-      // Restore valid host
-      visitPluginPage()
-      cy.get('button:contains("Settings")').click()
-      cy.get('input[name="host"]').should('have.value', '')
-      cy.get('input[name="host"]').clear()
-      cy.get('input[name="host"]').type(host)
-      cy.contains('button', 'Save').click()
-      cy.removeNotifications()
+          getRow('user')
+            .find('button[role="checkbox"]')
+            .should($checkbox => {
+              const isChecked =
+                $checkbox.attr('aria-checked') === 'true' ||
+                $checkbox.attr('data-state') === 'checked'
+              expect(isChecked).to.be.false
+            })
+
+          // Restore valid host
+          visitPluginPage()
+          cy.get('button:contains("Settings")').click()
+          cy.get('input[name="host"]').should('have.value', '')
+          cy.get('input[name="host"]').clear()
+          cy.get('input[name="host"]').type(host)
+          cy.contains('button', 'Save').click()
+          cy.removeNotifications()
+        }
+      })
     })
   })
 

@@ -149,7 +149,7 @@ export default ({ strapi }) => ({
    * @param  {string} [options.entriesQuery.locale] - When using internationalization (i18n), the language to fetch.
    * @param  {string} options.contentType - Content type.
    *
-   * @returns  {Promise<object>} - Entries.
+   * @returns  {Promise<object|null>} - Entry, or null if not found.
    */
   async getEntry({ contentType, documentId, entriesQuery = {} }) {
     const {
@@ -160,17 +160,18 @@ export default ({ strapi }) => ({
     } = entriesQuery
     const queryOptions = { documentId, fields, populate, status, locale }
     const contentTypeUid = this.getContentTypeUid({ contentType })
-    if (contentTypeUid === undefined) return {}
+    if (contentTypeUid === undefined) return null
 
     const entry = await strapi.documents(contentTypeUid).findOne(queryOptions)
 
     if (entry == null) {
-      strapi.log.error(
-        `Could not find entry with id ${documentId} in ${contentType}`,
+      strapi.log.warn(
+        `Could not find entry with documentId ${documentId} in ${contentType}`,
       )
+      return null
     }
 
-    return entry || { documentId }
+    return entry
   },
 
   /**
