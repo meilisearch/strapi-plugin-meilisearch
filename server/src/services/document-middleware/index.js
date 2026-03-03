@@ -31,7 +31,7 @@ export default async function registerDocumentMiddleware({ strapi }) {
       const preDeleteDocumentId =
         deleteActions.includes(ctx.action) &&
         (ctx?.params?.documentId ?? ctx?.params?.id)
-          ? ctx.params.documentId ?? ctx.params.id
+          ? (ctx.params.documentId ?? ctx.params.id)
           : null
       const preDeleteEntry =
         preDeleteDocumentId != null

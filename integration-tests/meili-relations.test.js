@@ -75,7 +75,7 @@ async function waitForMeilisearchTasksToFinish(
   { indexUid, timeoutMs = 60000, pollIntervalMs = 500 } = {},
 ) {
   const start = Date.now()
-  // eslint-disable-next-line no-constant-condition
+
   while (true) {
     const { results } = await client.getTasks(
       indexUid ? { indexUids: [indexUid] } : undefined,
@@ -103,7 +103,7 @@ async function expectDocumentMissing({
   pollIntervalMs = 300,
 }) {
   const start = Date.now()
-  // eslint-disable-next-line no-constant-condition
+
   while (true) {
     try {
       await client.index(indexUid).getDocument(documentId)
