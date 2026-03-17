@@ -9,6 +9,7 @@ describe('Document Service Middleware', () => {
   const createStrapiStubs = ({
     listened = ['api::restaurant.restaurant'],
     indexed = ['api::restaurant.restaurant'],
+    meilisearchEntriesQuery = {},
   } = {}) => {
     const use = jest.fn()
     let middlewareFn
@@ -16,7 +17,7 @@ describe('Document Service Middleware', () => {
       middlewareFn = fn
     })
 
-    const entriesQuery = jest.fn(() => ({}))
+    const entriesQuery = jest.fn(() => meilisearchEntriesQuery)
     const updateEntriesInMeilisearch = jest.fn(() => Promise.resolve())
     const deleteEntriesFromMeiliSearch = jest.fn(() => Promise.resolve())
     const contentTypeGetEntry = jest.fn(() =>
@@ -206,6 +207,64 @@ describe('Document Service Middleware', () => {
     expect(deleteEntriesFromMeiliSearch).toHaveBeenCalledWith({
       contentType: ctx.uid,
       documentIds: [result.documentId],
+      entriesQuery: {},
+    })
+  })
+
+  test('passes locale-specific entriesQuery to delete on update fallback', async () => {
+    const {
+      strapi,
+      middlewareFn,
+      deleteEntriesFromMeiliSearch,
+      contentTypeGetEntry,
+    } = createStrapiStubs({
+      meilisearchEntriesQuery: { locale: 'fr' },
+    })
+
+    contentTypeGetEntry.mockResolvedValueOnce(null)
+
+    await registerDocumentMiddleware({ strapi })
+
+    const handler = middlewareFn()
+    const ctx = {
+      uid: 'api::restaurant.restaurant',
+      action: 'update',
+    }
+
+    const result = { id: 100, documentId: 'abc', title: 'Draft only' }
+    await handler(ctx, () => Promise.resolve(result))
+
+    expect(deleteEntriesFromMeiliSearch).toHaveBeenCalledWith({
+      contentType: ctx.uid,
+      documentIds: [result.documentId],
+      entriesQuery: { locale: 'fr' },
+    })
+  })
+
+  test('passes wildcard entriesQuery when deleting a document', async () => {
+    const {
+      strapi,
+      middlewareFn,
+      deleteEntriesFromMeiliSearch,
+    } = createStrapiStubs({
+      meilisearchEntriesQuery: { locale: '*' },
+    })
+
+    await registerDocumentMiddleware({ strapi })
+
+    const handler = middlewareFn()
+    const ctx = {
+      uid: 'api::restaurant.restaurant',
+      action: 'delete',
+    }
+
+    const result = { id: 15, documentId: 'doc-15' }
+    await handler(ctx, () => Promise.resolve(result))
+
+    expect(deleteEntriesFromMeiliSearch).toHaveBeenCalledWith({
+      contentType: ctx.uid,
+      documentIds: [result.documentId],
+      entriesQuery: { locale: '*' },
     })
   })
 
@@ -227,6 +286,7 @@ describe('Document Service Middleware', () => {
     expect(deleteEntriesFromMeiliSearch).toHaveBeenCalledWith({
       contentType: ctx.uid,
       documentIds: [result.documentId],
+      entriesQuery: {},
     })
   })
 
@@ -248,6 +308,7 @@ describe('Document Service Middleware', () => {
     expect(deleteEntriesFromMeiliSearch).toHaveBeenCalledWith({
       contentType: ctx.uid,
       documentIds: [result.documentId],
+      entriesQuery: {},
     })
   })
 
@@ -269,6 +330,7 @@ describe('Document Service Middleware', () => {
     expect(deleteEntriesFromMeiliSearch).toHaveBeenCalledWith({
       contentType: ctx.uid,
       documentIds: [result.documentId],
+      entriesQuery: {},
     })
   })
 
@@ -336,6 +398,7 @@ describe('Document Service Middleware', () => {
     expect(deleteEntriesFromMeiliSearch).toHaveBeenCalledWith({
       contentType: ctx.uid,
       documentIds: ['abc'],
+      entriesQuery: {},
     })
   })
 
