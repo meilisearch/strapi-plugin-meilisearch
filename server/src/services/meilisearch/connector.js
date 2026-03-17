@@ -139,12 +139,20 @@ export default ({ strapi, adapter, config }) => {
             ? (
                 await Promise.all(
                   validDocumentIds.map(async entryDocumentId => {
+                    const baseFilters =
+                      resolvedEntriesQuery.filters != null
+                        ? resolvedEntriesQuery.filters
+                        : {}
                     const localizedEntries =
                       await contentTypeService.getEntries({
                         contentType,
                         fields: ['documentId', 'locale'],
                         locale: '*',
+                        ...(resolvedEntriesQuery.status
+                          ? { status: resolvedEntriesQuery.status }
+                          : {}),
                         filters: {
+                          ...baseFilters,
                           documentId: entryDocumentId,
                         },
                       })

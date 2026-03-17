@@ -444,6 +444,39 @@ describe('Tests content types', () => {
     ])
   })
 
+  test('wildcard locale lookup forwards configured status to getEntries', async () => {
+    const getEntriesMock = jest.fn(() => [
+      { documentId: 'doc-1', locale: 'en' },
+      { documentId: 'doc-1', locale: 'fr' },
+    ])
+
+    const client = new Meilisearch({ host: 'abc' })
+    const { meilisearchService } = createLocaleMeilisearchContext({
+      entriesQuery: { locale: '*', status: 'draft' },
+      indexNames: ['customIndex'],
+      getEntriesMock,
+    })
+
+    await meilisearchService.deleteEntriesFromMeiliSearch({
+      contentType: 'restaurant',
+      documentIds: ['doc-1'],
+    })
+
+    expect(getEntriesMock).toHaveBeenCalledWith({
+      contentType: 'restaurant',
+      fields: ['documentId', 'locale'],
+      locale: '*',
+      status: 'draft',
+      filters: {
+        documentId: 'doc-1',
+      },
+    })
+    expect(client.index('').deleteDocuments).toHaveBeenCalledWith([
+      'restaurant-doc-1-en',
+      'restaurant-doc-1-fr',
+    ])
+  })
+
   test('deleteEntriesFromMeiliSearch uses provided locales instead of querying entries', async () => {
     const getEntriesMock = jest.fn(() => {
       throw new Error(
