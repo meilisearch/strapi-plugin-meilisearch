@@ -105,7 +105,8 @@ export default ({ strapi, adapter, config }) => {
           ? entriesQuery
           : config.entriesQuery({ contentType })
       const shouldDeleteByLocale =
-        resolvedEntriesQuery.locale === 'all' || resolvedEntriesQuery.locale === '*'
+        resolvedEntriesQuery.locale === 'all' ||
+        resolvedEntriesQuery.locale === '*'
 
       const documentsIds = shouldDeleteByLocale
         ? (
@@ -128,7 +129,12 @@ export default ({ strapi, adapter, config }) => {
                         locale: entry.locale,
                       }),
                     )
-                  : [adapter.addCollectionNamePrefixToId({ contentType, entryDocumentId })]
+                  : [
+                      adapter.addCollectionNamePrefixToId({
+                        contentType,
+                        entryDocumentId,
+                      }),
+                    ]
               }),
             )
           ).flat()
@@ -184,7 +190,9 @@ export default ({ strapi, adapter, config }) => {
       })
 
       // Check which documents are not in sanitized documents and need to be deleted
-      const addDocumentIds = addDocuments.map(document => document._meilisearch_id)
+      const addDocumentIds = addDocuments.map(
+        document => document._meilisearch_id,
+      )
       const deleteDocuments = entries
         .map(entry => {
           if (entry.documentId == null) return null

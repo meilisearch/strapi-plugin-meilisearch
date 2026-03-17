@@ -242,13 +242,10 @@ describe('Document Service Middleware', () => {
   })
 
   test('passes wildcard entriesQuery when deleting a document', async () => {
-    const {
-      strapi,
-      middlewareFn,
-      deleteEntriesFromMeiliSearch,
-    } = createStrapiStubs({
-      meilisearchEntriesQuery: { locale: '*' },
-    })
+    const { strapi, middlewareFn, deleteEntriesFromMeiliSearch } =
+      createStrapiStubs({
+        meilisearchEntriesQuery: { locale: '*' },
+      })
 
     await registerDocumentMiddleware({ strapi })
 
