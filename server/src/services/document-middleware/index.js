@@ -28,18 +28,45 @@ export default async function registerDocumentMiddleware({ strapi }) {
         'discardDraft',
       ]
 
+      const entriesQuery = meilisearch.entriesQuery({ contentType })
+      const shouldDeleteByLocale =
+        entriesQuery.locale === '*' || entriesQuery.locale === 'all'
+
       const preDeleteDocumentId =
         deleteActions.includes(ctx.action) && ctx?.params?.documentId
           ? ctx.params.documentId
           : null
-      const preDeleteEntry =
-        preDeleteDocumentId != null
-          ? await contentTypeService.getEntry({
-              contentType,
+      let preDeleteEntry = null
+      let preDeleteLocales = []
+
+      if (preDeleteDocumentId != null) {
+        preDeleteEntry = await contentTypeService.getEntry({
+          contentType,
+          documentId: preDeleteDocumentId,
+          entriesQuery: {},
+        })
+
+        if (shouldDeleteByLocale) {
+          const localeVariants = await contentTypeService.getEntries({
+            contentType,
+            fields: ['documentId', 'locale'],
+            locale: '*',
+            filters: {
               documentId: preDeleteDocumentId,
-              entriesQuery: {},
-            })
-          : null
+            },
+          })
+
+          preDeleteLocales = [
+            ...new Set(
+              localeVariants
+                .map(entry => entry?.locale)
+                .filter(
+                  locale => typeof locale === 'string' && locale.length > 0,
+                ),
+            ),
+          ]
+        }
+      }
 
       result = await next()
 
@@ -50,7 +77,6 @@ export default async function registerDocumentMiddleware({ strapi }) {
         null
 
       if (updateActions.includes(ctx.action) && documentId != null) {
-        const entriesQuery = meilisearch.entriesQuery({ contentType })
         const entry = await contentTypeService.getEntry({
           contentType,
           documentId,
@@ -71,7 +97,6 @@ export default async function registerDocumentMiddleware({ strapi }) {
         }
       } else if (deleteActions.includes(ctx.action)) {
         if (documentId != null) {
-          const entriesQuery = meilisearch.entriesQuery({ contentType })
           strapi.log.info(
             `Meilisearch document middleware deleting ${contentType} documentId=${documentId}`,
           )
@@ -79,6 +104,10 @@ export default async function registerDocumentMiddleware({ strapi }) {
             contentType,
             documentIds: [documentId],
             entriesQuery,
+            locales:
+              shouldDeleteByLocale && preDeleteLocales.length > 0
+                ? preDeleteLocales
+                : undefined,
           })
         } else {
           strapi.log.info(

@@ -497,6 +497,95 @@ describe('Tests content types', () => {
     ])
   })
 
+  test('deleteEntriesFromMeiliSearch uses provided locales instead of querying entries', async () => {
+    const getEntriesMock = jest.fn(() => {
+      throw new Error(
+        'getEntries should not be called when locales are provided',
+      )
+    })
+
+    const pluginMock = jest.fn(() => ({
+      service: jest.fn(name => {
+        if (name === 'contentType') {
+          return {
+            getCollectionName: () => 'restaurant',
+            getEntries: getEntriesMock,
+          }
+        }
+        if (name === 'store') {
+          return {
+            getCredentials: () => ({
+              host: 'http://localhost:7700',
+              apiKey: 'masterKey',
+            }),
+          }
+        }
+        if (name === 'meilisearch') {
+          return {}
+        }
+        return {
+          getCollectionName: () => 'restaurant',
+          getCredentials: () => ({}),
+          actionInBatches: jest.fn(),
+          addIndexedContentType: jest.fn(),
+          subscribeContentType: jest.fn(),
+        }
+      }),
+    }))
+
+    const client = new Meilisearch({ host: 'abc' })
+    const meilisearchService = createMeilisearchService({
+      strapi: {
+        plugin: pluginMock,
+        config: {
+          get: jest.fn(() => ({
+            restaurant: {
+              indexName: ['customIndex'],
+              entriesQuery: {
+                locale: '*',
+              },
+            },
+          })),
+        },
+        contentTypes: {
+          restaurant: {
+            attributes: {
+              id: { private: false },
+              documentId: { private: false },
+              locale: { private: false },
+              title: { private: false },
+              publishedAt: { private: false },
+            },
+          },
+        },
+        log: mockLogger,
+      },
+      contentTypes: {
+        restaurant: {
+          attributes: {
+            id: { private: false },
+            documentId: { private: false },
+            locale: { private: false },
+            title: { private: false },
+            publishedAt: { private: false },
+          },
+        },
+      },
+    })
+
+    await meilisearchService.deleteEntriesFromMeiliSearch({
+      contentType: 'restaurant',
+      documentIds: ['doc-1'],
+      locales: ['en', 'fr'],
+    })
+
+    expect(getEntriesMock).not.toHaveBeenCalled()
+    expect(client.index('').deleteDocuments).toHaveBeenCalledWith([
+      'restaurant-doc-1-en',
+      'restaurant-doc-1-fr',
+    ])
+  })
+
   test('Test deleteEntriesFromMeiliSearch filters out null and undefined documentIds', async () => {
     const customStrapi = createStrapiMock({
       restaurantConfig: {

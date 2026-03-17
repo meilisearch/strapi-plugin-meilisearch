@@ -94,6 +94,7 @@ export default ({ strapi, adapter, config }) => {
       contentType,
       documentIds,
       entriesQuery = {},
+      locales,
     }) {
       const { apiKey, host } = await store.getCredentials()
       const client = Meilisearch({ apiKey, host })
@@ -109,43 +110,68 @@ export default ({ strapi, adapter, config }) => {
         resolvedEntriesQuery.locale === 'all' ||
         resolvedEntriesQuery.locale === '*'
 
-      const documentsIds = shouldDeleteByLocale
-        ? (
-            await Promise.all(
-              validDocumentIds.map(async entryDocumentId => {
-                const localizedEntries = await contentTypeService.getEntries({
-                  contentType,
-                  fields: ['documentId', 'locale'],
-                  locale: '*',
-                  filters: {
-                    documentId: entryDocumentId,
-                  },
-                })
+      const resolvedLocales = Array.isArray(locales)
+        ? [
+            ...new Set(
+              locales
+                .filter(
+                  locale =>
+                    typeof locale === 'string' && locale.trim().length > 0,
+                )
+                .map(locale => locale.trim()),
+            ),
+          ]
+        : []
 
-                return localizedEntries.length > 0
-                  ? localizedEntries.map(entry =>
-                      adapter.addCollectionNamePrefixToId({
-                        contentType,
-                        entryDocumentId,
-                        locale: entry.locale,
-                      }),
-                    )
-                  : [
-                      adapter.addCollectionNamePrefixToId({
-                        contentType,
-                        entryDocumentId,
-                      }),
-                    ]
-              }),
+      const documentsIds =
+        shouldDeleteByLocale && resolvedLocales.length > 0
+          ? validDocumentIds.flatMap(entryDocumentId =>
+              resolvedLocales.map(resolvedLocale =>
+                adapter.addCollectionNamePrefixToId({
+                  contentType,
+                  entryDocumentId,
+                  locale: resolvedLocale,
+                }),
+              ),
             )
-          ).flat()
-        : validDocumentIds.map(entryDocumentId =>
-            adapter.addCollectionNamePrefixToId({
-              entryDocumentId,
-              contentType,
-              locale: resolvedEntriesQuery.locale,
-            }),
-          )
+          : shouldDeleteByLocale
+            ? (
+                await Promise.all(
+                  validDocumentIds.map(async entryDocumentId => {
+                    const localizedEntries =
+                      await contentTypeService.getEntries({
+                        contentType,
+                        fields: ['documentId', 'locale'],
+                        locale: '*',
+                        filters: {
+                          documentId: entryDocumentId,
+                        },
+                      })
+
+                    return localizedEntries.length > 0
+                      ? localizedEntries.map(entry =>
+                          adapter.addCollectionNamePrefixToId({
+                            contentType,
+                            entryDocumentId,
+                            locale: entry.locale,
+                          }),
+                        )
+                      : [
+                          adapter.addCollectionNamePrefixToId({
+                            contentType,
+                            entryDocumentId,
+                          }),
+                        ]
+                  }),
+                )
+              ).flat()
+            : validDocumentIds.map(entryDocumentId =>
+                adapter.addCollectionNamePrefixToId({
+                  entryDocumentId,
+                  contentType,
+                  locale: resolvedEntriesQuery.locale,
+                }),
+              )
 
       const uniqueDocumentIds = [...new Set(documentsIds)]
 

@@ -10,6 +10,14 @@ describe('Document Service Middleware', () => {
     listened = ['api::restaurant.restaurant'],
     indexed = ['api::restaurant.restaurant'],
     meilisearchEntriesQuery = {},
+    contentTypeGetEntry = jest.fn(() =>
+      Promise.resolve({
+        id: 1,
+        documentId: 'doc-1',
+        title: 'Test entry',
+      }),
+    ),
+    contentTypeGetEntries = jest.fn(() => Promise.resolve([])),
   } = {}) => {
     const use = jest.fn()
     let middlewareFn
@@ -20,9 +28,8 @@ describe('Document Service Middleware', () => {
     const entriesQuery = jest.fn(() => meilisearchEntriesQuery)
     const updateEntriesInMeilisearch = jest.fn(() => Promise.resolve())
     const deleteEntriesFromMeiliSearch = jest.fn(() => Promise.resolve())
-    const contentTypeGetEntry = jest.fn(() =>
-      Promise.resolve({ id: 1, documentId: 'doc-1', title: 'Test entry' }),
-    )
+    const contentTypeGetEntryMock = contentTypeGetEntry
+    const contentTypeGetEntriesMock = contentTypeGetEntries
 
     const service = jest.fn(name => {
       if (name === 'store') {
@@ -40,7 +47,8 @@ describe('Document Service Middleware', () => {
       }
       if (name === 'contentType') {
         return {
-          getEntry: contentTypeGetEntry,
+          getEntry: contentTypeGetEntryMock,
+          getEntries: contentTypeGetEntriesMock,
         }
       }
       throw new Error(`Unexpected service: ${name}`)
@@ -59,7 +67,8 @@ describe('Document Service Middleware', () => {
       entriesQuery,
       updateEntriesInMeilisearch,
       deleteEntriesFromMeiliSearch,
-      contentTypeGetEntry,
+      contentTypeGetEntry: contentTypeGetEntryMock,
+      contentTypeGetEntries: contentTypeGetEntriesMock,
     }
   }
 
@@ -262,6 +271,49 @@ describe('Document Service Middleware', () => {
       contentType: ctx.uid,
       documentIds: [result.documentId],
       entriesQuery: { locale: '*' },
+    })
+  })
+
+  test('resolves locales before deleting when wildcard locale is configured', async () => {
+    const localizedVariants = [
+      { documentId: 'doc-15', locale: 'en' },
+      { documentId: 'doc-15', locale: 'fr' },
+    ]
+
+    const {
+      strapi,
+      middlewareFn,
+      deleteEntriesFromMeiliSearch,
+      contentTypeGetEntries,
+    } = createStrapiStubs({
+      meilisearchEntriesQuery: { locale: '*' },
+      contentTypeGetEntries: jest.fn(() => Promise.resolve(localizedVariants)),
+    })
+
+    await registerDocumentMiddleware({ strapi })
+
+    const handler = middlewareFn()
+    const ctx = {
+      uid: 'api::restaurant.restaurant',
+      action: 'delete',
+      params: { documentId: 'doc-15' },
+    }
+    const result = { id: 15, documentId: 'doc-15' }
+    await handler(ctx, () => Promise.resolve(result))
+
+    expect(contentTypeGetEntries).toHaveBeenCalledWith({
+      contentType: ctx.uid,
+      fields: ['documentId', 'locale'],
+      locale: '*',
+      filters: {
+        documentId: ctx.params.documentId,
+      },
+    })
+    expect(deleteEntriesFromMeiliSearch).toHaveBeenCalledWith({
+      contentType: ctx.uid,
+      documentIds: [result.documentId],
+      entriesQuery: { locale: '*' },
+      locales: ['en', 'fr'],
     })
   })
 
