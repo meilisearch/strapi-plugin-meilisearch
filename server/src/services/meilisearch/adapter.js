@@ -23,6 +23,7 @@ export default ({ strapi }) => {
      * @param  {object} options
      * @param  {string} options.contentType - ContentType name.
      * @param  {string} options.entryDocumentId - Entry documentId.
+     * @param  {string} options.locale - Entry locale.
      *
      * @returns {string} - Formatted id
      */
