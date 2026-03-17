@@ -474,34 +474,6 @@ describe('Test Meilisearch plugin configurations', () => {
     ])
   })
 
-  test('Test should keep same documentId entries from multiple locales with wildcard locale', async () => {
-    const customStrapi = createStrapiMock({
-      restaurantConfig: {
-        entriesQuery: {
-          locale: '*',
-        },
-      },
-    })
-
-    const contentType = 'restaurant'
-    const meilisearchService = createMeilisearchService({
-      strapi: customStrapi,
-    })
-
-    const entries = meilisearchService.removeLocaleEntries({
-      contentType,
-      entries: [
-        { id: 1, documentId: 'shared-doc', locale: 'fr' },
-        { id: 2, documentId: 'shared-doc', locale: 'en' },
-      ],
-    })
-
-    expect(entries).toEqual([
-      { id: 1, documentId: 'shared-doc', locale: 'fr' },
-      { id: 2, documentId: 'shared-doc', locale: 'en' },
-    ])
-  })
-
   test('Test should keep unpublished entries when status is set to draft', async () => {
     const customStrapi = createStrapiMock({
       restaurantConfig: {

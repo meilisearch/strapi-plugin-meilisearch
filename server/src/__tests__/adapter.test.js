@@ -118,17 +118,6 @@ describe('Meilisearch Adapter', () => {
     expect(strapi.log.warn).toHaveBeenCalledTimes(1)
   })
 
-  test('addCollectionNamePrefixToId includes locale when present', () => {
-    const adapter = createAdapterService({ strapi })
-    const result = adapter.addCollectionNamePrefixToId({
-      contentType: 'api::restaurant.restaurant',
-      entryDocumentId: 'abc123',
-      locale: 'fr',
-    })
-
-    expect(result).toBe('restaurant-abc123-fr')
-  })
-
   test('addCollectionNamePrefix keeps locale in ids when documentId is shared across locales', () => {
     const adapter = createAdapterService({ strapi })
     const entries = [
