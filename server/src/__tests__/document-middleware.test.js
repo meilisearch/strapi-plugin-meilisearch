@@ -317,6 +317,50 @@ describe('Document Service Middleware', () => {
     })
   })
 
+  test('resolves draft locale variants when wildcard locale & draft status are configured', async () => {
+    const localizedVariants = [
+      { documentId: 'doc-15', locale: 'en' },
+      { documentId: 'doc-15', locale: 'fr' },
+    ]
+
+    const {
+      strapi,
+      middlewareFn,
+      deleteEntriesFromMeiliSearch,
+      contentTypeGetEntries,
+    } = createStrapiStubs({
+      meilisearchEntriesQuery: { locale: '*', status: 'draft' },
+      contentTypeGetEntries: jest.fn(() => Promise.resolve(localizedVariants)),
+    })
+
+    await registerDocumentMiddleware({ strapi })
+
+    const handler = middlewareFn()
+    const ctx = {
+      uid: 'api::restaurant.restaurant',
+      action: 'delete',
+      params: { documentId: 'doc-15' },
+    }
+    const result = { id: 15, documentId: 'doc-15' }
+    await handler(ctx, () => Promise.resolve(result))
+
+    expect(contentTypeGetEntries).toHaveBeenCalledWith({
+      contentType: ctx.uid,
+      fields: ['documentId', 'locale'],
+      locale: '*',
+      status: 'draft',
+      filters: {
+        documentId: ctx.params.documentId,
+      },
+    })
+    expect(deleteEntriesFromMeiliSearch).toHaveBeenCalledWith({
+      contentType: ctx.uid,
+      documentIds: [result.documentId],
+      entriesQuery: { locale: '*', status: 'draft' },
+      locales: ['en', 'fr'],
+    })
+  })
+
   test('processes delete-like actions by removing from Meilisearch', async () => {
     const { strapi, middlewareFn, deleteEntriesFromMeiliSearch } =
       createStrapiStubs()

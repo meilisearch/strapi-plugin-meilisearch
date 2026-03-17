@@ -31,6 +31,9 @@ export default async function registerDocumentMiddleware({ strapi }) {
       const entriesQuery = meilisearch.entriesQuery({ contentType })
       const shouldDeleteByLocale =
         entriesQuery.locale === '*' || entriesQuery.locale === 'all'
+      const { status } = entriesQuery || {}
+      const statusFilter =
+        typeof status === 'string' && status.length > 0 ? { status } : {}
 
       const preDeleteDocumentId =
         deleteActions.includes(ctx.action) && ctx?.params?.documentId
@@ -43,7 +46,7 @@ export default async function registerDocumentMiddleware({ strapi }) {
         preDeleteEntry = await contentTypeService.getEntry({
           contentType,
           documentId: preDeleteDocumentId,
-          entriesQuery: {},
+          entriesQuery: { ...statusFilter },
         })
 
         if (shouldDeleteByLocale) {
@@ -51,6 +54,7 @@ export default async function registerDocumentMiddleware({ strapi }) {
             contentType,
             fields: ['documentId', 'locale'],
             locale: '*',
+            ...statusFilter,
             filters: {
               documentId: preDeleteDocumentId,
             },
