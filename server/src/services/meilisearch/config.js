@@ -1,7 +1,6 @@
 import { isObject } from '../../utils'
 
-export const isWildcardLocale = locale =>
-  locale === 'all' || locale === '*'
+export const isWildcardLocale = locale => locale === 'all' || locale === '*'
 /**
  * Log an error message on a failed action on a contentType.
  *

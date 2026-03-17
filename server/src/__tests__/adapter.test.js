@@ -76,7 +76,7 @@ describe('Meilisearch Adapter', () => {
     })
 
     expect(result).toHaveLength(2)
-    const ids = result.map((entry) => entry._meilisearch_id)
+    const ids = result.map(entry => entry._meilisearch_id)
     expect(ids).toEqual(['restaurant-abc123-en', 'restaurant-abc123-fr'])
     expect(new Set(ids).size).toBe(2)
   })

@@ -418,11 +418,12 @@ describe('Tests content types', () => {
     ])
 
     const client = new Meilisearch({ host: 'abc' })
-    const { meilisearchService, getEntriesMock } = createLocaleMeilisearchContext({
-      entriesQuery: { locale: 'all' },
-      indexNames: ['customIndex'],
-      getEntriesMock: entriesFetcher,
-    })
+    const { meilisearchService, getEntriesMock } =
+      createLocaleMeilisearchContext({
+        entriesQuery: { locale: 'all' },
+        indexNames: ['customIndex'],
+        getEntriesMock: entriesFetcher,
+      })
 
     await meilisearchService.deleteEntriesFromMeiliSearch({
       contentType: 'restaurant',
