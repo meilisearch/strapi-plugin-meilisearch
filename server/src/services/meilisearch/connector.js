@@ -1,4 +1,5 @@
 import Meilisearch from './client'
+import { isWildcardLocale } from './config'
 
 /**
  * Add one entry from a contentType to its index in Meilisearch.
@@ -106,9 +107,9 @@ export default ({ strapi, adapter, config }) => {
         Object.keys(entriesQuery).length > 0
           ? entriesQuery
           : config.entriesQuery({ contentType })
-      const shouldDeleteByLocale =
-        resolvedEntriesQuery.locale === 'all' ||
-        resolvedEntriesQuery.locale === '*'
+      const shouldDeleteAllLocaleVariants = isWildcardLocale(
+        resolvedEntriesQuery.locale,
+      )
 
       const resolvedLocales = Array.isArray(locales)
         ? [
@@ -123,8 +124,8 @@ export default ({ strapi, adapter, config }) => {
           ]
         : []
 
-      const documentsIds =
-        shouldDeleteByLocale && resolvedLocales.length > 0
+      const meilisearchDocumentIds =
+        shouldDeleteAllLocaleVariants && resolvedLocales.length > 0
           ? validDocumentIds.flatMap(entryDocumentId =>
               resolvedLocales.map(resolvedLocale =>
                 adapter.addCollectionNamePrefixToId({
@@ -134,7 +135,7 @@ export default ({ strapi, adapter, config }) => {
                 }),
               ),
             )
-          : shouldDeleteByLocale
+          : shouldDeleteAllLocaleVariants
             ? (
                 await Promise.all(
                   validDocumentIds.map(async entryDocumentId => {
@@ -157,6 +158,7 @@ export default ({ strapi, adapter, config }) => {
                           }),
                         )
                       : [
+                          // Fallback: delete the non-localized document when no localized variants exist.
                           adapter.addCollectionNamePrefixToId({
                             contentType,
                             entryDocumentId,
@@ -173,7 +175,7 @@ export default ({ strapi, adapter, config }) => {
                 }),
               )
 
-      const uniqueDocumentIds = [...new Set(documentsIds)]
+      const uniqueDocumentIds = [...new Set(meilisearchDocumentIds)]
 
       const tasks = await Promise.all(
         indexUids.map(async indexUid => {

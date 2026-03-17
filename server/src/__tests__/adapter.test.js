@@ -23,42 +23,30 @@ describe('Meilisearch Adapter', () => {
     expect(result).toBe('restaurant-abc123')
   })
 
-  test('addCollectionNamePrefixToId encodes locale when present', () => {
+  test('addCollectionNamePrefixToId handles locale fallback and unique suffixes', () => {
     const adapter = createAdapterService({ strapi })
-    const resultWithLocale = adapter.addCollectionNamePrefixToId({
-      contentType: 'api::restaurant.restaurant',
-      entryDocumentId: 'abc123',
-      locale: 'en',
-    })
-    expect(resultWithLocale).toBe('restaurant-abc123-en')
-  })
 
-  test('addCollectionNamePrefixToId falls back to collection-documentId without locale', () => {
-    const adapter = createAdapterService({ strapi })
-    const result = adapter.addCollectionNamePrefixToId({
+    const undefinedLocaleId = adapter.addCollectionNamePrefixToId({
       contentType: 'api::restaurant.restaurant',
       entryDocumentId: 'abc123',
       locale: undefined,
     })
-    expect(result).toBe('restaurant-abc123')
-  })
+    expect(undefinedLocaleId).toBe('restaurant-abc123')
 
-  test('addCollectionNamePrefixToId uses different locale values', () => {
-    const adapter = createAdapterService({ strapi })
-    expect(
-      adapter.addCollectionNamePrefixToId({
-        contentType: 'api::restaurant.restaurant',
-        entryDocumentId: 'abc123',
-        locale: 'en',
-      }),
-    ).toBe('restaurant-abc123-en')
-    expect(
-      adapter.addCollectionNamePrefixToId({
-        contentType: 'api::restaurant.restaurant',
-        entryDocumentId: 'abc123',
-        locale: 'fr',
-      }),
-    ).toBe('restaurant-abc123-fr')
+    const enId = adapter.addCollectionNamePrefixToId({
+      contentType: 'api::restaurant.restaurant',
+      entryDocumentId: 'abc123',
+      locale: 'en',
+    })
+    const frId = adapter.addCollectionNamePrefixToId({
+      contentType: 'api::restaurant.restaurant',
+      entryDocumentId: 'abc123',
+      locale: 'fr',
+    })
+
+    expect(enId).toBe('restaurant-abc123-en')
+    expect(frId).toBe('restaurant-abc123-fr')
+    expect(new Set([enId, frId]).size).toBe(2)
   })
 
   test('addCollectionNamePrefix maps entries using documentId', () => {
@@ -75,19 +63,22 @@ describe('Meilisearch Adapter', () => {
     expect(result[1]._meilisearch_id).toBe('restaurant-def456')
   })
 
-  test('addCollectionNamePrefix maps locale entries with locale-aware IDs', () => {
+  test('addCollectionNamePrefix maps localized entries to unique locale-aware ids', () => {
     const adapter = createAdapterService({ strapi })
     const entries = [
       { id: 1, documentId: 'abc123', locale: 'en', title: 'Test' },
       { id: 2, documentId: 'abc123', locale: 'fr', title: 'Test 2' },
     ]
+
     const result = adapter.addCollectionNamePrefix({
       contentType: 'api::restaurant.restaurant',
       entries,
     })
+
     expect(result).toHaveLength(2)
-    expect(result[0]._meilisearch_id).toBe('restaurant-abc123-en')
-    expect(result[1]._meilisearch_id).toBe('restaurant-abc123-fr')
+    const ids = result.map((entry) => entry._meilisearch_id)
+    expect(ids).toEqual(['restaurant-abc123-en', 'restaurant-abc123-fr'])
+    expect(new Set(ids).size).toBe(2)
   })
 
   test('addCollectionNamePrefix skips entries with null documentId and warns', () => {
@@ -118,7 +109,7 @@ describe('Meilisearch Adapter', () => {
     expect(strapi.log.warn).toHaveBeenCalledTimes(1)
   })
 
-  test('addCollectionNamePrefix keeps locale in ids when documentId is shared across locales', () => {
+  test('keeps locale suffix when entries share documentId', () => {
     const adapter = createAdapterService({ strapi })
     const entries = [
       { id: 1, documentId: 'abc123', locale: 'en', title: 'English' },

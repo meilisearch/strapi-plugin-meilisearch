@@ -220,7 +220,7 @@ describe('Document Service Middleware', () => {
     })
   })
 
-  test('passes locale-specific entriesQuery to delete on update fallback', async () => {
+  test('passes locale-specific entriesQuery when fallback deletion happens after update', async () => {
     const {
       strapi,
       middlewareFn,
@@ -250,7 +250,7 @@ describe('Document Service Middleware', () => {
     })
   })
 
-  test('passes wildcard entriesQuery when deleting a document', async () => {
+  test('propagates wildcard entriesQuery when deleting a document', async () => {
     const { strapi, middlewareFn, deleteEntriesFromMeiliSearch } =
       createStrapiStubs({
         meilisearchEntriesQuery: { locale: '*' },
@@ -274,7 +274,7 @@ describe('Document Service Middleware', () => {
     })
   })
 
-  test('resolves locales before deleting when wildcard locale is configured', async () => {
+  test('resolves locale variants before deleting when wildcard locale is configured', async () => {
     const localizedVariants = [
       { documentId: 'doc-15', locale: 'en' },
       { documentId: 'doc-15', locale: 'fr' },

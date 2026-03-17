@@ -1,6 +1,7 @@
 import createMeilisearchService from '../services/meilisearch'
-
 import { MeiliSearch as Meilisearch } from 'meilisearch'
+import { createLocaleMeilisearchContext } from './utils/meilisearch-locale-helpers.js'
+
 import { createStrapiMock, mockLogger } from '../__mocks__/strapi'
 
 jest.mock('meilisearch')
@@ -121,56 +122,11 @@ describe('Tests content types', () => {
     expect(tasks).toEqual([10])
   })
 
-  test('Test to add locale variants with same documentId in Meilisearch', async () => {
-    const pluginMock = jest.fn(() => ({
-      service: jest.fn().mockImplementation(() => {
-        return {
-          getCollectionName: ({ contentType }) => contentType,
-          addIndexedContentType: jest.fn(),
-          subscribeContentType: jest.fn(),
-          getCredentials: () => ({}),
-        }
-      }),
-    }))
-
+  test('indexes locale variants individually when documentId is shared', async () => {
     const client = new Meilisearch({ host: 'abc' })
-    const meilisearchService = createMeilisearchService({
-      strapi: {
-        plugin: pluginMock,
-        contentTypes: {
-          restaurant: {
-            attributes: {
-              id: { private: false },
-              documentId: { private: false },
-              locale: { private: false },
-              title: { private: false },
-              publishedAt: { private: false },
-            },
-          },
-        },
-        config: {
-          get: jest.fn(() => ({
-            restaurant: {
-              indexName: ['customIndex'],
-              entriesQuery: {
-                locale: '*',
-              },
-            },
-          })),
-        },
-        log: mockLogger,
-      },
-      contentTypes: {
-        restaurant: {
-          attributes: {
-            id: { private: false },
-            documentId: { private: false },
-            locale: { private: false },
-            title: { private: false },
-            publishedAt: { private: false },
-          },
-        },
-      },
+    const { meilisearchService } = createLocaleMeilisearchContext({
+      entriesQuery: { locale: '*' },
+      indexNames: ['customIndex'],
     })
 
     const enEntry = {
@@ -378,19 +334,11 @@ describe('Tests content types', () => {
     ])
   })
 
-  test('Test deleteEntriesFromMeiliSearch deletes locale-specific IDs with non-wildcard locale', async () => {
-    const customStrapi = createStrapiMock({
-      restaurantConfig: {
-        indexName: ['customIndex'],
-        entriesQuery: {
-          locale: 'fr',
-        },
-      },
-    })
+  test('deletes only configured locale variant when entriesQuery.locale is set', async () => {
     const client = new Meilisearch({ host: 'abc' })
-
-    const meilisearchService = createMeilisearchService({
-      strapi: customStrapi,
+    const { meilisearchService } = createLocaleMeilisearchContext({
+      entriesQuery: { locale: 'fr' },
+      indexNames: ['customIndex'],
     })
 
     await meilisearchService.deleteEntriesFromMeiliSearch({
@@ -403,79 +351,77 @@ describe('Tests content types', () => {
     ])
   })
 
-  test('Test deleteEntriesFromMeiliSearch deletes all locale variants with wildcard locale', async () => {
+  test('deletes every locale variant when wildcard locale configured', async () => {
     const getEntriesMock = jest.fn(() => [
       { documentId: 'doc-1', locale: 'en' },
       { documentId: 'doc-1', locale: 'fr' },
     ])
 
-    const pluginMock = jest.fn(() => ({
-      service: jest.fn(name => {
-        if (name === 'contentType') {
-          return {
-            getCollectionName: () => 'restaurant',
-            getEntries: getEntriesMock,
-          }
-        }
-        if (name === 'store') {
-          return {
-            getCredentials: () => ({
-              host: 'http://localhost:7700',
-              apiKey: 'masterKey',
-            }),
-          }
-        }
-        if (name === 'meilisearch') {
-          return {}
-        }
-        return {
-          getCollectionName: () => 'restaurant',
-          getCredentials: () => ({}),
-          actionInBatches: jest.fn(),
-          addIndexedContentType: jest.fn(),
-          subscribeContentType: jest.fn(),
-        }
-      }),
-    }))
+    const client = new Meilisearch({ host: 'abc' })
+    const { meilisearchService } = createLocaleMeilisearchContext({
+      entriesQuery: { locale: '*' },
+      indexNames: ['customIndex'],
+      getEntriesMock,
+    })
+
+    await meilisearchService.deleteEntriesFromMeiliSearch({
+      contentType: 'restaurant',
+      documentIds: ['doc-1'],
+    })
+
+    expect(getEntriesMock).toHaveBeenCalledWith({
+      contentType: 'restaurant',
+      fields: ['documentId', 'locale'],
+      locale: '*',
+      filters: {
+        documentId: 'doc-1',
+      },
+    })
+    expect(client.index('').deleteDocuments).toHaveBeenCalledWith([
+      'restaurant-doc-1-en',
+      'restaurant-doc-1-fr',
+    ])
+  })
+
+  test('deletes base document when wildcard locale has no localized entries', async () => {
+    const getEntriesMock = jest.fn(async () => [])
 
     const client = new Meilisearch({ host: 'abc' })
-    const meilisearchService = createMeilisearchService({
-      strapi: {
-        plugin: pluginMock,
-        config: {
-          get: jest.fn(() => ({
-            restaurant: {
-              indexName: ['customIndex'],
-              entriesQuery: {
-                locale: '*',
-              },
-            },
-          })),
-        },
-        contentTypes: {
-          restaurant: {
-            attributes: {
-              id: { private: false },
-              documentId: { private: false },
-              locale: { private: false },
-              title: { private: false },
-              publishedAt: { private: false },
-            },
-          },
-        },
-        log: mockLogger,
+    const { meilisearchService } = createLocaleMeilisearchContext({
+      entriesQuery: { locale: '*' },
+      indexNames: ['customIndex'],
+      getEntriesMock,
+    })
+
+    await meilisearchService.deleteEntriesFromMeiliSearch({
+      contentType: 'restaurant',
+      documentIds: ['doc-1'],
+    })
+
+    expect(getEntriesMock).toHaveBeenCalledWith({
+      contentType: 'restaurant',
+      fields: ['documentId', 'locale'],
+      locale: '*',
+      filters: {
+        documentId: 'doc-1',
       },
-      contentTypes: {
-        restaurant: {
-          attributes: {
-            id: { private: false },
-            documentId: { private: false },
-            locale: { private: false },
-            title: { private: false },
-            publishedAt: { private: false },
-          },
-        },
-      },
+    })
+    expect(client.index('').deleteDocuments).toHaveBeenCalledWith([
+      'restaurant-doc-1',
+    ])
+  })
+
+  test('deletes every locale variant when entriesQuery locale is all', async () => {
+    const entriesFetcher = jest.fn(() => [
+      { documentId: 'doc-1', locale: 'en' },
+      { documentId: 'doc-1', locale: 'fr' },
+    ])
+
+    const client = new Meilisearch({ host: 'abc' })
+    const { meilisearchService, getEntriesMock } = createLocaleMeilisearchContext({
+      entriesQuery: { locale: 'all' },
+      indexNames: ['customIndex'],
+      getEntriesMock: entriesFetcher,
     })
 
     await meilisearchService.deleteEntriesFromMeiliSearch({
@@ -746,61 +692,13 @@ describe('Tests content types', () => {
     expect(tasks).toEqual([3, 3, 10, 10])
   })
 
-  test('Test updateEntriesInMeilisearch deletes stale locale variant and updates active one', async () => {
-    const pluginMock = jest.fn(() => ({
-      // This rewrites only the needed methods to reach the system under test (removeSensitiveFields)
-      service: jest.fn().mockImplementation(() => {
-        return {
-          async actionInBatches({ contentType = 'restaurant', callback }) {
-            await callback({
-              entries: [],
-              contentType,
-            })
-          },
-          getCollectionName: ({ contentType }) => contentType,
-          addIndexedContentType: jest.fn(),
-          subscribeContentType: jest.fn(),
-          getCredentials: () => ({}),
-        }
-      }),
-    }))
-
+  test('replaces stale locale variant with the active locale when updating entries', async () => {
     const client = new Meilisearch({ host: 'abc' })
-
-    const meilisearchService = createMeilisearchService({
-      strapi: {
-        plugin: pluginMock,
-        contentTypes: {
-          restaurant: {
-            attributes: {
-              id: { private: false },
-              documentId: { private: false },
-              locale: { private: false },
-              title: { private: false },
-              publishedAt: { private: false },
-            },
-          },
-        },
-        config: {
-          get: jest.fn(() => ({
-            restaurant: {
-              noSanitizePrivateFields: ['internal_notes'],
-              indexName: ['customIndex'],
-            },
-          })),
-        },
-        log: mockLogger,
-      },
-      contentTypes: {
-        restaurant: {
-          attributes: {
-            id: { private: false },
-            documentId: { private: false },
-            locale: { private: false },
-            title: { private: false },
-            publishedAt: { private: false },
-          },
-        },
+    const { meilisearchService } = createLocaleMeilisearchContext({
+      entriesQuery: { locale: '*' },
+      indexNames: ['customIndex'],
+      extraConfig: {
+        noSanitizePrivateFields: ['internal_notes'],
       },
     })
 

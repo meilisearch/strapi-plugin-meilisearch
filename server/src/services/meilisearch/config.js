@@ -1,4 +1,7 @@
 import { isObject } from '../../utils'
+
+export const isWildcardLocale = locale =>
+  locale === 'all' || locale === '*'
 /**
  * Log an error message on a failed action on a contentType.
  *
@@ -265,11 +268,7 @@ export default ({ strapi }) => {
 
       const entriesQuery = contentTypeConfig.entriesQuery || {}
 
-      if (
-        !entriesQuery.locale ||
-        entriesQuery.locale === 'all' ||
-        entriesQuery.locale === '*'
-      ) {
+      if (!entriesQuery.locale || isWildcardLocale(entriesQuery.locale)) {
         return entries
       } else {
         return entries.filter(entry => entry.locale === entriesQuery.locale)

@@ -393,7 +393,7 @@ describe('Test Meilisearch plugin configurations', () => {
     expect(entries).toEqual([{ id: 1, locale: 'fr' }])
   })
 
-  test('Test should keep only the configured locale when documentId is shared across locales', async () => {
+  test('filters entries to configured locale when documentId shared across locales', async () => {
     const customStrapi = createStrapiMock({
       restaurantConfig: {
         entriesQuery: {
@@ -446,7 +446,35 @@ describe('Test Meilisearch plugin configurations', () => {
     ])
   })
 
-  test('removeLocaleEntries keeps multiple locales for the same documentId with wildcard', async () => {
+  test('Test should keep any entries when locale is set to all', async () => {
+    const customStrapi = createStrapiMock({
+      restaurantConfig: {
+        entriesQuery: {
+          locale: 'all',
+        },
+      },
+    })
+
+    const contentType = 'restaurant'
+    const meilisearchService = createMeilisearchService({
+      strapi: customStrapi,
+    })
+
+    const entries = meilisearchService.removeLocaleEntries({
+      contentType,
+      entries: [
+        { id: 1, locale: 'fr' },
+        { id: 2, locale: 'en' },
+      ],
+    })
+
+    expect(entries).toEqual([
+      { id: 1, locale: 'fr' },
+      { id: 2, locale: 'en' },
+    ])
+  })
+
+  test('keeps multiple locales when wildcard locale configured', async () => {
     const customStrapi = createStrapiMock({
       restaurantConfig: {
         entriesQuery: {
