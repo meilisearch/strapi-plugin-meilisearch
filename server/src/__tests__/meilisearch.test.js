@@ -383,6 +383,39 @@ describe('Tests content types', () => {
     ])
   })
 
+  test('deduplicates wildcard locale lookups for duplicate documentIds', async () => {
+    const getEntriesMock = jest.fn(() => [
+      { documentId: 'doc-1', locale: 'en' },
+      { documentId: 'doc-1', locale: 'fr' },
+    ])
+
+    const client = new Meilisearch({ host: 'abc' })
+    const { meilisearchService } = createLocaleMeilisearchContext({
+      entriesQuery: { locale: '*' },
+      indexNames: ['customIndex'],
+      getEntriesMock,
+    })
+
+    await meilisearchService.deleteEntriesFromMeiliSearch({
+      contentType: 'restaurant',
+      documentIds: ['doc-1', 'doc-1'],
+    })
+
+    expect(getEntriesMock).toHaveBeenCalledTimes(1)
+    expect(getEntriesMock).toHaveBeenCalledWith({
+      contentType: 'restaurant',
+      fields: ['documentId', 'locale'],
+      locale: '*',
+      filters: {
+        documentId: 'doc-1',
+      },
+    })
+    expect(client.index('').deleteDocuments).toHaveBeenCalledWith([
+      'restaurant-doc-1-en',
+      'restaurant-doc-1-fr',
+    ])
+  })
+
   test('deletes base document when wildcard locale has no localized entries', async () => {
     const getEntriesMock = jest.fn(async () => [])
 

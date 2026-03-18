@@ -101,7 +101,9 @@ export default ({ strapi, adapter, config }) => {
       const client = Meilisearch({ apiKey, host })
 
       const indexUids = config.getIndexNamesOfContentType({ contentType })
-      const validDocumentIds = documentIds.filter(id => id != null)
+      const validDocumentIds = [
+        ...new Set(documentIds.filter(id => id != null)),
+      ]
       if (validDocumentIds.length === 0) return []
       const resolvedEntriesQuery =
         Object.keys(entriesQuery).length > 0
