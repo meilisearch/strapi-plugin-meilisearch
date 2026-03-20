@@ -76,7 +76,7 @@ const Credentials = () => {
           )}{' '}
           <Link
             isExternal
-            href="https://www.meilisearch.com/docs/reference/api/keys#get-keys"
+            href="https://www.meilisearch.com/docs/reference/api/keys/list-api-keys#get-keys"
           >
             <Typography variant="pi" style={{ color: 'red' }}>
               {i18n(
