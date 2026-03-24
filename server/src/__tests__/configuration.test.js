@@ -393,6 +393,31 @@ describe('Test Meilisearch plugin configurations', () => {
     expect(entries).toEqual([{ id: 1, locale: 'fr' }])
   })
 
+  test('filters entries to configured locale when documentId shared across locales', async () => {
+    const customStrapi = createStrapiMock({
+      restaurantConfig: {
+        entriesQuery: {
+          locale: 'fr',
+        },
+      },
+    })
+
+    const contentType = 'restaurant'
+    const meilisearchService = createMeilisearchService({
+      strapi: customStrapi,
+    })
+
+    const entries = meilisearchService.removeLocaleEntries({
+      contentType,
+      entries: [
+        { id: 1, documentId: 'shared-doc', locale: 'fr' },
+        { id: 2, documentId: 'shared-doc', locale: 'en' },
+      ],
+    })
+
+    expect(entries).toEqual([{ id: 1, documentId: 'shared-doc', locale: 'fr' }])
+  })
+
   test('Test should not remove any entries with wildcard locale', async () => {
     const customStrapi = createStrapiMock({
       restaurantConfig: {
@@ -418,6 +443,62 @@ describe('Test Meilisearch plugin configurations', () => {
     expect(entries).toEqual([
       { id: 1, locale: 'fr' },
       { id: 2, locale: 'en' },
+    ])
+  })
+
+  test('Test should keep any entries when locale is set to all', async () => {
+    const customStrapi = createStrapiMock({
+      restaurantConfig: {
+        entriesQuery: {
+          locale: 'all',
+        },
+      },
+    })
+
+    const contentType = 'restaurant'
+    const meilisearchService = createMeilisearchService({
+      strapi: customStrapi,
+    })
+
+    const entries = meilisearchService.removeLocaleEntries({
+      contentType,
+      entries: [
+        { id: 1, locale: 'fr' },
+        { id: 2, locale: 'en' },
+      ],
+    })
+
+    expect(entries).toEqual([
+      { id: 1, locale: 'fr' },
+      { id: 2, locale: 'en' },
+    ])
+  })
+
+  test('keeps multiple locales when wildcard locale configured', async () => {
+    const customStrapi = createStrapiMock({
+      restaurantConfig: {
+        entriesQuery: {
+          locale: '*',
+        },
+      },
+    })
+
+    const contentType = 'restaurant'
+    const meilisearchService = createMeilisearchService({
+      strapi: customStrapi,
+    })
+
+    const entries = meilisearchService.removeLocaleEntries({
+      contentType,
+      entries: [
+        { id: 1, documentId: 'doc-1', locale: 'fr' },
+        { id: 2, documentId: 'doc-1', locale: 'en' },
+      ],
+    })
+
+    expect(entries).toEqual([
+      { id: 1, documentId: 'doc-1', locale: 'fr' },
+      { id: 2, documentId: 'doc-1', locale: 'en' },
     ])
   })
 

@@ -1,11 +1,20 @@
 export default ({ strapi }) => {
   const contentTypeService = strapi.plugin('meilisearch').service('contentType')
+
+  const buildMeilisearchId = ({ collectionName, entryDocumentId, locale }) => {
+    if (locale) return `${collectionName}-${entryDocumentId}-${locale}`
+
+    return `${collectionName}-${entryDocumentId}`
+  }
+
   return {
     /**
      * Add the prefix of the contentType in front of the documentId of its entry.
      *
      * We do this to avoid id's conflict in case of composite indexes.
-     * It returns the id in the following format: `[collectionName]-[documentId]`
+     * It returns the id in the following format:
+     * - `[collectionName]-[documentId]` for non-localized entries
+     * - `[collectionName]-[documentId]-[locale]` for localized entries
      *
      * Uses documentId (stable across draft/published) instead of the internal
      * database id to prevent duplicate entries in Meilisearch when Draft & Publish
@@ -14,22 +23,29 @@ export default ({ strapi }) => {
      * @param  {object} options
      * @param  {string} options.contentType - ContentType name.
      * @param  {string} options.entryDocumentId - Entry documentId.
+     * @param  {string} options.locale - Entry locale.
      *
      * @returns {string} - Formatted id
      */
-    addCollectionNamePrefixToId: function ({ contentType, entryDocumentId }) {
+    addCollectionNamePrefixToId: function ({
+      contentType,
+      entryDocumentId,
+      locale,
+    }) {
       const collectionName = contentTypeService.getCollectionName({
         contentType,
       })
 
-      return `${collectionName}-${entryDocumentId}`
+      return buildMeilisearchId({ collectionName, entryDocumentId, locale })
     },
 
     /**
      * Add the prefix of the contentType on a list of entries using documentId.
      *
      * We do this to avoid id's conflict in case of composite indexes.
-     * The ids are transformed in the following format: `[collectionName]-[documentId]`
+     * The ids are transformed in the following format:
+     * - `[collectionName]-[documentId]` for non-localized entries
+     * - `[collectionName]-[documentId]-[locale]` for localized entries
      *
      * @param  {object} options
      * @param  {string} options.contentType - ContentType name.
@@ -50,6 +66,7 @@ export default ({ strapi }) => {
           _meilisearch_id: this.addCollectionNamePrefixToId({
             entryDocumentId: entry.documentId,
             contentType,
+            locale: entry.locale,
           }),
         })
         return acc

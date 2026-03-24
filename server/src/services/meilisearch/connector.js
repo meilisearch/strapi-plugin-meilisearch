@@ -1,4 +1,5 @@
 import Meilisearch from './client'
+import { isWildcardLocale } from './config'
 
 /**
  * Add one entry from a contentType to its index in Meilisearch.
@@ -86,31 +87,114 @@ export default ({ strapi, adapter, config }) => {
      * @param  {object} options
      * @param  {string} options.contentType - ContentType name.
      * @param  {string[]} options.documentIds - Entry documentIds.
+     * @param  {object} options.entriesQuery - Entries query.
      *
      * @returns  { Promise<import("meilisearch").Task>} p - Task body returned by Meilisearch API.
      */
     deleteEntriesFromMeiliSearch: async function ({
       contentType,
       documentIds,
+      entriesQuery = {},
+      locales,
     }) {
       const { apiKey, host } = await store.getCredentials()
       const client = Meilisearch({ apiKey, host })
 
       const indexUids = config.getIndexNamesOfContentType({ contentType })
-      const validDocumentIds = documentIds.filter(id => id != null)
+      const validDocumentIds = [
+        ...new Set(documentIds.filter(id => id != null)),
+      ]
       if (validDocumentIds.length === 0) return []
-      const documentsIds = validDocumentIds.map(entryDocumentId =>
-        adapter.addCollectionNamePrefixToId({ entryDocumentId, contentType }),
+      const resolvedEntriesQuery =
+        Object.keys(entriesQuery).length > 0
+          ? entriesQuery
+          : config.entriesQuery({ contentType })
+      const shouldDeleteAllLocaleVariants = isWildcardLocale(
+        resolvedEntriesQuery.locale,
       )
+
+      const resolvedLocales = Array.isArray(locales)
+        ? [
+            ...new Set(
+              locales
+                .filter(
+                  locale =>
+                    typeof locale === 'string' && locale.trim().length > 0,
+                )
+                .map(locale => locale.trim()),
+            ),
+          ]
+        : []
+
+      const meilisearchDocumentIds =
+        shouldDeleteAllLocaleVariants && resolvedLocales.length > 0
+          ? validDocumentIds.flatMap(entryDocumentId =>
+              resolvedLocales.map(resolvedLocale =>
+                adapter.addCollectionNamePrefixToId({
+                  contentType,
+                  entryDocumentId,
+                  locale: resolvedLocale,
+                }),
+              ),
+            )
+          : shouldDeleteAllLocaleVariants
+            ? (
+                await Promise.all(
+                  validDocumentIds.map(async entryDocumentId => {
+                    const baseFilters =
+                      resolvedEntriesQuery.filters != null
+                        ? resolvedEntriesQuery.filters
+                        : {}
+                    const localizedEntries =
+                      await contentTypeService.getEntries({
+                        contentType,
+                        fields: ['documentId', 'locale'],
+                        locale: '*',
+                        ...(resolvedEntriesQuery.status
+                          ? { status: resolvedEntriesQuery.status }
+                          : {}),
+                        filters: {
+                          ...baseFilters,
+                          documentId: entryDocumentId,
+                        },
+                      })
+
+                    return localizedEntries.length > 0
+                      ? localizedEntries.map(entry =>
+                          adapter.addCollectionNamePrefixToId({
+                            contentType,
+                            entryDocumentId,
+                            locale: entry.locale,
+                          }),
+                        )
+                      : [
+                          // Fallback: delete the non-localized document when no localized variants exist.
+                          adapter.addCollectionNamePrefixToId({
+                            contentType,
+                            entryDocumentId,
+                          }),
+                        ]
+                  }),
+                )
+              ).flat()
+            : validDocumentIds.map(entryDocumentId =>
+                adapter.addCollectionNamePrefixToId({
+                  entryDocumentId,
+                  contentType,
+                  locale: resolvedEntriesQuery.locale,
+                }),
+              )
+
+      const uniqueDocumentIds = [...new Set(meilisearchDocumentIds)]
 
       const tasks = await Promise.all(
         indexUids.map(async indexUid => {
           const task = await client
             .index(indexUid)
-            .deleteDocuments(documentsIds)
+            .deleteDocuments(uniqueDocumentIds)
 
           strapi.log.info(
-            `A task to delete ${documentsIds.length} documents of the index "${indexUid}" in Meilisearch has been enqueued (Task uid: ${task.taskUid}).`,
+            `A task to delete ${uniqueDocumentIds.length} documents of the index "${indexUid}" in Meilisearch has been enqueued (Task uid: ${task.taskUid}).`,
           )
 
           return task
@@ -145,24 +229,36 @@ export default ({ strapi, adapter, config }) => {
       })
 
       // Check which documents are not in sanitized documents and need to be deleted
-      const deleteDocuments = entries.filter(
-        entry =>
-          entry.documentId != null &&
-          !addDocuments
-            .map(document => document.documentId)
-            .includes(entry.documentId),
+      const addDocumentIds = addDocuments.map(
+        document => document._meilisearch_id,
       )
+      const deleteDocuments = entries
+        .map(entry => {
+          if (entry.documentId == null) return null
+
+          return {
+            ...entry,
+            _meilisearch_id: adapter.addCollectionNamePrefixToId({
+              contentType,
+              entryDocumentId: entry.documentId,
+              locale: entry.locale,
+            }),
+          }
+        })
+        .filter(
+          entry =>
+            entry &&
+            entry._meilisearch_id != null &&
+            !addDocumentIds.includes(entry._meilisearch_id),
+        )
       // Collect delete tasks
       const deleteTasks = await Promise.all(
         indexUids.map(async indexUid => {
           const tasks = await Promise.all(
             deleteDocuments.map(async document => {
-              const task = await client.index(indexUid).deleteDocument(
-                adapter.addCollectionNamePrefixToId({
-                  contentType,
-                  entryDocumentId: document.documentId,
-                }),
-              )
+              const task = await client
+                .index(indexUid)
+                .deleteDocument(document._meilisearch_id)
 
               strapi.log.info(
                 `A task to delete one document from the Meilisearch index "${indexUid}" has been enqueued (Task uid: ${task.taskUid}).`,
@@ -451,6 +547,7 @@ export default ({ strapi, adapter, config }) => {
           await this.deleteEntriesFromMeiliSearch({
             contentType,
             documentIds: entries.map(entry => entry.documentId),
+            entriesQuery: config.entriesQuery({ contentType }),
           })
         }
         await contentTypeService.actionInBatches({
