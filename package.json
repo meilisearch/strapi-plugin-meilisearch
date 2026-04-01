@@ -44,13 +44,13 @@
     "dist"
   ],
   "dependencies": {
-    "@strapi/design-system": "^2.0.0-rc.14",
-    "@strapi/icons": "^2.0.0-rc.14",
-    "meilisearch": "0.48.2"
+    "@strapi/design-system": "^2.2.0",
+    "@strapi/icons": "^2.2.0",
+    "meilisearch": "0.56.0"
   },
   "peerDependencies": {
-    "@strapi/sdk-plugin": "^5.2.8",
-    "@strapi/strapi": "^5.6.0",
+    "@strapi/sdk-plugin": "^6.0.1",
+    "@strapi/strapi": "^5.40.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.30.3",
@@ -60,8 +60,8 @@
     "@babel/core": "^7.29.0",
     "@babel/preset-env": "^7.29.0",
     "@eslint/js": "^10.0.1",
-    "@strapi/sdk-plugin": "^5.2.8",
-    "@strapi/strapi": "^5.6.0",
+    "@strapi/sdk-plugin": "^6.0.1",
+    "@strapi/strapi": "^5.40.0",
     "@types/jest": "^30.0.0",
     "babel-jest": "^30.2.0",
     "concurrently": "^9.2.1",
