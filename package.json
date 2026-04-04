@@ -64,6 +64,7 @@
     "@strapi/strapi": "^5.6.0",
     "@types/jest": "^30.0.0",
     "babel-jest": "^30.2.0",
+    "better-sqlite3": "^12.8.0",
     "concurrently": "^9.2.1",
     "cypress": "^15.11.0",
     "eslint": "^10.0.2",
