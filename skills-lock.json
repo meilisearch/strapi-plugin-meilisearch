@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "strapi-expert": {
+      "source": "mkshahzad77/claude-skill-strapi-expert",
+      "sourceType": "github",
+      "computedHash": "8fcb40e614ce8a4b1ceed69cadebe94f4509021fed1211de299e49f60ff0f628"
+    }
+  }
+}
