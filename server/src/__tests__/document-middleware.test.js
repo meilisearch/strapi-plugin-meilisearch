@@ -521,6 +521,85 @@ describe('Document Service Middleware', () => {
     })
   })
 
+  test('draft update prefers nested draft entry over wrapper root', async () => {
+    const {
+      strapi,
+      middlewareFn,
+      updateEntriesInMeilisearch,
+      contentTypeGetEntry,
+    } = createStrapiStubs({
+      meilisearchEntriesQuery: { status: 'draft' },
+    })
+
+    await registerDocumentMiddleware({ strapi })
+
+    const handler = middlewareFn()
+    const ctx = {
+      uid: 'api::restaurant.restaurant',
+      action: 'update',
+      params: { documentId: 'abc' },
+    }
+
+    const result = {
+      documentId: 'abc',
+      versions: [
+        {
+          id: 100,
+          documentId: 'abc',
+          title: 'Draft row',
+          publishedAt: null,
+        },
+      ],
+    }
+
+    await handler(ctx, () => Promise.resolve(result))
+
+    expect(updateEntriesInMeilisearch).toHaveBeenCalledWith({
+      contentType: ctx.uid,
+      entries: [expect.objectContaining({ id: 100, documentId: 'abc' })],
+    })
+    expect(contentTypeGetEntry).not.toHaveBeenCalled()
+  })
+
+  test('published update prefers nested published entry over wrapper root', async () => {
+    const {
+      strapi,
+      middlewareFn,
+      updateEntriesInMeilisearch,
+      contentTypeGetEntry,
+    } = createStrapiStubs()
+
+    await registerDocumentMiddleware({ strapi })
+
+    const handler = middlewareFn()
+    const ctx = {
+      uid: 'api::restaurant.restaurant',
+      action: 'update',
+      params: { documentId: 'abc' },
+    }
+
+    const result = {
+      documentId: 'abc',
+      publishedAt: '2024-02-01',
+      versions: [
+        {
+          id: 200,
+          documentId: 'abc',
+          title: 'Published row',
+          publishedAt: '2024-02-01',
+        },
+      ],
+    }
+
+    await handler(ctx, () => Promise.resolve(result))
+
+    expect(updateEntriesInMeilisearch).toHaveBeenCalledWith({
+      contentType: ctx.uid,
+      entries: [expect.objectContaining({ id: 200, documentId: 'abc' })],
+    })
+    expect(contentTypeGetEntry).not.toHaveBeenCalled()
+  })
+
   test('prefers ctx.params.documentId over result documentId for publish actions', async () => {
     const {
       strapi,

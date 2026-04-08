@@ -4,42 +4,42 @@ export default async function registerDocumentMiddleware({ strapi }) {
   }
 
   /**
-   * Convert document service results into a flat list of entry-like objects.
+   * Convert document service results into entry candidates with source metadata.
    *
    * @param {object|object[]|null|undefined} result - Value returned by document service.
    *
-   * @returns {object[]} Flat list of potential entries.
+   * @returns {{data: object, source: string}[]} Flat list of potential entry candidates.
    */
-  const getResultEntries = result => {
+  const extractEntryCandidates = result => {
     if (result == null) return []
 
-    const entries = []
-    const appendEntry = value => {
-      if (value != null && typeof value === 'object') {
-        entries.push(value)
+    const candidates = []
+    const appendCandidate = (data, source) => {
+      if (data != null && typeof data === 'object') {
+        candidates.push({ data, source })
       }
     }
 
     if (Array.isArray(result)) {
-      result.forEach(appendEntry)
-      return entries
+      result.forEach(data => appendCandidate(data, 'root'))
+      return candidates
     }
 
-    appendEntry(result)
+    appendCandidate(result, 'root')
 
     if (Array.isArray(result.versions)) {
-      result.versions.forEach(appendEntry)
+      result.versions.forEach(data => appendCandidate(data, 'versions'))
     }
 
     if (Array.isArray(result.entries)) {
-      result.entries.forEach(appendEntry)
+      result.entries.forEach(data => appendCandidate(data, 'entries'))
     }
 
     if (result.entry != null) {
-      appendEntry(result.entry)
+      appendCandidate(result.entry, 'entry')
     }
 
-    return entries
+    return candidates
   }
 
   /**
@@ -53,26 +53,66 @@ export default async function registerDocumentMiddleware({ strapi }) {
     !(entry?.publishedAt === undefined || entry?.publishedAt === null)
 
   /**
+   * Rank candidates by entry-likeness so nested rows beat root wrappers.
+   * Rule 1: Real DB rows (has 'id' primary key) beat wrappers (no 'id').
+   * Rule 2: Nested sources ('versions', 'entries') beat the 'root' source.
+   *
+   * @param {{data: object, source: string}[]} candidates - Candidates matching one documentId.
+   *
+   * @returns {{data: object, source: string}[]} Ranked candidates.
+   */
+  const rankEntryCandidates = candidates => {
+    return [...candidates].sort((a, b) => {
+      const aHasPrimaryKey = a.data?.id != null
+      const bHasPrimaryKey = b.data?.id != null
+
+      if (aHasPrimaryKey && !bHasPrimaryKey) return -1
+      if (!aHasPrimaryKey && bHasPrimaryKey) return 1
+
+      const aIsRoot = a.source === 'root'
+      const bIsRoot = b.source === 'root'
+
+      if (!aIsRoot && bIsRoot) return -1
+      if (aIsRoot && !bIsRoot) return 1
+
+      return 0
+    })
+  }
+
+  /**
    * Pick the entry to index for update-like document actions.
    *
    * @param {object} options
-   * @param {object[]|null|undefined} options.resultEntries - Entries extracted from result.
+   * @param {{data: object, source: string}[]|null|undefined} options.resultCandidates - Candidate entries extracted from result.
    * @param {string} options.documentId - Target document id.
    * @param {object} options.entriesQuery - Plugin entries query configuration.
    *
    * @returns {object|null} Selected entry to index, if any.
    */
-  const getEntryFromResult = ({ resultEntries, documentId, entriesQuery }) => {
-    const documentEntries = (resultEntries || []).filter(
-      entry => entry?.documentId === documentId,
+  const getEntryFromResult = ({
+    resultCandidates,
+    documentId,
+    entriesQuery,
+  }) => {
+    const documentCandidates = (resultCandidates || []).filter(
+      candidate => candidate?.data?.documentId === documentId,
     )
-    if (documentEntries.length === 0) return null
+    if (documentCandidates.length === 0) return null
+
+    const rankedCandidates = rankEntryCandidates(documentCandidates)
 
     if (entriesQuery?.status === 'draft') {
-      return documentEntries[0]
+      const draftCandidate = rankedCandidates.find(
+        candidate => !isPublishedEntry(candidate.data),
+      )
+      return draftCandidate?.data || rankedCandidates[0]?.data || null
     }
 
-    return documentEntries.find(isPublishedEntry) || null
+    const publishedCandidate = rankedCandidates.find(candidate =>
+      isPublishedEntry(candidate.data),
+    )
+
+    return publishedCandidate?.data || null
   }
 
   /**
@@ -192,9 +232,9 @@ export default async function registerDocumentMiddleware({ strapi }) {
         null
 
       if (updateActions.includes(ctx.action) && documentId != null) {
-        const resultEntries = getResultEntries(result)
+        const resultCandidates = extractEntryCandidates(result)
         let entry = getEntryFromResult({
-          resultEntries,
+          resultCandidates,
           documentId,
           entriesQuery,
         })
