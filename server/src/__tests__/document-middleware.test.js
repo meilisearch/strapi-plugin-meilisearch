@@ -191,10 +191,11 @@ describe('Document Service Middleware', () => {
     })
   })
 
-  test('falls back to delete when updated entry is not returned', async () => {
+  test('skips deletion when updated entry is not returned', async () => {
     const {
       strapi,
       middlewareFn,
+      updateEntriesInMeilisearch,
       deleteEntriesFromMeiliSearch,
       contentTypeGetEntry,
     } = createStrapiStubs()
@@ -213,17 +214,15 @@ describe('Document Service Middleware', () => {
     const result = { id: 12, documentId: 'doc-12', title: 'Updated title' }
     await handler(ctx, () => Promise.resolve(result))
 
-    expect(deleteEntriesFromMeiliSearch).toHaveBeenCalledWith({
-      contentType: ctx.uid,
-      documentIds: [result.documentId],
-      entriesQuery: {},
-    })
+    expect(updateEntriesInMeilisearch).not.toHaveBeenCalled()
+    expect(deleteEntriesFromMeiliSearch).not.toHaveBeenCalled()
   })
 
-  test('passes locale-specific entriesQuery when fallback deletion happens after update', async () => {
+  test('does not delete after update when no published entry is returned', async () => {
     const {
       strapi,
       middlewareFn,
+      updateEntriesInMeilisearch,
       deleteEntriesFromMeiliSearch,
       contentTypeGetEntry,
     } = createStrapiStubs({
@@ -243,11 +242,8 @@ describe('Document Service Middleware', () => {
     const result = { id: 100, documentId: 'abc', title: 'Draft only' }
     await handler(ctx, () => Promise.resolve(result))
 
-    expect(deleteEntriesFromMeiliSearch).toHaveBeenCalledWith({
-      contentType: ctx.uid,
-      documentIds: [result.documentId],
-      entriesQuery: { locale: 'fr' },
-    })
+    expect(updateEntriesInMeilisearch).not.toHaveBeenCalled()
+    expect(deleteEntriesFromMeiliSearch).not.toHaveBeenCalled()
   })
 
   test('propagates wildcard entriesQuery when deleting a document', async () => {
@@ -462,7 +458,7 @@ describe('Document Service Middleware', () => {
     })
   })
 
-  test('update action calls delete when getEntry returns null (no published version)', async () => {
+  test('update action does not delete when getEntry returns null (no published version)', async () => {
     const {
       strapi,
       middlewareFn,
@@ -487,12 +483,7 @@ describe('Document Service Middleware', () => {
     await handler(ctx, () => Promise.resolve(result))
 
     expect(updateEntriesInMeilisearch).not.toHaveBeenCalled()
-    // Uses documentId (not internal id) for deletion since _meilisearch_id is documentId-based
-    expect(deleteEntriesFromMeiliSearch).toHaveBeenCalledWith({
-      contentType: ctx.uid,
-      documentIds: ['abc'],
-      entriesQuery: {},
-    })
+    expect(deleteEntriesFromMeiliSearch).not.toHaveBeenCalled()
   })
 
   test('publish action handles result without id at root level', async () => {
@@ -527,6 +518,132 @@ describe('Document Service Middleware', () => {
     expect(updateEntriesInMeilisearch).toHaveBeenCalledWith({
       contentType: ctx.uid,
       entries: [expect.objectContaining({ id: 200, documentId: 'abc' })],
+    })
+  })
+
+  test('draft update prefers nested draft entry over wrapper root', async () => {
+    const {
+      strapi,
+      middlewareFn,
+      updateEntriesInMeilisearch,
+      contentTypeGetEntry,
+    } = createStrapiStubs({
+      meilisearchEntriesQuery: { status: 'draft' },
+    })
+
+    await registerDocumentMiddleware({ strapi })
+
+    const handler = middlewareFn()
+    const ctx = {
+      uid: 'api::restaurant.restaurant',
+      action: 'update',
+      params: { documentId: 'abc' },
+    }
+
+    const result = {
+      documentId: 'abc',
+      versions: [
+        {
+          id: 100,
+          documentId: 'abc',
+          title: 'Draft row',
+          publishedAt: null,
+        },
+      ],
+    }
+
+    await handler(ctx, () => Promise.resolve(result))
+
+    expect(updateEntriesInMeilisearch).toHaveBeenCalledWith({
+      contentType: ctx.uid,
+      entries: [expect.objectContaining({ id: 100, documentId: 'abc' })],
+    })
+    expect(contentTypeGetEntry).not.toHaveBeenCalled()
+  })
+
+  test('published update prefers nested published entry over wrapper root', async () => {
+    const {
+      strapi,
+      middlewareFn,
+      updateEntriesInMeilisearch,
+      contentTypeGetEntry,
+    } = createStrapiStubs()
+
+    await registerDocumentMiddleware({ strapi })
+
+    const handler = middlewareFn()
+    const ctx = {
+      uid: 'api::restaurant.restaurant',
+      action: 'update',
+      params: { documentId: 'abc' },
+    }
+
+    const result = {
+      documentId: 'abc',
+      publishedAt: '2024-02-01',
+      versions: [
+        {
+          id: 200,
+          documentId: 'abc',
+          title: 'Published row',
+          publishedAt: '2024-02-01',
+        },
+      ],
+    }
+
+    await handler(ctx, () => Promise.resolve(result))
+
+    expect(updateEntriesInMeilisearch).toHaveBeenCalledWith({
+      contentType: ctx.uid,
+      entries: [expect.objectContaining({ id: 200, documentId: 'abc' })],
+    })
+    expect(contentTypeGetEntry).not.toHaveBeenCalled()
+  })
+
+  test('prefers ctx.params.documentId over result documentId for publish actions', async () => {
+    const {
+      strapi,
+      middlewareFn,
+      updateEntriesInMeilisearch,
+      contentTypeGetEntry,
+    } = createStrapiStubs()
+
+    contentTypeGetEntry.mockResolvedValueOnce({
+      id: 300,
+      documentId: 'doc-from-params',
+      title: 'Published from params',
+      publishedAt: '2024-01-01',
+    })
+
+    await registerDocumentMiddleware({ strapi })
+
+    const handler = middlewareFn()
+    const ctx = {
+      uid: 'api::restaurant.restaurant',
+      action: 'publish',
+      params: { documentId: 'doc-from-params' },
+    }
+
+    const result = {
+      documentId: 300,
+      id: 300,
+      title: 'Published from result',
+      publishedAt: '2024-01-01',
+    }
+    await handler(ctx, () => Promise.resolve(result))
+
+    expect(contentTypeGetEntry).toHaveBeenCalledWith({
+      contentType: ctx.uid,
+      documentId: 'doc-from-params',
+      entriesQuery: {},
+    })
+    expect(updateEntriesInMeilisearch).toHaveBeenCalledWith({
+      contentType: ctx.uid,
+      entries: [
+        expect.objectContaining({
+          documentId: 'doc-from-params',
+        }),
+      ],
     })
   })
 

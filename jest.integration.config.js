@@ -9,7 +9,10 @@
 
 module.exports = {
   testEnvironment: 'node',
-  testMatch: ['**/integration-tests/**/*.test.js'],
+  testMatch: [
+    '**/integration-tests/**/*.test.js',
+    '**/tests/integrations/**/*.test.js',
+  ],
   collectCoverage: false,
   testTimeout: 120000, // 120s for polling Meilisearch + waiting for indexing
   clearMocks: true,
