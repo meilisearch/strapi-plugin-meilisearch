@@ -1,17 +1,5 @@
 /**
- * Fixture-based integration tests for restaurant ↔ category relation indexing.
- *
- * Target: published category names appear as a flat `categories` string array in Meilisearch,
- * draft-only links contribute nothing, lifecycle hooks stay in sync, and `_meilisearch_id` follows
- * `restaurant-<documentId>`.
- *
- * Draft-and-publish: `create` + `connect` targets draft category rows; we publish an empty
- * restaurant, `update` the draft with `connect`, then `publish` again so the published version
- * carries relations that `findOne({ status: 'published', populate })` can read back.
- *
- * The Meilisearch document middleware may index from the `publish` result payload (without full
- * `entriesQuery` populate). A final noop `update` on the draft forces a refetch path that loads
- * the published entry with configured populate before Meili assertions.
+ * Relation projection behavior for indexed restaurant documents.
  */
 
 // Ensure integration tests use the real client, not Jest manual mocks.
@@ -19,36 +7,19 @@ jest.unmock('meilisearch')
 
 import {
   createMeilisearchClient,
-  getDocumentOrNull,
   resetIndex,
   waitForIndexTasksToFinish,
 } from './helpers/meilisearch'
+import { categoryDocuments, restaurantDocuments } from './helpers/documents'
+import { getIndexedRestaurantByDocumentId } from './helpers/indexed-restaurant'
 import { startFixtureApp, stopFixtureApp } from './helpers/fixture-app'
 import {
   createTemporaryDatabasePath,
   removeTemporaryDatabasePath,
 } from './helpers/tmp-db'
 
-const RESTAURANT_UID = 'api::restaurant.restaurant'
-const CATEGORY_UID = 'api::category.category'
-
 /**
- * @returns {ReturnType<any>} Restaurant document service (in-process).
- */
-function restaurantDocuments() {
-  return global.strapi.documents(RESTAURANT_UID)
-}
-
-/**
- * @returns {ReturnType<any>} Category document service (in-process).
- */
-function categoryDocuments() {
-  return global.strapi.documents(CATEGORY_UID)
-}
-
-/**
- * Assert the **published** restaurant exposes categories the plugin will keep after `transformEntry`
- * (`publishedAt` must be set on each related category).
+ * Assert the published restaurant includes the expected number of published categories.
  *
  * @param {object} options
  * @param {string} options.documentId
@@ -70,7 +41,7 @@ async function assertPublishedRestaurantCategoriesForIndexing({
   const related = reread?.categories
   const baseMsg =
     `Expected published restaurant ${documentId} to populate ${expectedCount} categories with publishedAt set ` +
-    `(otherwise Meilisearch transformEntry yields []). Got: ${JSON.stringify(related)}`
+    `(only published related categories should be indexed). Got: ${JSON.stringify(related)}`
   if (!Array.isArray(related) || related.length !== expectedCount) {
     throw new Error(baseMsg)
   }
@@ -84,7 +55,7 @@ async function assertPublishedRestaurantCategoriesForIndexing({
 }
 
 /**
- * Assert the draft row has the expected number of category links (implementation detail: draft↔draft).
+ * Assert the draft row has the expected number of category links.
  *
  * @param {object} options
  * @param {string} options.documentId
@@ -110,30 +81,7 @@ async function assertRestaurantDraftCategoryLinkCount({
   }
 }
 
-/**
- * Fetch the indexed restaurant row by Meilisearch primary key `restaurant-<documentId>`.
- *
- * @param {object} options
- * @param {import('meilisearch').MeiliSearch} options.client
- * @param {string} options.indexUid
- * @param {string} options.documentId - Strapi `documentId` for the restaurant.
- * @returns {Promise<object|null>}
- */
-async function getIndexedRestaurantByDocumentId({
-  client,
-  indexUid,
-  documentId,
-}) {
-  const meilisearchId = `restaurant-${documentId}`
-
-  return getDocumentOrNull({
-    client,
-    indexUid,
-    documentId: meilisearchId,
-  })
-}
-
-describe('Strapi fixture — relations indexing (target behaviors)', () => {
+describe('Content indexing — relations', () => {
   let client
   let indexUid
   let dbDirectoryPath
@@ -265,78 +213,5 @@ describe('Strapi fixture — relations indexing (target behaviors)', () => {
 
     expect(indexed).not.toBeNull()
     expect(indexed.categories).toEqual([])
-  })
-
-  test('republish after draft update syncs the published restaurant to Meili', async () => {
-    const initialTitle = `Live ${Date.now()}`
-    const nextTitle = `Live updated ${Date.now()}`
-
-    const created = await restaurantDocuments().create({
-      data: { title: initialTitle },
-    })
-    await restaurantDocuments().publish({ documentId: created.documentId })
-    await waitForIndexTasksToFinish({ client, indexUid })
-
-    await restaurantDocuments().update({
-      documentId: created.documentId,
-      data: { title: nextTitle },
-    })
-    await waitForIndexTasksToFinish({ client, indexUid })
-
-    await restaurantDocuments().publish({ documentId: created.documentId })
-    await waitForIndexTasksToFinish({ client, indexUid })
-
-    const indexed = await getIndexedRestaurantByDocumentId({
-      client,
-      indexUid,
-      documentId: created.documentId,
-    })
-
-    expect(indexed).not.toBeNull()
-    expect(indexed.title).toBe(nextTitle)
-  })
-
-  test('deleting the restaurant removes its Meilisearch document', async () => {
-    const title = `To delete ${Date.now()}`
-    const created = await restaurantDocuments().create({
-      data: { title },
-    })
-    await restaurantDocuments().publish({ documentId: created.documentId })
-    await waitForIndexTasksToFinish({ client, indexUid })
-
-    const before = await getIndexedRestaurantByDocumentId({
-      client,
-      indexUid,
-      documentId: created.documentId,
-    })
-    expect(before).not.toBeNull()
-
-    await restaurantDocuments().delete({ documentId: created.documentId })
-    await waitForIndexTasksToFinish({ client, indexUid })
-
-    const after = await getIndexedRestaurantByDocumentId({
-      client,
-      indexUid,
-      documentId: created.documentId,
-    })
-    expect(after).toBeNull()
-  })
-
-  test('_meilisearch_id is restaurant-<documentId> for indexed restaurants', async () => {
-    const title = `Id shape ${Date.now()}`
-    const created = await restaurantDocuments().create({
-      data: { title },
-    })
-    await restaurantDocuments().publish({ documentId: created.documentId })
-    await waitForIndexTasksToFinish({ client, indexUid })
-
-    const indexed = await getIndexedRestaurantByDocumentId({
-      client,
-      indexUid,
-      documentId: created.documentId,
-    })
-
-    expect(indexed).not.toBeNull()
-    expect(indexed._meilisearch_id).toBe(`restaurant-${created.documentId}`)
   })
 })

@@ -6,42 +6,15 @@ import {
   resetIndex,
   waitForIndexTasksToFinish,
 } from './helpers/meilisearch'
+import { restaurantDocuments } from './helpers/documents'
+import { getIndexedRestaurantByDocumentId } from './helpers/indexed-restaurant'
 import { startFixtureApp, stopFixtureApp } from './helpers/fixture-app'
 import {
   createTemporaryDatabasePath,
   removeTemporaryDatabasePath,
 } from './helpers/tmp-db'
 
-/**
- * Access the restaurant document service in the fixture app.
- *
- * @returns {ReturnType<any>} Document service client.
- */
-function restaurantDocuments() {
-  return global.strapi.documents('api::restaurant.restaurant')
-}
-
-/**
- * Find an indexed restaurant document using Strapi's `documentId` field.
- *
- * @param {object} options
- * @param {any} options.client - Meilisearch client.
- * @param {string} options.indexUid - Index identifier.
- * @param {string} options.documentId - Strapi document identifier.
- *
- * @returns {Promise<object|null>} Indexed document or null.
- */
-async function getIndexedRestaurantByDocumentId({
-  client,
-  indexUid,
-  documentId,
-}) {
-  const { results } = await client.index(indexUid).getDocuments({ limit: 1000 })
-
-  return results.find(entry => entry.documentId === documentId) || null
-}
-
-describe('Strapi fixture regression suite', () => {
+describe('Content indexing — lifecycle', () => {
   let client
   let indexUid
   let dbDirectoryPath
@@ -81,7 +54,7 @@ describe('Strapi fixture regression suite', () => {
       .catch(() => undefined)
   })
 
-  test('create draft restaurant does not index', async () => {
+  test('creating a draft entry does not index it', async () => {
     const created = await restaurantDocuments().create({
       data: {
         title: `Draft ${Date.now()}`,
@@ -99,7 +72,7 @@ describe('Strapi fixture regression suite', () => {
     expect(indexed).toBeNull()
   })
 
-  test('publish restaurant indexes it', async () => {
+  test('publishing a draft entry indexes it', async () => {
     const title = `Published ${Date.now()}`
     const created = await restaurantDocuments().create({
       data: { title },
@@ -118,7 +91,7 @@ describe('Strapi fixture regression suite', () => {
     expect(indexed.title).toBe(title)
   })
 
-  test('update published restaurant draft does not change indexed published doc yet', async () => {
+  test('updating a published entry as draft does not change indexed doc', async () => {
     const initialTitle = `Initial ${Date.now()}`
     const draftTitle = `Draft update ${Date.now()}`
 
@@ -144,7 +117,7 @@ describe('Strapi fixture regression suite', () => {
     expect(indexed.title).toBe(initialTitle)
   })
 
-  test('publish updated draft updates Meili', async () => {
+  test('republishing after a draft update updates the indexed document', async () => {
     const initialTitle = `Initial publish ${Date.now()}`
     const updatedPublishedTitle = `Published update ${Date.now()}`
 
@@ -173,7 +146,7 @@ describe('Strapi fixture regression suite', () => {
     expect(indexed.title).toBe(updatedPublishedTitle)
   })
 
-  test('unpublish removes Meili doc', async () => {
+  test('unpublishing removes the indexed document', async () => {
     const created = await restaurantDocuments().create({
       data: {
         title: `To unpublish ${Date.now()}`,
@@ -192,5 +165,32 @@ describe('Strapi fixture regression suite', () => {
     })
 
     expect(indexed).toBeNull()
+  })
+
+  test('deleting an indexed document removes it from Meilisearch', async () => {
+    const created = await restaurantDocuments().create({
+      data: {
+        title: `To delete ${Date.now()}`,
+      },
+    })
+    await restaurantDocuments().publish({ documentId: created.documentId })
+    await waitForIndexTasksToFinish({ client, indexUid })
+
+    const beforeDelete = await getIndexedRestaurantByDocumentId({
+      client,
+      indexUid,
+      documentId: created.documentId,
+    })
+    expect(beforeDelete).not.toBeNull()
+
+    await restaurantDocuments().delete({ documentId: created.documentId })
+    await waitForIndexTasksToFinish({ client, indexUid })
+
+    const afterDelete = await getIndexedRestaurantByDocumentId({
+      client,
+      indexUid,
+      documentId: created.documentId,
+    })
+    expect(afterDelete).toBeNull()
   })
 })
