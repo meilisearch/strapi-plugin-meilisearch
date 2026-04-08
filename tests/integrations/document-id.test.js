@@ -15,7 +15,7 @@ import {
   removeTemporaryDatabasePath,
 } from './helpers/tmp-db'
 
-describe('Content indexing — document identity', () => {
+describe('Meilisearch document ID', () => {
   let client
   let indexUid
   let dbDirectoryPath
@@ -55,7 +55,7 @@ describe('Content indexing — document identity', () => {
       .catch(() => undefined)
   })
 
-  test('uses restaurant-<documentId> as the indexed document id format', async () => {
+  test('uses <documentType>-<documentId> as the indexed document id format', async () => {
     const created = await restaurantDocuments().create({
       data: {
         title: `Identity ${Date.now()}`,

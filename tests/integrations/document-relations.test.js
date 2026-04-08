@@ -1,7 +1,3 @@
-/**
- * Relation projection behavior for indexed restaurant documents.
- */
-
 // Ensure integration tests use the real client, not Jest manual mocks.
 jest.unmock('meilisearch')
 
@@ -81,7 +77,7 @@ async function assertRestaurantDraftCategoryLinkCount({
   }
 }
 
-describe('Content indexing — relations', () => {
+describe('Indexing Strapi documents with relations', () => {
   let client
   let indexUid
   let dbDirectoryPath

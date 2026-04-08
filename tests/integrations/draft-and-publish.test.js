@@ -14,7 +14,7 @@ import {
   removeTemporaryDatabasePath,
 } from './helpers/tmp-db'
 
-describe('Content indexing — lifecycle', () => {
+describe('Strapi document draft and publish lifecycle', () => {
   let client
   let indexUid
   let dbDirectoryPath
