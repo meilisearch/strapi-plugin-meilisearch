@@ -83,6 +83,36 @@ describe('Tests content types', () => {
     expect(count).toEqual(1)
   })
 
+  test('numberOfEntries normalizes all locale to wildcard fetch queries', async () => {
+    const customStrapi = createStrapiMock({})
+    const findMany = jest.fn(() => [])
+    customStrapi.documents.mockImplementation(() => ({
+      findMany,
+      findOne: jest.fn(() => null),
+      count: jest.fn(() => 3),
+    }))
+    const contentTypeServices = createContentTypeService({
+      strapi: customStrapi,
+    })
+
+    const count = await contentTypeServices.numberOfEntries({
+      contentType: 'api::restaurant.restaurant',
+      locale: 'all',
+    })
+
+    expect(count).toEqual(0)
+    expect(findMany).toHaveBeenCalledWith({
+      fields: '*',
+      start: 0,
+      limit: 500,
+      filters: {},
+      sort: 'id',
+      populate: '*',
+      status: 'published',
+      locale: '*',
+    })
+  })
+
   test('Test total number of entries', async () => {
     const contentTypeServices = createContentTypeService({
       strapi: strapiMock,
@@ -97,6 +127,71 @@ describe('Tests content types', () => {
     })
 
     expect(count).toEqual(2)
+  })
+
+  test('totalNumberOfEntries forwards wildcard locale to each wildcard fetch', async () => {
+    const customStrapi = createStrapiMock({})
+    const findManyCalls = []
+    customStrapi.documents.mockImplementation(contentTypeUid => ({
+      findMany: jest.fn(query => {
+        findManyCalls.push({ contentTypeUid, query })
+        return []
+      }),
+      findOne: jest.fn(() => null),
+      count: jest.fn(() => 1),
+    }))
+    const contentTypeServices = createContentTypeService({
+      strapi: customStrapi,
+    })
+
+    await contentTypeServices.totalNumberOfEntries({
+      contentTypes: ['api::restaurant.restaurant', 'api::movie.movie'],
+      locale: 'all',
+    })
+
+    expect(findManyCalls).toHaveLength(2)
+    expect(findManyCalls.map(({ query }) => query.locale)).toEqual(['*', '*'])
+  })
+
+  test('totalNumberOfEntries uses fetched wildcard rows when count underestimates', async () => {
+    const getTotalForLocale = async locale => {
+      const customStrapi = createStrapiMock({})
+      const count = jest.fn(() => 1)
+      const findMany = jest
+        .fn()
+        .mockImplementationOnce(() => [{ id: 1 }, { id: 2 }])
+        .mockImplementationOnce(() => [{ id: 3 }, { id: 4 }])
+        .mockImplementationOnce(() => [])
+      customStrapi.documents.mockImplementation(() => ({
+        findMany,
+        findOne: jest.fn(() => null),
+        count,
+      }))
+      const contentTypeServices = createContentTypeService({
+        strapi: customStrapi,
+      })
+
+      const total = await contentTypeServices.totalNumberOfEntries({
+        contentTypes: ['api::restaurant.restaurant'],
+        locale,
+      })
+
+      return { total, findMany }
+    }
+
+    const wildcardResult = await getTotalForLocale('*')
+    const aliasResult = await getTotalForLocale('all')
+
+    expect(wildcardResult.total).toEqual(4)
+    expect(aliasResult.total).toEqual(4)
+    expect(wildcardResult.findMany).toHaveBeenCalledTimes(3)
+    expect(aliasResult.findMany).toHaveBeenCalledTimes(3)
+    expect(
+      wildcardResult.findMany.mock.calls.map(([query]) => query.locale),
+    ).toEqual(['*', '*', '*'])
+    expect(
+      aliasResult.findMany.mock.calls.map(([query]) => query.locale),
+    ).toEqual(['*', '*', '*'])
   })
 
   test('Test fetching entries of a content type with default parameters', async () => {
@@ -243,6 +338,34 @@ describe('Tests content types', () => {
 
     expect(entries[0].id).toEqual(2)
     expect(entries[0].contentType).toEqual(contentType)
+  })
+
+  test('actionInBatches keeps fetching wildcard pages until empty', async () => {
+    const customStrapi = createStrapiMock({})
+    const count = jest.fn(() => 2)
+    const findMany = jest.fn(({ start }) => {
+      if (start === 0) return [{ id: 1 }, { id: 2 }]
+      if (start === 2) return [{ id: 3 }, { id: 4 }]
+      return []
+    })
+    customStrapi.documents.mockImplementation(() => ({
+      findMany,
+      findOne: jest.fn(() => null),
+      count,
+    }))
+    const contentTypeServices = createContentTypeService({
+      strapi: customStrapi,
+    })
+
+    // Count is intentionally lower than wildcard pages to reproduce early stop.
+    const entries = await contentTypeServices.actionInBatches({
+      contentType: 'api::restaurant.restaurant',
+      entriesQuery: { locale: '*', limit: 2 },
+      callback: ({ entries }) => entries.map(entry => entry.id),
+    })
+
+    expect(entries).toEqual([1, 2, 3, 4])
+    expect(findMany).toHaveBeenCalledTimes(3)
   })
 
   test('getEntry returns null when entry is not found', async () => {
