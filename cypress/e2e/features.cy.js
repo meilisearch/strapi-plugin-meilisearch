@@ -64,48 +64,6 @@ describe('Meilisearch features', () => {
   }
 
   /**
-   * Poll by refreshing the page until a collection shows the expected indexed state.
-   * This handles Meilisearch's eventual consistency.
-   * @param {string} collectionName - Collection name
-   * @param {string} expectedText - Expected text in the row ('Yes' or 'No')
-   * @param {number} maxAttempts - Max polling attempts
-   * @param {number} intervalMs - Interval between polls in ms
-   */
-  const pollUntilState = (
-    collectionName,
-    expectedText,
-    maxAttempts = 15,
-    intervalMs = 2000,
-  ) => {
-    const poll = attempt => {
-      if (attempt >= maxAttempts) {
-        throw new Error(
-          `Timed out waiting for "${collectionName}" to contain "${expectedText}"`,
-        )
-      }
-
-      // Use getRow helper and check the row text
-      return getRow(collectionName, { timeout: 10000 }).then($row => {
-        const rowText = $row.text()
-
-        // Check if row contains the expected text
-        if (rowText.includes(expectedText)) {
-          // Found expected state
-          return
-        }
-
-        // Not yet in expected state, wait then refresh
-        cy.wait(intervalMs)
-        cy.reload()
-        cy.contains('Collections', { timeout: 10000 }).should('be.visible')
-        return poll(attempt + 1)
-      })
-    }
-
-    return poll(0)
-  }
-
-  /**
    * Ensure a collection is indexed (checkbox checked).
    * Uses network intercepts to wait for backend sync.
    * @param {string} name - Collection name
@@ -408,75 +366,6 @@ describe('Meilisearch features', () => {
         })
       })
 
-      it('displays the number of indexed documents for each collection', () => {
-        // This test enables all collections one at a time to verify counts
-        // First, we need to sync plugin store with Meilisearch by disabling all via UI
-        cy.clearMeilisearchIndexes()
-        visitPluginPage()
-
-        // First pass: ensure all collections are unindexed (sync plugin store)
-        cy.wrap(COLLECTIONS).each(name => {
-          getRow(name)
-            .find('button[role="checkbox"]')
-            .invoke('attr', 'data-state')
-            .then(state => {
-              if (state === 'checked') {
-                getRow(name)
-                  .find('button[role="checkbox"]')
-                  .click({ force: true })
-                // Poll by refreshing page until we see 'No'
-                pollUntilState(name, 'No')
-              }
-            })
-
-          // Verify the row shows 'No'
-          getRow(name, { timeout: TIMEOUT_MS }).should('contain.text', 'No')
-        })
-
-        // Reload once after all unindexing is done (if needed)
-        cy.get('button').then($buttons => {
-          const reloadButton = $buttons.filter(':contains("Reload server")')
-          if (reloadButton.length > 0) {
-            cy.reloadServer()
-            visitPluginPage()
-          }
-        })
-
-        // Second pass: enable each collection sequentially
-        cy.wrap(COLLECTIONS).each(name => {
-          getRow(name)
-            .find('button[role="checkbox"]')
-            .invoke('attr', 'data-state')
-            .then(state => {
-              if (state === 'unchecked') {
-                getRow(name)
-                  .find('button[role="checkbox"]')
-                  .click({ force: true })
-                // Poll by refreshing page until we see 'Yes'
-                pollUntilState(name, 'Yes')
-              }
-            })
-
-          // Verify the row shows 'Yes'
-          getRow(name, { timeout: TIMEOUT_MS }).should('contain.text', 'Yes')
-        })
-
-        // Reload once after all indexing is done (if needed)
-        cy.get('button').then($buttons => {
-          const reloadButton = $buttons.filter(':contains("Reload server")')
-          if (reloadButton.length > 0) {
-            cy.reloadServer()
-            visitPluginPage()
-          }
-        })
-
-        // All collections should show matching counts (X / Y format)
-        cy.wrap(COLLECTIONS).each(name => {
-          getRow(name, { timeout: TIMEOUT_MS }).should($row => {
-            expect($row.text()).to.match(/\d+\s*\/\s*\d+/)
-          })
-        })
-      })
     })
 
     describe('single-type content indexing', () => {

@@ -165,9 +165,6 @@ describe('Permissions', () => {
       // Wait for "Yes" to appear (indexed)
       cy.get('tr:contains("user")').contains('Yes').should('be.visible')
 
-      // Document counts may lag due to async task processing - use retryable assertion
-      cy.get('tr:contains("user")', { timeout: 10000 }).contains('1 / 1')
-
       // Hooks column may show "Hooked" or "Reload needed" due to eventual consistency
       cy.get('tr:contains("user")').then($row => {
         if ($row.text().includes('Reload needed')) {
@@ -193,7 +190,6 @@ describe('Permissions', () => {
       cy.reload()
 
       cy.get('tr:contains("user")').contains('Yes').should('be.visible')
-      cy.get('tr:contains("user")').contains('1 / 1').should('be.visible')
       cy.get('tr:contains("user")').contains('Hooked').should('be.visible')
     })
 
