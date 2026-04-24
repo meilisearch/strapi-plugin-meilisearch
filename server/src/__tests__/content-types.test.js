@@ -83,34 +83,75 @@ describe('Tests content types', () => {
     expect(count).toEqual(1)
   })
 
-  test('numberOfEntries normalizes all locale to wildcard fetch queries', async () => {
+  test('numberOfEntries normalizes `all` locale to wildcard fetch queries', async () => {
     const customStrapi = createStrapiMock({})
     const findMany = jest.fn(() => [])
+    const count = jest.fn(() => 3)
     customStrapi.documents.mockImplementation(() => ({
       findMany,
       findOne: jest.fn(() => null),
-      count: jest.fn(() => 3),
+      count,
     }))
     const contentTypeServices = createContentTypeService({
       strapi: customStrapi,
     })
 
-    const count = await contentTypeServices.numberOfEntries({
+    const entryCount = await contentTypeServices.numberOfEntries({
       contentType: 'api::restaurant.restaurant',
       locale: 'all',
     })
 
-    expect(count).toEqual(0)
+    expect(entryCount).toEqual(0)
     expect(findMany).toHaveBeenCalledWith({
-      fields: '*',
+      fields: ['documentId'],
       start: 0,
       limit: 500,
       filters: {},
       sort: 'id',
-      populate: '*',
+      populate: false,
       status: 'published',
       locale: '*',
     })
+    expect(count).not.toHaveBeenCalled()
+  })
+
+  test('numberOfEntries uses lean wildcard batching for `*` locale', async () => {
+    const customStrapi = createStrapiMock({})
+    const findMany = jest
+      .fn()
+      .mockImplementationOnce(() => [
+        { documentId: 'doc-1' },
+        { documentId: 'doc-2' },
+      ])
+      .mockImplementationOnce(() => [{ documentId: 'doc-3' }])
+      .mockImplementationOnce(() => [])
+    customStrapi.documents.mockImplementation(() => ({
+      findMany,
+      findOne: jest.fn(() => null),
+      count: jest.fn(() => 1),
+    }))
+    const contentTypeServices = createContentTypeService({
+      strapi: customStrapi,
+    })
+
+    const entryCount = await contentTypeServices.numberOfEntries({
+      contentType: 'api::restaurant.restaurant',
+      locale: '*',
+    })
+
+    expect(entryCount).toEqual(3)
+    expect(findMany).toHaveBeenCalledTimes(3)
+    expect(
+      findMany.mock.calls.map(([query]) => ({
+        fields: query.fields,
+        populate: query.populate,
+        locale: query.locale,
+      })),
+    ).toEqual([
+      { fields: ['documentId'], populate: false, locale: '*' },
+      { fields: ['documentId'], populate: false, locale: '*' },
+      { fields: ['documentId'], populate: false, locale: '*' },
+    ])
   })
 
   test('Test total number of entries', async () => {

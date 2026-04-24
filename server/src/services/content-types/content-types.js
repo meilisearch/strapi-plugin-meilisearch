@@ -114,7 +114,11 @@ export default ({ strapi }) => ({
       if (queryOptions.locale === '*') {
         const batchCounts = await this.actionInBatches({
           contentType,
-          entriesQuery: queryOptions,
+          entriesQuery: {
+            ...queryOptions,
+            fields: ['documentId'],
+            populate: false,
+          },
           callback: ({ entries }) => entries.length,
         })
 
