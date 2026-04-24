@@ -365,7 +365,6 @@ describe('Meilisearch features', () => {
           expect($row.text()).to.match(/0\s*\/\s*\d+/)
         })
       })
-
     })
 
     describe('single-type content indexing', () => {
