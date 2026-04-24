@@ -289,9 +289,14 @@ export default ({ strapi }) => ({
       ...entriesQuery,
       ...normalizedEntryScope,
     }
-    const batchSize = normalizedEntriesQuery.limit || 500
-    const shouldIterateUntilEmpty = normalizedEntriesQuery.locale === '*'
-    let start = normalizedEntriesQuery.start || 0
+    const {
+      start: initialStart,
+      limit: initialLimit,
+      ...baseQuery
+    } = normalizedEntriesQuery
+    const batchSize = initialLimit ?? 500
+    const shouldIterateUntilEmpty = baseQuery.locale === '*'
+    let start = initialStart ?? 0
     const cbResponse = []
     // Keep fetching until the source is exhausted because counts can be stale.
     while (true) {
@@ -300,7 +305,7 @@ export default ({ strapi }) => ({
           start,
           limit: batchSize,
           contentType,
-          ...normalizedEntriesQuery,
+          ...baseQuery,
         })) || []
 
       if (entries.length === 0) break

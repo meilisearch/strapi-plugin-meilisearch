@@ -368,6 +368,37 @@ describe('Tests content types', () => {
     expect(findMany).toHaveBeenCalledTimes(3)
   })
 
+  test('actionInBatches keeps loop pagination when entriesQuery.start is provided', async () => {
+    const customStrapi = createStrapiMock({})
+    let repeatedStartCalls = 0
+    const findMany = jest.fn(({ start }) => {
+      if (start === 2) {
+        repeatedStartCalls += 1
+        if (repeatedStartCalls === 1) return [{ id: 3 }, { id: 4 }]
+        return [{ id: 99 }]
+      }
+      if (start === 4) return [{ id: 5 }]
+      return []
+    })
+    customStrapi.documents.mockImplementation(() => ({
+      findMany,
+      findOne: jest.fn(() => null),
+      count: jest.fn(() => 3),
+    }))
+    const contentTypeServices = createContentTypeService({
+      strapi: customStrapi,
+    })
+
+    const entries = await contentTypeServices.actionInBatches({
+      contentType: 'api::restaurant.restaurant',
+      entriesQuery: { start: 2, limit: 2 },
+      callback: ({ entries }) => entries.map(entry => entry.id),
+    })
+
+    expect(entries).toEqual([3, 4, 5])
+    expect(findMany.mock.calls.map(([query]) => query.start)).toEqual([2, 4])
+  })
+
   test('getEntry returns null when entry is not found', async () => {
     const customStrapi = createStrapiMock({})
     // Override findOne to return null (entry not found)
