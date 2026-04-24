@@ -117,7 +117,7 @@ export default ({ strapi }) => ({
           entriesQuery: {
             ...queryOptions,
             fields: ['documentId'],
-            populate: false,
+            populate: {},
           },
           callback: ({ entries }) => entries.length,
         })

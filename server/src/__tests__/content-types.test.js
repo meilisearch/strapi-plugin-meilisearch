@@ -108,7 +108,7 @@ describe('Tests content types', () => {
       limit: 500,
       filters: {},
       sort: 'id',
-      populate: false,
+      populate: {},
       status: 'published',
       locale: '*',
     })
@@ -148,9 +148,9 @@ describe('Tests content types', () => {
         locale: query.locale,
       })),
     ).toEqual([
-      { fields: ['documentId'], populate: false, locale: '*' },
-      { fields: ['documentId'], populate: false, locale: '*' },
-      { fields: ['documentId'], populate: false, locale: '*' },
+      { fields: ['documentId'], populate: {}, locale: '*' },
+      { fields: ['documentId'], populate: {}, locale: '*' },
+      { fields: ['documentId'], populate: {}, locale: '*' },
     ])
   })
 
