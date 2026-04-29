@@ -1,3 +1,5 @@
+import { normalizeEntryLocale, normalizeEntryScope } from './entry-query'
+
 const IGNORED_PLUGINS = [
   'admin',
   'upload',
@@ -88,7 +90,9 @@ export default ({ strapi }) => ({
    *
    * @param  {object} options
    * @param  {string} options.contentType - Name of the contentType.
-   * @param  {object} [options.where] - Filter condition
+   * @param  {object} [options.filters] - Filter condition.
+   * @param  {string} [options.status='published'] - Publication state.
+   * @param  {string} [options.locale] - Locale to query.
    *
    * @returns  {Promise<number>} number of entries in the content type.
    */
@@ -96,15 +100,32 @@ export default ({ strapi }) => ({
     contentType,
     filters = {},
     status = 'published',
+    locale,
   }) {
     const contentTypeUid = this.getContentTypeUid({ contentType })
     if (contentTypeUid === undefined) return 0
+    const queryOptions = normalizeEntryScope({
+      filters,
+      status,
+      locale,
+    })
 
     try {
-      const count = await strapi.documents(contentTypeUid).count({
-        filters,
-        status,
-      })
+      if (queryOptions.locale === '*') {
+        const batchCounts = await this.actionInBatches({
+          contentType,
+          entriesQuery: {
+            ...queryOptions,
+            fields: ['documentId'],
+            populate: {},
+          },
+          callback: ({ entries }) => entries.length,
+        })
+
+        return batchCounts.reduce((total, count) => total + count, 0)
+      }
+
+      const count = await strapi.documents(contentTypeUid).count(queryOptions)
 
       return count
     } catch (e) {
@@ -118,7 +139,9 @@ export default ({ strapi }) => ({
    *
    * @param  {object} options
    * @param  {string[]} options.contentTypes - Names of the contentType.
-   * @param  {object} [options.where] - Filter condition
+   * @param  {object} [options.filters] - Filter condition.
+   * @param  {string} [options.status='published'] - Publication state.
+   * @param  {string} [options.locale] - Locale to query.
    *
    * @returns {Promise<number>} Total entries number of the content types.
    */
@@ -126,10 +149,19 @@ export default ({ strapi }) => ({
     contentTypes,
     filters = {},
     status = 'published',
+    locale,
   }) {
+    const normalizedEntryScope = normalizeEntryScope({
+      filters,
+      status,
+      locale,
+    })
     let numberOfEntries = await Promise.all(
       contentTypes.map(async contentType =>
-        this.numberOfEntries({ contentType, filters, status }),
+        this.numberOfEntries({
+          contentType,
+          ...normalizedEntryScope,
+        }),
       ),
     )
     const entriesSum = numberOfEntries.reduce((acc, curr) => acc + curr, 0)
@@ -158,7 +190,13 @@ export default ({ strapi }) => ({
       status = 'published',
       locale,
     } = entriesQuery
-    const queryOptions = { documentId, fields, populate, status, locale }
+    const queryOptions = {
+      documentId,
+      fields,
+      populate,
+      status,
+      locale: normalizeEntryLocale(locale),
+    }
     const contentTypeUid = this.getContentTypeUid({ contentType })
     if (contentTypeUid === undefined) return null
 
@@ -204,16 +242,21 @@ export default ({ strapi }) => ({
   }) {
     const contentTypeUid = this.getContentTypeUid({ contentType })
     if (contentTypeUid === undefined) return []
+    const normalizedEntryScope = normalizeEntryScope({
+      filters,
+      status,
+      locale,
+    })
 
     const queryOptions = {
       fields: fields || '*',
       start,
       limit,
-      filters,
+      filters: normalizedEntryScope.filters,
       sort,
       populate,
-      status,
-      locale,
+      status: normalizedEntryScope.status,
+      locale: normalizedEntryScope.locale,
     }
 
     const entries = await strapi
@@ -241,26 +284,42 @@ export default ({ strapi }) => ({
     callback = () => {},
     entriesQuery = {},
   }) {
-    const batchSize = entriesQuery.limit || 500
-    // Need total number of entries in contentType
-    const entries_count = await this.numberOfEntries({
-      contentType,
-      ...entriesQuery,
+    const normalizedEntryScope = normalizeEntryScope({
+      filters: entriesQuery.filters,
+      status: entriesQuery.status,
+      locale: entriesQuery.locale,
     })
+    const normalizedEntriesQuery = {
+      ...entriesQuery,
+      ...normalizedEntryScope,
+    }
+    const {
+      start: initialStart,
+      limit: initialLimit,
+      ...baseQuery
+    } = normalizedEntriesQuery
+    const batchSize = initialLimit ?? 500
+    const shouldIterateUntilEmpty = baseQuery.locale === '*'
+    let start = initialStart ?? 0
     const cbResponse = []
-    for (let index = 0; index < entries_count; index += batchSize) {
+    // Keep fetching until the source is exhausted because counts can be stale.
+    while (true) {
       const entries =
         (await this.getEntries({
-          start: index,
+          start,
+          limit: batchSize,
           contentType,
-          ...entriesQuery,
+          ...baseQuery,
         })) || []
 
-      if (entries.length > 0) {
-        const info = await callback({ entries, contentType })
-        if (Array.isArray(info)) cbResponse.push(...info)
-        else if (info) cbResponse.push(info)
-      }
+      if (entries.length === 0) break
+
+      const info = await callback({ entries, contentType })
+      if (Array.isArray(info)) cbResponse.push(...info)
+      else if (info) cbResponse.push(info)
+
+      if (!shouldIterateUntilEmpty && entries.length < batchSize) break
+      start += batchSize
     }
     return cbResponse
   },

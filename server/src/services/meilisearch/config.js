@@ -1,6 +1,14 @@
 import { isObject } from '../../utils'
+import { normalizeEntryLocale } from '../content-types/entry-query'
 
-export const isWildcardLocale = locale => locale === 'all' || locale === '*'
+/**
+ * Determine whether a locale value targets every locale variant.
+ *
+ * @param {string | undefined} locale - Locale configured in entries queries.
+ *
+ * @returns {boolean} True when locale resolves to the wildcard marker.
+ */
+export const isWildcardLocale = locale => normalizeEntryLocale(locale) === '*'
 /**
  * Log an error message on a failed action on a contentType.
  *

@@ -1,3 +1,5 @@
+import { isWildcardLocale } from '../meilisearch/config'
+
 export default async function registerDocumentMiddleware({ strapi }) {
   if (!strapi?.documents || typeof strapi.documents.use !== 'function') {
     return
@@ -173,8 +175,7 @@ export default async function registerDocumentMiddleware({ strapi }) {
       ]
 
       const entriesQuery = meilisearch.entriesQuery({ contentType })
-      const shouldDeleteByLocale =
-        entriesQuery.locale === '*' || entriesQuery.locale === 'all'
+      const shouldDeleteByLocale = isWildcardLocale(entriesQuery.locale)
       const { status } = entriesQuery || {}
       const statusFilter =
         typeof status === 'string' && status.length > 0 ? { status } : {}
