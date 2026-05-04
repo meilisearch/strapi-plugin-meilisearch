@@ -692,6 +692,422 @@ describe('Document Service Middleware', () => {
     expect(deleteEntriesFromMeiliSearch).not.toHaveBeenCalled()
   })
 
+  describe('locale-aware delete actions', () => {
+    const publishedLocaleEntries = [
+      {
+        id: 101,
+        documentId: 'doc-1',
+        locale: 'en',
+        publishedAt: '2024-01-01',
+      },
+      {
+        id: 102,
+        documentId: 'doc-1',
+        locale: 'fr',
+        publishedAt: '2024-01-01',
+      },
+    ]
+
+    test('unpublish removes only the requested locale when all locales are indexed', async () => {
+      const {
+        strapi,
+        middlewareFn,
+        deleteEntriesFromMeiliSearch,
+        contentTypeGetEntries,
+      } = createStrapiStubs({
+        meilisearchEntriesQuery: { locale: '*' },
+        contentTypeGetEntries: jest.fn(() =>
+          Promise.resolve(publishedLocaleEntries),
+        ),
+      })
+
+      await registerDocumentMiddleware({ strapi })
+
+      const handler = middlewareFn()
+      const ctx = {
+        uid: 'api::restaurant.restaurant',
+        action: 'unpublish',
+        params: { documentId: 'doc-1', locale: 'fr' },
+      }
+      const result = { documentId: 'doc-1' }
+
+      await handler(ctx, () => Promise.resolve(result))
+
+      expect(contentTypeGetEntries).toHaveBeenCalled()
+      expect(deleteEntriesFromMeiliSearch).toHaveBeenCalledWith({
+        contentType: ctx.uid,
+        documentIds: ['doc-1'],
+        entriesQuery: { locale: '*' },
+        locales: ['fr'],
+      })
+    })
+
+    test('unpublish removes all locales when action locale is wildcard', async () => {
+      const { strapi, middlewareFn, deleteEntriesFromMeiliSearch } =
+        createStrapiStubs({
+          meilisearchEntriesQuery: { locale: '*' },
+          contentTypeGetEntries: jest.fn(() =>
+            Promise.resolve(publishedLocaleEntries),
+          ),
+        })
+
+      await registerDocumentMiddleware({ strapi })
+
+      const handler = middlewareFn()
+      const ctx = {
+        uid: 'api::restaurant.restaurant',
+        action: 'unpublish',
+        params: { documentId: 'doc-1', locale: '*' },
+      }
+      const result = { documentId: 'doc-1' }
+
+      await handler(ctx, () => Promise.resolve(result))
+
+      expect(deleteEntriesFromMeiliSearch).toHaveBeenCalledWith({
+        contentType: ctx.uid,
+        documentIds: ['doc-1'],
+        entriesQuery: { locale: '*' },
+        locales: ['en', 'fr'],
+      })
+    })
+
+    test('unpublish without locale removes only the default locale', async () => {
+      const { strapi, middlewareFn, deleteEntriesFromMeiliSearch } =
+        createStrapiStubs({
+          meilisearchEntriesQuery: { locale: '*' },
+          contentTypeGetEntry: jest.fn(() =>
+            Promise.resolve({
+              id: 101,
+              documentId: 'doc-1',
+              locale: 'en',
+              publishedAt: '2024-01-01',
+            }),
+          ),
+          contentTypeGetEntries: jest.fn(() =>
+            Promise.resolve(publishedLocaleEntries),
+          ),
+        })
+
+      await registerDocumentMiddleware({ strapi })
+
+      const handler = middlewareFn()
+      const ctx = {
+        uid: 'api::restaurant.restaurant',
+        action: 'unpublish',
+        params: { documentId: 'doc-1' },
+      }
+      const result = { documentId: 'doc-1' }
+
+      await handler(ctx, () => Promise.resolve(result))
+
+      expect(deleteEntriesFromMeiliSearch).toHaveBeenCalledWith({
+        contentType: ctx.uid,
+        documentIds: ['doc-1'],
+        entriesQuery: { locale: '*' },
+        locales: ['en'],
+      })
+    })
+
+    test('delete removes only the requested locale when all locales are indexed', async () => {
+      const { strapi, middlewareFn, deleteEntriesFromMeiliSearch } =
+        createStrapiStubs({
+          meilisearchEntriesQuery: { locale: '*' },
+          contentTypeGetEntries: jest.fn(() =>
+            Promise.resolve(publishedLocaleEntries),
+          ),
+        })
+
+      await registerDocumentMiddleware({ strapi })
+
+      const handler = middlewareFn()
+      const ctx = {
+        uid: 'api::restaurant.restaurant',
+        action: 'delete',
+        params: { documentId: 'doc-1', locale: 'fr' },
+      }
+      const result = { documentId: 'doc-1' }
+
+      await handler(ctx, () => Promise.resolve(result))
+
+      expect(deleteEntriesFromMeiliSearch).toHaveBeenCalledWith({
+        contentType: ctx.uid,
+        documentIds: ['doc-1'],
+        entriesQuery: { locale: '*' },
+        locales: ['fr'],
+      })
+    })
+
+    test('delete without locale removes only the default locale', async () => {
+      const { strapi, middlewareFn, deleteEntriesFromMeiliSearch } =
+        createStrapiStubs({
+          meilisearchEntriesQuery: { locale: '*' },
+          contentTypeGetEntry: jest.fn(() =>
+            Promise.resolve({
+              id: 101,
+              documentId: 'doc-1',
+              locale: 'en',
+              publishedAt: '2024-01-01',
+            }),
+          ),
+          contentTypeGetEntries: jest.fn(() =>
+            Promise.resolve(publishedLocaleEntries),
+          ),
+        })
+
+      await registerDocumentMiddleware({ strapi })
+
+      const handler = middlewareFn()
+      const ctx = {
+        uid: 'api::restaurant.restaurant',
+        action: 'delete',
+        params: { documentId: 'doc-1' },
+      }
+      const result = { documentId: 'doc-1' }
+
+      await handler(ctx, () => Promise.resolve(result))
+
+      expect(deleteEntriesFromMeiliSearch).toHaveBeenCalledWith({
+        contentType: ctx.uid,
+        documentIds: ['doc-1'],
+        entriesQuery: { locale: '*' },
+        locales: ['en'],
+      })
+    })
+  })
+
+  describe('draft-and-publish document actions', () => {
+    test('unpublish does not call meilisearch when indexing drafts', async () => {
+      const {
+        strapi,
+        middlewareFn,
+        updateEntriesInMeilisearch,
+        deleteEntriesFromMeiliSearch,
+      } = createStrapiStubs({
+        meilisearchEntriesQuery: { status: 'draft' },
+      })
+
+      await registerDocumentMiddleware({ strapi })
+
+      const handler = middlewareFn()
+      const ctx = {
+        uid: 'api::restaurant.restaurant',
+        action: 'unpublish',
+        params: { documentId: 'doc-20', locale: 'fr' },
+      }
+      const result = { documentId: 'doc-20', locale: 'fr' }
+
+      await handler(ctx, () => Promise.resolve(result))
+
+      expect(updateEntriesInMeilisearch).not.toHaveBeenCalled()
+      expect(deleteEntriesFromMeiliSearch).not.toHaveBeenCalled()
+    })
+
+    test('discard draft does not call meilisearch in published indexing mode', async () => {
+      const {
+        strapi,
+        middlewareFn,
+        updateEntriesInMeilisearch,
+        deleteEntriesFromMeiliSearch,
+      } = createStrapiStubs({
+        meilisearchEntriesQuery: { status: 'published' },
+      })
+
+      await registerDocumentMiddleware({ strapi })
+
+      const handler = middlewareFn()
+      const ctx = {
+        uid: 'api::restaurant.restaurant',
+        action: 'discardDraft',
+        params: { documentId: 'doc-21', locale: 'fr' },
+      }
+      const result = { documentId: 'doc-21', locale: 'fr' }
+
+      await handler(ctx, () => Promise.resolve(result))
+
+      expect(updateEntriesInMeilisearch).not.toHaveBeenCalled()
+      expect(deleteEntriesFromMeiliSearch).not.toHaveBeenCalled()
+    })
+
+    test('discard draft updates only the requested locale when indexing drafts', async () => {
+      const draftFrenchEntry = {
+        id: 202,
+        documentId: 'doc-22',
+        locale: 'fr',
+        publishedAt: null,
+        title: 'French draft',
+      }
+
+      const {
+        strapi,
+        middlewareFn,
+        updateEntriesInMeilisearch,
+        deleteEntriesFromMeiliSearch,
+      } = createStrapiStubs({
+        meilisearchEntriesQuery: { status: 'draft', locale: 'fr' },
+      })
+
+      await registerDocumentMiddleware({ strapi })
+
+      const handler = middlewareFn()
+      const ctx = {
+        uid: 'api::restaurant.restaurant',
+        action: 'discardDraft',
+        params: { documentId: 'doc-22', locale: 'fr' },
+      }
+      const result = {
+        documentId: 'doc-22',
+        versions: [draftFrenchEntry],
+      }
+
+      await handler(ctx, () => Promise.resolve(result))
+
+      expect(deleteEntriesFromMeiliSearch).not.toHaveBeenCalled()
+      expect(updateEntriesInMeilisearch).toHaveBeenCalledWith({
+        contentType: ctx.uid,
+        entries: [expect.objectContaining({ documentId: 'doc-22', locale: 'fr' })],
+      })
+    })
+
+    test('discard draft updates all locale drafts when indexing drafts for every locale', async () => {
+      const draftEnglishEntry = {
+        id: 203,
+        documentId: 'doc-23',
+        locale: 'en',
+        publishedAt: null,
+        title: 'English draft',
+      }
+      const draftFrenchEntry = {
+        id: 204,
+        documentId: 'doc-23',
+        locale: 'fr',
+        publishedAt: null,
+        title: 'French draft',
+      }
+
+      const {
+        strapi,
+        middlewareFn,
+        updateEntriesInMeilisearch,
+        deleteEntriesFromMeiliSearch,
+      } = createStrapiStubs({
+        meilisearchEntriesQuery: { status: 'draft', locale: '*' },
+      })
+
+      await registerDocumentMiddleware({ strapi })
+
+      const handler = middlewareFn()
+      const ctx = {
+        uid: 'api::restaurant.restaurant',
+        action: 'discardDraft',
+        params: { documentId: 'doc-23', locale: '*' },
+      }
+      const result = {
+        documentId: 'doc-23',
+        versions: [draftEnglishEntry, draftFrenchEntry],
+      }
+
+      await handler(ctx, () => Promise.resolve(result))
+
+      expect(deleteEntriesFromMeiliSearch).not.toHaveBeenCalled()
+      expect(updateEntriesInMeilisearch).toHaveBeenCalledWith({
+        contentType: ctx.uid,
+        entries: [
+          expect.objectContaining({ documentId: 'doc-23', locale: 'en' }),
+          expect.objectContaining({ documentId: 'doc-23', locale: 'fr' }),
+        ],
+      })
+    })
+  })
+
+  describe('wildcard locale indexing fallbacks', () => {
+    test.each(['create', 'update', 'publish'])(
+      'uses action locale for fallback getEntry on %s',
+      async action => {
+        const {
+          strapi,
+          middlewareFn,
+          updateEntriesInMeilisearch,
+          contentTypeGetEntry,
+        } = createStrapiStubs({
+          meilisearchEntriesQuery: { locale: '*' },
+          contentTypeGetEntry: jest.fn(() =>
+            Promise.resolve({
+              id: 301,
+              documentId: 'doc-30',
+              locale: 'fr',
+              publishedAt: '2024-01-01',
+            }),
+          ),
+        })
+
+        await registerDocumentMiddleware({ strapi })
+
+        const handler = middlewareFn()
+        const ctx = {
+          uid: 'api::restaurant.restaurant',
+          action,
+          params: { documentId: 'doc-30', locale: 'fr' },
+        }
+        const result = {
+          documentId: 'doc-30',
+          versions: [{ id: 999, documentId: 'other-doc', publishedAt: '2024-01-01' }],
+        }
+
+        await handler(ctx, () => Promise.resolve(result))
+
+        expect(contentTypeGetEntry).toHaveBeenCalledWith({
+          contentType: ctx.uid,
+          documentId: 'doc-30',
+          entriesQuery: { locale: 'fr' },
+        })
+        expect(updateEntriesInMeilisearch).toHaveBeenCalled()
+      },
+    )
+
+    test('publish updates all localized versions when action locale is wildcard', async () => {
+      const publishedEnglishEntry = {
+        id: 401,
+        documentId: 'doc-40',
+        locale: 'en',
+        publishedAt: '2024-01-01',
+        title: 'English published',
+      }
+      const publishedFrenchEntry = {
+        id: 402,
+        documentId: 'doc-40',
+        locale: 'fr',
+        publishedAt: '2024-01-01',
+        title: 'French published',
+      }
+
+      const { strapi, middlewareFn, updateEntriesInMeilisearch, contentTypeGetEntry } =
+        createStrapiStubs({
+          meilisearchEntriesQuery: { locale: '*' },
+        })
+
+      await registerDocumentMiddleware({ strapi })
+
+      const handler = middlewareFn()
+      const ctx = {
+        uid: 'api::restaurant.restaurant',
+        action: 'publish',
+        params: { documentId: 'doc-40', locale: '*' },
+      }
+      const result = {
+        documentId: 'doc-40',
+        versions: [publishedEnglishEntry, publishedFrenchEntry],
+      }
+
+      await handler(ctx, () => Promise.resolve(result))
+
+      expect(contentTypeGetEntry).not.toHaveBeenCalled()
+      expect(updateEntriesInMeilisearch).toHaveBeenCalledWith({
+        contentType: ctx.uid,
+        entries: [publishedEnglishEntry, publishedFrenchEntry],
+      })
+    })
+  })
+
   test('logs error but does not throw when Meilisearch call fails', async () => {
     const {
       strapi,
