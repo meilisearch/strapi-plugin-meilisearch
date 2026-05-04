@@ -149,6 +149,186 @@ export default async function registerDocumentMiddleware({ strapi }) {
       })
     })
 
+  /**
+   * Resolve an explicit action locale from middleware params.
+   *
+   * @param {object|null|undefined} actionParams - Action params from document middleware context.
+   *
+   * @returns {string|null} Locale from params when present.
+   */
+  const getActionLocale = actionParams => {
+    return typeof actionParams?.locale === 'string' &&
+      actionParams.locale.length > 0
+      ? actionParams.locale
+      : null
+  }
+
+  /**
+   * Build the fallback query used by `getEntry` for update-like actions.
+   *
+   * When index config targets all locales (`*`) but the action is locale-scoped,
+   * keep every existing query option and only override `locale` with the action locale.
+   *
+   * @param {object} options
+   * @param {object|null|undefined} options.entriesQuery - Base query from Meilisearch config.
+   * @param {object|null|undefined} options.actionParams - Action params from document middleware context.
+   *
+   * @returns {object} Query passed to `contentTypeService.getEntry`.
+   */
+  const resolveFallbackEntriesQuery = ({ entriesQuery, actionParams }) => {
+    const actionLocale = getActionLocale(actionParams)
+    const baseQuery = { ...(entriesQuery || {}) }
+
+    if (!isWildcardLocale(baseQuery.locale) || actionLocale == null) {
+      return baseQuery
+    }
+
+    return {
+      ...baseQuery,
+      locale: actionLocale,
+    }
+  }
+
+  /**
+   * Resolve locales to remove from locale-scoped indexes for delete-like actions.
+   *
+   * @param {object} options
+   * @param {object|null|undefined} options.actionParams - Action params from document middleware context.
+   * @param {object|null} options.preDeleteEntry - Entry fetched before running the delete-like action.
+   * @param {object[]|null|undefined} options.localeVariants - Locale variants fetched for wildcard action locales.
+   *
+   * @returns {string[]} Locales to remove from Meilisearch.
+   */
+  const resolveDeleteLocales = ({
+    actionParams,
+    preDeleteEntry,
+    localeVariants,
+  }) => {
+    const actionLocale = getActionLocale(actionParams)
+
+    if (actionLocale && !isWildcardLocale(actionLocale)) {
+      return [actionLocale]
+    }
+
+    if (actionLocale == null) {
+      return typeof preDeleteEntry?.locale === 'string' &&
+        preDeleteEntry.locale.length > 0
+        ? [preDeleteEntry.locale]
+        : []
+    }
+
+    return [
+      ...new Set(
+        (localeVariants || [])
+          .map(entry => entry?.locale)
+          .filter(locale => typeof locale === 'string' && locale.length > 0),
+      ),
+    ]
+  }
+
+  /**
+   * Resolve draft entries to index for `discardDraft` in draft-only indexes.
+   *
+   * @param {object} options
+   * @param {{data: object, source: string}[]|null|undefined} options.resultCandidates - Candidate entries extracted from result.
+   * @param {string} options.documentId - Target document id.
+   * @param {object|null|undefined} options.actionParams - Action params from document middleware context.
+   *
+   * @returns {object[]} Draft entries scoped to the requested action locale.
+   */
+  const getDiscardDraftEntriesFromResult = ({
+    resultCandidates,
+    documentId,
+    actionParams,
+  }) => {
+    const actionLocale = getActionLocale(actionParams)
+    const rankedDraftCandidates = rankEntryCandidates(
+      (resultCandidates || []).filter(
+        candidate =>
+          candidate?.data?.documentId === documentId &&
+          !isPublishedEntry(candidate.data),
+      ),
+    )
+    const rankedLocalizedDraftCandidates = rankedDraftCandidates.filter(
+      candidate =>
+        typeof candidate?.data?.locale === 'string' &&
+        candidate.data.locale.length > 0,
+    )
+
+    if (rankedDraftCandidates.length === 0) return []
+
+    if (actionLocale && !isWildcardLocale(actionLocale)) {
+      const localeCandidate = rankedLocalizedDraftCandidates.find(
+        candidate => candidate?.data?.locale === actionLocale,
+      )
+      return localeCandidate ? [localeCandidate.data] : []
+    }
+
+    if (actionLocale && isWildcardLocale(actionLocale)) {
+      const entriesByLocale = new Map()
+      rankedLocalizedDraftCandidates.forEach(candidate => {
+        const locale = candidate.data.locale
+        if (!entriesByLocale.has(locale)) {
+          entriesByLocale.set(locale, candidate.data)
+        }
+      })
+      return [...entriesByLocale.values()]
+    }
+
+    return [
+      rankedLocalizedDraftCandidates[0]?.data || rankedDraftCandidates[0].data,
+    ]
+  }
+
+  /**
+   * Resolve publish entries when wildcard action locale returns multiple versions.
+   *
+   * @param {object} options
+   * @param {{data: object, source: string}[]|null|undefined} options.resultCandidates - Candidate entries extracted from result.
+   * @param {string} options.documentId - Target document id.
+   * @param {object|null|undefined} options.actionParams - Action params from document middleware context.
+   *
+   * @returns {object[]} Published entries keyed by locale/id for wildcard publish actions.
+   */
+  const getPublishEntriesFromResult = ({
+    resultCandidates,
+    documentId,
+    actionParams,
+  }) => {
+    const actionLocale = getActionLocale(actionParams)
+    if (!actionLocale || !isWildcardLocale(actionLocale)) return []
+
+    const rankedPublishedCandidates = rankEntryCandidates(
+      (resultCandidates || []).filter(
+        candidate =>
+          candidate?.data?.documentId === documentId &&
+          isPublishedEntry(candidate.data),
+      ),
+    )
+    if (rankedPublishedCandidates.length === 0) return []
+
+    const selectedEntries = []
+    const seenKeys = new Set()
+
+    rankedPublishedCandidates.forEach(candidate => {
+      const entry = candidate?.data
+      if (!entry || typeof entry !== 'object') return
+
+      const localeKey =
+        typeof entry.locale === 'string' && entry.locale.length > 0
+          ? `locale:${entry.locale}`
+          : null
+      const idKey = entry.id != null ? `id:${entry.id}` : null
+      const dedupeKey = localeKey || idKey
+
+      if (!dedupeKey || seenKeys.has(dedupeKey)) return
+      seenKeys.add(dedupeKey)
+      selectedEntries.push(entry)
+    })
+
+    return selectedEntries
+  }
+
   // Hook document service (only when available) to mirror Strapi creates into Meilisearch.
   strapi.documents.use(async (ctx, next) => {
     let result
@@ -179,9 +359,22 @@ export default async function registerDocumentMiddleware({ strapi }) {
       const { status } = entriesQuery || {}
       const statusFilter =
         typeof status === 'string' && status.length > 0 ? { status } : {}
+      const isDraftIndex = status === 'draft'
+      const isPublishedIndex = status === 'published'
+
+      const shouldSkipDeleteAction =
+        (ctx.action === 'unpublish' && isDraftIndex) ||
+        (ctx.action === 'discardDraft' && isPublishedIndex)
+      const shouldTreatAsUpdateAction =
+        updateActions.includes(ctx.action) ||
+        (ctx.action === 'discardDraft' && isDraftIndex)
+      const shouldTreatAsDeleteAction =
+        deleteActions.includes(ctx.action) &&
+        !shouldTreatAsUpdateAction &&
+        !shouldSkipDeleteAction
 
       const preDeleteDocumentId =
-        deleteActions.includes(ctx.action) && ctx?.params?.documentId
+        shouldTreatAsDeleteAction && ctx?.params?.documentId
           ? ctx.params.documentId
           : null
       let preDeleteEntry = null
@@ -195,25 +388,26 @@ export default async function registerDocumentMiddleware({ strapi }) {
         })
 
         if (shouldDeleteByLocale) {
-          const localeVariants = await contentTypeService.getEntries({
-            contentType,
-            fields: ['documentId', 'locale'],
-            locale: '*',
-            ...statusFilter,
-            filters: {
-              documentId: preDeleteDocumentId,
-            },
-          })
+          const shouldFetchLocaleVariants = isWildcardLocale(
+            ctx?.params?.locale,
+          )
+          const localeVariants = shouldFetchLocaleVariants
+            ? await contentTypeService.getEntries({
+                contentType,
+                fields: ['documentId', 'locale'],
+                locale: '*',
+                ...statusFilter,
+                filters: {
+                  documentId: preDeleteDocumentId,
+                },
+              })
+            : []
 
-          preDeleteLocales = [
-            ...new Set(
-              localeVariants
-                .map(entry => entry?.locale)
-                .filter(
-                  locale => typeof locale === 'string' && locale.length > 0,
-                ),
-            ),
-          ]
+          preDeleteLocales = resolveDeleteLocales({
+            actionParams: ctx?.params,
+            preDeleteEntry,
+            localeVariants,
+          })
         }
       }
 
@@ -232,30 +426,69 @@ export default async function registerDocumentMiddleware({ strapi }) {
         preDeleteDocumentId ??
         null
 
-      if (updateActions.includes(ctx.action) && documentId != null) {
+      if (shouldTreatAsUpdateAction && documentId != null) {
         const resultCandidates = extractEntryCandidates(result)
-        let entry = getEntryFromResult({
-          resultCandidates,
-          documentId,
-          entriesQuery,
-        })
+        let entriesToUpdate = []
 
-        if (!entry) {
-          entry = await getEntryOutsideTransaction({
-            contentTypeService,
-            contentType,
+        if (ctx.action === 'discardDraft' && isDraftIndex) {
+          entriesToUpdate = getDiscardDraftEntriesFromResult({
+            resultCandidates,
+            documentId,
+            actionParams: ctx?.params,
+          })
+
+          if (entriesToUpdate.length === 0) {
+            const fallbackEntry = await getEntryOutsideTransaction({
+              contentTypeService,
+              contentType,
+              documentId,
+              entriesQuery,
+            })
+            if (fallbackEntry && !isPublishedEntry(fallbackEntry)) {
+              entriesToUpdate = [fallbackEntry]
+            }
+          }
+        } else {
+          const publishResultEntries = getPublishEntriesFromResult({
+            resultCandidates,
+            documentId,
+            actionParams: ctx?.params,
+          })
+          if (publishResultEntries.length > 0) {
+            entriesToUpdate = publishResultEntries
+          }
+
+          let entry = getEntryFromResult({
+            resultCandidates,
             documentId,
             entriesQuery,
           })
+
+          if (entriesToUpdate.length === 0 && !entry) {
+            entry = await getEntryOutsideTransaction({
+              contentTypeService,
+              contentType,
+              documentId,
+              entriesQuery: resolveFallbackEntriesQuery({
+                entriesQuery,
+                actionParams: ctx?.params,
+              }),
+            })
+          }
+
+          if (entriesToUpdate.length === 0 && entry) {
+            entriesToUpdate = [entry]
+          }
         }
 
-        if (entry) {
-          const normalizedEntry =
-            entry.documentId === documentId ? entry : { ...entry, documentId }
+        if (entriesToUpdate.length > 0) {
+          const normalizedEntries = entriesToUpdate.map(entry =>
+            entry.documentId === documentId ? entry : { ...entry, documentId },
+          )
 
           await meilisearch.updateEntriesInMeilisearch({
             contentType,
-            entries: [normalizedEntry],
+            entries: normalizedEntries,
           })
         } else if (ctx.action === 'create' || ctx.action === 'publish') {
           await meilisearch.deleteEntriesFromMeiliSearch({
@@ -268,7 +501,7 @@ export default async function registerDocumentMiddleware({ strapi }) {
             `Meilisearch document middleware skipped indexing ${contentType} documentId=${documentId} for action ${ctx.action}: no indexable entry in result payload`,
           )
         }
-      } else if (deleteActions.includes(ctx.action)) {
+      } else if (shouldTreatAsDeleteAction) {
         if (documentId != null) {
           strapi.log.info(
             `Meilisearch document middleware deleting ${contentType} documentId=${documentId}`,
