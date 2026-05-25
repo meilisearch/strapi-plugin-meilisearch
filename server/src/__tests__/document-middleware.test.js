@@ -314,7 +314,7 @@ describe('Document Service to Meilisearch sync middleware', () => {
     })
   })
 
-  test('discardDraft removes indexed records when sync targets published entries', async () => {
+  test('discardDraft removes indexed records with default sync config (no explicit status)', async () => {
     const { strapi, middlewareFn, deleteEntriesFromMeiliSearch } =
       createStrapiStubs()
 
@@ -825,6 +825,88 @@ describe('Document Service to Meilisearch sync middleware', () => {
           documentIds: ['doc-1'],
           entriesQuery: { locale: '*' },
           locales: ['en', 'fr'],
+        })
+      })
+
+      test('publish fallback delete with params.locale removes only that locale record', async () => {
+        const {
+          strapi,
+          middlewareFn,
+          deleteEntriesFromMeiliSearch,
+          contentTypeGetEntry,
+        } = createStrapiStubs({
+          meilisearchEntriesQuery: { locale: '*' },
+          contentTypeGetEntry: jest.fn(() => Promise.resolve(null)),
+        })
+
+        await registerDocumentMiddleware({ strapi })
+
+        const handler = middlewareFn()
+        const ctx = {
+          uid: 'api::restaurant.restaurant',
+          action: 'publish',
+          params: { documentId: 'doc-1', locale: 'fr' },
+        }
+        const result = {
+          documentId: 'doc-1',
+          versions: [
+            {
+              id: 101,
+              documentId: 'doc-1',
+              locale: 'fr',
+              publishedAt: null,
+            },
+          ],
+        }
+
+        await handler(ctx, () => Promise.resolve(result))
+
+        expect(contentTypeGetEntry).toHaveBeenCalledWith({
+          contentType: ctx.uid,
+          documentId: 'doc-1',
+          entriesQuery: { locale: 'fr' },
+        })
+        expect(deleteEntriesFromMeiliSearch).toHaveBeenCalledWith({
+          contentType: ctx.uid,
+          documentIds: ['doc-1'],
+          entriesQuery: { locale: '*' },
+          locales: ['fr'],
+        })
+      })
+
+      test('create fallback delete with params.locale removes only that locale record', async () => {
+        const {
+          strapi,
+          middlewareFn,
+          deleteEntriesFromMeiliSearch,
+          contentTypeGetEntry,
+        } = createStrapiStubs({
+          meilisearchEntriesQuery: { locale: '*' },
+          contentTypeGetEntry: jest.fn(() => Promise.resolve(null)),
+        })
+
+        await registerDocumentMiddleware({ strapi })
+
+        const handler = middlewareFn()
+        const ctx = {
+          uid: 'api::restaurant.restaurant',
+          action: 'create',
+          params: { locale: 'fr' },
+        }
+        const result = { documentId: 'doc-1' }
+
+        await handler(ctx, () => Promise.resolve(result))
+
+        expect(contentTypeGetEntry).toHaveBeenCalledWith({
+          contentType: ctx.uid,
+          documentId: 'doc-1',
+          entriesQuery: { locale: 'fr' },
+        })
+        expect(deleteEntriesFromMeiliSearch).toHaveBeenCalledWith({
+          contentType: ctx.uid,
+          documentIds: ['doc-1'],
+          entriesQuery: { locale: '*' },
+          locales: ['fr'],
         })
       })
     })

@@ -246,6 +246,48 @@ export default async function registerDocumentMiddleware({ strapi }) {
   }
 
   /**
+   * Resolve locales to remove for create/publish fallback deletes on wildcard indexes.
+   *
+   * @param {object} options
+   * @param {object|null|undefined} options.actionParams - Action params from document middleware context.
+   * @param {{data: object, source: string}[]|null|undefined} options.resultCandidates - Candidate Strapi entries from action result.
+   * @param {object|null|undefined} options.result - Raw action result.
+   * @param {string} options.documentId - Target Strapi document id.
+   *
+   * @returns {string[]} Locales to remove from Meilisearch.
+   */
+  const resolveLocaleCodesToRemoveFromActionResult = ({
+    actionParams,
+    resultCandidates,
+    result,
+    documentId,
+  }) => {
+    const entriesForDocument = (resultCandidates || [])
+      .map(candidate => candidate?.data)
+      .filter(entry => entry?.documentId === documentId)
+
+    const localeVariants = entriesForDocument
+      .filter(
+        entry => typeof entry?.locale === 'string' && entry.locale.length > 0,
+      )
+      .map(entry => ({ documentId: entry.documentId, locale: entry.locale }))
+
+    const preDeleteStrapiEntry =
+      entriesForDocument.find(
+        entry => typeof entry?.locale === 'string' && entry.locale.length > 0,
+      ) ??
+      (typeof result?.locale === 'string' && result.locale.length > 0
+        ? result
+        : (entriesForDocument[0] ?? null))
+
+    return resolveLocaleCodesToRemoveFromIndex({
+      actionParams,
+      preDeleteStrapiEntry,
+      localeVariants,
+    })
+  }
+
+  /**
    * Resolve draft Strapi entries to index for `discardDraft` in draft-only indexes.
    *
    * @param {object} options
@@ -532,10 +574,24 @@ export default async function registerDocumentMiddleware({ strapi }) {
             entries: normalizedEntries,
           })
         } else if (ctx.action === 'create' || ctx.action === 'publish') {
+          const createPublishLocaleCodesToRemove = indexSyncUsesWildcardLocale
+            ? resolveLocaleCodesToRemoveFromActionResult({
+                actionParams: ctx?.params,
+                resultCandidates,
+                result,
+                documentId,
+              })
+            : []
+
           await meilisearch.deleteEntriesFromMeiliSearch({
             contentType,
             documentIds: [documentId],
             entriesQuery: syncQuery,
+            locales:
+              indexSyncUsesWildcardLocale &&
+              createPublishLocaleCodesToRemove.length > 0
+                ? createPublishLocaleCodesToRemove
+                : undefined,
           })
         } else {
           strapi.log.info(
