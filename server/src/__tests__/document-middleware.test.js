@@ -1022,6 +1022,113 @@ describe('Document Service Middleware', () => {
         ],
       })
     })
+
+    test('discardDraft fallback overrides wildcard index locale with action locale', async () => {
+      const {
+        strapi,
+        middlewareFn,
+        updateEntriesInMeilisearch,
+        contentTypeGetEntry,
+      } = createStrapiStubs({
+        meilisearchEntriesQuery: { status: 'draft', locale: '*' },
+        contentTypeGetEntry: jest.fn(() =>
+          Promise.resolve({
+            id: 205,
+            documentId: 'doc-24',
+            locale: 'fr',
+            publishedAt: null,
+            title: 'French draft fallback',
+          }),
+        ),
+      })
+
+      await registerDocumentMiddleware({ strapi })
+
+      const handler = middlewareFn()
+      const ctx = {
+        uid: 'api::restaurant.restaurant',
+        action: 'discardDraft',
+        params: { documentId: 'doc-24', locale: 'fr' },
+      }
+      const result = {
+        documentId: 'doc-24',
+        versions: [{ id: 999, documentId: 'other-doc', locale: 'fr' }],
+      }
+
+      await handler(ctx, () => Promise.resolve(result))
+
+      expect(contentTypeGetEntry).toHaveBeenCalledWith({
+        contentType: ctx.uid,
+        documentId: 'doc-24',
+        entriesQuery: { status: 'draft', locale: 'fr' },
+      })
+      expect(updateEntriesInMeilisearch).toHaveBeenCalledWith({
+        contentType: ctx.uid,
+        entries: [
+          expect.objectContaining({ documentId: 'doc-24', locale: 'fr' }),
+        ],
+      })
+    })
+
+    test('draft index publish with wildcard locale does not fan out published variants', async () => {
+      const {
+        strapi,
+        middlewareFn,
+        updateEntriesInMeilisearch,
+        contentTypeGetEntry,
+      } = createStrapiStubs({
+        meilisearchEntriesQuery: { status: 'draft', locale: '*' },
+        contentTypeGetEntry: jest.fn(() =>
+          Promise.resolve({
+            id: 206,
+            documentId: 'doc-25',
+            locale: 'en',
+            publishedAt: null,
+            title: 'English draft fallback',
+          }),
+        ),
+      })
+
+      await registerDocumentMiddleware({ strapi })
+
+      const handler = middlewareFn()
+      const ctx = {
+        uid: 'api::restaurant.restaurant',
+        action: 'publish',
+        params: { documentId: 'doc-25', locale: '*' },
+      }
+      const result = {
+        documentId: 'doc-25',
+        versions: [
+          {
+            id: 501,
+            documentId: 'doc-25',
+            locale: 'en',
+            publishedAt: '2024-01-01',
+          },
+          {
+            id: 502,
+            documentId: 'doc-25',
+            locale: 'fr',
+            publishedAt: '2024-01-01',
+          },
+        ],
+      }
+
+      await handler(ctx, () => Promise.resolve(result))
+
+      expect(contentTypeGetEntry).toHaveBeenCalledWith({
+        contentType: ctx.uid,
+        documentId: 'doc-25',
+        entriesQuery: { status: 'draft', locale: '*' },
+      })
+      expect(updateEntriesInMeilisearch).toHaveBeenCalledWith({
+        contentType: ctx.uid,
+        entries: [
+          expect.objectContaining({ id: 206, locale: 'en', publishedAt: null }),
+        ],
+      })
+    })
   })
 
   describe('wildcard locale fallback reads', () => {
@@ -1104,6 +1211,51 @@ describe('Document Service Middleware', () => {
         entriesQuery: { locale: 'fr' },
       })
       expect(updateEntriesInMeilisearch).toHaveBeenCalled()
+    })
+
+    test('update prefers locale-matching result candidate for locale-scoped action', async () => {
+      const {
+        strapi,
+        middlewareFn,
+        updateEntriesInMeilisearch,
+        contentTypeGetEntry,
+      } = createStrapiStubs({
+        meilisearchEntriesQuery: { locale: '*' },
+      })
+
+      await registerDocumentMiddleware({ strapi })
+
+      const handler = middlewareFn()
+      const ctx = {
+        uid: 'api::restaurant.restaurant',
+        action: 'update',
+        params: { documentId: 'doc-32', locale: 'fr' },
+      }
+      const result = {
+        documentId: 'doc-32',
+        versions: [
+          {
+            id: 601,
+            documentId: 'doc-32',
+            locale: 'en',
+            publishedAt: '2024-01-01',
+          },
+          {
+            id: 602,
+            documentId: 'doc-32',
+            locale: 'fr',
+            publishedAt: '2024-01-01',
+          },
+        ],
+      }
+
+      await handler(ctx, () => Promise.resolve(result))
+
+      expect(contentTypeGetEntry).not.toHaveBeenCalled()
+      expect(updateEntriesInMeilisearch).toHaveBeenCalledWith({
+        contentType: ctx.uid,
+        entries: [expect.objectContaining({ id: 602, locale: 'fr' })],
+      })
     })
 
     test('publish fallback uses action locale', async () => {

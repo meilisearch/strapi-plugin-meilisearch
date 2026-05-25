@@ -88,6 +88,7 @@ export default async function registerDocumentMiddleware({ strapi }) {
    * @param {{data: object, source: string}[]|null|undefined} options.resultCandidates - Candidate entries extracted from result.
    * @param {string} options.documentId - Target document id.
    * @param {object} options.entriesQuery - Plugin entries query configuration.
+   * @param {object|null|undefined} options.actionParams - Action params from document middleware context.
    *
    * @returns {object|null} Selected entry to index, if any.
    */
@@ -95,6 +96,7 @@ export default async function registerDocumentMiddleware({ strapi }) {
     resultCandidates,
     documentId,
     entriesQuery,
+    actionParams,
   }) => {
     const documentCandidates = (resultCandidates || []).filter(
       candidate => candidate?.data?.documentId === documentId,
@@ -102,17 +104,29 @@ export default async function registerDocumentMiddleware({ strapi }) {
     if (documentCandidates.length === 0) return null
 
     const rankedCandidates = rankEntryCandidates(documentCandidates)
+    const actionLocale = getActionLocale(actionParams)
+    const localeScopedCandidate =
+      actionLocale && !isWildcardLocale(actionLocale)
+        ? rankedCandidates.find(
+            candidate => candidate?.data?.locale === actionLocale,
+          )
+        : null
 
     if (entriesQuery?.status === 'draft') {
-      const draftCandidate = rankedCandidates.find(
-        candidate => !isPublishedEntry(candidate.data),
-      )
-      return draftCandidate?.data || rankedCandidates[0]?.data || null
+      const isIndexableDraftCandidate = candidate =>
+        candidate?.data?.id != null && !isPublishedEntry(candidate.data)
+      const draftCandidate =
+        localeScopedCandidate &&
+        isIndexableDraftCandidate(localeScopedCandidate)
+          ? localeScopedCandidate
+          : rankedCandidates.find(isIndexableDraftCandidate)
+      return draftCandidate?.data || null
     }
 
-    const publishedCandidate = rankedCandidates.find(candidate =>
-      isPublishedEntry(candidate.data),
-    )
+    const publishedCandidate =
+      localeScopedCandidate && isPublishedEntry(localeScopedCandidate.data)
+        ? localeScopedCandidate
+        : rankedCandidates.find(candidate => isPublishedEntry(candidate.data))
 
     return publishedCandidate?.data || null
   }
@@ -287,6 +301,7 @@ export default async function registerDocumentMiddleware({ strapi }) {
    * @param {{data: object, source: string}[]|null|undefined} options.resultCandidates - Candidate entries extracted from result.
    * @param {string} options.documentId - Target document id.
    * @param {object|null|undefined} options.actionParams - Action params from document middleware context.
+   * @param {object|null|undefined} options.entriesQuery - Plugin entries query configuration.
    *
    * @returns {object[]} Published entries keyed by locale/id for wildcard publish actions.
    */
@@ -294,9 +309,19 @@ export default async function registerDocumentMiddleware({ strapi }) {
     resultCandidates,
     documentId,
     actionParams,
+    entriesQuery,
   }) => {
     const actionLocale = getActionLocale(actionParams)
-    if (!actionLocale || !isWildcardLocale(actionLocale)) return []
+    const statusScope = entriesQuery?.status
+    const allowsPublishedEntries =
+      statusScope == null || statusScope !== 'draft'
+    if (
+      !actionLocale ||
+      !isWildcardLocale(actionLocale) ||
+      !allowsPublishedEntries
+    ) {
+      return []
+    }
 
     const rankedPublishedCandidates = rankEntryCandidates(
       (resultCandidates || []).filter(
@@ -442,7 +467,10 @@ export default async function registerDocumentMiddleware({ strapi }) {
               contentTypeService,
               contentType,
               documentId,
-              entriesQuery,
+              entriesQuery: resolveFallbackEntriesQuery({
+                entriesQuery,
+                actionParams: ctx?.params,
+              }),
             })
             if (fallbackEntry && !isPublishedEntry(fallbackEntry)) {
               entriesToUpdate = [fallbackEntry]
@@ -453,6 +481,7 @@ export default async function registerDocumentMiddleware({ strapi }) {
             resultCandidates,
             documentId,
             actionParams: ctx?.params,
+            entriesQuery,
           })
           if (publishResultEntries.length > 0) {
             entriesToUpdate = publishResultEntries
@@ -462,6 +491,7 @@ export default async function registerDocumentMiddleware({ strapi }) {
             resultCandidates,
             documentId,
             entriesQuery,
+            actionParams: ctx?.params,
           })
 
           if (entriesToUpdate.length === 0 && !entry) {
