@@ -158,7 +158,7 @@ describe('Document Service to Meilisearch sync middleware', () => {
     })
   })
 
-  test('indexes the published Strapi row after publish completes', async () => {
+  test('indexes the published Strapi entry after publish completes', async () => {
     const {
       strapi,
       middlewareFn,
@@ -191,7 +191,7 @@ describe('Document Service to Meilisearch sync middleware', () => {
     })
   })
 
-  test('keeps index unchanged when update yields no indexable Strapi row', async () => {
+  test('keeps index unchanged when update yields no indexable Strapi entry', async () => {
     const {
       strapi,
       middlewareFn,
@@ -218,7 +218,7 @@ describe('Document Service to Meilisearch sync middleware', () => {
     expect(deleteEntriesFromMeiliSearch).not.toHaveBeenCalled()
   })
 
-  test('keeps published-only sync unchanged when update has no published Strapi row', async () => {
+  test('keeps published-only sync unchanged when update has no published Strapi entry', async () => {
     const {
       strapi,
       middlewareFn,
@@ -314,7 +314,7 @@ describe('Document Service to Meilisearch sync middleware', () => {
     })
   })
 
-  test('discardDraft removes indexed records when sync targets published rows', async () => {
+  test('discardDraft removes indexed records when sync targets published entries', async () => {
     const { strapi, middlewareFn, deleteEntriesFromMeiliSearch } =
       createStrapiStubs()
 
@@ -336,7 +336,7 @@ describe('Document Service to Meilisearch sync middleware', () => {
     })
   })
 
-  test('update indexes the published Strapi row even when action result id is draft', async () => {
+  test('update indexes the published Strapi entry even when action result id is draft', async () => {
     const {
       strapi,
       middlewareFn,
@@ -371,7 +371,7 @@ describe('Document Service to Meilisearch sync middleware', () => {
     })
   })
 
-  test('update with no published Strapi row leaves the index unchanged', async () => {
+  test('update with no published Strapi entry leaves the index unchanged', async () => {
     const {
       strapi,
       middlewareFn,
@@ -399,7 +399,7 @@ describe('Document Service to Meilisearch sync middleware', () => {
     expect(deleteEntriesFromMeiliSearch).not.toHaveBeenCalled()
   })
 
-  test('publish indexes the Strapi row even when the root result has no id', async () => {
+  test('publish indexes the Strapi entry even when the root result has no id', async () => {
     const {
       strapi,
       middlewareFn,
@@ -434,7 +434,7 @@ describe('Document Service to Meilisearch sync middleware', () => {
     })
   })
 
-  test('draft-only sync indexes the draft row from nested versions data', async () => {
+  test('draft-only sync indexes the draft entry from nested versions data', async () => {
     const {
       strapi,
       middlewareFn,
@@ -459,7 +459,7 @@ describe('Document Service to Meilisearch sync middleware', () => {
         {
           id: 100,
           documentId: 'abc',
-          title: 'Draft row',
+          title: 'Draft entry',
           publishedAt: null,
         },
       ],
@@ -474,7 +474,7 @@ describe('Document Service to Meilisearch sync middleware', () => {
     expect(contentTypeGetEntry).not.toHaveBeenCalled()
   })
 
-  test('published sync indexes the published row from nested versions data', async () => {
+  test('published sync indexes the published entry from nested versions data', async () => {
     const {
       strapi,
       middlewareFn,
@@ -498,7 +498,7 @@ describe('Document Service to Meilisearch sync middleware', () => {
         {
           id: 200,
           documentId: 'abc',
-          title: 'Published row',
+          title: 'Published entry',
           publishedAt: '2024-02-01',
         },
       ],
@@ -606,7 +606,7 @@ describe('Document Service to Meilisearch sync middleware', () => {
   })
 
   describe('locale-aware removals from Meilisearch', () => {
-    const strapiPublishedLocaleRows = [
+    const strapiPublishedLocaleEntries = [
       {
         id: 101,
         documentId: 'doc-1',
@@ -627,7 +627,7 @@ describe('Document Service to Meilisearch sync middleware', () => {
           createStrapiStubs({
             meilisearchEntriesQuery: { locale: '*' },
             contentTypeGetEntries: jest.fn(() =>
-              Promise.resolve(strapiPublishedLocaleRows),
+              Promise.resolve(strapiPublishedLocaleEntries),
             ),
           })
 
@@ -656,7 +656,7 @@ describe('Document Service to Meilisearch sync middleware', () => {
           createStrapiStubs({
             meilisearchEntriesQuery: { locale: '*' },
             contentTypeGetEntries: jest.fn(() =>
-              Promise.resolve(strapiPublishedLocaleRows),
+              Promise.resolve(strapiPublishedLocaleEntries),
             ),
           })
 
@@ -680,7 +680,7 @@ describe('Document Service to Meilisearch sync middleware', () => {
         })
       })
 
-      test('delete without params.locale removes only the pre-delete row locale', async () => {
+      test('delete without params.locale removes only the pre-delete entry locale', async () => {
         const { strapi, middlewareFn, deleteEntriesFromMeiliSearch } =
           createStrapiStubs({
             meilisearchEntriesQuery: { locale: '*' },
@@ -693,7 +693,7 @@ describe('Document Service to Meilisearch sync middleware', () => {
               }),
             ),
             contentTypeGetEntries: jest.fn(() =>
-              Promise.resolve(strapiPublishedLocaleRows),
+              Promise.resolve(strapiPublishedLocaleEntries),
             ),
           })
 
@@ -717,7 +717,7 @@ describe('Document Service to Meilisearch sync middleware', () => {
         })
       })
 
-      test('unpublish without params.locale removes only the pre-delete row locale', async () => {
+      test('unpublish without params.locale removes only the pre-delete entry locale', async () => {
         const { strapi, middlewareFn, deleteEntriesFromMeiliSearch } =
           createStrapiStubs({
             meilisearchEntriesQuery: { locale: '*' },
@@ -730,7 +730,7 @@ describe('Document Service to Meilisearch sync middleware', () => {
               }),
             ),
             contentTypeGetEntries: jest.fn(() =>
-              Promise.resolve(strapiPublishedLocaleRows),
+              Promise.resolve(strapiPublishedLocaleEntries),
             ),
           })
 
@@ -804,7 +804,7 @@ describe('Document Service to Meilisearch sync middleware', () => {
           createStrapiStubs({
             meilisearchEntriesQuery: { locale: '*' },
             contentTypeGetEntries: jest.fn(() =>
-              Promise.resolve(strapiPublishedLocaleRows),
+              Promise.resolve(strapiPublishedLocaleEntries),
             ),
           })
 
@@ -829,7 +829,7 @@ describe('Document Service to Meilisearch sync middleware', () => {
       })
     })
 
-    describe('when sync config indexes draft rows across locales', () => {
+    describe('when sync config indexes draft entries across locales', () => {
       test('delete with params.locale=* removes all draft locale records', async () => {
         const strapiLocaleVariants = [
           { documentId: 'doc-15', locale: 'en' },
@@ -905,7 +905,7 @@ describe('Document Service to Meilisearch sync middleware', () => {
       expect(deleteEntriesFromMeiliSearch).not.toHaveBeenCalled()
     })
 
-    test('discardDraft is ignored when sync config indexes published rows', async () => {
+    test('discardDraft is ignored when sync config indexes published entries', async () => {
       const {
         strapi,
         middlewareFn,
@@ -932,7 +932,7 @@ describe('Document Service to Meilisearch sync middleware', () => {
     })
 
     test('discardDraft re-indexes only params.locale in draft sync', async () => {
-      const strapiDraftFrenchRow = {
+      const strapiDraftFrenchEntry = {
         id: 202,
         documentId: 'doc-22',
         locale: 'fr',
@@ -959,7 +959,7 @@ describe('Document Service to Meilisearch sync middleware', () => {
       }
       const result = {
         documentId: 'doc-22',
-        versions: [strapiDraftFrenchRow],
+        versions: [strapiDraftFrenchEntry],
       }
 
       await handler(ctx, () => Promise.resolve(result))
@@ -974,14 +974,14 @@ describe('Document Service to Meilisearch sync middleware', () => {
     })
 
     test('discardDraft with params.locale=* re-indexes every returned draft locale', async () => {
-      const strapiDraftEnglishRow = {
+      const strapiDraftEnglishEntry = {
         id: 203,
         documentId: 'doc-23',
         locale: 'en',
         publishedAt: null,
         title: 'English draft',
       }
-      const strapiDraftFrenchRow = {
+      const strapiDraftFrenchEntry = {
         id: 204,
         documentId: 'doc-23',
         locale: 'fr',
@@ -1008,7 +1008,7 @@ describe('Document Service to Meilisearch sync middleware', () => {
       }
       const result = {
         documentId: 'doc-23',
-        versions: [strapiDraftEnglishRow, strapiDraftFrenchRow],
+        versions: [strapiDraftEnglishEntry, strapiDraftFrenchEntry],
       }
 
       await handler(ctx, () => Promise.resolve(result))
@@ -1132,7 +1132,7 @@ describe('Document Service to Meilisearch sync middleware', () => {
   })
 
   describe('locale=* sync re-fetch behavior', () => {
-    test('create re-fetches the Strapi row with params.locale when needed', async () => {
+    test('create re-fetches the Strapi entry with params.locale when needed', async () => {
       const {
         strapi,
         middlewareFn,
@@ -1170,7 +1170,7 @@ describe('Document Service to Meilisearch sync middleware', () => {
       expect(updateEntriesInMeilisearch).toHaveBeenCalled()
     })
 
-    test('update re-fetches the Strapi row with params.locale when needed', async () => {
+    test('update re-fetches the Strapi entry with params.locale when needed', async () => {
       const {
         strapi,
         middlewareFn,
@@ -1213,7 +1213,7 @@ describe('Document Service to Meilisearch sync middleware', () => {
       expect(updateEntriesInMeilisearch).toHaveBeenCalled()
     })
 
-    test('update uses the params.locale row from result before re-fetching', async () => {
+    test('update uses the params.locale entry from result before re-fetching', async () => {
       const {
         strapi,
         middlewareFn,
@@ -1258,7 +1258,7 @@ describe('Document Service to Meilisearch sync middleware', () => {
       })
     })
 
-    test('publish re-fetches the Strapi row with params.locale when needed', async () => {
+    test('publish re-fetches the Strapi entry with params.locale when needed', async () => {
       const {
         strapi,
         middlewareFn,
@@ -1356,15 +1356,15 @@ describe('Document Service to Meilisearch sync middleware', () => {
   })
 
   describe('publish fan-out across locales', () => {
-    test('publish with params.locale=* indexes every returned published locale row', async () => {
-      const strapiPublishedEnglishRow = {
+    test('publish with params.locale=* indexes every returned published locale entry', async () => {
+      const strapiPublishedEnglishEntry = {
         id: 401,
         documentId: 'doc-40',
         locale: 'en',
         publishedAt: '2024-01-01',
         title: 'English published',
       }
-      const strapiPublishedFrenchRow = {
+      const strapiPublishedFrenchEntry = {
         id: 402,
         documentId: 'doc-40',
         locale: 'fr',
@@ -1387,14 +1387,14 @@ describe('Document Service to Meilisearch sync middleware', () => {
       }
       const result = {
         documentId: 'doc-40',
-        versions: [strapiPublishedEnglishRow, strapiPublishedFrenchRow],
+        versions: [strapiPublishedEnglishEntry, strapiPublishedFrenchEntry],
       }
 
       await handler(ctx, () => Promise.resolve(result))
 
       expect(updateEntriesInMeilisearch).toHaveBeenCalledWith({
         contentType: ctx.uid,
-        entries: [strapiPublishedEnglishRow, strapiPublishedFrenchRow],
+        entries: [strapiPublishedEnglishEntry, strapiPublishedFrenchEntry],
       })
     })
   })

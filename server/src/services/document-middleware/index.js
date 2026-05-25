@@ -6,13 +6,13 @@ export default async function registerDocumentMiddleware({ strapi }) {
   }
 
   /**
-   * Convert document service results into Strapi row candidates with source metadata.
+   * Convert document service results into Strapi entry candidates with source metadata.
    *
    * @param {object|object[]|null|undefined} result - Value returned by document service.
    *
-   * @returns {{data: object, source: string}[]} Flat list of potential Strapi row candidates.
+   * @returns {{data: object, source: string}[]} Flat list of potential Strapi entry candidates.
    */
-  const extractStrapiRowCandidates = result => {
+  const extractStrapiEntryCandidates = result => {
     if (result == null) return []
 
     const candidates = []
@@ -45,25 +45,25 @@ export default async function registerDocumentMiddleware({ strapi }) {
   }
 
   /**
-   * Determine whether a Strapi row represents a published version.
+   * Determine whether a Strapi entry represents a published version.
    *
-   * @param {object} entry - Strapi row candidate.
+   * @param {object} entry - Strapi entry candidate.
    *
    * @returns {boolean} True when `publishedAt` is set.
    */
-  const isPublishedStrapiRow = entry =>
+  const isPublishedStrapiEntry = entry =>
     !(entry?.publishedAt === undefined || entry?.publishedAt === null)
 
   /**
-   * Rank Strapi row candidates by row-likeness so nested rows beat root wrappers.
-   * Rule 1: Real DB rows (has 'id' primary key) beat wrappers (no 'id').
+   * Rank Strapi entry candidates by entry-likeness so nested entries beat root wrappers.
+   * Rule 1: Real DB entries (has 'id' primary key) beat wrappers (no 'id').
    * Rule 2: Nested sources ('versions', 'entries') beat the 'root' source.
    *
    * @param {{data: object, source: string}[]} candidates - Candidates matching one Strapi document id.
    *
-   * @returns {{data: object, source: string}[]} Ranked Strapi row candidates.
+   * @returns {{data: object, source: string}[]} Ranked Strapi entry candidates.
    */
-  const rankStrapiRowCandidates = candidates => {
+  const rankStrapiEntryCandidates = candidates => {
     return [...candidates].sort((a, b) => {
       const aHasPrimaryKey = a.data?.id != null
       const bHasPrimaryKey = b.data?.id != null
@@ -82,72 +82,72 @@ export default async function registerDocumentMiddleware({ strapi }) {
   }
 
   /**
-   * Pick the Strapi row to index for update-like Strapi document actions.
+   * Pick the Strapi entry to index for update-like Strapi document actions.
    *
    * @param {object} options
-   * @param {{data: object, source: string}[]|null|undefined} options.resultCandidates - Candidate Strapi rows extracted from result.
+   * @param {{data: object, source: string}[]|null|undefined} options.resultCandidates - Candidate Strapi entries extracted from result.
    * @param {string} options.documentId - Target Strapi document id.
    * @param {object} options.syncQuery - Plugin sync query configuration.
    * @param {object|null|undefined} options.actionParams - Action params from document middleware context.
    *
-   * @returns {object|null} Selected Strapi row to index, if any.
+   * @returns {object|null} Selected Strapi entry to index, if any.
    */
-  const selectStrapiRowToIndexFromResult = ({
+  const selectStrapiEntryToIndexFromResult = ({
     resultCandidates,
     documentId,
     syncQuery,
     actionParams,
   }) => {
-    const strapiDocumentRowCandidates = (resultCandidates || []).filter(
+    const strapiDocumentEntryCandidates = (resultCandidates || []).filter(
       candidate => candidate?.data?.documentId === documentId,
     )
-    if (strapiDocumentRowCandidates.length === 0) return null
+    if (strapiDocumentEntryCandidates.length === 0) return null
 
-    const rankedRowCandidates = rankStrapiRowCandidates(
-      strapiDocumentRowCandidates,
+    const rankedEntryCandidates = rankStrapiEntryCandidates(
+      strapiDocumentEntryCandidates,
     )
     const actionLocale = getActionLocale(actionParams)
-    const localeScopedRowCandidate =
+    const localeScopedEntryCandidate =
       actionLocale && !isWildcardLocale(actionLocale)
-        ? rankedRowCandidates.find(
+        ? rankedEntryCandidates.find(
             candidate => candidate?.data?.locale === actionLocale,
           )
         : null
 
     if (syncQuery?.status === 'draft') {
-      const isIndexableDraftRowCandidate = candidate =>
-        candidate?.data?.id != null && !isPublishedStrapiRow(candidate.data)
-      const draftRowCandidate =
-        localeScopedRowCandidate &&
-        isIndexableDraftRowCandidate(localeScopedRowCandidate)
-          ? localeScopedRowCandidate
-          : rankedRowCandidates.find(isIndexableDraftRowCandidate)
-      return draftRowCandidate?.data || null
+      const isIndexableDraftEntryCandidate = candidate =>
+        candidate?.data?.id != null && !isPublishedStrapiEntry(candidate.data)
+      const draftEntryCandidate =
+        localeScopedEntryCandidate &&
+        isIndexableDraftEntryCandidate(localeScopedEntryCandidate)
+          ? localeScopedEntryCandidate
+          : rankedEntryCandidates.find(isIndexableDraftEntryCandidate)
+      return draftEntryCandidate?.data || null
     }
 
-    const publishedRowCandidate =
-      localeScopedRowCandidate &&
-      isPublishedStrapiRow(localeScopedRowCandidate.data)
-        ? localeScopedRowCandidate
-        : rankedRowCandidates.find(candidate =>
-            isPublishedStrapiRow(candidate.data),
+    const publishedEntryCandidate =
+      localeScopedEntryCandidate &&
+      isPublishedStrapiEntry(localeScopedEntryCandidate.data)
+        ? localeScopedEntryCandidate
+        : rankedEntryCandidates.find(candidate =>
+            isPublishedStrapiEntry(candidate.data),
           )
 
-    return publishedRowCandidate?.data || null
+    return publishedEntryCandidate?.data || null
   }
 
   /**
-   * Fetch a Strapi row on the next event-loop turn to avoid leaking finished transactions.
+   * Fetch a Strapi entry on the next event-loop turn to avoid leaking finished transactions.
    *
    * @param {object} options
    * @param {object} options.contentTypeService - Plugin content type service.
    * @param {string} options.contentType - Content type uid.
    * @param {string} options.documentId - Target Strapi document id.
-   * @param {object} options.syncQuery - Query used to fetch the indexable Strapi row.
+   * @param {object} options.syncQuery - Query used to fetch the indexable Strapi entry.
    *
-   * @returns {Promise<object|null>} Strapi row to index or null.
+   * @returns {Promise<object|null>} Strapi entry to index or null.
    */
-  const getStrapiRowAfterTransaction = ({
+  const getStrapiEntryAfterTransaction = ({
     contentTypeService,
     contentType,
     documentId,
@@ -156,12 +156,12 @@ export default async function registerDocumentMiddleware({ strapi }) {
     new Promise((resolve, reject) => {
       setImmediate(async () => {
         try {
-          const strapiRow = await contentTypeService.getEntry({
+          const strapiEntry = await contentTypeService.getEntry({
             contentType,
             documentId,
             entriesQuery: { ...syncQuery },
           })
-          resolve(strapiRow)
+          resolve(strapiEntry)
         } catch (error) {
           reject(error)
         }
@@ -213,14 +213,14 @@ export default async function registerDocumentMiddleware({ strapi }) {
    *
    * @param {object} options
    * @param {object|null|undefined} options.actionParams - Action params from document middleware context.
-   * @param {object|null} options.preDeleteStrapiRow - Row fetched before running the delete-like action.
+   * @param {object|null} options.preDeleteStrapiEntry - Entry fetched before running the delete-like action.
    * @param {object[]|null|undefined} options.localeVariants - Locale variants fetched for wildcard action locales.
    *
    * @returns {string[]} Locales to remove from Meilisearch.
    */
   const resolveLocaleCodesToRemoveFromIndex = ({
     actionParams,
-    preDeleteStrapiRow,
+    preDeleteStrapiEntry,
     localeVariants,
   }) => {
     const actionLocale = getActionLocale(actionParams)
@@ -230,9 +230,9 @@ export default async function registerDocumentMiddleware({ strapi }) {
     }
 
     if (actionLocale == null) {
-      return typeof preDeleteStrapiRow?.locale === 'string' &&
-        preDeleteStrapiRow.locale.length > 0
-        ? [preDeleteStrapiRow.locale]
+      return typeof preDeleteStrapiEntry?.locale === 'string' &&
+        preDeleteStrapiEntry.locale.length > 0
+        ? [preDeleteStrapiEntry.locale]
         : []
     }
 
@@ -246,38 +246,39 @@ export default async function registerDocumentMiddleware({ strapi }) {
   }
 
   /**
-   * Resolve draft Strapi rows to index for `discardDraft` in draft-only indexes.
+   * Resolve draft Strapi entries to index for `discardDraft` in draft-only indexes.
    *
    * @param {object} options
-   * @param {{data: object, source: string}[]|null|undefined} options.resultCandidates - Candidate Strapi rows extracted from result.
+   * @param {{data: object, source: string}[]|null|undefined} options.resultCandidates - Candidate Strapi entries extracted from result.
    * @param {string} options.documentId - Target Strapi document id.
    * @param {object|null|undefined} options.actionParams - Action params from document middleware context.
    *
-   * @returns {object[]} Draft Strapi rows scoped to the requested action locale.
+   * @returns {object[]} Draft Strapi entries scoped to the requested action locale.
    */
-  const selectDraftRowsForDiscardDraftResult = ({
+  const selectDraftEntriesForDiscardDraftResult = ({
     resultCandidates,
     documentId,
     actionParams,
   }) => {
     const actionLocale = getActionLocale(actionParams)
-    const rankedDraftRowCandidates = rankStrapiRowCandidates(
+    const rankedDraftEntryCandidates = rankStrapiEntryCandidates(
       (resultCandidates || []).filter(
         candidate =>
           candidate?.data?.documentId === documentId &&
-          !isPublishedStrapiRow(candidate.data),
+          !isPublishedStrapiEntry(candidate.data),
       ),
     )
-    const rankedLocalizedDraftRowCandidates = rankedDraftRowCandidates.filter(
-      candidate =>
-        typeof candidate?.data?.locale === 'string' &&
-        candidate.data.locale.length > 0,
-    )
+    const rankedLocalizedDraftEntryCandidates =
+      rankedDraftEntryCandidates.filter(
+        candidate =>
+          typeof candidate?.data?.locale === 'string' &&
+          candidate.data.locale.length > 0,
+      )
 
-    if (rankedDraftRowCandidates.length === 0) return []
+    if (rankedDraftEntryCandidates.length === 0) return []
 
     if (actionLocale && !isWildcardLocale(actionLocale)) {
-      const localeCandidate = rankedLocalizedDraftRowCandidates.find(
+      const localeCandidate = rankedLocalizedDraftEntryCandidates.find(
         candidate => candidate?.data?.locale === actionLocale,
       )
       return localeCandidate ? [localeCandidate.data] : []
@@ -285,7 +286,7 @@ export default async function registerDocumentMiddleware({ strapi }) {
 
     if (actionLocale && isWildcardLocale(actionLocale)) {
       const entriesByLocale = new Map()
-      rankedLocalizedDraftRowCandidates.forEach(candidate => {
+      rankedLocalizedDraftEntryCandidates.forEach(candidate => {
         const locale = candidate.data.locale
         if (!entriesByLocale.has(locale)) {
           entriesByLocale.set(locale, candidate.data)
@@ -295,23 +296,23 @@ export default async function registerDocumentMiddleware({ strapi }) {
     }
 
     return [
-      rankedLocalizedDraftRowCandidates[0]?.data ||
-        rankedDraftRowCandidates[0].data,
+      rankedLocalizedDraftEntryCandidates[0]?.data ||
+        rankedDraftEntryCandidates[0].data,
     ]
   }
 
   /**
-   * Resolve published Strapi rows when wildcard action locale returns multiple versions.
+   * Resolve published Strapi entries when wildcard action locale returns multiple versions.
    *
    * @param {object} options
-   * @param {{data: object, source: string}[]|null|undefined} options.resultCandidates - Candidate Strapi rows extracted from result.
+   * @param {{data: object, source: string}[]|null|undefined} options.resultCandidates - Candidate Strapi entries extracted from result.
    * @param {string} options.documentId - Target Strapi document id.
    * @param {object|null|undefined} options.actionParams - Action params from document middleware context.
    * @param {object|null|undefined} options.syncQuery - Plugin sync query configuration.
    *
-   * @returns {object[]} Published Strapi rows keyed by locale/id for wildcard publish actions.
+   * @returns {object[]} Published Strapi entries keyed by locale/id for wildcard publish actions.
    */
-  const selectPublishedRowsForWildcardPublish = ({
+  const selectPublishedEntriesForWildcardPublish = ({
     resultCandidates,
     documentId,
     actionParams,
@@ -319,45 +320,45 @@ export default async function registerDocumentMiddleware({ strapi }) {
   }) => {
     const actionLocale = getActionLocale(actionParams)
     const syncStatusScope = syncQuery?.status
-    const syncAllowsPublishedRows =
+    const syncAllowsPublishedEntries =
       syncStatusScope == null || syncStatusScope !== 'draft'
     if (
       !actionLocale ||
       !isWildcardLocale(actionLocale) ||
-      !syncAllowsPublishedRows
+      !syncAllowsPublishedEntries
     ) {
       return []
     }
 
-    const rankedPublishedRowCandidates = rankStrapiRowCandidates(
+    const rankedPublishedEntryCandidates = rankStrapiEntryCandidates(
       (resultCandidates || []).filter(
         candidate =>
           candidate?.data?.documentId === documentId &&
-          isPublishedStrapiRow(candidate.data),
+          isPublishedStrapiEntry(candidate.data),
       ),
     )
-    if (rankedPublishedRowCandidates.length === 0) return []
+    if (rankedPublishedEntryCandidates.length === 0) return []
 
-    const selectedRows = []
+    const selectedEntries = []
     const seenKeys = new Set()
 
-    rankedPublishedRowCandidates.forEach(candidate => {
-      const strapiRow = candidate?.data
-      if (!strapiRow || typeof strapiRow !== 'object') return
+    rankedPublishedEntryCandidates.forEach(candidate => {
+      const strapiEntry = candidate?.data
+      if (!strapiEntry || typeof strapiEntry !== 'object') return
 
       const localeKey =
-        typeof strapiRow.locale === 'string' && strapiRow.locale.length > 0
-          ? `locale:${strapiRow.locale}`
+        typeof strapiEntry.locale === 'string' && strapiEntry.locale.length > 0
+          ? `locale:${strapiEntry.locale}`
           : null
-      const idKey = strapiRow.id != null ? `id:${strapiRow.id}` : null
+      const idKey = strapiEntry.id != null ? `id:${strapiEntry.id}` : null
       const dedupeKey = localeKey || idKey
 
       if (!dedupeKey || seenKeys.has(dedupeKey)) return
       seenKeys.add(dedupeKey)
-      selectedRows.push(strapiRow)
+      selectedEntries.push(strapiEntry)
     })
 
-    return selectedRows
+    return selectedEntries
   }
 
   // Hook document service (only when available) to mirror Strapi creates into Meilisearch.
@@ -408,11 +409,11 @@ export default async function registerDocumentMiddleware({ strapi }) {
         shouldTreatAsDeleteAction && ctx?.params?.documentId
           ? ctx.params.documentId
           : null
-      let preDeleteStrapiRow = null
+      let preDeleteStrapiEntry = null
       let localeCodesToRemove = []
 
       if (preDeleteDocumentId != null) {
-        preDeleteStrapiRow = await contentTypeService.getEntry({
+        preDeleteStrapiEntry = await contentTypeService.getEntry({
           contentType,
           documentId: preDeleteDocumentId,
           entriesQuery: { ...statusFilter },
@@ -436,7 +437,7 @@ export default async function registerDocumentMiddleware({ strapi }) {
 
           localeCodesToRemove = resolveLocaleCodesToRemoveFromIndex({
             actionParams: ctx?.params,
-            preDeleteStrapiRow,
+            preDeleteStrapiEntry,
             localeVariants,
           })
         }
@@ -453,23 +454,23 @@ export default async function registerDocumentMiddleware({ strapi }) {
       const documentId =
         contextDocumentId ??
         result?.documentId ??
-        preDeleteStrapiRow?.documentId ??
+        preDeleteStrapiEntry?.documentId ??
         preDeleteDocumentId ??
         null
 
       if (shouldTreatAsUpdateAction && documentId != null) {
-        const resultCandidates = extractStrapiRowCandidates(result)
+        const resultCandidates = extractStrapiEntryCandidates(result)
         let entriesToUpdate = []
 
         if (ctx.action === 'discardDraft' && isDraftIndex) {
-          entriesToUpdate = selectDraftRowsForDiscardDraftResult({
+          entriesToUpdate = selectDraftEntriesForDiscardDraftResult({
             resultCandidates,
             documentId,
             actionParams: ctx?.params,
           })
 
           if (entriesToUpdate.length === 0) {
-            const fallbackStrapiRow = await getStrapiRowAfterTransaction({
+            const fallbackStrapiEntry = await getStrapiEntryAfterTransaction({
               contentTypeService,
               contentType,
               documentId,
@@ -478,31 +479,34 @@ export default async function registerDocumentMiddleware({ strapi }) {
                 actionParams: ctx?.params,
               }),
             })
-            if (fallbackStrapiRow && !isPublishedStrapiRow(fallbackStrapiRow)) {
-              entriesToUpdate = [fallbackStrapiRow]
+            if (
+              fallbackStrapiEntry &&
+              !isPublishedStrapiEntry(fallbackStrapiEntry)
+            ) {
+              entriesToUpdate = [fallbackStrapiEntry]
             }
           }
         } else {
-          const publishedRowsFromWildcardPublish =
-            selectPublishedRowsForWildcardPublish({
+          const publishedEntriesFromWildcardPublish =
+            selectPublishedEntriesForWildcardPublish({
               resultCandidates,
               documentId,
               actionParams: ctx?.params,
               syncQuery,
             })
-          if (publishedRowsFromWildcardPublish.length > 0) {
-            entriesToUpdate = publishedRowsFromWildcardPublish
+          if (publishedEntriesFromWildcardPublish.length > 0) {
+            entriesToUpdate = publishedEntriesFromWildcardPublish
           }
 
-          let strapiRow = selectStrapiRowToIndexFromResult({
+          let strapiEntry = selectStrapiEntryToIndexFromResult({
             resultCandidates,
             documentId,
             syncQuery,
             actionParams: ctx?.params,
           })
 
-          if (entriesToUpdate.length === 0 && !strapiRow) {
-            strapiRow = await getStrapiRowAfterTransaction({
+          if (entriesToUpdate.length === 0 && !strapiEntry) {
+            strapiEntry = await getStrapiEntryAfterTransaction({
               contentTypeService,
               contentType,
               documentId,
@@ -513,8 +517,8 @@ export default async function registerDocumentMiddleware({ strapi }) {
             })
           }
 
-          if (entriesToUpdate.length === 0 && strapiRow) {
-            entriesToUpdate = [strapiRow]
+          if (entriesToUpdate.length === 0 && strapiEntry) {
+            entriesToUpdate = [strapiEntry]
           }
         }
 
@@ -535,7 +539,7 @@ export default async function registerDocumentMiddleware({ strapi }) {
           })
         } else {
           strapi.log.info(
-            `Meilisearch document middleware skipped indexing ${contentType} documentId=${documentId} for action ${ctx.action}: no indexable Strapi row in action result`,
+            `Meilisearch document middleware skipped indexing ${contentType} documentId=${documentId} for action ${ctx.action}: no indexable Strapi entry in action result`,
           )
         }
       } else if (shouldTreatAsDeleteAction) {

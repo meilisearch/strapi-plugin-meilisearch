@@ -1,7 +1,7 @@
 import { getDocumentOrNull } from './meilisearch'
 
 /**
- * Fetch an indexed restaurant row by Strapi `documentId`.
+ * Fetch an indexed restaurant record by Strapi `documentId`.
  *
  * Meilisearch stores this fixture with `_meilisearch_id = restaurant-<documentId>`.
  *
