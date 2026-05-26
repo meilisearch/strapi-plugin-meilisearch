@@ -1,155 +1,236 @@
 import { isWildcardLocale } from '../meilisearch/config'
+import {
+  resolveDocumentIds,
+  resolveDocumentIdsFromActionParams,
+} from './document-ids.js'
+import {
+  extractStrapiEntryCandidates,
+  isPublishedStrapiEntry,
+} from './entry-candidates.js'
+import {
+  selectDraftEntriesForDiscardDraftResult,
+  selectPublishedEntriesForWildcardPublish,
+  selectStrapiEntryToIndexFromResult,
+} from './entry-selection.js'
+import {
+  collectLocaleCodesFromEntries,
+  getActionLocale,
+  resolveLocaleCodesToRemoveFromActionResult,
+  resolveLocaleCodesToRemoveFromIndex,
+  resolveLocaleScopedReadQuery,
+} from './locale-resolution.js'
+
+/**
+ * Fetch a Strapi entry on the next event-loop turn to avoid leaking finished transactions.
+ *
+ * @param {object} options - Fetch options.
+ * @param {object} options.contentTypeService - Plugin content type service.
+ * @param {string} options.contentType - Content type uid.
+ * @param {string} options.documentId - Target Strapi document id.
+ * @param {object} options.syncQuery - Query used to fetch the indexable Strapi entry.
+ *
+ * @returns {Promise<object|null>} Strapi entry to index or null.
+ */
+const getStrapiEntryAfterTransaction = ({
+  contentTypeService,
+  contentType,
+  documentId,
+  syncQuery,
+}) =>
+  new Promise((resolve, reject) => {
+    setImmediate(async () => {
+      try {
+        const strapiEntry = await contentTypeService.getEntry({
+          contentType,
+          documentId,
+          entriesQuery: { ...syncQuery },
+        })
+        resolve(strapiEntry)
+      } catch (error) {
+        reject(error)
+      }
+    })
+  })
+
+/**
+ * Build the pre-action snapshot for one document id.
+ *
+ * @param {object} options - Snapshot options.
+ * @param {object} options.contentTypeService - Plugin content type service.
+ * @param {string} options.contentType - Content type uid.
+ * @param {string} options.documentId - Target Strapi document id.
+ * @param {object|null|undefined} options.statusFilter - Optional status scope from sync query.
+ * @param {object|null|undefined} options.actionParams - Action params from middleware context.
+ * @param {boolean} options.indexSyncUsesWildcardLocale - Whether index config stores all locales.
+ *
+ * @returns {Promise<{documentId: string, preDeleteStrapiEntry: object|null, localeVariants: object[], localeCodesToRemove: string[]}>}
+ */
+const buildPreActionSnapshot = async ({
+  contentTypeService,
+  contentType,
+  documentId,
+  statusFilter,
+  actionParams,
+  indexSyncUsesWildcardLocale,
+}) => {
+  const preDeleteStrapiEntry = await contentTypeService.getEntry({
+    contentType,
+    documentId,
+    entriesQuery: { ...(statusFilter || {}) },
+  })
+
+  const shouldFetchLocaleVariants =
+    indexSyncUsesWildcardLocale && isWildcardLocale(actionParams?.locale)
+  const localeVariants = shouldFetchLocaleVariants
+    ? await contentTypeService.getEntries({
+        contentType,
+        fields: ['documentId', 'locale'],
+        locale: '*',
+        ...(statusFilter || {}),
+        filters: {
+          documentId,
+        },
+      })
+    : []
+
+  const localeCodesToRemove = indexSyncUsesWildcardLocale
+    ? resolveLocaleCodesToRemoveFromIndex({
+        actionParams,
+        preDeleteStrapiEntry,
+        localeVariants,
+      })
+    : []
+
+  return {
+    documentId,
+    preDeleteStrapiEntry,
+    localeVariants,
+    localeCodesToRemove,
+  }
+}
+
+/**
+ * Collect pre-action snapshots for every target document.
+ *
+ * @param {object} options - Snapshot collection options.
+ * @param {string[]} options.documentIds - Target document ids.
+ * @param {object} options.contentTypeService - Plugin content type service.
+ * @param {string} options.contentType - Content type uid.
+ * @param {object|null|undefined} options.statusFilter - Optional status scope from sync query.
+ * @param {object|null|undefined} options.actionParams - Action params from middleware context.
+ * @param {boolean} options.indexSyncUsesWildcardLocale - Whether index config stores all locales.
+ *
+ * @returns {Promise<Array<{documentId: string, preDeleteStrapiEntry: object|null, localeVariants: object[], localeCodesToRemove: string[]}>>}
+ */
+const collectPreActionSnapshots = async ({
+  documentIds,
+  contentTypeService,
+  contentType,
+  statusFilter,
+  actionParams,
+  indexSyncUsesWildcardLocale,
+}) => {
+  return Promise.all(
+    documentIds.map(documentId =>
+      buildPreActionSnapshot({
+        contentTypeService,
+        contentType,
+        documentId,
+        statusFilter,
+        actionParams,
+        indexSyncUsesWildcardLocale,
+      }),
+    ),
+  )
+}
+
+/**
+ * Normalize locale codes into a stable, unique list.
+ *
+ * @param {string[]|null|undefined} localeCodes - Locale codes to normalize.
+ *
+ * @returns {string[]} Normalized locale codes.
+ */
+const normalizeLocaleCodes = localeCodes => {
+  return [
+    ...new Set(
+      (localeCodes || [])
+        .filter(locale => typeof locale === 'string' && locale.length > 0)
+        .map(locale => locale.trim()),
+    ),
+  ]
+}
+
+/**
+ * Dispatch one or more Meilisearch delete requests.
+ *
+ * The middleware batches deletes when targets share the same locale set and
+ * fans out to per-document deletes when locale scopes differ.
+ *
+ * @param {object} options - Delete dispatch options.
+ * @param {object} options.meilisearch - Meilisearch plugin service.
+ * @param {string} options.contentType - Content type uid.
+ * @param {object} options.syncQuery - Plugin sync query configuration.
+ * @param {boolean} options.indexSyncUsesWildcardLocale - Whether index config stores all locales.
+ * @param {{documentId: string, localeCodes?: string[]}[]} options.targets - Delete targets.
+ *
+ * @returns {Promise<void>}
+ */
+const dispatchDeleteTargets = async ({
+  meilisearch,
+  contentType,
+  syncQuery,
+  indexSyncUsesWildcardLocale,
+  targets,
+}) => {
+  const validTargets = (targets || []).filter(
+    target =>
+      target &&
+      typeof target.documentId === 'string' &&
+      target.documentId.length > 0,
+  )
+  if (validTargets.length === 0) return
+
+  const groupedTargets = new Map()
+  validTargets.forEach(target => {
+    const localeCodes = indexSyncUsesWildcardLocale
+      ? normalizeLocaleCodes(target.localeCodes)
+      : []
+    const groupKey =
+      localeCodes.length > 0
+        ? [...localeCodes].sort().join('|')
+        : '__no-locales__'
+    const currentGroup = groupedTargets.get(groupKey)
+    if (currentGroup) {
+      currentGroup.documentIds.push(target.documentId)
+      return
+    }
+
+    groupedTargets.set(groupKey, {
+      documentIds: [target.documentId],
+      localeCodes,
+    })
+  })
+
+  for (const group of groupedTargets.values()) {
+    await meilisearch.deleteEntriesFromMeiliSearch({
+      contentType,
+      documentIds: [...new Set(group.documentIds)],
+      entriesQuery: syncQuery,
+      locales:
+        indexSyncUsesWildcardLocale && group.localeCodes.length > 0
+          ? group.localeCodes
+          : undefined,
+    })
+  }
+}
 
 export default async function registerDocumentMiddleware({ strapi }) {
   if (!strapi?.documents || typeof strapi.documents.use !== 'function') {
     return
   }
 
-  /**
-   * Convert document service results into entry candidates with source metadata.
-   *
-   * @param {object|object[]|null|undefined} result - Value returned by document service.
-   *
-   * @returns {{data: object, source: string}[]} Flat list of potential entry candidates.
-   */
-  const extractEntryCandidates = result => {
-    if (result == null) return []
-
-    const candidates = []
-    const appendCandidate = (data, source) => {
-      if (data != null && typeof data === 'object') {
-        candidates.push({ data, source })
-      }
-    }
-
-    if (Array.isArray(result)) {
-      result.forEach(data => appendCandidate(data, 'root'))
-      return candidates
-    }
-
-    appendCandidate(result, 'root')
-
-    if (Array.isArray(result.versions)) {
-      result.versions.forEach(data => appendCandidate(data, 'versions'))
-    }
-
-    if (Array.isArray(result.entries)) {
-      result.entries.forEach(data => appendCandidate(data, 'entries'))
-    }
-
-    if (result.entry != null) {
-      appendCandidate(result.entry, 'entry')
-    }
-
-    return candidates
-  }
-
-  /**
-   * Determine whether an entry represents a published version.
-   *
-   * @param {object} entry - Entry candidate.
-   *
-   * @returns {boolean} True when `publishedAt` is set.
-   */
-  const isPublishedEntry = entry =>
-    !(entry?.publishedAt === undefined || entry?.publishedAt === null)
-
-  /**
-   * Rank candidates by entry-likeness so nested rows beat root wrappers.
-   * Rule 1: Real DB rows (has 'id' primary key) beat wrappers (no 'id').
-   * Rule 2: Nested sources ('versions', 'entries') beat the 'root' source.
-   *
-   * @param {{data: object, source: string}[]} candidates - Candidates matching one documentId.
-   *
-   * @returns {{data: object, source: string}[]} Ranked candidates.
-   */
-  const rankEntryCandidates = candidates => {
-    return [...candidates].sort((a, b) => {
-      const aHasPrimaryKey = a.data?.id != null
-      const bHasPrimaryKey = b.data?.id != null
-
-      if (aHasPrimaryKey && !bHasPrimaryKey) return -1
-      if (!aHasPrimaryKey && bHasPrimaryKey) return 1
-
-      const aIsRoot = a.source === 'root'
-      const bIsRoot = b.source === 'root'
-
-      if (!aIsRoot && bIsRoot) return -1
-      if (aIsRoot && !bIsRoot) return 1
-
-      return 0
-    })
-  }
-
-  /**
-   * Pick the entry to index for update-like document actions.
-   *
-   * @param {object} options
-   * @param {{data: object, source: string}[]|null|undefined} options.resultCandidates - Candidate entries extracted from result.
-   * @param {string} options.documentId - Target document id.
-   * @param {object} options.entriesQuery - Plugin entries query configuration.
-   *
-   * @returns {object|null} Selected entry to index, if any.
-   */
-  const getEntryFromResult = ({
-    resultCandidates,
-    documentId,
-    entriesQuery,
-  }) => {
-    const documentCandidates = (resultCandidates || []).filter(
-      candidate => candidate?.data?.documentId === documentId,
-    )
-    if (documentCandidates.length === 0) return null
-
-    const rankedCandidates = rankEntryCandidates(documentCandidates)
-
-    if (entriesQuery?.status === 'draft') {
-      const draftCandidate = rankedCandidates.find(
-        candidate => !isPublishedEntry(candidate.data),
-      )
-      return draftCandidate?.data || rankedCandidates[0]?.data || null
-    }
-
-    const publishedCandidate = rankedCandidates.find(candidate =>
-      isPublishedEntry(candidate.data),
-    )
-
-    return publishedCandidate?.data || null
-  }
-
-  /**
-   * Fetch an entry on the next event-loop turn to avoid leaking finished transactions.
-   *
-   * @param {object} options
-   * @param {object} options.contentTypeService - Plugin content type service.
-   * @param {string} options.contentType - Content type uid.
-   * @param {string} options.documentId - Target document id.
-   * @param {object} options.entriesQuery - Query used to fetch the indexable entry.
-   *
-   * @returns {Promise<object|null>} Entry to index or null.
-   */
-  const getEntryOutsideTransaction = ({
-    contentTypeService,
-    contentType,
-    documentId,
-    entriesQuery,
-  }) =>
-    new Promise((resolve, reject) => {
-      setImmediate(async () => {
-        try {
-          const entry = await contentTypeService.getEntry({
-            contentType,
-            documentId,
-            entriesQuery: { ...entriesQuery },
-          })
-          resolve(entry)
-        } catch (error) {
-          reject(error)
-        }
-      })
-    })
-
-  // Hook document service (only when available) to mirror Strapi creates into Meilisearch.
+  // Hook document service (only when available) to mirror Strapi changes into Meilisearch.
   strapi.documents.use(async (ctx, next) => {
     let result
     try {
@@ -174,113 +255,249 @@ export default async function registerDocumentMiddleware({ strapi }) {
         'discardDraft',
       ]
 
-      const entriesQuery = meilisearch.entriesQuery({ contentType })
-      const shouldDeleteByLocale = isWildcardLocale(entriesQuery.locale)
-      const { status } = entriesQuery || {}
+      const syncQuery = meilisearch.entriesQuery({ contentType })
+      const indexSyncUsesWildcardLocale = isWildcardLocale(syncQuery.locale)
+      const { status } = syncQuery || {}
       const statusFilter =
         typeof status === 'string' && status.length > 0 ? { status } : {}
+      const isDraftIndex = status === 'draft'
+      const isPublishedIndex = status === 'published'
 
-      const preDeleteDocumentId =
-        deleteActions.includes(ctx.action) && ctx?.params?.documentId
-          ? ctx.params.documentId
-          : null
-      let preDeleteEntry = null
-      let preDeleteLocales = []
+      const shouldSkipDeleteAction =
+        (ctx.action === 'unpublish' && isDraftIndex) ||
+        (ctx.action === 'discardDraft' && isPublishedIndex)
+      const shouldTreatAsUpdateAction =
+        updateActions.includes(ctx.action) ||
+        (ctx.action === 'discardDraft' && isDraftIndex)
+      const shouldTreatAsDeleteAction =
+        deleteActions.includes(ctx.action) &&
+        !shouldTreatAsUpdateAction &&
+        !shouldSkipDeleteAction
 
-      if (preDeleteDocumentId != null) {
-        preDeleteEntry = await contentTypeService.getEntry({
-          contentType,
-          documentId: preDeleteDocumentId,
-          entriesQuery: { ...statusFilter },
-        })
-
-        if (shouldDeleteByLocale) {
-          const localeVariants = await contentTypeService.getEntries({
+      const preActionDocumentIds = resolveDocumentIdsFromActionParams(
+        ctx?.params,
+      )
+      const shouldCollectPreActionSnapshots =
+        shouldTreatAsDeleteAction ||
+        (ctx.action === 'discardDraft' && isDraftIndex)
+      const preActionSnapshots = shouldCollectPreActionSnapshots
+        ? await collectPreActionSnapshots({
+            documentIds: preActionDocumentIds,
+            contentTypeService,
             contentType,
-            fields: ['documentId', 'locale'],
-            locale: '*',
-            ...statusFilter,
-            filters: {
-              documentId: preDeleteDocumentId,
-            },
+            statusFilter,
+            actionParams: ctx?.params,
+            indexSyncUsesWildcardLocale,
           })
-
-          preDeleteLocales = [
-            ...new Set(
-              localeVariants
-                .map(entry => entry?.locale)
-                .filter(
-                  locale => typeof locale === 'string' && locale.length > 0,
-                ),
-            ),
-          ]
-        }
-      }
+        : []
+      const preActionSnapshotsByDocumentId = new Map(
+        preActionSnapshots.map(snapshot => [snapshot.documentId, snapshot]),
+      )
 
       result = await next()
 
-      const contextDocumentId =
-        typeof ctx?.params?.documentId === 'string' &&
-        ctx.params.documentId.length > 0
-          ? ctx.params.documentId
-          : null
+      const documentIds = resolveDocumentIds({
+        actionParams: ctx?.params,
+        result,
+        preActionSnapshots,
+      })
 
-      const documentId =
-        contextDocumentId ??
-        result?.documentId ??
-        preDeleteEntry?.documentId ??
-        preDeleteDocumentId ??
-        null
+      if (shouldTreatAsUpdateAction && documentIds.length > 0) {
+        const resultCandidates = extractStrapiEntryCandidates(result)
+        const entriesToUpdate = []
+        const deleteTargets = []
 
-      if (updateActions.includes(ctx.action) && documentId != null) {
-        const resultCandidates = extractEntryCandidates(result)
-        let entry = getEntryFromResult({
-          resultCandidates,
-          documentId,
-          entriesQuery,
-        })
+        for (const documentId of documentIds) {
+          if (ctx.action === 'discardDraft' && isDraftIndex) {
+            const preActionSnapshot =
+              preActionSnapshotsByDocumentId.get(documentId) || null
+            const actionLocale = getActionLocale(ctx?.params)
+            const shouldLoadDraftEntriesAcrossLocales =
+              indexSyncUsesWildcardLocale && isWildcardLocale(actionLocale)
 
-        if (!entry) {
-          entry = await getEntryOutsideTransaction({
-            contentTypeService,
-            contentType,
+            const draftEntriesFromResult =
+              selectDraftEntriesForDiscardDraftResult({
+                resultCandidates,
+                documentId,
+                actionParams: ctx?.params,
+              })
+
+            let draftEntriesToUpdate = shouldLoadDraftEntriesAcrossLocales
+              ? await contentTypeService.getEntries({
+                  contentType,
+                  locale: '*',
+                  ...statusFilter,
+                  filters: {
+                    documentId,
+                  },
+                })
+              : draftEntriesFromResult
+
+            draftEntriesToUpdate = (draftEntriesToUpdate || []).filter(
+              entry => entry && !isPublishedStrapiEntry(entry),
+            )
+
+            if (
+              draftEntriesToUpdate.length === 0 &&
+              shouldLoadDraftEntriesAcrossLocales
+            ) {
+              draftEntriesToUpdate = draftEntriesFromResult
+            }
+
+            if (
+              draftEntriesToUpdate.length === 0 &&
+              !shouldLoadDraftEntriesAcrossLocales
+            ) {
+              const fallbackStrapiEntry = await getStrapiEntryAfterTransaction({
+                contentTypeService,
+                contentType,
+                documentId,
+                syncQuery: resolveLocaleScopedReadQuery({
+                  syncQuery,
+                  actionParams: ctx?.params,
+                }),
+              })
+
+              if (
+                fallbackStrapiEntry &&
+                !isPublishedStrapiEntry(fallbackStrapiEntry)
+              ) {
+                draftEntriesToUpdate = [fallbackStrapiEntry]
+              }
+            }
+
+            if (draftEntriesToUpdate.length > 0) {
+              const normalizedDraftEntries = draftEntriesToUpdate.map(entry =>
+                entry.documentId === documentId
+                  ? entry
+                  : { ...entry, documentId },
+              )
+              entriesToUpdate.push(...normalizedDraftEntries)
+            }
+
+            const preActionLocaleCodes = resolveLocaleCodesToRemoveFromIndex({
+              actionParams: ctx?.params,
+              preDeleteStrapiEntry:
+                preActionSnapshot?.preDeleteStrapiEntry || null,
+              localeVariants: preActionSnapshot?.localeVariants || [],
+            })
+            const remainingLocaleCodes =
+              collectLocaleCodesFromEntries(draftEntriesToUpdate)
+            const localeCodesToDelete = preActionLocaleCodes.filter(
+              localeCode => !remainingLocaleCodes.includes(localeCode),
+            )
+
+            if (localeCodesToDelete.length > 0) {
+              deleteTargets.push({
+                documentId,
+                localeCodes: localeCodesToDelete,
+              })
+            }
+
+            continue
+          }
+
+          let entriesForDocument = []
+          const publishedEntriesFromWildcardPublish =
+            selectPublishedEntriesForWildcardPublish({
+              resultCandidates,
+              documentId,
+              actionParams: ctx?.params,
+              syncQuery,
+            })
+          if (publishedEntriesFromWildcardPublish.length > 0) {
+            entriesForDocument = publishedEntriesFromWildcardPublish
+          }
+
+          let strapiEntry = selectStrapiEntryToIndexFromResult({
+            resultCandidates,
             documentId,
-            entriesQuery,
+            syncQuery,
+            actionParams: ctx?.params,
           })
+
+          if (entriesForDocument.length === 0 && !strapiEntry) {
+            strapiEntry = await getStrapiEntryAfterTransaction({
+              contentTypeService,
+              contentType,
+              documentId,
+              syncQuery: resolveLocaleScopedReadQuery({
+                syncQuery,
+                actionParams: ctx?.params,
+              }),
+            })
+          }
+
+          if (entriesForDocument.length === 0 && strapiEntry) {
+            entriesForDocument = [strapiEntry]
+          }
+
+          if (entriesForDocument.length > 0) {
+            const normalizedEntries = entriesForDocument.map(entry =>
+              entry.documentId === documentId
+                ? entry
+                : { ...entry, documentId },
+            )
+            entriesToUpdate.push(...normalizedEntries)
+          } else if (ctx.action === 'create' || ctx.action === 'publish') {
+            const createPublishLocaleCodesToRemove = indexSyncUsesWildcardLocale
+              ? resolveLocaleCodesToRemoveFromActionResult({
+                  actionParams: ctx?.params,
+                  resultCandidates,
+                  result,
+                  documentId,
+                })
+              : []
+
+            deleteTargets.push({
+              documentId,
+              localeCodes: createPublishLocaleCodesToRemove,
+            })
+          } else {
+            strapi.log.info(
+              `Meilisearch document middleware skipped indexing ${contentType} documentId=${documentId} for action ${ctx.action}: no indexable Strapi entry in action result`,
+            )
+          }
         }
 
-        if (entry) {
-          const normalizedEntry =
-            entry.documentId === documentId ? entry : { ...entry, documentId }
-
+        if (entriesToUpdate.length > 0) {
           await meilisearch.updateEntriesInMeilisearch({
             contentType,
-            entries: [normalizedEntry],
+            entries: entriesToUpdate,
           })
-        } else if (ctx.action === 'create' || ctx.action === 'publish') {
-          await meilisearch.deleteEntriesFromMeiliSearch({
-            contentType,
-            documentIds: [documentId],
-            entriesQuery,
-          })
-        } else {
-          strapi.log.info(
-            `Meilisearch document middleware skipped indexing ${contentType} documentId=${documentId} for action ${ctx.action}: no indexable entry in result payload`,
-          )
         }
-      } else if (deleteActions.includes(ctx.action)) {
-        if (documentId != null) {
-          strapi.log.info(
-            `Meilisearch document middleware deleting ${contentType} documentId=${documentId}`,
-          )
-          await meilisearch.deleteEntriesFromMeiliSearch({
+
+        if (deleteTargets.length > 0) {
+          await dispatchDeleteTargets({
+            meilisearch,
             contentType,
-            documentIds: [documentId],
-            entriesQuery,
-            locales:
-              shouldDeleteByLocale && preDeleteLocales.length > 0
-                ? preDeleteLocales
-                : undefined,
+            syncQuery,
+            indexSyncUsesWildcardLocale,
+            targets: deleteTargets,
+          })
+        }
+      } else if (shouldTreatAsDeleteAction) {
+        if (documentIds.length > 0) {
+          const deleteTargets = documentIds.map(documentId => {
+            const preActionSnapshot =
+              preActionSnapshotsByDocumentId.get(documentId) || null
+            return {
+              documentId,
+              localeCodes: indexSyncUsesWildcardLocale
+                ? preActionSnapshot?.localeCodesToRemove || []
+                : [],
+            }
+          })
+
+          strapi.log.info(
+            `Meilisearch document middleware deleting ${contentType} documentIds=${documentIds.join(',')}`,
+          )
+          await dispatchDeleteTargets({
+            meilisearch,
+            contentType,
+            syncQuery,
+            indexSyncUsesWildcardLocale,
+            targets: deleteTargets,
           })
         } else {
           strapi.log.info(

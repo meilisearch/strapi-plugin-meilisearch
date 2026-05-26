@@ -51,7 +51,7 @@ async function assertPublishedRestaurantCategoriesForIndexing({
 }
 
 /**
- * Assert the draft row has the expected number of category links.
+ * Assert the draft entry has the expected number of category links.
  *
  * @param {object} options
  * @param {string} options.documentId

@@ -194,7 +194,7 @@ describe('Tests content types', () => {
     expect(findManyCalls.map(({ query }) => query.locale)).toEqual(['*', '*'])
   })
 
-  test('totalNumberOfEntries uses fetched wildcard rows when count underestimates', async () => {
+  test('totalNumberOfEntries uses fetched wildcard entries when count underestimates', async () => {
     const getTotalForLocale = async locale => {
       const customStrapi = createStrapiMock({})
       const count = jest.fn(() => 1)
