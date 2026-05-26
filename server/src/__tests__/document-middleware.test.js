@@ -1,7 +1,7 @@
 import registerDocumentMiddleware from '../services/document-middleware/index.js'
 import { mockLogger } from '../__mocks__/strapi'
 
-describe('Document Service to Meilisearch sync middleware', () => {
+describe('Document Service middleware', () => {
   beforeEach(() => {
     jest.clearAllMocks()
   })
