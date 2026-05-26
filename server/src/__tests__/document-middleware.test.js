@@ -1479,6 +1479,99 @@ describe('Document Service to Meilisearch sync middleware', () => {
         entries: [strapiPublishedEnglishEntry, strapiPublishedFrenchEntry],
       })
     })
+
+    test('publish with params.locale=* and concrete sync locale indexes only owned locale', async () => {
+      const strapiPublishedEnglishEntry = {
+        id: 411,
+        documentId: 'doc-41',
+        locale: 'en',
+        publishedAt: '2024-01-01',
+      }
+      const strapiPublishedFrenchEntry = {
+        id: 412,
+        documentId: 'doc-41',
+        locale: 'fr',
+        publishedAt: '2024-01-01',
+      }
+
+      const {
+        strapi,
+        middlewareFn,
+        updateEntriesInMeilisearch,
+        deleteEntriesFromMeiliSearch,
+      } = createStrapiStubs({
+        meilisearchEntriesQuery: { locale: 'fr' },
+      })
+
+      await registerDocumentMiddleware({ strapi })
+
+      const handler = middlewareFn()
+      const ctx = {
+        uid: 'api::restaurant.restaurant',
+        action: 'publish',
+        params: { documentId: 'doc-41', locale: '*' },
+      }
+      const result = {
+        documentId: 'doc-41',
+        versions: [strapiPublishedEnglishEntry, strapiPublishedFrenchEntry],
+      }
+
+      await handler(ctx, () => Promise.resolve(result))
+
+      expect(updateEntriesInMeilisearch).toHaveBeenCalledWith({
+        contentType: ctx.uid,
+        entries: [strapiPublishedFrenchEntry],
+      })
+      expect(deleteEntriesFromMeiliSearch).not.toHaveBeenCalled()
+    })
+
+    test('publish with params.locale=* deletes stale owned locale when publish result has no owned locale', async () => {
+      const {
+        strapi,
+        middlewareFn,
+        updateEntriesInMeilisearch,
+        deleteEntriesFromMeiliSearch,
+        contentTypeGetEntry,
+      } = createStrapiStubs({
+        meilisearchEntriesQuery: { locale: 'fr' },
+        contentTypeGetEntry: jest.fn(() => Promise.resolve(null)),
+      })
+
+      await registerDocumentMiddleware({ strapi })
+
+      const handler = middlewareFn()
+      const ctx = {
+        uid: 'api::restaurant.restaurant',
+        action: 'publish',
+        params: { documentId: 'doc-42', locale: '*' },
+      }
+      const result = {
+        documentId: 'doc-42',
+        versions: [
+          {
+            id: 421,
+            documentId: 'doc-42',
+            locale: 'en',
+            publishedAt: '2024-01-01',
+          },
+        ],
+      }
+
+      await handler(ctx, () => Promise.resolve(result))
+
+      expect(contentTypeGetEntry).toHaveBeenCalledWith({
+        contentType: ctx.uid,
+        documentId: 'doc-42',
+        entriesQuery: { locale: 'fr' },
+      })
+      expect(updateEntriesInMeilisearch).not.toHaveBeenCalled()
+      expect(deleteEntriesFromMeiliSearch).toHaveBeenCalledWith({
+        contentType: ctx.uid,
+        documentIds: ['doc-42'],
+        entriesQuery: { locale: 'fr' },
+        locales: undefined,
+      })
+    })
   })
 
   test('logs error but does not throw when Meilisearch call fails', async () => {

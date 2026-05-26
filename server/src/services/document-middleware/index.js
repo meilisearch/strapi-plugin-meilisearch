@@ -106,32 +106,42 @@ export default async function registerDocumentMiddleware({ strapi }) {
     const rankedEntryCandidates = rankStrapiEntryCandidates(
       strapiDocumentEntryCandidates,
     )
-    const actionLocale = getActionLocale(actionParams)
-    const localeScopedEntryCandidate =
-      actionLocale && !isWildcardLocale(actionLocale)
-        ? rankedEntryCandidates.find(
-            candidate => candidate?.data?.locale === actionLocale,
-          )
-        : null
+    const preferredConcreteLocale = resolvePreferredConcreteLocale({
+      syncQuery,
+      actionParams,
+    })
+    const localeScopedEntryCandidate = preferredConcreteLocale
+      ? rankedEntryCandidates.find(
+          candidate => candidate?.data?.locale === preferredConcreteLocale,
+        )
+      : null
 
     if (syncQuery?.status === 'draft') {
       const isIndexableDraftEntryCandidate = candidate =>
         candidate?.data?.id != null && !isPublishedStrapiEntry(candidate.data)
-      const draftEntryCandidate =
-        localeScopedEntryCandidate &&
-        isIndexableDraftEntryCandidate(localeScopedEntryCandidate)
-          ? localeScopedEntryCandidate
-          : rankedEntryCandidates.find(isIndexableDraftEntryCandidate)
+      if (preferredConcreteLocale) {
+        return localeScopedEntryCandidate &&
+          isIndexableDraftEntryCandidate(localeScopedEntryCandidate)
+          ? localeScopedEntryCandidate.data
+          : null
+      }
+
+      const draftEntryCandidate = rankedEntryCandidates.find(
+        isIndexableDraftEntryCandidate,
+      )
       return draftEntryCandidate?.data || null
     }
 
-    const publishedEntryCandidate =
-      localeScopedEntryCandidate &&
-      isPublishedStrapiEntry(localeScopedEntryCandidate.data)
-        ? localeScopedEntryCandidate
-        : rankedEntryCandidates.find(candidate =>
-            isPublishedStrapiEntry(candidate.data),
-          )
+    if (preferredConcreteLocale) {
+      return localeScopedEntryCandidate &&
+        isPublishedStrapiEntry(localeScopedEntryCandidate.data)
+        ? localeScopedEntryCandidate.data
+        : null
+    }
+
+    const publishedEntryCandidate = rankedEntryCandidates.find(candidate =>
+      isPublishedStrapiEntry(candidate.data),
+    )
 
     return publishedEntryCandidate?.data || null
   }
@@ -180,6 +190,37 @@ export default async function registerDocumentMiddleware({ strapi }) {
       actionParams.locale.length > 0
       ? actionParams.locale
       : null
+  }
+
+  /**
+   * Resolve the concrete locale that this operation should prioritize.
+   *
+   * Priority:
+   * 1. Concrete action locale in middleware params.
+   * 2. Concrete locale from Meilisearch sync query config.
+   *
+   * @param {object} options
+   * @param {object|null|undefined} options.syncQuery - Plugin sync query configuration.
+   * @param {object|null|undefined} options.actionParams - Action params from document middleware context.
+   *
+   * @returns {string|null} Preferred concrete locale when one is available.
+   */
+  const resolvePreferredConcreteLocale = ({ syncQuery, actionParams }) => {
+    const actionLocale = getActionLocale(actionParams)
+    if (actionLocale && !isWildcardLocale(actionLocale)) {
+      return actionLocale
+    }
+
+    const syncLocale =
+      typeof syncQuery?.locale === 'string' && syncQuery.locale.length > 0
+        ? syncQuery.locale
+        : null
+
+    if (syncLocale && !isWildcardLocale(syncLocale)) {
+      return syncLocale
+    }
+
+    return null
   }
 
   /**
@@ -361,12 +402,14 @@ export default async function registerDocumentMiddleware({ strapi }) {
     syncQuery,
   }) => {
     const actionLocale = getActionLocale(actionParams)
+    const syncLocale = syncQuery?.locale
     const syncStatusScope = syncQuery?.status
     const syncAllowsPublishedEntries =
       syncStatusScope == null || syncStatusScope !== 'draft'
     if (
       !actionLocale ||
       !isWildcardLocale(actionLocale) ||
+      !isWildcardLocale(syncLocale) ||
       !syncAllowsPublishedEntries
     ) {
       return []
