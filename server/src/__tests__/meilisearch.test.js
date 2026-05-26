@@ -11,7 +11,7 @@ const strapiMock = createStrapiMock({})
 // @ts-ignore
 global.strapi = strapiMock
 
-describe('Tests content types', () => {
+describe('Meilisearch service behavior', () => {
   beforeEach(async () => {
     jest.clearAllMocks()
     jest.restoreAllMocks()
@@ -334,7 +334,7 @@ describe('Tests content types', () => {
     ])
   })
 
-  test('deletes only configured locale variant when entriesQuery.locale is set', async () => {
+  test('deletes only the configured locale variant', async () => {
     const client = new Meilisearch({ host: 'abc' })
     const { meilisearchService } = createLocaleMeilisearchContext({
       entriesQuery: { locale: 'fr' },
@@ -351,7 +351,7 @@ describe('Tests content types', () => {
     ])
   })
 
-  test('deletes every locale variant when wildcard locale configured', async () => {
+  test('deletes every locale variant for all-locale indexes', async () => {
     const getEntriesMock = jest.fn(() => [
       { documentId: 'doc-1', locale: 'en' },
       { documentId: 'doc-1', locale: 'fr' },
@@ -416,7 +416,7 @@ describe('Tests content types', () => {
     ])
   })
 
-  test('deletes base document when wildcard locale has no localized entries', async () => {
+  test('deletes base document when no localized entries exist', async () => {
     const getEntriesMock = jest.fn(async () => [])
 
     const client = new Meilisearch({ host: 'abc' })
@@ -444,7 +444,7 @@ describe('Tests content types', () => {
     ])
   })
 
-  test('deletes every locale variant when entriesQuery locale is all', async () => {
+  test('treats entriesQuery locale=all as all-locale deletion', async () => {
     const entriesFetcher = jest.fn(() => [
       { documentId: 'doc-1', locale: 'en' },
       { documentId: 'doc-1', locale: 'fr' },
@@ -477,7 +477,7 @@ describe('Tests content types', () => {
     ])
   })
 
-  test('wildcard locale lookup forwards configured status to getEntries', async () => {
+  test('all-locale lookups keep the configured status filter', async () => {
     const getEntriesMock = jest.fn(() => [
       { documentId: 'doc-1', locale: 'en' },
       { documentId: 'doc-1', locale: 'fr' },
@@ -510,7 +510,7 @@ describe('Tests content types', () => {
     ])
   })
 
-  test('deleteEntriesFromMeiliSearch uses provided locales instead of querying entries', async () => {
+  test('uses provided locales instead of querying Strapi locales', async () => {
     const getEntriesMock = jest.fn(() => {
       throw new Error(
         'getEntries should not be called when locales are provided',
