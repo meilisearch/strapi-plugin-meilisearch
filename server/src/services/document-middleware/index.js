@@ -421,10 +421,12 @@ export default async function registerDocumentMiddleware({ strapi }) {
                 ? [localeScopedRefetchQuery.locale]
                 : []
 
-            deleteTargets.push({
-              documentId,
-              localeCodes: createPublishLocaleCodesToRemove,
-            })
+            if (createPublishLocaleCodesToRemove.length > 0) {
+              deleteTargets.push({
+                documentId,
+                localeCodes: createPublishLocaleCodesToRemove,
+              })
+            }
           } else {
             strapi.log.info(
               `Meilisearch document middleware skipped indexing ${contentType} documentId=${documentId} for action ${ctx.action}: no indexable Strapi entry after refetch`,

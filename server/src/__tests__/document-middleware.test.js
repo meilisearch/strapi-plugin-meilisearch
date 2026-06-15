@@ -939,6 +939,68 @@ describe('Meilisearch sync on Strapi document changes', () => {
           locales: ['fr'],
         })
       })
+
+      test('publish fallback delete skips when no concrete locale is available', async () => {
+        const {
+          strapi,
+          middlewareFn,
+          deleteEntriesFromMeiliSearch,
+          contentTypeGetEntry,
+        } = createStrapiStubs({
+          meilisearchEntriesQuery: { locale: '*' },
+          contentTypeGetEntry: jest.fn(() => Promise.resolve(null)),
+        })
+
+        await registerDocumentMiddleware({ strapi })
+
+        const handler = middlewareFn()
+        const ctx = {
+          uid: 'api::restaurant.restaurant',
+          action: 'publish',
+          params: { documentId: 'doc-1' },
+        }
+        const result = { documentId: 'doc-1' }
+
+        await handler(ctx, () => Promise.resolve(result))
+
+        expect(contentTypeGetEntry).toHaveBeenCalledWith({
+          contentType: ctx.uid,
+          documentId: 'doc-1',
+          entriesQuery: { locale: '*' },
+        })
+        expect(deleteEntriesFromMeiliSearch).not.toHaveBeenCalled()
+      })
+
+      test('create fallback delete skips when no concrete locale is available', async () => {
+        const {
+          strapi,
+          middlewareFn,
+          deleteEntriesFromMeiliSearch,
+          contentTypeGetEntry,
+        } = createStrapiStubs({
+          meilisearchEntriesQuery: { locale: '*' },
+          contentTypeGetEntry: jest.fn(() => Promise.resolve(null)),
+        })
+
+        await registerDocumentMiddleware({ strapi })
+
+        const handler = middlewareFn()
+        const ctx = {
+          uid: 'api::restaurant.restaurant',
+          action: 'create',
+          params: { documentId: 'doc-1' },
+        }
+        const result = { documentId: 'doc-1' }
+
+        await handler(ctx, () => Promise.resolve(result))
+
+        expect(contentTypeGetEntry).toHaveBeenCalledWith({
+          contentType: ctx.uid,
+          documentId: 'doc-1',
+          entriesQuery: { locale: '*' },
+        })
+        expect(deleteEntriesFromMeiliSearch).not.toHaveBeenCalled()
+      })
     })
 
     describe('draft-only all-locale index', () => {
