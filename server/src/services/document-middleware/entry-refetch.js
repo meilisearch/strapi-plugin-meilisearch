@@ -1,4 +1,26 @@
 /**
+ * Execute a Strapi refetch on the next immediate turn.
+ *
+ * Post-action refetches should not run in the same transaction context as the
+ * write action. Deferring with `setImmediate` keeps reads outside that scope.
+ *
+ * @param {Function} readOperation - Deferred read operation.
+ *
+ * @returns {Promise<unknown>} Result of the deferred read.
+ */
+const runDeferredRefetchRead = readOperation =>
+  new Promise((resolve, reject) => {
+    setImmediate(async () => {
+      try {
+        const readResult = await readOperation()
+        resolve(readResult)
+      } catch (error) {
+        reject(error)
+      }
+    })
+  })
+
+/**
  * Refetch one Strapi entry on the next event-loop turn.
  *
  * The deferred read prevents middleware indexing reads from sharing the same
@@ -17,21 +39,15 @@ export const fetchSingleEntryAfterTransaction = ({
   contentType,
   documentId,
   indexingQuery,
-}) =>
-  new Promise((resolve, reject) => {
-    setImmediate(async () => {
-      try {
-        const strapiEntry = await contentTypeService.getEntry({
-          contentType,
-          documentId,
-          entriesQuery: { ...(indexingQuery || {}) },
-        })
-        resolve(strapiEntry)
-      } catch (error) {
-        reject(error)
-      }
-    })
-  })
+}) => {
+  return runDeferredRefetchRead(() =>
+    contentTypeService.getEntry({
+      contentType,
+      documentId,
+      entriesQuery: { ...(indexingQuery || {}) },
+    }),
+  )
+}
 
 /**
  * Refetch all locale variants for one Strapi document.
@@ -54,13 +70,15 @@ export const fetchWildcardLocaleEntriesForIndexing = ({
 }) => {
   const baseIndexingQuery = indexingQuery || {}
 
-  return contentTypeService.getEntries({
-    contentType,
-    ...baseIndexingQuery,
-    locale: '*',
-    filters: {
-      ...(baseIndexingQuery.filters || {}),
-      documentId,
-    },
-  })
+  return runDeferredRefetchRead(() =>
+    contentTypeService.getEntries({
+      contentType,
+      ...baseIndexingQuery,
+      locale: '*',
+      filters: {
+        ...(baseIndexingQuery.filters || {}),
+        documentId,
+      },
+    }),
+  )
 }

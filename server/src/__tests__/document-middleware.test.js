@@ -829,6 +829,67 @@ describe('Meilisearch sync on Strapi document changes', () => {
         })
       })
 
+      test('delete with all-locale action snapshots locales before the document action executes', async () => {
+        const preActionLocaleVariants = [
+          { documentId: 'doc-16', locale: 'en' },
+          { documentId: 'doc-16', locale: 'fr' },
+        ]
+        const readPhases = []
+        const { strapi, middlewareFn, deleteEntriesFromMeiliSearch } =
+          createStrapiStubs({
+            meilisearchEntriesQuery: { locale: '*' },
+            contentTypeGetEntry: jest.fn(() => {
+              readPhases.push('pre-action entry snapshot')
+              return Promise.resolve({
+                id: 16,
+                documentId: 'doc-16',
+                locale: 'en',
+                publishedAt: '2024-01-01',
+              })
+            }),
+            contentTypeGetEntries: jest.fn(({ fields }) => {
+              if (Array.isArray(fields)) {
+                readPhases.push('pre-action locale snapshot')
+                return Promise.resolve(preActionLocaleVariants)
+              }
+
+              readPhases.push('post-action locale read')
+              return Promise.resolve([])
+            }),
+          })
+
+        await registerDocumentMiddleware({ strapi })
+
+        const handler = middlewareFn()
+        const ctx = {
+          uid: 'api::restaurant.restaurant',
+          action: 'delete',
+          params: { documentId: 'doc-16', locale: '*' },
+        }
+        const actionResult = { id: 16, documentId: 'doc-16' }
+        const next = jest.fn(() => {
+          expect(readPhases).toEqual([
+            'pre-action entry snapshot',
+            'pre-action locale snapshot',
+          ])
+          return Promise.resolve(actionResult)
+        })
+
+        await handler(ctx, next)
+
+        expect(next).toHaveBeenCalledTimes(1)
+        expect(readPhases).toEqual([
+          'pre-action entry snapshot',
+          'pre-action locale snapshot',
+        ])
+        expect(deleteEntriesFromMeiliSearch).toHaveBeenCalledWith({
+          contentType: ctx.uid,
+          documentIds: [actionResult.documentId],
+          entriesQuery: { locale: '*' },
+          locales: ['en', 'fr'],
+        })
+      })
+
       test('unpublish with all-locale action removes every indexed locale', async () => {
         const { strapi, middlewareFn, deleteEntriesFromMeiliSearch } =
           createStrapiStubs({
@@ -940,15 +1001,16 @@ describe('Meilisearch sync on Strapi document changes', () => {
         })
       })
 
-      test('publish fallback delete skips when no concrete locale is available', async () => {
+      test('publish fallback delete defers wildcard refetch via getEntries and skips delete when no concrete locale is available', async () => {
         const {
           strapi,
           middlewareFn,
           deleteEntriesFromMeiliSearch,
           contentTypeGetEntry,
+          contentTypeGetEntries,
         } = createStrapiStubs({
           meilisearchEntriesQuery: { locale: '*' },
-          contentTypeGetEntry: jest.fn(() => Promise.resolve(null)),
+          contentTypeGetEntries: jest.fn(() => Promise.resolve([])),
         })
 
         await registerDocumentMiddleware({ strapi })
@@ -963,23 +1025,27 @@ describe('Meilisearch sync on Strapi document changes', () => {
 
         await handler(ctx, () => Promise.resolve(result))
 
-        expect(contentTypeGetEntry).toHaveBeenCalledWith({
+        expect(contentTypeGetEntries).toHaveBeenCalledWith({
           contentType: ctx.uid,
-          documentId: 'doc-1',
-          entriesQuery: { locale: '*' },
+          locale: '*',
+          filters: {
+            documentId: 'doc-1',
+          },
         })
+        expect(contentTypeGetEntry).not.toHaveBeenCalled()
         expect(deleteEntriesFromMeiliSearch).not.toHaveBeenCalled()
       })
 
-      test('create fallback delete skips when no concrete locale is available', async () => {
+      test('create fallback delete defers wildcard refetch via getEntries and skips delete when no concrete locale is available', async () => {
         const {
           strapi,
           middlewareFn,
           deleteEntriesFromMeiliSearch,
           contentTypeGetEntry,
+          contentTypeGetEntries,
         } = createStrapiStubs({
           meilisearchEntriesQuery: { locale: '*' },
-          contentTypeGetEntry: jest.fn(() => Promise.resolve(null)),
+          contentTypeGetEntries: jest.fn(() => Promise.resolve([])),
         })
 
         await registerDocumentMiddleware({ strapi })
@@ -994,11 +1060,14 @@ describe('Meilisearch sync on Strapi document changes', () => {
 
         await handler(ctx, () => Promise.resolve(result))
 
-        expect(contentTypeGetEntry).toHaveBeenCalledWith({
+        expect(contentTypeGetEntries).toHaveBeenCalledWith({
           contentType: ctx.uid,
-          documentId: 'doc-1',
-          entriesQuery: { locale: '*' },
+          locale: '*',
+          filters: {
+            documentId: 'doc-1',
+          },
         })
+        expect(contentTypeGetEntry).not.toHaveBeenCalled()
         expect(deleteEntriesFromMeiliSearch).not.toHaveBeenCalled()
       })
     })
@@ -1053,6 +1122,10 @@ describe('Meilisearch sync on Strapi document changes', () => {
   })
 
   describe('draft-only and published-only index behavior', () => {
+    afterEach(() => {
+      jest.useRealTimers()
+    })
+
     test('unpublish does not change Meilisearch when index stores drafts', async () => {
       const {
         strapi,
@@ -1282,6 +1355,140 @@ describe('Meilisearch sync on Strapi document changes', () => {
       })
     })
 
+    test('discardDraft wildcard keeps draft locales in sync after the next immediate turn', async () => {
+      jest.useFakeTimers({ legacyFakeTimers: true })
+
+      const strapiDraftEnglishEntry = createDraftEntry({
+        id: 803,
+        documentId: 'doc-80',
+        locale: 'en',
+      })
+      const readPhases = []
+      const {
+        strapi,
+        middlewareFn,
+        updateEntriesInMeilisearch,
+        deleteEntriesFromMeiliSearch,
+        contentTypeGetEntries,
+      } = createStrapiStubs({
+        meilisearchEntriesQuery: SYNC_PRESETS.draftAllLocales,
+        contentTypeGetEntry: jest.fn(() => {
+          readPhases.push('pre-action entry snapshot')
+          return Promise.resolve(
+            createDraftEntry({
+              id: 801,
+              documentId: 'doc-80',
+              locale: 'en',
+            }),
+          )
+        }),
+        contentTypeGetEntries: jest.fn(({ fields }) => {
+          if (Array.isArray(fields)) {
+            readPhases.push('pre-action locale snapshot')
+            return Promise.resolve([
+              { documentId: 'doc-80', locale: 'en' },
+              { documentId: 'doc-80', locale: 'fr' },
+            ])
+          }
+
+          readPhases.push('post-action draft refetch')
+          return Promise.resolve([
+            createDraftEntry({
+              id: 803,
+              documentId: 'doc-80',
+              locale: 'en',
+            }),
+            createPublishedEntry({
+              id: 804,
+              documentId: 'doc-80',
+              locale: 'fr',
+            }),
+          ])
+        }),
+      })
+
+      await registerDocumentMiddleware({ strapi })
+
+      const handler = middlewareFn()
+      const ctx = {
+        uid: 'api::restaurant.restaurant',
+        action: 'discardDraft',
+        params: { documentId: 'doc-80', locale: '*' },
+      }
+      const actionResult = {
+        documentId: 'doc-80',
+        versions: [
+          strapiDraftEnglishEntry,
+          createPublishedEntry({
+            id: 802,
+            documentId: 'doc-80',
+            locale: 'fr',
+          }),
+        ],
+      }
+      let resolveNextInvocation = () => {}
+      const nextInvokedPromise = new Promise(resolve => {
+        resolveNextInvocation = resolve
+      })
+      const next = jest.fn(() => {
+        expect(readPhases).toEqual([
+          'pre-action entry snapshot',
+          'pre-action locale snapshot',
+        ])
+        resolveNextInvocation()
+        return Promise.resolve(actionResult)
+      })
+
+      const middlewareRunPromise = handler(ctx, next)
+
+      await nextInvokedPromise
+      await Promise.resolve()
+
+      expect(next).toHaveBeenCalledTimes(1)
+      expect(readPhases).toEqual([
+        'pre-action entry snapshot',
+        'pre-action locale snapshot',
+      ])
+      expect(contentTypeGetEntries).toHaveBeenCalledTimes(1)
+
+      jest.runAllImmediates()
+
+      await middlewareRunPromise
+
+      expect(contentTypeGetEntries).toHaveBeenNthCalledWith(1, {
+        contentType: ctx.uid,
+        fields: ['documentId', 'locale'],
+        locale: '*',
+        status: 'draft',
+        filters: {
+          documentId: 'doc-80',
+        },
+      })
+      expect(contentTypeGetEntries).toHaveBeenNthCalledWith(2, {
+        contentType: ctx.uid,
+        locale: '*',
+        status: 'draft',
+        filters: {
+          documentId: 'doc-80',
+        },
+      })
+      expect(updateEntriesInMeilisearch).toHaveBeenCalledWith({
+        contentType: ctx.uid,
+        entries: [
+          expect.objectContaining({
+            documentId: 'doc-80',
+            locale: 'en',
+          }),
+        ],
+      })
+      expect(deleteEntriesFromMeiliSearch).toHaveBeenCalledWith({
+        contentType: ctx.uid,
+        documentIds: ['doc-80'],
+        entriesQuery: { status: 'draft', locale: '*' },
+        locales: ['fr'],
+      })
+    })
+
     test('discardDraft removes a locale-scoped draft record when the draft no longer exists', async () => {
       const {
         strapi,
@@ -1376,22 +1583,25 @@ describe('Meilisearch sync on Strapi document changes', () => {
       })
     })
 
-    test('publish does not fan out published locales when index stores drafts', async () => {
+    test('publish uses deferred wildcard getEntries draft refetch and does not fan out published locales when index stores drafts', async () => {
       const {
         strapi,
         middlewareFn,
         updateEntriesInMeilisearch,
         contentTypeGetEntry,
+        contentTypeGetEntries,
       } = createStrapiStubs({
         meilisearchEntriesQuery: SYNC_PRESETS.draftAllLocales,
-        contentTypeGetEntry: jest.fn(() =>
-          Promise.resolve({
-            id: 206,
-            documentId: 'doc-25',
-            locale: 'en',
-            publishedAt: null,
-            title: 'English draft fallback',
-          }),
+        contentTypeGetEntries: jest.fn(() =>
+          Promise.resolve([
+            {
+              id: 206,
+              documentId: 'doc-25',
+              locale: 'en',
+              publishedAt: null,
+              title: 'English draft fallback',
+            },
+          ]),
         ),
       })
 
@@ -1423,11 +1633,15 @@ describe('Meilisearch sync on Strapi document changes', () => {
 
       await handler(ctx, () => Promise.resolve(result))
 
-      expect(contentTypeGetEntry).toHaveBeenCalledWith({
+      expect(contentTypeGetEntries).toHaveBeenCalledWith({
         contentType: ctx.uid,
-        documentId: 'doc-25',
-        entriesQuery: { status: 'draft', locale: '*' },
+        status: 'draft',
+        locale: '*',
+        filters: {
+          documentId: 'doc-25',
+        },
       })
+      expect(contentTypeGetEntry).not.toHaveBeenCalled()
       expect(updateEntriesInMeilisearch).toHaveBeenCalledWith({
         contentType: ctx.uid,
         entries: [
@@ -1614,6 +1828,14 @@ describe('Meilisearch sync on Strapi document changes', () => {
   })
 
   describe('wildcard-locale refetch defaults', () => {
+    beforeEach(() => {
+      jest.useFakeTimers({ legacyFakeTimers: true })
+    })
+
+    afterEach(() => {
+      jest.useRealTimers()
+    })
+
     test.each([
       {
         action: 'create',
@@ -1628,7 +1850,7 @@ describe('Meilisearch sync on Strapi document changes', () => {
         params: { documentId: 'doc-40', locale: '*' },
       },
     ])(
-      '$action refetches all locales via getEntries when sync and action locales are wildcard',
+      '$action indexes all locales only after the next immediate turn when sync and action locales are wildcard',
       async ({ action, params }) => {
         const refetchedEntries = [
           {
@@ -1688,7 +1910,28 @@ describe('Meilisearch sync on Strapi document changes', () => {
           ],
         }
 
-        await handler(ctx, () => Promise.resolve(result))
+        let resolveNextInvocation = () => {}
+        const nextInvokedPromise = new Promise(resolve => {
+          resolveNextInvocation = resolve
+        })
+        const next = jest.fn(() => {
+          resolveNextInvocation()
+          return Promise.resolve(result)
+        })
+        const middlewareRunPromise = handler(ctx, next)
+
+        await nextInvokedPromise
+        for (let microtaskCount = 0; microtaskCount < 10; microtaskCount += 1) {
+          await Promise.resolve()
+        }
+
+        expect(next).toHaveBeenCalledTimes(1)
+        expect(contentTypeGetEntries).not.toHaveBeenCalled()
+        expect(contentTypeGetEntry).not.toHaveBeenCalled()
+
+        jest.runAllImmediates()
+
+        await middlewareRunPromise
 
         expect(contentTypeGetEntries).toHaveBeenCalledWith(
           expect.objectContaining({

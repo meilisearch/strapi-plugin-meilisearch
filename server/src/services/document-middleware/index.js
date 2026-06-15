@@ -129,6 +129,45 @@ const normalizeLocaleCodes = localeCodes => {
 }
 
 /**
+ * Refetch entries after the write action using locale-aware read strategy.
+ *
+ * Wildcard locale reads must use `getEntries` (not `getEntry`) so locale `*`
+ * resolves into concrete locale variants.
+ *
+ * @param {object} options - Refetch options.
+ * @param {object} options.contentTypeService - Plugin content type service.
+ * @param {string} options.contentType - Content type uid.
+ * @param {string} options.documentId - Target Strapi document id.
+ * @param {object|null|undefined} options.indexingQuery - Query used for refetch.
+ *
+ * @returns {Promise<object[]>} Refetched Strapi entries.
+ */
+const refetchEntriesAfterAction = async ({
+  contentTypeService,
+  contentType,
+  documentId,
+  indexingQuery,
+}) => {
+  if (isWildcardLocale(indexingQuery?.locale)) {
+    return fetchWildcardLocaleEntriesForIndexing({
+      contentTypeService,
+      contentType,
+      documentId,
+      indexingQuery,
+    })
+  }
+
+  const refetchedStrapiEntry = await fetchSingleEntryAfterTransaction({
+    contentTypeService,
+    contentType,
+    documentId,
+    indexingQuery,
+  })
+
+  return refetchedStrapiEntry ? [refetchedStrapiEntry] : []
+}
+
+/**
  * Dispatch one or more Meilisearch delete requests.
  *
  * The middleware batches deletes when targets share the same locale set and
@@ -294,13 +333,11 @@ export default async function registerDocumentMiddleware({ strapi }) {
               })
 
             let draftEntriesToIndex = shouldLoadDraftEntriesAcrossLocales
-              ? await contentTypeService.getEntries({
+              ? await fetchWildcardLocaleEntriesForIndexing({
+                  contentTypeService,
                   contentType,
-                  locale: '*',
-                  ...indexingStatusFilter,
-                  filters: {
-                    documentId,
-                  },
+                  documentId,
+                  indexingQuery: indexingStatusFilter,
                 })
               : draftEntriesFromActionResult
 
@@ -370,40 +407,16 @@ export default async function registerDocumentMiddleware({ strapi }) {
           }
 
           let refetchedEntriesForDocument = []
-          const actionLocale = getActionLocale(ctx?.params)
           const localeScopedRefetchQuery = resolveLocaleScopedRefetchQuery({
             indexingQuery,
             actionParams: ctx?.params,
           })
-          const indexingQueryStoresDrafts = indexingQuery?.status === 'draft'
-          const shouldRefetchAllLocales =
-            indexingQueryUsesWildcardLocale &&
-            isWildcardLocale(actionLocale) &&
-            isWildcardLocale(indexingQuery?.locale) &&
-            !indexingQueryStoresDrafts
-
-          if (shouldRefetchAllLocales) {
-            refetchedEntriesForDocument =
-              await fetchWildcardLocaleEntriesForIndexing({
-                contentTypeService,
-                contentType,
-                documentId,
-                indexingQuery,
-              })
-          } else {
-            const refetchedStrapiEntry = await fetchSingleEntryAfterTransaction(
-              {
-                contentTypeService,
-                contentType,
-                documentId,
-                indexingQuery: localeScopedRefetchQuery,
-              },
-            )
-
-            if (refetchedStrapiEntry) {
-              refetchedEntriesForDocument = [refetchedStrapiEntry]
-            }
-          }
+          refetchedEntriesForDocument = await refetchEntriesAfterAction({
+            contentTypeService,
+            contentType,
+            documentId,
+            indexingQuery: localeScopedRefetchQuery,
+          })
 
           if (refetchedEntriesForDocument.length > 0) {
             const normalizedEntries = refetchedEntriesForDocument.map(entry =>
