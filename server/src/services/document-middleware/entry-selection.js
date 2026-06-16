@@ -14,7 +14,7 @@ import { isWildcardLocale } from '../meilisearch/config'
  * @param {object} options - Entry selection options.
  * @param {{data: object, source: string}[]|null|undefined} options.resultCandidates - Candidate Strapi entries extracted from result.
  * @param {string} options.documentId - Target Strapi document id.
- * @param {object} options.syncQuery - Plugin sync query configuration.
+ * @param {object} options.indexingQuery - Plugin indexing query configuration.
  * @param {object|null|undefined} options.actionParams - Action params from document middleware context.
  *
  * @returns {object|null} Selected Strapi entry to index, if any.
@@ -22,7 +22,7 @@ import { isWildcardLocale } from '../meilisearch/config'
 export const selectStrapiEntryToIndexFromResult = ({
   resultCandidates,
   documentId,
-  syncQuery,
+  indexingQuery,
   actionParams,
 }) => {
   const strapiDocumentEntryCandidates = (resultCandidates || []).filter(
@@ -34,7 +34,7 @@ export const selectStrapiEntryToIndexFromResult = ({
     strapiDocumentEntryCandidates,
   )
   const preferredConcreteLocale = resolvePreferredConcreteLocale({
-    syncQuery,
+    indexingQuery,
     actionParams,
   })
   const localeScopedEntryCandidate = preferredConcreteLocale
@@ -43,7 +43,7 @@ export const selectStrapiEntryToIndexFromResult = ({
       )
     : null
 
-  if (syncQuery?.status === 'draft') {
+  if (indexingQuery?.status === 'draft') {
     const isIndexableDraftEntryCandidate = candidate =>
       candidate?.data?.id != null && !isPublishedStrapiEntry(candidate.data)
     if (preferredConcreteLocale) {
@@ -135,7 +135,7 @@ export const selectDraftEntriesForDiscardDraftResult = ({
  * @param {{data: object, source: string}[]|null|undefined} options.resultCandidates - Candidate Strapi entries extracted from result.
  * @param {string} options.documentId - Target Strapi document id.
  * @param {object|null|undefined} options.actionParams - Action params from document middleware context.
- * @param {object|null|undefined} options.syncQuery - Plugin sync query configuration.
+ * @param {object|null|undefined} options.indexingQuery - Plugin indexing query configuration.
  *
  * @returns {object[]} Published Strapi entries keyed by locale/id for wildcard publish actions.
  */
@@ -143,18 +143,18 @@ export const selectPublishedEntriesForWildcardPublish = ({
   resultCandidates,
   documentId,
   actionParams,
-  syncQuery,
+  indexingQuery,
 }) => {
   const actionLocale = getActionLocale(actionParams)
-  const syncLocale = syncQuery?.locale
-  const syncStatusScope = syncQuery?.status
-  const syncAllowsPublishedEntries =
-    syncStatusScope == null || syncStatusScope !== 'draft'
+  const indexingLocale = indexingQuery?.locale
+  const indexingStatusScope = indexingQuery?.status
+  const indexingAllowsPublishedEntries =
+    indexingStatusScope == null || indexingStatusScope !== 'draft'
   if (
     !actionLocale ||
     !isWildcardLocale(actionLocale) ||
-    !isWildcardLocale(syncLocale) ||
-    !syncAllowsPublishedEntries
+    !isWildcardLocale(indexingLocale) ||
+    !indexingAllowsPublishedEntries
   ) {
     return []
   }

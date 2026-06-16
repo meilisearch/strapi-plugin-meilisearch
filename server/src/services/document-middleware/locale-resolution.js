@@ -19,27 +19,30 @@ export const getActionLocale = actionParams => {
  *
  * Priority:
  * 1. Concrete action locale in middleware params.
- * 2. Concrete locale from Meilisearch sync query config.
+ * 2. Concrete locale from Meilisearch indexing query config.
  *
  * @param {object} options - Locale resolution options.
- * @param {object|null|undefined} options.syncQuery - Plugin sync query configuration.
+ * @param {object|null|undefined} options.indexingQuery - Plugin indexing query configuration.
  * @param {object|null|undefined} options.actionParams - Action params from document middleware context.
  *
  * @returns {string|null} Preferred concrete locale when one is available.
  */
-export const resolvePreferredConcreteLocale = ({ syncQuery, actionParams }) => {
+export const resolvePreferredConcreteLocale = ({
+  indexingQuery,
+  actionParams,
+}) => {
   const actionLocale = getActionLocale(actionParams)
   if (actionLocale && !isWildcardLocale(actionLocale)) {
     return actionLocale
   }
 
-  const syncLocale =
-    typeof syncQuery?.locale === 'string' && syncQuery.locale.length > 0
-      ? syncQuery.locale
+  const indexingLocale =
+    typeof indexingQuery?.locale === 'string' && indexingQuery.locale.length > 0
+      ? indexingQuery.locale
       : null
 
-  if (syncLocale && !isWildcardLocale(syncLocale)) {
-    return syncLocale
+  if (indexingLocale && !isWildcardLocale(indexingLocale)) {
+    return indexingLocale
   }
 
   return null
@@ -52,14 +55,17 @@ export const resolvePreferredConcreteLocale = ({ syncQuery, actionParams }) => {
  * keep every existing query option and only override `locale` with the action locale.
  *
  * @param {object} options - Query resolution options.
- * @param {object|null|undefined} options.syncQuery - Base query from Meilisearch config.
+ * @param {object|null|undefined} options.indexingQuery - Base query from Meilisearch config.
  * @param {object|null|undefined} options.actionParams - Action params from document middleware context.
  *
  * @returns {object} Query passed to `contentTypeService.getEntry`.
  */
-export const resolveLocaleScopedReadQuery = ({ syncQuery, actionParams }) => {
+export const resolveLocaleScopedRefetchQuery = ({
+  indexingQuery,
+  actionParams,
+}) => {
   const actionLocale = getActionLocale(actionParams)
-  const baseQuery = { ...(syncQuery || {}) }
+  const baseQuery = { ...(indexingQuery || {}) }
 
   if (!isWildcardLocale(baseQuery.locale) || actionLocale == null) {
     return baseQuery
@@ -106,48 +112,6 @@ export const resolveLocaleCodesToRemoveFromIndex = ({
         .filter(locale => typeof locale === 'string' && locale.length > 0),
     ),
   ]
-}
-
-/**
- * Resolve locales to remove for create/publish fallback deletes on wildcard indexes.
- *
- * @param {object} options - Action-result locale removal options.
- * @param {object|null|undefined} options.actionParams - Action params from document middleware context.
- * @param {{data: object, source: string}[]|null|undefined} options.resultCandidates - Candidate Strapi entries from action result.
- * @param {object|null|undefined} options.result - Raw action result.
- * @param {string} options.documentId - Target Strapi document id.
- *
- * @returns {string[]} Locales to remove from Meilisearch.
- */
-export const resolveLocaleCodesToRemoveFromActionResult = ({
-  actionParams,
-  resultCandidates,
-  result,
-  documentId,
-}) => {
-  const entriesForDocument = (resultCandidates || [])
-    .map(candidate => candidate?.data)
-    .filter(entry => entry?.documentId === documentId)
-
-  const localeVariants = entriesForDocument
-    .filter(
-      entry => typeof entry?.locale === 'string' && entry.locale.length > 0,
-    )
-    .map(entry => ({ documentId: entry.documentId, locale: entry.locale }))
-
-  const preDeleteStrapiEntry =
-    entriesForDocument.find(
-      entry => typeof entry?.locale === 'string' && entry.locale.length > 0,
-    ) ??
-    (typeof result?.locale === 'string' && result.locale.length > 0
-      ? result
-      : (entriesForDocument[0] ?? null))
-
-  return resolveLocaleCodesToRemoveFromIndex({
-    actionParams,
-    preDeleteStrapiEntry,
-    localeVariants,
-  })
 }
 
 /**
