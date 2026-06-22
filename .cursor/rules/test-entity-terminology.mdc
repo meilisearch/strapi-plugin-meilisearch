@@ -1,0 +1,24 @@
+---
+description: Keep Strapi and Meilisearch test entity names distinct
+globs: **/*.test.js
+alwaysApply: false
+---
+
+# Test Entity Terminology
+
+In `*.test.js` files, keep Strapi and Meilisearch entities clearly distinct.
+
+- Refer to Strapi entries as `Strapi entries`.
+- Refer to Meilisearch entries as `indexed documents` or `Meilisearch indexed documents`.
+- Do not use `entry` to refer to a Meilisearch document.
+
+## Example
+
+```js
+// Good
+const strapiEntry = await createStrapiEntry();
+const indexedDocument = await fetchIndexedDocument();
+
+// Avoid
+const meilisearchEntry = await fetchIndexedDocument();
+```
