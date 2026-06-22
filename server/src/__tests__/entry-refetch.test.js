@@ -3,12 +3,12 @@ import {
   fetchWildcardLocaleEntriesForIndexing,
 } from '../services/document-middleware/entry-refetch.js'
 
-describe('entry refetch scheduling for indexing behavior', () => {
+describe('Strapi document refetch timing behavior', () => {
   afterEach(() => {
     jest.useRealTimers()
   })
 
-  test('single-locale refetch reads only after the next immediate turn', async () => {
+  test('single-locale refetch reads Strapi document only after next immediate turn', async () => {
     jest.useFakeTimers({ legacyFakeTimers: true })
 
     const refetchedEntry = {
@@ -41,7 +41,7 @@ describe('entry refetch scheduling for indexing behavior', () => {
     })
   })
 
-  test('wildcard-locale refetch reads only after the next immediate turn', async () => {
+  test("wildcard locale (locale: '*') refetch reads Strapi documents only after next immediate turn", async () => {
     jest.useFakeTimers({ legacyFakeTimers: true })
 
     const refetchedEntries = [
@@ -85,7 +85,7 @@ describe('entry refetch scheduling for indexing behavior', () => {
     })
   })
 
-  test('wildcard-locale refetch uses multi-entry reads instead of single-entry locale=*', async () => {
+  test("wildcard locale (locale: '*') refetch uses multi-document reads instead of single-document reads", async () => {
     const getEntries = jest.fn(() => Promise.resolve([]))
     const getEntry = jest.fn(() => Promise.resolve(null))
     const contentTypeService = {
