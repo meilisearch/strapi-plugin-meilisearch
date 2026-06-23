@@ -9,6 +9,14 @@ const DEFAULT_FIXTURE_APP_PATH = path.resolve(
   'strapi-app',
 )
 
+const I18N_FIXTURE_APP_PATH = path.resolve(
+  __dirname,
+  '..',
+  '..',
+  'fixtures',
+  'strapi-app-i18n',
+)
+
 /**
  * Resolve fixture app path from an optional variant.
  *
@@ -18,11 +26,14 @@ const DEFAULT_FIXTURE_APP_PATH = path.resolve(
  * @returns {string} Absolute fixture app path.
  */
 function resolveFixtureAppPath({ variant }) {
+  if (variant === undefined) {
+    return DEFAULT_FIXTURE_APP_PATH
+  }
   if (variant === 'i18n') {
-    return path.resolve(__dirname, '..', '..', 'fixtures', 'strapi-app-i18n')
+    return I18N_FIXTURE_APP_PATH
   }
 
-  return DEFAULT_FIXTURE_APP_PATH
+  throw new Error(`Unknown fixture app variant: ${variant}`)
 }
 
 /**
