@@ -1,13 +1,40 @@
 import path from 'node:path'
 import { createStrapi } from '@strapi/strapi'
 
-const FIXTURE_APP_PATH = path.resolve(
+const DEFAULT_FIXTURE_APP_PATH = path.resolve(
   __dirname,
   '..',
   '..',
   'fixtures',
   'strapi-app',
 )
+
+const I18N_FIXTURE_APP_PATH = path.resolve(
+  __dirname,
+  '..',
+  '..',
+  'fixtures',
+  'strapi-app-i18n',
+)
+
+/**
+ * Resolve fixture app path from an optional variant.
+ *
+ * @param {object} options
+ * @param {string|undefined} options.variant - Optional fixture app variant.
+ *
+ * @returns {string} Absolute fixture app path.
+ */
+function resolveFixtureAppPath({ variant }) {
+  if (variant === undefined) {
+    return DEFAULT_FIXTURE_APP_PATH
+  }
+  if (variant === 'i18n') {
+    return I18N_FIXTURE_APP_PATH
+  }
+
+  throw new Error(`Unknown fixture app variant: ${variant}`)
+}
 
 /**
  * Build environment variables required to boot Strapi in tests.
@@ -42,12 +69,18 @@ function buildFixtureEnvironment({ databaseFilename, indexName }) {
  * @param {object} options
  * @param {string} options.databaseFilename - SQLite file path for this run.
  * @param {string} options.indexName - Dedicated Meilisearch index for this run.
+ * @param {string|undefined} options.variant - Optional fixture app variant.
  *
  * @returns {Promise<{strapi: any, restoreEnvironment: () => void}>}
  */
-export async function startFixtureApp({ databaseFilename, indexName }) {
+export async function startFixtureApp({
+  databaseFilename,
+  indexName,
+  variant,
+}) {
   const previousWorkingDirectory = process.cwd()
   const envOverrides = buildFixtureEnvironment({ databaseFilename, indexName })
+  const fixtureAppPath = resolveFixtureAppPath({ variant })
 
   /** @type {Record<string, string|undefined>} */
   const previousEnvironmentValues = {}
@@ -56,7 +89,7 @@ export async function startFixtureApp({ databaseFilename, indexName }) {
     process.env[name] = value
   })
 
-  process.chdir(FIXTURE_APP_PATH)
+  process.chdir(fixtureAppPath)
 
   const strapi = await createStrapi().load()
   await strapi.start()

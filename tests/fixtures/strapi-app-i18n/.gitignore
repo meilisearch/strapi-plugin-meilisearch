@@ -1,0 +1,3 @@
+# Runtime output for fixture app
+/var/*
+!/var/.gitkeep
