@@ -50,7 +50,7 @@
   },
   "peerDependencies": {
     "@strapi/sdk-plugin": "^5.2.8",
-    "@strapi/strapi": "^5.6.0",
+    "@strapi/strapi": "^5.45.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.30.3",
@@ -61,7 +61,7 @@
     "@babel/preset-env": "^7.29.0",
     "@eslint/js": "^10.0.1",
     "@strapi/sdk-plugin": "^5.2.8",
-    "@strapi/strapi": "^5.6.0",
+    "@strapi/strapi": "^5.45.0",
     "@types/jest": "^30.0.0",
     "babel-jest": "^30.2.0",
     "better-sqlite3": "^12.8.0",

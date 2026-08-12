@@ -621,7 +621,7 @@ This command will install the required dependencies and launch the app in develo
 
 Complete installation requirements are the same as for Strapi itself and can be found in the documentation under [installation Requirements](https://strapi.io/documentation/v3.x/installation/cli.html#step-1-make-sure-requirements-are-met).
 
-- Strapi `>=v5.x.x`
+- Strapi `>=v5.45.0`
 
 If you are using [Strapi v3](https://github.com/strapi/strapi/tree/v3.6.9), please refer to [this README](https://github.com/meilisearch/strapi-plugin-meilisearch/tree/v0.5.1).
 
