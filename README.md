@@ -631,7 +631,7 @@ This package guarantees compatibility with [version v1.x of Meilisearch](https:/
 
 **Node**:
 
-- NodeJS >= 18
+- NodeJS >= 20
 
 **We recommend always using the latest version of Strapi to start your new projects**.
 

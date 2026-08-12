@@ -13,25 +13,18 @@ jobs:
     # Will still run for each push to bump-meilisearch-v*
     if: github.event_name != 'pull_request' || !startsWith(github.base_ref, 'bump-meilisearch-v')
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node: ["20"]
-    name: unit-tests (Node.js ${{ matrix.node }})
+    name: unit-tests
     steps:
       - uses: actions/checkout@v6
       - name: Setup Node + deps
         uses: ./.github/actions/setup-node-and-deps
         with:
-          node-version: ${{ matrix.node }}
           cache-playground: "false"
       - name: Launch tests
         run: yarn test
 
   integration_tests:
-    strategy:
-      matrix:
-        node: ["20"]
-    name: integration-tests (Node.js ${{ matrix.node }})
+    name: integration-tests
     runs-on: ubuntu-22.04
     services:
       meilisearch:
@@ -46,7 +39,6 @@ jobs:
       - name: Setup Node + deps (root + playground)
         uses: ./.github/actions/setup-node-and-deps
         with:
-          node-version: ${{ matrix.node }}
           cache-playground: "true"
       - name: Build and link plugin
         uses: ./.github/actions/build-and-link-plugin
@@ -92,31 +84,23 @@ jobs:
           fi
   playground_build_tests:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node: ["20"]
-    name: playground-build (Node.js ${{ matrix.node }})
+    name: playground-build
     steps:
       - uses: actions/checkout@v6
       - name: Setup Node + deps (root + playground)
         uses: ./.github/actions/setup-node-and-deps
         with:
-          node-version: ${{ matrix.node }}
           cache-playground: "true"
       - name: Build Strapi playground
         run: yarn playground:build
   linter_check:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node: ["20"]
-    name: style-check (Node.js ${{ matrix.node }})
+    name: style-check
     steps:
       - uses: actions/checkout@v6
       - name: Setup Node + deps
         uses: ./.github/actions/setup-node-and-deps
         with:
-          node-version: ${{ matrix.node }}
           cache-playground: "false"
       - name: Run style check
         run: yarn style
