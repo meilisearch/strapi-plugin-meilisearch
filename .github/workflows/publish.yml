@@ -13,8 +13,6 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - uses: ./.github/actions/setup-node-and-deps
-        with:
-          node-version: 20
       - name: Check release validity
         run: sh .github/scripts/check-release.sh
       - name: Check tag format

@@ -11,34 +11,28 @@ on:
 jobs:
   integration_tests:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node: ["20"]
-    name: integration-tests (Node.js ${{ matrix.node }})
+    name: integration-tests
     steps:
       - uses: actions/checkout@v6
       - name: Setup node
         uses: actions/setup-node@v6
         with:
           cache: yarn
-          node-version: ${{ matrix.node }}
+          node-version-file: '.nvmrc'
       - name: Install dependencies
         run: yarn
       - name: Launch tests
         run: yarn test
   playground_build_tests:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node: ["20"]
-    name: playground-build (Node.js ${{ matrix.node }})
+    name: playground-build
     steps:
       - uses: actions/checkout@v6
       - name: Setup node
         uses: actions/setup-node@v6
         with:
           cache: yarn
-          node-version: ${{ matrix.node }}
+          node-version-file: '.nvmrc'
       - name: Install dependencies
         run: yarn --dev && yarn --cwd ./playground
       - name: Build Strapi playground
@@ -52,7 +46,7 @@ jobs:
         uses: actions/setup-node@v6
         with:
           cache: yarn
-          node-version: ${{ matrix.node }}
+          node-version-file: '.nvmrc'
       - name: Install dependencies
         run: yarn --dev
       - name: Run style check
