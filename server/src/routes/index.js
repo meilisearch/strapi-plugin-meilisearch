@@ -98,7 +98,15 @@ export default [
     path: '/filterable-attributes/:indexUid',
     handler: 'contentTypeController.getFilterableAttributes',
     config: {
-      policies: ['admin::isAuthenticatedAdmin'],
+      policies: [
+        'admin::isAuthenticatedAdmin',
+        {
+          name: 'admin::hasPermissions',
+          config: {
+            actions: [ACTIONS.read],
+          },
+        },
+      ],
     },
   },
   {

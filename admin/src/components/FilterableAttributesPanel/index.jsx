@@ -8,9 +8,17 @@ import {
 } from '@strapi/design-system'
 import { useFilterableAttributes } from '../../Hooks/useFilterableAttributes'
 
+/**
+ * A panel for managing filterable attributes for a given content type and index.
+ *
+ * @param {object} props
+ * @param {string} props.contentType - UID of the content-type (e.g. 'api::restaurant.restaurant').
+ * @param {string} props.indexUid - UID of the Meilisearch index backing this collection.
+ * @returns {JSX.Element} The panel, collapsed or expanded depending on local state.
+ */
 const FilterableAttributesPanel = ({ contentType, indexUid }) => {
   const [expanded, setExpanded] = useState(false)
-  const { fields, selected, loading, fetchFields, saveFilterableAttributes, toggleField } =
+  const { fields, selected, loading, fetchError, fetchFields, saveFilterableAttributes, toggleField } =
     useFilterableAttributes()
 
   useEffect(() => {
@@ -52,7 +60,7 @@ const FilterableAttributesPanel = ({ contentType, indexUid }) => {
               </Checkbox>
             </Box>
           ))}
-          {!loading && fields.length > 0 && (
+          {!loading && !fetchError && fields.length > 0 && (
             <Box paddingTop={3}>
               <Button
                 size="S"
@@ -61,6 +69,11 @@ const FilterableAttributesPanel = ({ contentType, indexUid }) => {
                 Save
               </Button>
             </Box>
+          )}
+          {fetchError && (
+            <Typography textColor="danger600">
+              Could not load the current filterable attributes.
+            </Typography>
           )}
         </Box>
       )}

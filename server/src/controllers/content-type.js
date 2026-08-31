@@ -138,10 +138,20 @@ export default ({ strapi }) => {
      *
      */
     async updateFilterableAttributes(ctx) {
-      const { indexUid } = ctx.params;
-      const { filterableAttributes, contentType } = ctx.request.body;
+      const { indexUid } = ctx.params
+      const { filterableAttributes, contentType } = ctx.request.body
 
-      const contentTypeService = strapi.plugin('meilisearch').service('contentType')
+      if (!Array.isArray(filterableAttributes)) {
+        ctx.body = await error.createError({
+          name: 'InvalidFilterableAttributes',
+          message: 'filterableAttributes must be an array of strings',
+        })
+        return
+      }
+
+      const contentTypeService = strapi
+        .plugin('meilisearch')
+        .service('contentType')
       const uid = contentTypeService.getContentTypeUid({ contentType })
       if (!uid) {
         ctx.body = await error.createError({

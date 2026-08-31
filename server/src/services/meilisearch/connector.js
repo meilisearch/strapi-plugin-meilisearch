@@ -601,11 +601,7 @@ export default ({ strapi, adapter, config }) => {
     getFilterableAttributes: async function ({ indexUid }) {
       const { apiKey, host } = await store.getCredentials()
       const client = Meilisearch({ apiKey, host })
-      try {
-        return await client.index(indexUid).getFilterableAttributes()
-      } catch {
-        return []
-      }
+      return client.index(indexUid).getFilterableAttributes()
     },
 
     /**
