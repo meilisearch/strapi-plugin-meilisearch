@@ -140,6 +140,7 @@ export default ({ strapi }) => {
      * Replace the filterable attributes of a Meilisearch index.
      *
      * Replaces the existing filterable attributes with the provided list. Validates that the provided attributes exist on the related content-type.
+     * On success, responds with the task UID of the Meilisearch update operation and the update is enqueued in Meilisearch.
      *
      * @param {object} ctx - Http request object.
      * @param {object} ctx.params
