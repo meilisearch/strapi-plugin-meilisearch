@@ -113,9 +113,14 @@ export default ({ strapi }) => {
     },
 
     /**
-     * Get the filterable attributes of a Meilisearch index.
+     * Get the filterable attributes currently configured on a Meilisearch index.
      *
-     * @param  {object} ctx - Http request object.
+     * Responds with an array of strings, each string being the name of a filterable attribute.
+     *
+     * @param {object} ctx - Http request object.
+     * @param {object} ctx.params
+     * @param {string} ctx.params.indexUid - UID of the Meilisearch index to read.
+     * @returns {Promise<void>} Resolves once `ctx.body` has been assigned.
      *
      */
     async getFilterableAttributes(ctx) {
@@ -132,9 +137,17 @@ export default ({ strapi }) => {
     },
 
     /**
-     * Update the filterable attributes of a Meilisearch index.
+     * Replace the filterable attributes of a Meilisearch index.
      *
-     * @param  {object} ctx - Http request object.
+     * Replaces the existing filterable attributes with the provided list. Validates that the provided attributes exist on the related content-type.
+     *
+     * @param {object} ctx - Http request object.
+     * @param {object} ctx.params
+     * @param {string} ctx.params.indexUid - UID of the Meilisearch index to update.
+     * @param {object} ctx.request.body
+     * @param {string[]} ctx.request.body.filterableAttributes - Attribute names to make filterable.
+     * @param {string} ctx.request.body.contentType - UID of the related content-type, used for validation.
+     * @returns {Promise<void>} Resolves once `ctx.body` has been assigned.
      *
      */
     async updateFilterableAttributes(ctx) {
