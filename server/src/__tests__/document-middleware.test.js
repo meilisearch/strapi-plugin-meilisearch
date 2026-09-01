@@ -11,6 +11,36 @@ describe('Strapi document middleware', () => {
     jest.clearAllMocks()
   })
 
+  /**
+   * Build Strapi test doubles for document-middleware tests.
+   *
+   * By default, `getListenedContentTypes` returns `listened` synchronously.
+   * Pass `getListenedContentTypes` to override that — including a function
+   * that rejects — so tests can cover both a successful setup path and a
+   * failed indexing-setup path.
+   *
+   * @param {object} [options] - Stub options.
+   * @param {string[]} [options.listened=['api::restaurant.restaurant']] - Content type uids treated as listened when no custom getter is provided.
+   * @param {string[]} [options.indexed=['api::restaurant.restaurant']] - Content type uids treated as indexed.
+   * @param {Function} [options.getListenedContentTypes] - Store getter used instead of returning `listened`. May resolve or reject.
+   * @param {object} [options.meilisearchEntriesQuery={}] - Value returned by `entriesQuery`.
+   * @param {Function} [options.contentTypeGetEntry] - Content-type `getEntry` double.
+   * @param {Function} [options.contentTypeGetEntries] - Content-type `getEntries` double.
+   *
+   * @returns {{
+   *   strapi: object,
+   *   use: Function,
+   *   middlewareFn: Function,
+   *   entriesQuery: Function,
+   *   updateEntriesInMeilisearch: Function,
+   *   deleteEntriesFromMeiliSearch: Function,
+   *   contentTypeGetEntry: Function,
+   *   contentTypeGetEntries: Function
+   * }} `strapi` is the plugin host (log, `documents.use`, `plugin().service()`).
+   * `use` is the `documents.use` spy. `middlewareFn()` returns the registered
+   * handler. The remaining properties are the Meilisearch and content-type
+   * service doubles injected through `plugin().service()`.
+   */
   const createStrapiStubs = ({
     listened = ['api::restaurant.restaurant'],
     indexed = ['api::restaurant.restaurant'],
