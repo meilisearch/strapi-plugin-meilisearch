@@ -11,9 +11,40 @@ describe('Strapi document middleware', () => {
     jest.clearAllMocks()
   })
 
+  /**
+   * Build Strapi test doubles for document-middleware tests.
+   *
+   * By default, `getListenedContentTypes` returns `listened` synchronously.
+   * Pass `getListenedContentTypes` to override that — including a function
+   * that rejects — so tests can cover both a successful setup path and a
+   * failed indexing-setup path.
+   *
+   * @param {object} [options] - Stub options.
+   * @param {string[]} [options.listened=['api::restaurant.restaurant']] - Content type uids treated as listened when no custom getter is provided.
+   * @param {string[]} [options.indexed=['api::restaurant.restaurant']] - Content type uids treated as indexed.
+   * @param {Function} [options.getListenedContentTypes] - Store getter used instead of returning `listened`. May resolve or reject.
+   * @param {object} [options.meilisearchEntriesQuery={}] - Value returned by `entriesQuery`.
+   * @param {Function} [options.contentTypeGetEntry] - Content-type `getEntry` double.
+   * @param {Function} [options.contentTypeGetEntries] - Content-type `getEntries` double.
+   *
+   * @returns {{
+   *   strapi: object,
+   *   use: Function,
+   *   middlewareFn: Function,
+   *   entriesQuery: Function,
+   *   updateEntriesInMeilisearch: Function,
+   *   deleteEntriesFromMeiliSearch: Function,
+   *   contentTypeGetEntry: Function,
+   *   contentTypeGetEntries: Function
+   * }} `strapi` is the plugin host (log, `documents.use`, `plugin().service()`).
+   * `use` is the `documents.use` spy. `middlewareFn()` returns the registered
+   * handler. The remaining properties are the Meilisearch and content-type
+   * service doubles injected through `plugin().service()`.
+   */
   const createStrapiStubs = ({
     listened = ['api::restaurant.restaurant'],
     indexed = ['api::restaurant.restaurant'],
+    getListenedContentTypes,
     meilisearchEntriesQuery = {},
     contentTypeGetEntry = jest.fn(() =>
       Promise.resolve({
@@ -39,7 +70,7 @@ describe('Strapi document middleware', () => {
     const service = jest.fn(name => {
       if (name === 'store') {
         return {
-          getListenedContentTypes: () => listened,
+          getListenedContentTypes: getListenedContentTypes || (() => listened),
           getIndexedContentTypes: () => indexed,
         }
       }
@@ -1797,36 +1828,83 @@ describe('Strapi document middleware', () => {
     })
   })
 
-  test('logs error but does not throw when Meilisearch call fails', async () => {
-    const {
-      strapi,
-      middlewareFn,
-      updateEntriesInMeilisearch,
-      deleteEntriesFromMeiliSearch,
-    } = createStrapiStubs()
+  describe('does not hide Strapi write failures', () => {
+    test('surfaces write errors for indexed content types', async () => {
+      const { strapi, middlewareFn } = createStrapiStubs()
 
-    const error = new Error('network down')
-    updateEntriesInMeilisearch.mockRejectedValueOnce(error)
+      await registerDocumentMiddleware({ strapi })
 
-    await registerDocumentMiddleware({ strapi })
+      const handler = middlewareFn()
+      const ctx = {
+        uid: 'api::restaurant.restaurant',
+        action: 'update',
+      }
+      const writeError = new Error('CMS write failed')
 
-    const handler = middlewareFn()
-    const ctx = {
-      uid: 'api::restaurant.restaurant',
-      action: 'create',
-    }
+      await expect(handler(ctx, () => Promise.reject(writeError))).rejects.toBe(
+        writeError,
+      )
+    })
 
-    const result = { id: 17, documentId: 'doc-17' }
-    const next = jest
-      .fn()
-      .mockResolvedValueOnce(result)
-      .mockResolvedValue(undefined)
+    test('surfaces write errors for content types that are not indexed', async () => {
+      const { strapi, middlewareFn } = createStrapiStubs({ listened: [] })
 
-    await expect(handler(ctx, next)).resolves.toBe(result)
+      await registerDocumentMiddleware({ strapi })
 
-    expect(next).toHaveBeenCalledTimes(1)
-    expect(updateEntriesInMeilisearch).toHaveBeenCalled()
-    expect(deleteEntriesFromMeiliSearch).not.toHaveBeenCalled()
-    expect(strapi.log.error).toHaveBeenCalled()
+      const handler = middlewareFn()
+      const ctx = {
+        uid: 'api::restaurant.restaurant',
+        action: 'update',
+      }
+      const writeError = new Error('CMS write failed')
+
+      await expect(handler(ctx, () => Promise.reject(writeError))).rejects.toBe(
+        writeError,
+      )
+    })
+  })
+
+  describe('does not block Strapi writes', () => {
+    test('returns the written Strapi entry when indexing into Meilisearch fails', async () => {
+      const { strapi, middlewareFn, updateEntriesInMeilisearch } =
+        createStrapiStubs()
+
+      updateEntriesInMeilisearch.mockRejectedValueOnce(
+        new Error('network down'),
+      )
+
+      await registerDocumentMiddleware({ strapi })
+
+      const handler = middlewareFn()
+      const ctx = {
+        uid: 'api::restaurant.restaurant',
+        action: 'create',
+      }
+      const result = { id: 17, documentId: 'doc-17' }
+
+      await expect(handler(ctx, () => Promise.resolve(result))).resolves.toBe(
+        result,
+      )
+    })
+
+    test('returns the written Strapi entry when indexing setup fails', async () => {
+      const { strapi, middlewareFn } = createStrapiStubs({
+        getListenedContentTypes: () =>
+          Promise.reject(new Error('could not load listened content types')),
+      })
+
+      await registerDocumentMiddleware({ strapi })
+
+      const handler = middlewareFn()
+      const ctx = {
+        uid: 'api::restaurant.restaurant',
+        action: 'update',
+      }
+      const result = { id: 18, documentId: 'doc-18' }
+
+      await expect(handler(ctx, () => Promise.resolve(result))).resolves.toBe(
+        result,
+      )
+    })
   })
 })
