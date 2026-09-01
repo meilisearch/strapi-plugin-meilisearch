@@ -89,27 +89,32 @@ export default ({ strapi }) => {
      *
      */
     async getContentTypeFields(ctx) {
-      const { contentTypeName } = ctx.params;
-      const contentTypeService = strapi.plugin('meilisearch').service('contentType')
+      const { contentTypeName } = ctx.params
+      const contentTypeService = strapi
+        .plugin('meilisearch')
+        .service('contentType')
 
-      const uid = contentTypeService.getContentTypeUid({ contentType: contentTypeName })
+      const uid = contentTypeService.getContentTypeUid({
+        contentType: contentTypeName,
+      })
       if (!uid) {
-        ctx.body = await error.createError({
-          name: 'ContentTypeNotFound',
-          message: `ContentType ${contentTypeName} not found`,
-        })
-        return;
+        const err = new Error(`ContentType ${contentTypeName} not found`)
+        err.name = 'ContentTypeNotFound'
+        ctx.body = await error.createError(err)
+        return
       }
 
       const contentType = strapi.contentTypes[uid]
-      const fields = Object.entries(contentType.attributes).map(([key, attr]) => {
-        return {
-          name: key,
-          type: attr.type,
-          target: attr.target || null,
-        }
-      })
-      ctx.body = { data: fields };
+      const fields = Object.entries(contentType.attributes).map(
+        ([key, attr]) => {
+          return {
+            name: key,
+            type: attr.type,
+            target: attr.target || null,
+          }
+        },
+      )
+      ctx.body = { data: fields }
     },
 
     /**
@@ -124,7 +129,7 @@ export default ({ strapi }) => {
      *
      */
     async getFilterableAttributes(ctx) {
-      const { indexUid } = ctx.params;
+      const { indexUid } = ctx.params
 
       await meilisearch
         .getFilterableAttributes({ indexUid })
@@ -156,10 +161,11 @@ export default ({ strapi }) => {
       const { filterableAttributes, contentType } = ctx.request.body
 
       if (!Array.isArray(filterableAttributes)) {
-        ctx.body = await error.createError({
-          name: 'InvalidFilterableAttributes',
-          message: 'filterableAttributes must be an array of strings',
-        })
+        const err = new Error(
+          'filterableAttributes must be an array of strings',
+        )
+        err.name = 'InvalidFilterableAttributes'
+        ctx.body = await error.createError(err)
         return
       }
 
@@ -168,22 +174,22 @@ export default ({ strapi }) => {
         .service('contentType')
       const uid = contentTypeService.getContentTypeUid({ contentType })
       if (!uid) {
-        ctx.body = await error.createError({
-          name: 'ContentTypeNotFound',
-          message: `No content type found for "${contentType}"`,
-        })
+        const err = new Error(`No content type found for "${contentType}"`)
+        err.name = 'ContentTypeNotFound'
+        ctx.body = await error.createError(err)
         return
       }
 
       const validFieldNames = Object.keys(strapi.contentType(uid).attributes)
       const invalidAttributes = filterableAttributes.filter(
-        attr => !validFieldNames.includes(attr)
+        attr => !validFieldNames.includes(attr),
       )
       if (invalidAttributes.length > 0) {
-        ctx.body = await error.createError({
-          name: 'InvalidFilterableAttributes',
-          message: `The following attributes do not exist in "${contentType}": ${invalidAttributes.join(', ')}`,
-        })
+        const err = new Error(
+          `The following attributes do not exist in "${contentType}": ${invalidAttributes.join(', ')}`,
+        )
+        err.name = 'InvalidFilterableAttributes'
+        ctx.body = await error.createError(err)
         return
       }
 
@@ -192,12 +198,12 @@ export default ({ strapi }) => {
           indexUid,
           filterableAttributes,
         })
-        .then((taskUid) => {
+        .then(taskUid => {
           ctx.body = { data: taskUid }
         })
         .catch(async e => {
           ctx.body = await error.createError(e)
         })
-    }
+    },
   }
 }

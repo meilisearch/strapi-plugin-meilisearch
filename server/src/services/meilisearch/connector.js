@@ -115,75 +115,75 @@ export default ({ strapi, adapter, config }) => {
 
       const resolvedLocales = Array.isArray(locales)
         ? [
-          ...new Set(
-            locales
-              .filter(
-                locale =>
-                  typeof locale === 'string' && locale.trim().length > 0,
-              )
-              .map(locale => locale.trim()),
-          ),
-        ]
+            ...new Set(
+              locales
+                .filter(
+                  locale =>
+                    typeof locale === 'string' && locale.trim().length > 0,
+                )
+                .map(locale => locale.trim()),
+            ),
+          ]
         : []
 
       const meilisearchDocumentIds =
         shouldDeleteAllLocaleVariants && resolvedLocales.length > 0
           ? validDocumentIds.flatMap(entryDocumentId =>
-            resolvedLocales.map(resolvedLocale =>
-              adapter.addCollectionNamePrefixToId({
-                contentType,
-                entryDocumentId,
-                locale: resolvedLocale,
-              }),
-            ),
-          )
+              resolvedLocales.map(resolvedLocale =>
+                adapter.addCollectionNamePrefixToId({
+                  contentType,
+                  entryDocumentId,
+                  locale: resolvedLocale,
+                }),
+              ),
+            )
           : shouldDeleteAllLocaleVariants
             ? (
-              await Promise.all(
-                validDocumentIds.map(async entryDocumentId => {
-                  const baseFilters =
-                    resolvedEntriesQuery.filters != null
-                      ? resolvedEntriesQuery.filters
-                      : {}
-                  const localizedEntries =
-                    await contentTypeService.getEntries({
-                      contentType,
-                      fields: ['documentId', 'locale'],
-                      locale: '*',
-                      ...(resolvedEntriesQuery.status
-                        ? { status: resolvedEntriesQuery.status }
-                        : {}),
-                      filters: {
-                        ...baseFilters,
-                        documentId: entryDocumentId,
-                      },
-                    })
+                await Promise.all(
+                  validDocumentIds.map(async entryDocumentId => {
+                    const baseFilters =
+                      resolvedEntriesQuery.filters != null
+                        ? resolvedEntriesQuery.filters
+                        : {}
+                    const localizedEntries =
+                      await contentTypeService.getEntries({
+                        contentType,
+                        fields: ['documentId', 'locale'],
+                        locale: '*',
+                        ...(resolvedEntriesQuery.status
+                          ? { status: resolvedEntriesQuery.status }
+                          : {}),
+                        filters: {
+                          ...baseFilters,
+                          documentId: entryDocumentId,
+                        },
+                      })
 
-                  return localizedEntries.length > 0
-                    ? localizedEntries.map(entry =>
-                      adapter.addCollectionNamePrefixToId({
-                        contentType,
-                        entryDocumentId,
-                        locale: entry.locale,
-                      }),
-                    )
-                    : [
-                      // Fallback: delete the non-localized document when no localized variants exist.
-                      adapter.addCollectionNamePrefixToId({
-                        contentType,
-                        entryDocumentId,
-                      }),
-                    ]
+                    return localizedEntries.length > 0
+                      ? localizedEntries.map(entry =>
+                          adapter.addCollectionNamePrefixToId({
+                            contentType,
+                            entryDocumentId,
+                            locale: entry.locale,
+                          }),
+                        )
+                      : [
+                          // Fallback: delete the non-localized document when no localized variants exist.
+                          adapter.addCollectionNamePrefixToId({
+                            contentType,
+                            entryDocumentId,
+                          }),
+                        ]
+                  }),
+                )
+              ).flat()
+            : validDocumentIds.map(entryDocumentId =>
+                adapter.addCollectionNamePrefixToId({
+                  entryDocumentId,
+                  contentType,
+                  locale: resolvedEntriesQuery.locale,
                 }),
               )
-            ).flat()
-            : validDocumentIds.map(entryDocumentId =>
-              adapter.addCollectionNamePrefixToId({
-                entryDocumentId,
-                contentType,
-                locale: resolvedEntriesQuery.locale,
-              }),
-            )
 
       const uniqueDocumentIds = [...new Set(meilisearchDocumentIds)]
 
@@ -591,13 +591,13 @@ export default ({ strapi, adapter, config }) => {
     },
 
     /**
-         * Get the filterable attributes of a Meilisearch index.
-         *
-         * @param  {object} options
-         * @param  {string} options.indexUid - The meilisearch index uid.
-         *
-         * @returns {Promise<string[]>} - List of filterable attributes.
-         */
+    * Get the filterable attributes of a Meilisearch index.
+    *
+    * @param  {object} options
+    * @param  {string} options.indexUid - The meilisearch index uid.
+    *
+    * @returns {Promise<string[]>} - List of filterable attributes.
+    */
     getFilterableAttributes: async function ({ indexUid }) {
       const { apiKey, host } = await store.getCredentials()
       const client = Meilisearch({ apiKey, host })

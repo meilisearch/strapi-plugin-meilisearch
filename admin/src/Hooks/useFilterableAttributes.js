@@ -84,7 +84,7 @@ export function useFilterableAttributes() {
       }
     } catch (error) {
       checkForbiddenError(error)
-      if (error?.response?.status !== 403) {
+      if (error?.status !== 403) {
         handleNotification({
           type: 'warning',
           message: 'Failed to update the filterable attributes',
