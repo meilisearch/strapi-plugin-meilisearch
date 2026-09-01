@@ -589,5 +589,40 @@ export default ({ strapi, adapter, config }) => {
       }
       return this.addContentTypeInMeiliSearch({ contentType })
     },
+
+    /**
+    * Get the filterable attributes of a Meilisearch index.
+    *
+    * @param  {object} options
+    * @param  {string} options.indexUid - The meilisearch index uid.
+    *
+    * @returns {Promise<string[]>} - List of filterable attributes.
+    */
+    getFilterableAttributes: async function ({ indexUid }) {
+      const { apiKey, host } = await store.getCredentials()
+      const client = Meilisearch({ apiKey, host })
+      return client.index(indexUid).getFilterableAttributes()
+    },
+
+    /**
+     * Update the filterable attributes of a Meilisearch index.
+     *
+     * @param  {object} options
+     * @param  {string} options.indexUid - The meilisearch index uid.
+     * @param  {string[]} options.filterableAttributes - List of filterable attributes.
+     *
+     * @returns {Promise<number>} - Task uid from the update process.
+     */
+    updateFilterableAttributes: async function ({ indexUid, filterableAttributes }) {
+      const { apiKey, host } = await store.getCredentials()
+      const client = Meilisearch({ apiKey, host })
+      const task = await client.index(indexUid).updateFilterableAttributes(filterableAttributes)
+
+      strapi.log.info(
+        `A task to update the filterable attributes of the Meilisearch index "${indexUid}" has been added to the queue (Task uid: ${task.taskUid}).`,
+      )
+
+      return task
+    }
   }
 }
