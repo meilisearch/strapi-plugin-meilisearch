@@ -231,6 +231,17 @@ const dispatchDeleteTargets = async ({
   }
 }
 
+/**
+ * Register documents-service middleware that mirrors successful writes into Meilisearch.
+ *
+ * Write failures propagate to the caller. Setup and Meilisearch indexing
+ * failures are logged and do not hide Strapi write errors or block writes.
+ *
+ * @param {object} options - Registration options.
+ * @param {object} options.strapi - Strapi instance.
+ *
+ * @returns {Promise<void>}
+ */
 export default async function registerDocumentMiddleware({ strapi }) {
   if (!strapi?.documents || typeof strapi.documents.use !== 'function') {
     return
@@ -238,7 +249,8 @@ export default async function registerDocumentMiddleware({ strapi }) {
 
   // Hook document service (only when available) to mirror Strapi changes into Meilisearch.
   strapi.documents.use(async (ctx, next) => {
-    let result
+    let sync
+
     try {
       const plugin = strapi.plugin('meilisearch')
       const store = plugin.service('store')
@@ -302,7 +314,42 @@ export default async function registerDocumentMiddleware({ strapi }) {
         preActionSnapshots.map(snapshot => [snapshot.documentId, snapshot]),
       )
 
-      result = await next()
+      sync = {
+        contentType,
+        meilisearch,
+        contentTypeService,
+        indexingQuery,
+        indexingQueryUsesWildcardLocale,
+        indexingStatusFilter,
+        shouldProcessAsRefetchFirstIndexingAction,
+        shouldProcessAsDeleteAction,
+        preActionSnapshots,
+        preActionSnapshotsByDocumentId,
+        isDraftIndex,
+      }
+    } catch (error) {
+      strapi.log.error(
+        `Meilisearch document middleware setup error: ${error.message}`,
+      )
+      return next()
+    }
+
+    const result = await next()
+
+    try {
+      const {
+        contentType,
+        meilisearch,
+        contentTypeService,
+        indexingQuery,
+        indexingQueryUsesWildcardLocale,
+        indexingStatusFilter,
+        shouldProcessAsRefetchFirstIndexingAction,
+        shouldProcessAsDeleteAction,
+        preActionSnapshots,
+        preActionSnapshotsByDocumentId,
+        isDraftIndex,
+      } = sync
 
       const documentIds = resolveDocumentIds({
         actionParams: ctx?.params,
@@ -492,13 +539,12 @@ export default async function registerDocumentMiddleware({ strapi }) {
           )
         }
       }
-
-      return result
     } catch (error) {
       strapi.log.error(
         `Meilisearch document middleware error: ${error.message}`,
       )
-      return result
     }
+
+    return result
   })
 }
