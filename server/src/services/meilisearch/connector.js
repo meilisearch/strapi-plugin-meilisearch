@@ -591,13 +591,13 @@ export default ({ strapi, adapter, config }) => {
     },
 
     /**
-    * Get the filterable attributes of a Meilisearch index.
-    *
-    * @param  {object} options
-    * @param  {string} options.indexUid - The meilisearch index uid.
-    *
-    * @returns {Promise<string[]>} - List of filterable attributes.
-    */
+     * Get the filterable attributes of a Meilisearch index.
+     *
+     * @param  {object} options
+     * @param  {string} options.indexUid - The meilisearch index uid.
+     *
+     * @returns {Promise<string[]>} - List of filterable attributes.
+     */
     getFilterableAttributes: async function ({ indexUid }) {
       const { apiKey, host } = await store.getCredentials()
       const client = Meilisearch({ apiKey, host })
@@ -611,7 +611,7 @@ export default ({ strapi, adapter, config }) => {
      * @param  {string} options.indexUid - The meilisearch index uid.
      * @param  {string[]} options.filterableAttributes - List of filterable attributes.
      *
-     * @returns {Promise<number>} - Task uid from the update process.
+     * @returns {Promise<import("meilisearch").EnqueuedTask>} - The enqueued Meilisearch task.
      */
     updateFilterableAttributes: async function ({ indexUid, filterableAttributes }) {
       const { apiKey, host } = await store.getCredentials()

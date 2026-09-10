@@ -89,7 +89,7 @@ export default [
           config: {
             actions: [ACTIONS.read],
           },
-        }
+        },
       ],
     },
   },
@@ -121,8 +121,8 @@ export default [
           config: {
             actions: [ACTIONS.update],
           },
-        }
-      ]
+        },
+      ],
     },
   },
   {
