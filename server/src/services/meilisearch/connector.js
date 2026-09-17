@@ -613,16 +613,21 @@ export default ({ strapi, adapter, config }) => {
      *
      * @returns {Promise<import("meilisearch").EnqueuedTask>} - The enqueued Meilisearch task.
      */
-    updateFilterableAttributes: async function ({ indexUid, filterableAttributes }) {
+    updateFilterableAttributes: async function ({
+      indexUid,
+      filterableAttributes,
+    }) {
       const { apiKey, host } = await store.getCredentials()
       const client = Meilisearch({ apiKey, host })
-      const task = await client.index(indexUid).updateFilterableAttributes(filterableAttributes)
+      const task = await client
+        .index(indexUid)
+        .updateFilterableAttributes(filterableAttributes)
 
       strapi.log.info(
         `A task to update the filterable attributes of the Meilisearch index "${indexUid}" has been added to the queue (Task uid: ${task.taskUid}).`,
       )
 
       return task
-    }
+    },
   }
 }
