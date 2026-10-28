@@ -489,6 +489,33 @@ module.exports = {
 }
 ```
 
+### 🔁 Retry failed syncs
+
+When Meilisearch is unreachable, changes made in Strapi are saved but cannot be sent to the index. By default they are only logged. With `retryFailedSync`, the plugin remembers the affected documents and retries them on a cron rule once Meilisearch is reachable again.
+
+```js
+// config/plugins.js
+
+module.exports = {
+  meilisearch: {
+    config: {
+      retryFailedSync: {
+        rule: '*/5 * * * *', // cron rule of the retry job
+        maxQueueSize: 10000, // optional, default 10000
+      },
+      restaurant: {},
+    },
+  },
+}
+```
+
+On each run, every queued document is refetched from Strapi with the collection's `entriesQuery`: if it is still indexable, its current state is indexed; otherwise it is removed from the index. Documents of collections that are no longer selected are dropped from the queue. If the queue is full, further failures are logged as errors; re-index the collection from the plugin page in that case.
+
+Notes:
+
+- The queue is stored in the plugin store and survives restarts. The retry job runs in every Strapi process that loads the plugin; runs do not overlap within one process.
+- The job is controlled by `retryFailedSync` only. Strapi's `server.cron.enabled` setting does not disable it.
+
 ### 🕵️‍♀️ Start Searching <!-- omit in toc -->
 
 Once you have a content-type indexed in Meilisearch, you can [start searching](https://www.meilisearch.com/docs/learn/getting_started/quick_start.html#search).

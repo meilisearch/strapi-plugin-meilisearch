@@ -306,10 +306,47 @@ function CollectionConfig({ collectionName, configuration }) {
 
 function PluginConfig({ configuration }) {
   const log = strapi.log // has to be inside a scope
-  const { apiKey, host, ...collections } = configuration
+  const { apiKey, host, retryFailedSync, ...collections } = configuration
   const options = {}
 
   return {
+    validateRetryFailedSync() {
+      // retryFailedSync is either undefined or { rule: string, maxQueueSize?: positive integer }
+      if (retryFailedSync === undefined) return this
+
+      const { rule, maxQueueSize, ...unknownFields } = isObject(retryFailedSync)
+        ? retryFailedSync
+        : {}
+      if (
+        !isObject(retryFailedSync) ||
+        typeof rule !== 'string' ||
+        rule.trim() === ''
+      ) {
+        log.error(
+          'The "retryFailedSync" option should be an object with a non-empty "rule" string (cron rule). Sync retry is disabled.',
+        )
+        options.retryFailedSync = undefined
+        return this
+      }
+      if (
+        maxQueueSize !== undefined &&
+        (!Number.isInteger(maxQueueSize) || maxQueueSize <= 0)
+      ) {
+        log.error(
+          'The "retryFailedSync.maxQueueSize" option should be a positive integer. Sync retry is disabled.',
+        )
+        options.retryFailedSync = undefined
+        return this
+      }
+      Object.keys(unknownFields).forEach(key => {
+        log.warn(
+          `The "${key}" option of "retryFailedSync" is not a known option`,
+        )
+      })
+      options.retryFailedSync = { rule, maxQueueSize }
+      return this
+    },
+
     validateApiKey() {
       // apiKey is either undefined or a string
       if (apiKey !== undefined && typeof apiKey !== 'string') {
@@ -384,10 +421,15 @@ function validatePluginConfig(configuration) {
   const options = PluginConfig({ configuration })
     .validateApiKey()
     .validateHost()
+    .validateRetryFailedSync()
     .validateCollections()
     .get()
 
   Object.assign(configuration, options)
+  // An invalid retryFailedSync option turns the feature off.
+  if (configuration.retryFailedSync === undefined) {
+    delete configuration.retryFailedSync
+  }
 
   return configuration
 }
