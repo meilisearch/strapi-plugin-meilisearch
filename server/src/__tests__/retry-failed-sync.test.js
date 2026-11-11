@@ -514,6 +514,9 @@ describe('Retrying failed syncs', () => {
     expect(
       services.meilisearch.updateEntriesInMeilisearch,
     ).not.toHaveBeenCalled()
+    expect(
+      (await store.getFailedSyncQueue()).map(item => item.documentId),
+    ).toEqual(['a'])
   })
 
   test('a failing document does not block the others while Meilisearch is reachable', async () => {

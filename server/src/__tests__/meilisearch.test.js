@@ -1376,6 +1376,11 @@ describe('Meilisearch service behavior', () => {
 
 describe('Index actions and the sync retry queue', () => {
   const RESTAURANT = 'restaurant'
+  const KEPT = {
+    id: 1,
+    documentId: 'kept',
+    publishedAt: '2026-01-01T00:00:00.000Z',
+  }
 
   /**
    * Meilisearch service on a Strapi double whose store uses the real queue.
@@ -1418,7 +1423,7 @@ describe('Index actions and the sync retry queue', () => {
         actionInBatches ||
           (async ({ callback, contentType }) =>
             callback({
-              entries: [{ id: 1, documentId: 'kept' }],
+              entries: [KEPT],
               contentType,
             })),
       ),
@@ -1479,10 +1484,7 @@ describe('Index actions and the sync retry queue', () => {
       actionInBatches: async ({ callback, contentType }) => {
         // A write fails in the document middleware while the re-index runs.
         await queue(store, ['during'])
-        return callback({
-          entries: [{ id: 1, documentId: 'kept' }],
-          contentType,
-        })
+        return callback({ entries: [KEPT], contentType })
       },
     })
     store = services.store
@@ -1491,6 +1493,11 @@ describe('Index actions and the sync retry queue', () => {
 
     await meilisearch.addContentTypeInMeiliSearch({ contentType: RESTAURANT })
 
+    expect(
+      services.indexApi.addDocuments.mock.calls.flatMap(([docs]) =>
+        docs.map(doc => doc._meilisearch_id),
+      ),
+    ).toEqual(['restaurant-kept'])
     expect(await queuedIds(store)).toEqual(['during'])
   })
 
