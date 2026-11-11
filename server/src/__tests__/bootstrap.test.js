@@ -1,75 +1,79 @@
 import bootstrap from '../bootstrap'
-import { mockLogger } from '../__mocks__/strapi'
+import { createStrapiMock, mockLogger } from '../__mocks__/strapi'
 
 /**
- * Build a Strapi mock exposing only what the bootstrap needs.
+ * Build a Strapi mock exposing the plugin services used by the bootstrap.
  *
  * @param {object} options
  * @param {Function} options.fetchIndexUids - Implementation of meilisearch.fetchIndexUids.
  * @param {string[]} options.indexedContentTypes - Content types stored as indexed.
+ *
+ * @returns {{ strapiMock: object, storeService: object, lifecycleService: object }} The Strapi mock and the services to assert on.
  */
-function createBootstrapStrapi({ fetchIndexUids, indexedContentTypes }) {
-  const store = {
+function setup({ fetchIndexUids, indexedContentTypes }) {
+  const strapiMock = createStrapiMock({})
+  const storeService = {
     syncCredentials: jest.fn(),
     getIndexedContentTypes: jest.fn(async () => indexedContentTypes),
     removeIndexedContentType: jest.fn(),
     emptyListenedContentTypes: jest.fn(),
   }
-  const lifecycle = { subscribeContentType: jest.fn() }
-  const meilisearch = {
+  const lifecycleService = { subscribeContentType: jest.fn() }
+  const meilisearchService = {
     fetchIndexUids: jest.fn(fetchIndexUids),
-    // Same contract as the real service: swallow errors and return []. Lets the
-    // tests run against code that still calls `getIndexUids`.
-    getIndexUids: jest.fn(async () => {
-      try {
-        return await fetchIndexUids()
-      } catch {
-        return []
-      }
-    }),
     getIndexNamesOfContentType: jest.fn(({ contentType }) => [
       contentType.split('.').pop(),
     ]),
   }
-  const contentType = {
+  const contentTypeService = {
     getContentTypesUid: jest.fn(() => indexedContentTypes),
   }
-  const services = { store, lifecycle, meilisearch, contentType }
 
-  return {
-    strapi: {
-      log: mockLogger,
-      plugin: jest.fn(() => ({ service: name => services[name] })),
-      admin: {
-        services: {
-          permission: { actionProvider: { registerMany: jest.fn() } },
-        },
-      },
+  const originalPlugin = strapiMock.plugin
+  strapiMock.plugin = jest.fn(pluginName => {
+    if (pluginName === 'meilisearch') {
+      return {
+        service: jest.fn(serviceName => {
+          if (serviceName === 'store') return storeService
+          if (serviceName === 'lifecycle') return lifecycleService
+          if (serviceName === 'meilisearch') return meilisearchService
+          if (serviceName === 'contentType') return contentTypeService
+          return originalPlugin().service()
+        }),
+      }
+    }
+    return originalPlugin(pluginName)
+  })
+  // @ts-ignore
+  strapiMock.admin = {
+    services: {
+      permission: { actionProvider: { registerMany: jest.fn() } },
     },
-    store,
-    lifecycle,
   }
+
+  // @ts-ignore
+  global.strapi = strapiMock
+
+  return { strapiMock, storeService, lifecycleService }
 }
 
-describe('Bootstrap: indexed collections and Meilisearch availability', () => {
+describe('Bootstrap indexed collections sync', () => {
   beforeEach(() => {
     jest.clearAllMocks()
   })
 
   test('keeps indexed collections and their listeners when Meilisearch is unreachable', async () => {
-    const { strapi, store, lifecycle } = createBootstrapStrapi({
+    const { strapiMock, storeService, lifecycleService } = setup({
       fetchIndexUids: async () => {
         throw new Error('Request to http://localhost:7700/stats has failed')
       },
       indexedContentTypes: ['api::restaurant.restaurant'],
     })
-    // @ts-ignore
-    global.strapi = strapi
 
-    await bootstrap({ strapi })
+    await bootstrap({ strapi: strapiMock })
 
-    expect(store.removeIndexedContentType).not.toHaveBeenCalled()
-    expect(lifecycle.subscribeContentType).toHaveBeenCalledWith({
+    expect(storeService.removeIndexedContentType).not.toHaveBeenCalled()
+    expect(lifecycleService.subscribeContentType).toHaveBeenCalledWith({
       contentType: 'api::restaurant.restaurant',
     })
     expect(mockLogger.warn).toHaveBeenCalledWith(
@@ -77,33 +81,29 @@ describe('Bootstrap: indexed collections and Meilisearch availability', () => {
     )
   })
 
-  test('still removes a collection whose index is really missing in Meilisearch', async () => {
-    const { strapi, store } = createBootstrapStrapi({
+  test('removes a collection whose index is missing in Meilisearch', async () => {
+    const { strapiMock, storeService } = setup({
       fetchIndexUids: async () => ['about'],
       indexedContentTypes: ['api::restaurant.restaurant'],
     })
-    // @ts-ignore
-    global.strapi = strapi
 
-    await bootstrap({ strapi })
+    await bootstrap({ strapi: strapiMock })
 
-    expect(store.removeIndexedContentType).toHaveBeenCalledWith({
+    expect(storeService.removeIndexedContentType).toHaveBeenCalledWith({
       contentType: 'api::restaurant.restaurant',
     })
   })
 
   test('keeps a collection whose index exists in Meilisearch', async () => {
-    const { strapi, store, lifecycle } = createBootstrapStrapi({
+    const { strapiMock, storeService, lifecycleService } = setup({
       fetchIndexUids: async () => ['restaurant'],
       indexedContentTypes: ['api::restaurant.restaurant'],
     })
-    // @ts-ignore
-    global.strapi = strapi
 
-    await bootstrap({ strapi })
+    await bootstrap({ strapi: strapiMock })
 
-    expect(store.removeIndexedContentType).not.toHaveBeenCalled()
-    expect(lifecycle.subscribeContentType).toHaveBeenCalledWith({
+    expect(storeService.removeIndexedContentType).not.toHaveBeenCalled()
+    expect(lifecycleService.subscribeContentType).toHaveBeenCalledWith({
       contentType: 'api::restaurant.restaurant',
     })
   })

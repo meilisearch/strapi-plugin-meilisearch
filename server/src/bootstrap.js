@@ -38,7 +38,7 @@ async function syncIndexedCollections({
     // selection instead of treating every index as deleted, otherwise the
     // collections are silently unselected and stop being synced.
     strapi.log.warn(
-      `meilisearch: could not reach Meilisearch, keeping indexed collections (${e.message})`,
+      `meilisearch: could not fetch indexes from Meilisearch, keeping indexed collections (${e.message})`,
     )
     return
   }
