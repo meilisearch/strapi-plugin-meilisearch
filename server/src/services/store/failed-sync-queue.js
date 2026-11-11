@@ -9,6 +9,16 @@ const QUEUE_KEY = 'meilisearch_failed_sync_queue'
  */
 const itemKey = ({ contentType, documentId }) => `${contentType}::${documentId}`
 
+let generationCounter = 0
+
+/**
+ * Build a generation marker that is unique per queued failure, also across
+ * restarts and after the queue was cleared.
+ *
+ * @returns {string}
+ */
+const nextGeneration = () => `${Date.now()}-${++generationCounter}`
+
 export default ({ store }) => {
   // Queue mutations are read-modify-write on one store key. Chain them so
   // concurrent failures in this process cannot overwrite each other.
@@ -23,7 +33,7 @@ export default ({ store }) => {
     /**
      * Get the documents whose Meilisearch sync failed and is waiting for a retry.
      *
-     * @returns {Promise<{contentType: string, documentId: string}[]>}
+     * @returns {Promise<{contentType: string, documentId: string, generation?: string}[]>}
      */
     getFailedSyncQueue: async function () {
       const queue = await store.getStoreKey({ key: QUEUE_KEY })
@@ -31,7 +41,9 @@ export default ({ store }) => {
     },
 
     /**
-     * Queue documents for a later retry. Already queued documents are not added twice.
+     * Queue documents for a later retry. Already queued documents are not added
+     * twice, but get a new generation: a retry run that processed the older
+     * failure must not remove the newer one.
      *
      * @param {object} options
      * @param {string} options.contentType - Content type uid.
@@ -43,23 +55,29 @@ export default ({ store }) => {
     addFailedSyncs: function ({ contentType, documentIds, maxSize }) {
       return serialize(async () => {
         const queue = await this.getFailedSyncQueue()
-        const keys = new Set(queue.map(itemKey))
+        const byKey = new Map(queue.map(item => [itemKey(item), item]))
         let added = 0
         let dropped = 0
+        let renewed = 0
 
         for (const documentId of documentIds) {
-          const item = { contentType, documentId }
-          if (keys.has(itemKey(item))) continue
+          const item = { contentType, documentId, generation: nextGeneration() }
+          const queued = byKey.get(itemKey(item))
+          if (queued) {
+            queued.generation = item.generation
+            renewed++
+            continue
+          }
           if (queue.length >= maxSize) {
             dropped++
             continue
           }
           queue.push(item)
-          keys.add(itemKey(item))
+          byKey.set(itemKey(item), item)
           added++
         }
 
-        if (added > 0) {
+        if (added > 0 || renewed > 0) {
           await store.setStoreKey({ key: QUEUE_KEY, value: queue })
         }
         return { added, dropped }
@@ -67,18 +85,24 @@ export default ({ store }) => {
     },
 
     /**
-     * Remove documents from the retry queue.
+     * Remove processed documents from the retry queue. An item is only removed
+     * while its generation is unchanged, so a failure queued again during the
+     * retry run stays queued.
      *
      * @param {object} options
-     * @param {{contentType: string, documentId: string}[]} options.items - Documents to remove.
+     * @param {{contentType: string, documentId: string, generation?: string}[]} options.items - Processed queue items.
      *
      * @returns {Promise<number>} Number of documents left in the queue.
      */
     removeFailedSyncs: function ({ items }) {
       return serialize(async () => {
-        const remove = new Set(items.map(itemKey))
+        const processed = new Map(
+          items.map(item => [itemKey(item), item.generation]),
+        )
         const queue = (await this.getFailedSyncQueue()).filter(
-          item => !remove.has(itemKey(item)),
+          item =>
+            !processed.has(itemKey(item)) ||
+            processed.get(itemKey(item)) !== item.generation,
         )
         await store.setStoreKey({ key: QUEUE_KEY, value: queue })
         return queue.length

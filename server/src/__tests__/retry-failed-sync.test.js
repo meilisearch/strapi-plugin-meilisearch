@@ -16,9 +16,14 @@ function createMemoryStoreConnector() {
   const data = {}
   return {
     data,
-    getStoreKey: jest.fn(async ({ key }) => data[key]),
+    // Copies like the real core store, which stores and parses JSON.
+    getStoreKey: jest.fn(async ({ key }) =>
+      data[key] === undefined
+        ? undefined
+        : JSON.parse(JSON.stringify(data[key])),
+    ),
     setStoreKey: jest.fn(async ({ key, value }) => {
-      data[key] = value
+      data[key] = JSON.parse(JSON.stringify(value))
     }),
   }
 }
@@ -39,6 +44,8 @@ function createStoreService({
     connector,
     getListenedContentTypes: jest.fn(async () => listened),
     getIndexedContentTypes: jest.fn(async () => indexed),
+    listened,
+    indexed,
     ...failedSyncQueue({ store: connector }),
   }
 }
@@ -104,11 +111,31 @@ describe('Failed sync queue (store)', () => {
       maxSize: 10,
     })
 
-    expect(await store.getFailedSyncQueue()).toEqual([
-      { contentType: RESTAURANT, documentId: 'a' },
-      { contentType: RESTAURANT, documentId: 'b' },
-      { contentType: RESTAURANT, documentId: 'c' },
-    ])
+    expect(
+      (await store.getFailedSyncQueue()).map(item => item.documentId),
+    ).toEqual(['a', 'b', 'c'])
+  })
+
+  test('a failure queued again keeps a newer generation that a stale removal does not delete', async () => {
+    const store = createStoreService()
+    await store.addFailedSyncs({
+      contentType: RESTAURANT,
+      documentIds: ['a'],
+      maxSize: 10,
+    })
+    const [snapshot] = await store.getFailedSyncQueue()
+
+    await store.addFailedSyncs({
+      contentType: RESTAURANT,
+      documentIds: ['a'],
+      maxSize: 10,
+    })
+    const remaining = await store.removeFailedSyncs({ items: [snapshot] })
+
+    expect(remaining).toBe(1)
+    const [requeued] = await store.getFailedSyncQueue()
+    expect(requeued.documentId).toBe('a')
+    expect(requeued.generation).not.toBe(snapshot.generation)
   })
 
   test('drops documents beyond the maximum size and reports them', async () => {
@@ -150,12 +177,14 @@ describe('Failed sync queue (store)', () => {
       maxSize: 10,
     })
 
+    const [processedItem] = await store.getFailedSyncQueue()
+
     const remaining = await store.removeFailedSyncs({
-      items: [{ contentType: RESTAURANT, documentId: 'a' }],
+      items: [processedItem],
     })
 
     expect(remaining).toBe(1)
-    expect(await store.getFailedSyncQueue()).toEqual([
+    expect(await store.getFailedSyncQueue()).toMatchObject([
       { contentType: RESTAURANT, documentId: 'b' },
     ])
   })
@@ -174,7 +203,7 @@ describe('Failed sync queue (store)', () => {
     })
 
     expect(await store.clearFailedSyncs({ contentType: RESTAURANT })).toBe(2)
-    expect(await store.getFailedSyncQueue()).toEqual([
+    expect(await store.getFailedSyncQueue()).toMatchObject([
       { contentType: 'api::about.about', documentId: 'c' },
     ])
   })
@@ -204,7 +233,7 @@ describe('Queueing failed syncs', () => {
       documentIds: ['a'],
     })
 
-    expect(await store.getFailedSyncQueue()).toEqual([
+    expect(await store.getFailedSyncQueue()).toMatchObject([
       { contentType: RESTAURANT, documentId: 'a' },
     ])
   })
@@ -279,7 +308,7 @@ describe('Document middleware queues failed syncs', () => {
     const { store, returned, result } = await runFailingUpdate(enabled)
 
     expect(returned).toBe(result)
-    expect(await store.getFailedSyncQueue()).toEqual([
+    expect(await store.getFailedSyncQueue()).toMatchObject([
       { contentType: RESTAURANT, documentId: 'doc-1' },
     ])
   })
@@ -288,6 +317,49 @@ describe('Document middleware queues failed syncs', () => {
     const { store } = await runFailingUpdate({})
 
     expect(await store.getFailedSyncQueue()).toEqual([])
+  })
+
+  test('does not queue when the Strapi write itself fails', async () => {
+    const store = createStoreService()
+    const { strapi } = createStrapi({ store, pluginConfig: enabled })
+    let handler
+    strapi.documents = { use: fn => (handler = fn) }
+    await registerDocumentMiddleware({ strapi })
+
+    await expect(
+      handler(
+        { uid: RESTAURANT, action: 'update', params: { documentId: 'doc-1' } },
+        async () => {
+          throw new Error('validation failed')
+        },
+      ),
+    ).rejects.toThrow('validation failed')
+    expect(await store.getFailedSyncQueue()).toEqual([])
+  })
+
+  test('queues a delete whose Meilisearch sync fails', async () => {
+    const store = createStoreService()
+    const { strapi } = createStrapi({
+      store,
+      pluginConfig: enabled,
+      meilisearch: {
+        deleteEntriesFromMeiliSearch: jest.fn(async () => {
+          throw new Error('Request to http://localhost:7700 has failed')
+        }),
+      },
+    })
+    let handler
+    strapi.documents = { use: fn => (handler = fn) }
+    await registerDocumentMiddleware({ strapi })
+
+    await handler(
+      { uid: RESTAURANT, action: 'delete', params: { documentId: 'doc-1' } },
+      async () => ({ documentId: 'doc-1', entries: [] }),
+    )
+
+    expect(await store.getFailedSyncQueue()).toMatchObject([
+      { contentType: RESTAURANT, documentId: 'doc-1' },
+    ])
   })
 })
 
@@ -385,7 +457,7 @@ describe('Retrying failed syncs', () => {
     expect(await store.getFailedSyncQueue()).toEqual([])
   })
 
-  test('drops documents of content types that are no longer indexed', async () => {
+  test('keeps documents of listened content types that are not indexed right now', async () => {
     const store = await queuedStore(['a'], { indexed: [] })
     const { strapi, services } = createStrapi({ store })
 
@@ -395,18 +467,65 @@ describe('Retrying failed syncs', () => {
     expect(
       services.meilisearch.updateEntriesInMeilisearch,
     ).not.toHaveBeenCalled()
-    expect(await store.getFailedSyncQueue()).toEqual([])
+    expect(await store.getFailedSyncQueue()).toMatchObject([
+      { contentType: RESTAURANT, documentId: 'a' },
+    ])
   })
 
-  test('stops at the first failure and keeps the remaining documents', async () => {
+  test('does not sync a document whose content type was un-indexed during the refetch', async () => {
+    const store = await queuedStore(['a'])
+    const { strapi, services } = createStrapi({
+      store,
+      contentType: {
+        getEntry: jest.fn(async ({ documentId }) => {
+          store.indexed.length = 0 // un-index while the refetch runs
+          return { id: 1, documentId }
+        }),
+      },
+    })
+
+    await retryFailedSyncs({ strapi })
+
+    expect(
+      services.meilisearch.updateEntriesInMeilisearch,
+    ).not.toHaveBeenCalled()
+  })
+
+  test('a failing document does not block the others while Meilisearch is reachable', async () => {
+    const store = await queuedStore(['a', 'b', 'c'])
+    const updateEntriesInMeilisearch = jest
+      .fn()
+      .mockResolvedValueOnce([])
+      .mockRejectedValueOnce(new Error('invalid document'))
+      .mockResolvedValueOnce([])
+    const { strapi } = createStrapi({
+      store,
+      meilisearch: { updateEntriesInMeilisearch },
+    })
+
+    expect(await retryFailedSyncs({ strapi })).toEqual({
+      retried: 2,
+      remaining: 1,
+    })
+    expect(
+      (await store.getFailedSyncQueue()).map(item => item.documentId),
+    ).toEqual(['b'])
+    expect(updateEntriesInMeilisearch).toHaveBeenCalledTimes(3)
+  })
+
+  test('stops when Meilisearch becomes unreachable and keeps the remaining documents', async () => {
     const store = await queuedStore(['a', 'b', 'c'])
     const updateEntriesInMeilisearch = jest
       .fn()
       .mockResolvedValueOnce([])
       .mockRejectedValueOnce(new Error('Request has failed'))
+    const fetchIndexUids = jest
+      .fn()
+      .mockResolvedValueOnce(['restaurant'])
+      .mockRejectedValueOnce(new Error('Request has failed'))
     const { strapi } = createStrapi({
       store,
-      meilisearch: { updateEntriesInMeilisearch },
+      meilisearch: { updateEntriesInMeilisearch, fetchIndexUids },
     })
 
     expect(await retryFailedSyncs({ strapi })).toEqual({
@@ -417,6 +536,108 @@ describe('Retrying failed syncs', () => {
       (await store.getFailedSyncQueue()).map(item => item.documentId),
     ).toEqual(['b', 'c'])
     expect(updateEntriesInMeilisearch).toHaveBeenCalledTimes(2)
+  })
+
+  test('keeps a failure queued again while the run was processing the same document', async () => {
+    const store = await queuedStore(['a', 'b'])
+    const updateEntriesInMeilisearch = jest
+      .fn()
+      .mockImplementationOnce(async () => [])
+      .mockImplementationOnce(async () => {
+        // While b is synced, a fails again in the document middleware.
+        await store.addFailedSyncs({
+          contentType: RESTAURANT,
+          documentIds: ['a'],
+          maxSize: 100,
+        })
+        return []
+      })
+    const { strapi } = createStrapi({
+      store,
+      meilisearch: { updateEntriesInMeilisearch },
+    })
+
+    expect(await retryFailedSyncs({ strapi })).toEqual({
+      retried: 2,
+      remaining: 1,
+    })
+    expect(
+      (await store.getFailedSyncQueue()).map(item => item.documentId),
+    ).toEqual(['a'])
+  })
+
+  describe('all-locale indexes', () => {
+    /**
+     * Strapi double with an all-locale index and the locales en and fr.
+     *
+     * @param {object} store - Store service.
+     * @param {Function} getEntries - Locale-aware refetch double.
+     */
+    function createLocaleStrapi(store, getEntries) {
+      const { strapi, services } = createStrapi({
+        store,
+        meilisearch: { entriesQuery: jest.fn(() => ({ locale: '*' })) },
+        contentType: { getEntries },
+      })
+      const plugin = strapi.plugin
+      strapi.plugin = jest.fn(name =>
+        name === 'i18n'
+          ? {
+              service: () => ({
+                find: async () => [{ code: 'en' }, { code: 'fr' }],
+              }),
+            }
+          : plugin(name),
+      )
+      return { strapi, services }
+    }
+
+    test('removes every locale variant and the base document of a deleted document', async () => {
+      const store = await queuedStore(['gone'])
+      const { strapi, services } = createLocaleStrapi(
+        store,
+        jest.fn(async () => []),
+      )
+
+      await retryFailedSyncs({ strapi })
+
+      const deleted =
+        services.meilisearch.deleteEntriesFromMeiliSearch.mock.calls.map(
+          ([options]) => ({
+            ids: options.documentIds,
+            locales: options.locales,
+          }),
+        )
+      expect(deleted).toEqual(
+        expect.arrayContaining([
+          { ids: ['gone'], locales: undefined },
+          { ids: ['gone'], locales: ['en', 'fr'] },
+        ]),
+      )
+      expect(await store.getFailedSyncQueue()).toEqual([])
+    })
+
+    test('indexes the remaining locale and removes the one that is gone', async () => {
+      const store = await queuedStore(['a'])
+      const { strapi, services } = createLocaleStrapi(
+        store,
+        jest.fn(async () => [{ id: 1, documentId: 'a', locale: 'en' }]),
+      )
+
+      await retryFailedSyncs({ strapi })
+
+      expect(
+        services.meilisearch.updateEntriesInMeilisearch,
+      ).toHaveBeenCalledWith({
+        contentType: RESTAURANT,
+        entries: [{ id: 1, documentId: 'a', locale: 'en' }],
+      })
+      expect(
+        services.meilisearch.deleteEntriesFromMeiliSearch,
+      ).toHaveBeenCalledWith(
+        expect.objectContaining({ documentIds: ['a'], locales: ['fr'] }),
+      )
+    })
   })
 
   test('does not start a second run while one is in progress', async () => {
@@ -470,6 +691,8 @@ describe('syncOptions configuration', () => {
     ['not an object', true],
     ['missing rule', {}],
     ['empty rule', { rule: ' ' }],
+    ['rule not in cron format', { rule: 'not-a-cron' }],
+    ['rule with too few fields', { rule: 'every 5 min' }],
     ['invalid maxQueueSize', { rule: '* * * * *', maxQueueSize: 0 }],
   ])('disables the retry for an invalid option (%s)', (_, retry) => {
     const configuration = { syncOptions: { retry } }

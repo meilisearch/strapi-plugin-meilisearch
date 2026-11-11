@@ -525,13 +525,14 @@ module.exports = ({ env }) => ({
 })
 ```
 
-On each run, every queued document is refetched from Strapi with the collection's `entriesQuery`: if it is still indexable, its current state is indexed; otherwise it is removed from the index. Documents of collections that are no longer indexed are dropped from the queue. If the queue is full, further failures are logged as errors; re-index the collection from the plugin page in that case.
+On each run, every queued document is refetched from Strapi with the collection's `entriesQuery`: if it is still indexable, its current state is indexed; otherwise it is removed from the index. For all-locale indexes (`locale: '*'`), locale variants that are no longer indexable are removed for every locale configured in Strapi. Documents of collections that are no longer listened to are dropped from the queue. If the queue is full, further failures are logged as errors; re-index the collection from the plugin page in that case.
 
 Notes:
 
 - The queue is stored in the plugin store and survives restarts.
+- A document that fails again while Meilisearch is reachable stays queued without blocking the others; a run stops as soon as Meilisearch is unreachable.
 - Removing a collection from Meilisearch or re-indexing it from the plugin page clears its queued documents: a re-index sends the current state anyway, and a removed index is not re-created by a later retry.
-- A run is skipped while the previous one is still in progress. The job runs in every Strapi process that loads the plugin; there is no lock across processes.
+- A run is skipped while the previous one is still in progress. Queue updates are serialized within one Strapi process only: with several processes sharing one database, the job runs in each of them and a concurrent queue update can be lost.
 
 ### 🕵️‍♀️ Start Searching <!-- omit in toc -->
 

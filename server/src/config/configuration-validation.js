@@ -321,9 +321,15 @@ function PluginConfig({ configuration }) {
     const { rule, maxQueueSize, ...unknownFields } = isObject(retry)
       ? retry
       : {}
-    if (!isObject(retry) || typeof rule !== 'string' || rule.trim() === '') {
+    // ponytail: checks the shape only (5 or 6 fields); a rule with valid shape
+    // but invalid field values still never fires (node-schedule ignores it).
+    if (
+      !isObject(retry) ||
+      typeof rule !== 'string' ||
+      !/^\S+(\s+\S+){4,5}$/.test(rule.trim())
+    ) {
       log.error(
-        'The "syncOptions.retry" option should be an object with a non-empty "rule" string (cron rule). Sync retry is disabled.',
+        'The "syncOptions.retry" option should be an object with a "rule" string in cron format (5 or 6 fields, e.g. "*/5 * * * *"). Sync retry is disabled.',
       )
       return undefined
     }
