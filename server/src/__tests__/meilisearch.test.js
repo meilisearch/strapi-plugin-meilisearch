@@ -1383,8 +1383,15 @@ describe('Index actions and the sync retry queue', () => {
    * @param {object} [options]
    * @param {Function} [options.actionInBatches] - Batch double; calls the callback with one entry by default.
    * @param {string[]} [options.indexed] - Indexed content types.
+   * @param {object} [options.restaurantConfig] - Plugin config of the restaurant collection.
+   * @param {string[]} [options.locales] - Locale codes configured in Strapi.
    */
-  function setup({ actionInBatches, indexed = [RESTAURANT] } = {}) {
+  function setup({
+    actionInBatches,
+    indexed = [RESTAURANT],
+    restaurantConfig = {},
+    locales = [],
+  } = {}) {
     const data = {}
     const connector = {
       getStoreKey: async ({ key }) =>
@@ -1420,8 +1427,9 @@ describe('Index actions and the sync retry queue', () => {
       store,
       contentType,
       lifecycle: { subscribeContentType: jest.fn() },
+      locales: { find: async () => locales.map(code => ({ code })) },
     }
-    const customStrapi = createStrapiMock({})
+    const customStrapi = createStrapiMock({ restaurantConfig })
     customStrapi.plugin = jest.fn(() => ({ service: name => services[name] }))
     customStrapi.contentTypes = { [RESTAURANT]: { attributes: {} } }
     // @ts-ignore
@@ -1577,11 +1585,15 @@ describe('Index actions and the sync retry queue', () => {
     })
     indexApi.addDocuments = reject
     indexApi.updateDocuments = reject
-    // Still in Strapi, but no longer matching the indexing filters.
+    // Still in Strapi and indexable: the un-index must delete it, not send it.
     strapi
       .plugin('meilisearch')
       .service('contentType')
-      .getEntry.mockResolvedValue({ id: 2, documentId: 'filtered' })
+      .getEntry.mockResolvedValue({
+        id: 2,
+        documentId: 'filtered',
+        publishedAt: '2026-01-01T00:00:00.000Z',
+      })
     await queue(store, ['filtered'])
 
     await meilisearch.emptyOrDeleteIndex({ contentType: RESTAURANT })
@@ -1590,6 +1602,29 @@ describe('Index actions and the sync retry queue', () => {
     expect(
       indexApi.deleteDocuments.mock.calls.flatMap(([ids]) => ids),
     ).toContain('restaurant-filtered')
+    expect(await queuedIds(store)).toEqual([])
+  })
+
+  test('emptying a shared all-locale index deletes every configured locale variant of queued documents', async () => {
+    const { store, meilisearch, indexApi } = setup({
+      restaurantConfig: { entriesQuery: { locale: '*' } },
+      locales: ['en', 'fr'],
+    })
+    jest
+      .spyOn(meilisearch, 'getContentTypesWithSameIndex')
+      .mockResolvedValue([RESTAURANT, 'about'])
+    await queue(store, ['gone'])
+
+    await meilisearch.emptyOrDeleteIndex({ contentType: RESTAURANT })
+
+    expect(indexApi.deleteDocuments.mock.calls.flatMap(([ids]) => ids)).toEqual(
+      expect.arrayContaining([
+        'restaurant-gone',
+        'restaurant-gone-en',
+        'restaurant-gone-fr',
+      ]),
+    )
+    expect(indexApi.addDocuments).not.toHaveBeenCalled()
     expect(await queuedIds(store)).toEqual([])
   })
 })

@@ -533,7 +533,7 @@ Notes:
 
 - The queue is stored in the plugin store and survives restarts.
 - A document that fails again while Meilisearch is reachable stays queued without blocking the others; a run stops as soon as Meilisearch is unreachable.
-- Removing a collection from Meilisearch clears its queued documents, so a later retry does not re-create them. For an index shared with other collections, the queued documents are deleted by id first, so documents deleted during an outage do not stay in the shared index.
+- Removing a collection from Meilisearch clears its queued documents, so a later retry does not re-create them. For an index shared with other collections, the queued documents are deleted by id first, so documents deleted during an outage do not stay in the shared index (with the id limits described above).
 - Adding a collection removes the documents queued before it once all documents were sent, since it sends the current state anyway; if it fails, they stay queued. Updating a collection from the plugin page removes it first, which clears its queue; if the following add fails, the collection is no longer indexed and adding it again sends all documents.
 - A run is skipped while the previous one is still in progress. Queue updates are serialized within one Strapi process only: with several processes sharing one database, the job runs in each of them and a concurrent queue update can be lost.
 - `rule` is checked for its shape only (5 or 6 fields): a rule with invalid values such as `99 * * * *` is accepted but never runs.
