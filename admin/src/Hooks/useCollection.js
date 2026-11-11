@@ -10,6 +10,7 @@ export function useCollection() {
   const [refetchIndex, setRefetchIndex] = useState(true)
   const [reloadNeeded, setReloadNeeded] = useState(false)
   const [realTimeReports, setRealTimeReports] = useState(false)
+  const [meilisearchUnreachable, setMeilisearchUnreachable] = useState(false)
 
   const { handleNotification, checkForbiddenError } = useAlert()
   const { i18n } = useI18n()
@@ -61,6 +62,9 @@ export function useCollection() {
         if (reload) {
           setReloadNeeded(true)
         } else setReloadNeeded(false)
+        setMeilisearchUnreachable(
+          data.contentTypes.some(c => c.meilisearchReachable === false),
+        )
         setCollections(collections)
       }
     } catch (error) {
@@ -178,6 +182,7 @@ export function useCollection() {
     addCollection,
     updateCollection,
     reloadNeeded,
+    meilisearchUnreachable,
     refetchCollection,
     handleNotification,
   }

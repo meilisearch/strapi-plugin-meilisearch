@@ -23,6 +23,8 @@ const CollectionColumn = ({
   const {
     allowedActions: { canCreate, canUpdate, canDelete },
   } = useRBAC(PERMISSIONS.collections)
+  // When Meilisearch is unreachable, index state and document count are unknown
+  const reachable = entry.meilisearchReachable !== false
 
   return (
     <Tr key={entry.contentType}>
@@ -46,9 +48,11 @@ const CollectionColumn = ({
       {/* // IN MEILISEARCH */}
       <Td>
         <Typography textColor="neutral800">
-          {entry.indexed
-            ? i18n('plugin.table.td.yes', 'Yes')
-            : i18n('plugin.table.td.no', 'No')}
+          {!reachable
+            ? i18n('plugin.table.td.unknown', 'Unknown')
+            : entry.indexed
+              ? i18n('plugin.table.td.yes', 'Yes')
+              : i18n('plugin.table.td.no', 'No')}
         </Typography>
       </Td>
       {/* // INDEXING */}
@@ -66,7 +70,7 @@ const CollectionColumn = ({
       {/* // DOCUMENTS */}
       <Td>
         <Typography textColor="neutral800">
-          {entry.numberOfDocuments} / {entry.numberOfEntries}
+          {reachable ? entry.numberOfDocuments : '?'} / {entry.numberOfEntries}
         </Typography>
       </Td>
       {/* // HOOKS */}
