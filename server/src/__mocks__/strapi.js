@@ -28,6 +28,7 @@ function createStrapiMock({
   })
 
   const mockAddIndexedContentType = jest.fn(() => {})
+  const mockClearFailedSyncs = jest.fn(async () => 0)
 
   const mockPluginService = jest.fn(() => {
     return {
@@ -46,6 +47,10 @@ function createStrapiMock({
       ],
       actionInBatches: mockActionInBatches,
       addIndexedContentType: mockAddIndexedContentType,
+      clearFailedSyncs: mockClearFailedSyncs,
+      getFailedSyncQueue: jest.fn(async () => []),
+      removeFailedSyncs: jest.fn(async () => 0),
+      removeIndexedContentType: jest.fn(),
       subscribeContentType: () => {
         return
       },

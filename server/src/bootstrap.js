@@ -1,3 +1,9 @@
+import {
+  getRetryFailedSyncConfig,
+  RETRY_FAILED_SYNC_JOB,
+} from './services/document-middleware/failed-sync-queue'
+import { retryFailedSyncs } from './services/document-middleware/retry-failed-sync'
+
 /**
  * Add listeners to the collection indexed in Meilisearch.
  *
@@ -124,4 +130,39 @@ export default async ({ strapi }) => {
     store,
   })
   await registerPermissionActions()
+  registerRetryFailedSyncJob({ strapi })
+}
+
+/**
+ * Register the cron job that retries failed document syncs, when the
+ * `syncOptions.retry` option is configured.
+ *
+ * Strapi starts its cron service regardless of `server.cron.enabled` (that
+ * setting only gates the tasks from the server configuration), so the plugin
+ * checks it itself and warns when the retry is configured but cron is off.
+ *
+ * @param  {object} options
+ * @param  {object} options.strapi - Strapi instance.
+ */
+function registerRetryFailedSyncJob({ strapi }) {
+  const config = getRetryFailedSyncConfig(strapi)
+  if (!config) return
+
+  // Strapi's own default for server.cron.enabled is false.
+  if (!strapi.config.get('server.cron.enabled', false)) {
+    strapi.log.warn(
+      'meilisearch: "syncOptions.retry" is configured but "server.cron.enabled" is not true in config/server.js; failed document syncs are not retried',
+    )
+    return
+  }
+
+  strapi.cron.add({
+    [RETRY_FAILED_SYNC_JOB]: {
+      task: ({ strapi }) => retryFailedSyncs({ strapi }),
+      options: { rule: config.rule },
+    },
+  })
+  strapi.log.info(
+    `meilisearch: retrying failed document syncs on cron rule "${config.rule}"`,
+  )
 }

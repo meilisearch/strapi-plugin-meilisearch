@@ -306,10 +306,77 @@ function CollectionConfig({ collectionName, configuration }) {
 
 function PluginConfig({ configuration }) {
   const log = strapi.log // has to be inside a scope
-  const { apiKey, host, ...collections } = configuration
+  // syncOptions is a reserved top-level key, not a collection name.
+  const { apiKey, host, syncOptions, ...collections } = configuration
   const options = {}
 
+  /**
+   * Validate `syncOptions.retry`.
+   *
+   * @param {any} retry - Raw option value.
+   *
+   * @returns {{rule: string, maxQueueSize?: number} | undefined} Undefined disables the retry.
+   */
+  const validateRetry = retry => {
+    const { rule, maxQueueSize, ...unknownFields } = isObject(retry)
+      ? retry
+      : {}
+    // Shape check only (5 or 6 fields): a rule with invalid field values such
+    // as "99 * * * *" passes here and is never scheduled by Strapi.
+    if (
+      !isObject(retry) ||
+      typeof rule !== 'string' ||
+      !/^\S+(\s+\S+){4,5}$/.test(rule.trim())
+    ) {
+      log.error(
+        'The "syncOptions.retry" option should be an object with a "rule" string in cron format (5 or 6 fields, e.g. "*/5 * * * *"). Sync retry is disabled.',
+      )
+      return undefined
+    }
+    if (
+      maxQueueSize !== undefined &&
+      (!Number.isInteger(maxQueueSize) || maxQueueSize <= 0)
+    ) {
+      log.error(
+        'The "syncOptions.retry.maxQueueSize" option should be a positive integer. Sync retry is disabled.',
+      )
+      return undefined
+    }
+    Object.keys(unknownFields).forEach(key => {
+      log.warn(
+        `The "${key}" option of "syncOptions.retry" is not a known option`,
+      )
+    })
+    return maxQueueSize === undefined ? { rule } : { rule, maxQueueSize }
+  }
+
   return {
+    /**
+     * Validate the reserved `syncOptions` key: undefined or an object of known
+     * sync settings. An invalid value is dropped, an invalid `retry` removed.
+     *
+     * @returns {object} This validator, for chaining.
+     */
+    validateSyncOptions() {
+      if (syncOptions === undefined) return this
+      if (!isObject(syncOptions)) {
+        log.error('The "syncOptions" option should be an object')
+        options.syncOptions = undefined
+        return this
+      }
+
+      const { retry, ...unknownFields } = syncOptions
+      Object.keys(unknownFields).forEach(key => {
+        log.warn(`The "${key}" option of "syncOptions" is not a known option`)
+      })
+      options.syncOptions =
+        retry === undefined ? {} : { retry: validateRetry(retry) }
+      if (options.syncOptions.retry === undefined) {
+        delete options.syncOptions.retry
+      }
+      return this
+    },
+
     validateApiKey() {
       // apiKey is either undefined or a string
       if (apiKey !== undefined && typeof apiKey !== 'string') {
@@ -384,10 +451,16 @@ function validatePluginConfig(configuration) {
   const options = PluginConfig({ configuration })
     .validateApiKey()
     .validateHost()
+    .validateSyncOptions()
     .validateCollections()
     .get()
 
   Object.assign(configuration, options)
+  // An invalid syncOptions value is dropped; an invalid retry was already
+  // removed from it, so the sync retry is off in both cases.
+  if (configuration.syncOptions === undefined) {
+    delete configuration.syncOptions
+  }
 
   return configuration
 }
