@@ -1226,4 +1226,131 @@ describe('Meilisearch service behavior', () => {
 
     expect(result).toEqual(['api::restaurant.restaurant', 'api::about.about'])
   })
+
+  describe('getContentTypesReport reachability behavior', () => {
+    // The manual Meilisearch mock is shared by the whole file: capture its
+    // default implementation to restore it after each test overrides it.
+    const defaultImpl = Meilisearch.getMockImplementation()
+
+    afterEach(() => {
+      // @ts-ignore
+      Meilisearch.mockImplementation(defaultImpl)
+      // @ts-ignore
+      global.strapi = strapiMock
+    })
+
+    /**
+     * Build a Strapi mock with one indexed and listened content type.
+     *
+     * @returns {{ customStrapi: object, storeService: object }} The Strapi mock and the store service to assert on.
+     */
+    const setup = () => {
+      const customStrapi = createStrapiMock({})
+      const storeService = {
+        getCredentials: jest.fn(() => ({
+          host: 'http://localhost:7700',
+          apiKey: 'masterKey',
+        })),
+        getListenedContentTypes: jest.fn(async () => [
+          'api::restaurant.restaurant',
+        ]),
+        getIndexedContentTypes: jest.fn(async () => [
+          'api::restaurant.restaurant',
+        ]),
+        removeIndexedContentType: jest.fn(),
+      }
+      const contentTypeService = {
+        getContentTypesUid: jest.fn(() => ['api::restaurant.restaurant']),
+        getCollectionName: jest.fn(() => 'restaurant'),
+        totalNumberOfEntries: jest.fn(async () => 2),
+      }
+
+      const originalPlugin = customStrapi.plugin
+      customStrapi.plugin = jest.fn(pluginName => {
+        if (pluginName === 'meilisearch') {
+          return {
+            service: jest.fn(serviceName => {
+              if (serviceName === 'store') return storeService
+              if (serviceName === 'contentType') return contentTypeService
+              return originalPlugin().service()
+            }),
+          }
+        }
+        return originalPlugin(pluginName)
+      })
+
+      // @ts-ignore
+      global.strapi = customStrapi
+
+      return { customStrapi, storeService }
+    }
+
+    test('keeps the stored selection when Meilisearch is unreachable', async () => {
+      const { customStrapi, storeService } = setup()
+      // @ts-ignore
+      Meilisearch.mockImplementation(() => ({
+        getStats: jest.fn(async () => {
+          throw new Error('Request to http://localhost:7700/stats has failed')
+        }),
+      }))
+
+      const meilisearchService = createMeilisearchService({
+        strapi: customStrapi,
+      })
+      const reports = await meilisearchService.getContentTypesReport()
+
+      expect(storeService.removeIndexedContentType).not.toHaveBeenCalled()
+      // The stored selection is reported as is, flagged as unverified.
+      expect(reports.contentTypes[0]).toMatchObject({
+        contentType: 'api::restaurant.restaurant',
+        indexUid: 'restaurant',
+        indexed: true,
+        listened: true,
+        numberOfEntries: 2,
+        meilisearchReachable: false,
+      })
+    })
+
+    test('reports the real index state when Meilisearch is reachable', async () => {
+      const { customStrapi } = setup()
+      // @ts-ignore
+      Meilisearch.mockImplementation(() => ({
+        getStats: jest.fn(async () => ({ indexes: { restaurant: {} } })),
+        index: jest.fn(() => ({
+          getStats: jest.fn(async () => ({
+            numberOfDocuments: 2,
+            isIndexing: false,
+          })),
+        })),
+      }))
+
+      const meilisearchService = createMeilisearchService({
+        strapi: customStrapi,
+      })
+      const reports = await meilisearchService.getContentTypesReport()
+
+      expect(reports.contentTypes[0]).toMatchObject({
+        indexed: true,
+        numberOfDocuments: 2,
+        meilisearchReachable: true,
+      })
+    })
+
+    test('unselects a collection whose index is missing in Meilisearch', async () => {
+      const { customStrapi, storeService } = setup()
+      // @ts-ignore
+      Meilisearch.mockImplementation(() => ({
+        getStats: jest.fn(async () => ({ indexes: { about: {} } })),
+      }))
+
+      const meilisearchService = createMeilisearchService({
+        strapi: customStrapi,
+      })
+      await meilisearchService.getContentTypesReport()
+
+      expect(storeService.removeIndexedContentType).toHaveBeenCalledWith({
+        contentType: 'api::restaurant.restaurant',
+      })
+    })
+  })
 })

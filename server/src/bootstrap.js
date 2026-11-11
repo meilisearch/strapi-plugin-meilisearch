@@ -30,7 +30,18 @@ async function syncIndexedCollections({
   contentTypeService,
   meilisearch,
 }) {
-  const indexUids = await meilisearch.getIndexUids()
+  let indexUids
+  try {
+    indexUids = await meilisearch.fetchIndexUids()
+  } catch (e) {
+    // Meilisearch is unreachable (e.g. it starts after Strapi). Keep the stored
+    // selection instead of treating every index as deleted, otherwise the
+    // collections are silently unselected and stop being synced.
+    strapi.log.warn(
+      `meilisearch: could not fetch indexes from Meilisearch, keeping indexed collections (${e.message})`,
+    )
+    return
+  }
   // All indexed contentTypes
   const indexedContentTypes = await store.getIndexedContentTypes()
   const contentTypes = contentTypeService.getContentTypesUid()

@@ -63,18 +63,33 @@ export default ({ strapi, adapter, config }) => {
   const contentTypeService = strapi.plugin('meilisearch').service('contentType')
   const lifecycle = strapi.plugin('meilisearch').service('lifecycle')
 
+  /**
+   * Get index uids from Meilisearch.
+   *
+   * Unlike `getIndexUids`, this throws when Meilisearch cannot be reached, so
+   * callers can tell an unreachable instance apart from one without indexes.
+   * Kept as a closure so both service methods work without a bound `this`.
+   *
+   * @returns { Promise<string[]> }
+   */
+  const fetchIndexUids = async () => {
+    const { apiKey, host } = await store.getCredentials()
+    const client = Meilisearch({ apiKey, host })
+    const { indexes } = await client.getStats()
+    return Object.keys(indexes)
+  }
+
   return {
+    fetchIndexUids,
+
     /**
      * Get index uids with a safe guard in case of error.
      *
-     * @returns { Promise<import("meilisearch").Index[]> }
+     * @returns { Promise<string[]> }
      */
     getIndexUids: async function () {
       try {
-        const { apiKey, host } = await store.getCredentials()
-        const client = Meilisearch({ apiKey, host })
-        const { indexes } = await client.getStats()
-        return Object.keys(indexes)
+        return await fetchIndexUids()
       } catch (e) {
         strapi.log.error(`meilisearch: ${e.message}`)
         return []
@@ -322,10 +337,18 @@ export default ({ strapi, adapter, config }) => {
      * numberOfDocuments: number,
      * numberOfEntries: number,
      * listened: boolean,
+     * meilisearchReachable: boolean,
      * }>}>} - List of contentTypes reports.
      */
     getContentTypesReport: async function () {
-      const indexUids = await this.getIndexUids()
+      let indexUids = []
+      let meilisearchReachable = true
+      try {
+        indexUids = await fetchIndexUids()
+      } catch (e) {
+        strapi.log.error(`meilisearch: ${e.message}`)
+        meilisearchReachable = false
+      }
 
       // All listened contentTypes
       const listenedContentTypes = await store.getListenedContentTypes()
@@ -347,10 +370,20 @@ export default ({ strapi, adapter, config }) => {
               const indexInMeiliSearch = indexUids.includes(indexUid)
               const contentTypeInIndexStore =
                 indexedContentTypes.includes(contentType)
-              const indexed = indexInMeiliSearch && contentTypeInIndexStore
+              // While Meilisearch is unreachable the index state is unknown:
+              // report the stored selection instead of showing it as unselected.
+              const indexed = meilisearchReachable
+                ? indexInMeiliSearch && contentTypeInIndexStore
+                : contentTypeInIndexStore
 
-              // safe guard in case index does not exist anymore in Meilisearch
-              if (!indexInMeiliSearch && contentTypeInIndexStore) {
+              // safe guard in case index does not exist anymore in Meilisearch.
+              // Only trust a missing index if Meilisearch actually answered:
+              // an unreachable instance must not unselect the collection.
+              if (
+                meilisearchReachable &&
+                !indexInMeiliSearch &&
+                contentTypeInIndexStore
+              ) {
                 await store.removeIndexedContentType({ contentType })
               }
 
@@ -377,6 +410,7 @@ export default ({ strapi, adapter, config }) => {
                 numberOfDocuments,
                 numberOfEntries,
                 listened: listenedContentTypes.includes(contentType),
+                meilisearchReachable,
               }
             }),
           )
