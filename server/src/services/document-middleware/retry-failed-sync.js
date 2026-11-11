@@ -103,10 +103,11 @@ const syncQueuedDocument = async ({
 }
 
 /**
- * Sync every queued document of one content type right away. Used before a
- * shared index is emptied: documents deleted from Strapi during an outage are
- * not found by the batch delete, so their queued retry is applied first.
- * Errors propagate so the caller fails instead of losing the queue.
+ * Delete every queued document of one content type from its indexes by id.
+ * Used before a shared index is emptied: documents deleted from Strapi during
+ * an outage are not found by the batch delete. Only deletes are sent, so a
+ * document that fails to index cannot block the un-index. Errors propagate so
+ * the caller fails instead of losing the queue.
  *
  * @param {object} options
  * @param {object} options.strapi - Strapi instance.
@@ -114,25 +115,40 @@ const syncQueuedDocument = async ({
  *
  * @returns {Promise<void>}
  */
-export const syncQueuedDocumentsOfContentType = async ({
+export const deleteQueuedDocumentsOfContentType = async ({
   strapi,
   contentType,
 }) => {
   const plugin = strapi.plugin('meilisearch')
-  const store = plugin.service('store')
-  const queue = await store.getFailedSyncQueue()
+  const meilisearch = plugin.service('meilisearch')
+  const queue = await plugin.service('store').getFailedSyncQueue()
+  const documentIds = queue
+    .filter(item => item.contentType === contentType)
+    .map(item => item.documentId)
+  if (documentIds.length === 0) return
 
-  for (const item of queue) {
-    if (item.contentType !== contentType) continue
-    await syncQueuedDocument({
-      strapi,
-      store,
-      meilisearch: plugin.service('meilisearch'),
-      contentTypeService: plugin.service('contentType'),
-      contentType,
-      documentId: item.documentId,
-    })
+  const indexingQuery = meilisearch.entriesQuery({ contentType })
+  const usesWildcardLocale = isWildcardLocale(indexingQuery?.locale)
+  const localeCodes = usesWildcardLocale
+    ? await getConfiguredLocaleCodes(strapi)
+    : []
+  const targets = documentIds.map(documentId => ({
+    documentId,
+    localeCodes: [],
+  }))
+  if (localeCodes.length > 0) {
+    targets.push(
+      ...documentIds.map(documentId => ({ documentId, localeCodes })),
+    )
   }
+
+  await dispatchDeleteTargets({
+    meilisearch,
+    contentType,
+    indexingQuery,
+    indexingQueryUsesWildcardLocale: usesWildcardLocale,
+    targets,
+  })
 }
 
 /**

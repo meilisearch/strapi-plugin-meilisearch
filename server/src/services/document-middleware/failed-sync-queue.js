@@ -19,7 +19,8 @@ export const getRetryFailedSyncConfig = strapi => {
 
 /**
  * Remember documents whose Meilisearch sync failed so the retry job can
- * process them later. Does nothing when `syncOptions.retry` is not configured.
+ * process them later. Does nothing when `syncOptions.retry` is not configured
+ * or `server.cron.enabled` is not true.
  * Never throws: queueing must not break the Strapi write.
  *
  * @param {object} options
@@ -33,6 +34,9 @@ export const queueFailedSync = async ({ strapi, contentType, documentIds }) => {
   try {
     const config = getRetryFailedSyncConfig(strapi)
     if (!config || !contentType || !documentIds?.length) return
+    // Without cron the retry job is never registered (see bootstrap), so
+    // queueing would only fill the store.
+    if (!strapi.config.get('server.cron.enabled', false)) return
 
     const store = strapi.plugin('meilisearch').service('store')
     const { added, dropped } = await store.addFailedSyncs({

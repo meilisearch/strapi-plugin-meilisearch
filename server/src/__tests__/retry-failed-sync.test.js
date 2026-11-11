@@ -58,12 +58,14 @@ function createStoreService({
  * @param {object} [options.meilisearch] - Meilisearch service overrides.
  * @param {object} [options.contentType] - Content type service overrides.
  * @param {object} [options.pluginConfig] - `plugin::meilisearch` configuration.
+ * @param {boolean} [options.cronEnabled] - Value of `server.cron.enabled`.
  */
 function createStrapi({
   store,
   meilisearch = {},
   contentType = {},
   pluginConfig = {},
+  cronEnabled = true,
 }) {
   const services = {
     store,
@@ -84,7 +86,13 @@ function createStrapi({
     services,
     strapi: {
       log: mockLogger,
-      config: { get: jest.fn(() => pluginConfig) },
+      config: {
+        get: jest.fn((key, fallback) =>
+          key === 'server.cron.enabled'
+            ? cronEnabled
+            : (pluginConfig ?? fallback),
+        ),
+      },
       plugin: jest.fn(() => ({ service: name => services[name] })),
     },
   }
@@ -236,6 +244,23 @@ describe('Queueing failed syncs', () => {
     expect(await store.getFailedSyncQueue()).toMatchObject([
       { contentType: RESTAURANT, documentId: 'a' },
     ])
+  })
+
+  test('does nothing when server.cron.enabled is not true', async () => {
+    const store = createStoreService()
+    const { strapi } = createStrapi({
+      store,
+      pluginConfig: enabled,
+      cronEnabled: false,
+    })
+
+    await queueFailedSync({
+      strapi,
+      contentType: RESTAURANT,
+      documentIds: ['a'],
+    })
+
+    expect(await store.getFailedSyncQueue()).toEqual([])
   })
 
   test('logs an error when the queue is full', async () => {

@@ -1,6 +1,6 @@
 import Meilisearch from './client'
 import { isWildcardLocale } from './config'
-import { syncQueuedDocumentsOfContentType } from '../document-middleware/retry-failed-sync'
+import { deleteQueuedDocumentsOfContentType } from '../document-middleware/retry-failed-sync'
 
 /**
  * Add one entry from a contentType to its index in Meilisearch.
@@ -473,6 +473,13 @@ export default ({ strapi, adapter, config }) => {
       const client = Meilisearch({ apiKey, host })
       const indexUids = config.getIndexNamesOfContentType({ contentType })
 
+      // The full re-index below sends the current state of every document, so
+      // the sync retries queued before it are obsolete once it succeeded. Only
+      // this snapshot is removed: failures queued during the re-index stay.
+      const queuedBeforeReindex = (await store.getFailedSyncQueue()).filter(
+        item => item.contentType === contentType,
+      )
+
       // Get Meilisearch Index settings from model
       const settings = config.getSettings({ contentType })
       await Promise.all(
@@ -483,13 +490,6 @@ export default ({ strapi, adapter, config }) => {
           )
           return task
         }),
-      )
-
-      // The full re-index below sends the current state of every document, so
-      // the sync retries queued before it are obsolete once it succeeded. Only
-      // this snapshot is removed: failures queued during the re-index stay.
-      const queuedBeforeReindex = (await store.getFailedSyncQueue()).filter(
-        item => item.contentType === contentType,
       )
 
       // Callback function for batching action
@@ -589,9 +589,9 @@ export default ({ strapi, adapter, config }) => {
         })
       if (indexedContentTypesWithSameIndex.length > 1) {
         // The batch below only finds documents that still exist in Strapi.
-        // Apply queued retries first, so documents deleted during an outage
-        // do not stay in the shared index once the queue is cleared.
-        await syncQueuedDocumentsOfContentType({ strapi, contentType })
+        // Delete queued documents by id first, so documents deleted during an
+        // outage do not stay in the shared index once the queue is cleared.
+        await deleteQueuedDocumentsOfContentType({ strapi, contentType })
 
         const deleteEntries = async ({ entries, contentType }) => {
           await this.deleteEntriesFromMeiliSearch({

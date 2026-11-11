@@ -1448,6 +1448,13 @@ describe('Index actions and the sync retry queue', () => {
   const queue = (store, documentIds) =>
     store.addFailedSyncs({ contentType: RESTAURANT, documentIds, maxSize: 100 })
 
+  /**
+   * Document ids in the sync retry queue.
+   *
+   * @param {object} store - Store service.
+   *
+   * @returns {Promise<string[]>}
+   */
   const queuedIds = async store =>
     (await store.getFailedSyncQueue()).map(item => item.documentId)
 
@@ -1477,6 +1484,18 @@ describe('Index actions and the sync retry queue', () => {
     await meilisearch.addContentTypeInMeiliSearch({ contentType: RESTAURANT })
 
     expect(await queuedIds(store)).toEqual(['during'])
+  })
+
+  test('a re-index keeps retries queued while its settings were updated', async () => {
+    const { store, meilisearch, indexApi } = setup()
+    indexApi.updateSettings.mockImplementation(async () => {
+      await queue(store, ['during-settings'])
+      return { taskUid: 1 }
+    })
+
+    await meilisearch.addContentTypeInMeiliSearch({ contentType: RESTAURANT })
+
+    expect(await queuedIds(store)).toEqual(['during-settings'])
   })
 
   test('a failed re-index keeps the queued retries', async () => {
@@ -1545,6 +1564,32 @@ describe('Index actions and the sync retry queue', () => {
       expect.arrayContaining(['restaurant-gone', 'restaurant-kept']),
     )
     expect(indexApi.delete).not.toHaveBeenCalled()
+    expect(await queuedIds(store)).toEqual([])
+  })
+
+  test('emptying a shared index only deletes queued documents, so one that fails to index cannot block it', async () => {
+    const { store, meilisearch, indexApi } = setup()
+    jest
+      .spyOn(meilisearch, 'getContentTypesWithSameIndex')
+      .mockResolvedValue([RESTAURANT, 'about'])
+    const reject = jest.fn(async () => {
+      throw new Error('Payload Too Large')
+    })
+    indexApi.addDocuments = reject
+    indexApi.updateDocuments = reject
+    // Still in Strapi, but no longer matching the indexing filters.
+    strapi
+      .plugin('meilisearch')
+      .service('contentType')
+      .getEntry.mockResolvedValue({ id: 2, documentId: 'filtered' })
+    await queue(store, ['filtered'])
+
+    await meilisearch.emptyOrDeleteIndex({ contentType: RESTAURANT })
+
+    expect(reject).not.toHaveBeenCalled()
+    expect(
+      indexApi.deleteDocuments.mock.calls.flatMap(([ids]) => ids),
+    ).toContain('restaurant-filtered')
     expect(await queuedIds(store)).toEqual([])
   })
 })
