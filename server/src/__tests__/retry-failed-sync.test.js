@@ -617,6 +617,37 @@ describe('Retrying failed syncs', () => {
       expect(await store.getFailedSyncQueue()).toEqual([])
     })
 
+    test('refetches every locale variant even when entriesQuery sets a batch limit', async () => {
+      const store = await queuedStore(['a'])
+      const getEntries = jest.fn(async ({ limit }) =>
+        [
+          { id: 1, documentId: 'a', locale: 'en' },
+          { id: 2, documentId: 'a', locale: 'fr' },
+        ].slice(0, limit ?? 500),
+      )
+      const { strapi, services } = createLocaleStrapi(store, getEntries)
+      services.meilisearch.entriesQuery = jest.fn(() => ({
+        locale: '*',
+        limit: 1,
+      }))
+
+      await retryFailedSyncs({ strapi })
+
+      expect(
+        services.meilisearch.deleteEntriesFromMeiliSearch,
+      ).not.toHaveBeenCalled()
+      expect(
+        services.meilisearch.updateEntriesInMeilisearch,
+      ).toHaveBeenCalledWith(
+        expect.objectContaining({
+          entries: [
+            expect.objectContaining({ locale: 'en' }),
+            expect.objectContaining({ locale: 'fr' }),
+          ],
+        }),
+      )
+    })
+
     test('indexes the remaining locale and removes the one that is gone', async () => {
       const store = await queuedStore(['a'])
       const { strapi, services } = createLocaleStrapi(

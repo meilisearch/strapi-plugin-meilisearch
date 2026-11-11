@@ -19,10 +19,26 @@ let generationCounter = 0
  */
 const nextGeneration = () => `${Date.now()}-${++generationCounter}`
 
+/**
+ * Store functions of the sync retry queue, kept under one plugin store key.
+ *
+ * @param {object} options
+ * @param {object} options.store - Plugin store connector (`getStoreKey`, `setStoreKey`).
+ *
+ * @returns {object} Queue functions merged into the plugin store service.
+ */
 export default ({ store }) => {
-  // Queue mutations are read-modify-write on one store key. Chain them so
-  // concurrent failures in this process cannot overwrite each other.
   let pending = Promise.resolve()
+
+  /**
+   * Run queue mutations one after another. They are read-modify-write on one
+   * store key, so concurrent failures in this process cannot overwrite each
+   * other. A failing mutation rejects its own caller only.
+   *
+   * @param {Function} fn - Async mutation.
+   *
+   * @returns {Promise<any>} Result of `fn`.
+   */
   const serialize = fn => {
     const run = pending.then(fn, fn)
     pending = run.catch(() => {})

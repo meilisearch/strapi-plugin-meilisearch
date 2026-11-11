@@ -321,8 +321,8 @@ function PluginConfig({ configuration }) {
     const { rule, maxQueueSize, ...unknownFields } = isObject(retry)
       ? retry
       : {}
-    // ponytail: checks the shape only (5 or 6 fields); a rule with valid shape
-    // but invalid field values still never fires (node-schedule ignores it).
+    // Shape check only (5 or 6 fields): a rule with invalid field values such
+    // as "99 * * * *" passes here and is never scheduled by Strapi.
     if (
       !isObject(retry) ||
       typeof rule !== 'string' ||
@@ -351,8 +351,13 @@ function PluginConfig({ configuration }) {
   }
 
   return {
+    /**
+     * Validate the reserved `syncOptions` key: undefined or an object of known
+     * sync settings. An invalid value is dropped, an invalid `retry` removed.
+     *
+     * @returns {object} This validator, for chaining.
+     */
     validateSyncOptions() {
-      // syncOptions is either undefined or an object of known sync settings
       if (syncOptions === undefined) return this
       if (!isObject(syncOptions)) {
         log.error('The "syncOptions" option should be an object')

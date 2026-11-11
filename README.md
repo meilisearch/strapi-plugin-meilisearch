@@ -531,8 +531,10 @@ Notes:
 
 - The queue is stored in the plugin store and survives restarts.
 - A document that fails again while Meilisearch is reachable stays queued without blocking the others; a run stops as soon as Meilisearch is unreachable.
-- Removing a collection from Meilisearch or re-indexing it from the plugin page clears its queued documents: a re-index sends the current state anyway, and a removed index is not re-created by a later retry.
+- Removing a collection from Meilisearch clears its queued documents, so a later retry does not re-create them. For an index shared with other collections, the queued documents are synced first, so documents deleted during an outage do not stay in the shared index.
+- A successful re-index from the plugin page removes the documents queued before it, since it sends the current state anyway. If the re-index fails, they stay queued.
 - A run is skipped while the previous one is still in progress. Queue updates are serialized within one Strapi process only: with several processes sharing one database, the job runs in each of them and a concurrent queue update can be lost.
+- Retries are not ordered with regular syncs or manual index actions: a retry that already read a document can still send it after a newer sync or an un-index of the collection.
 
 ### 🕵️‍♀️ Start Searching <!-- omit in toc -->
 

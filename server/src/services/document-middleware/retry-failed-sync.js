@@ -46,16 +46,19 @@ const syncQueuedDocument = async ({
 }) => {
   const indexingQuery = meilisearch.entriesQuery({ contentType })
   const usesWildcardLocale = isWildcardLocale(indexingQuery?.locale)
+  // start/limit are batch settings of the full indexing; dropped so the
+  // refetch returns every locale variant of this one document.
+  const { start: _start, limit: _limit, ...refetchQuery } = indexingQuery || {}
   const entries = await refetchEntriesAfterAction({
     contentTypeService,
     contentType,
     documentId,
-    indexingQuery,
+    indexingQuery: refetchQuery,
   })
 
-  // Narrow the window for an un-index that happened during the refetch.
-  // ponytail: no lock between the retry and manual index actions; the regular
-  // document middleware has the same window.
+  // Skip when the collection was un-indexed during the refetch. There is no
+  // lock with manual index actions, so a sync already past this check can
+  // still reach Meilisearch after an un-index.
   const indexedContentTypes = await store.getIndexedContentTypes()
   if (!indexedContentTypes.includes(contentType)) return false
 
@@ -97,6 +100,39 @@ const syncQueuedDocument = async ({
     })
   }
   return true
+}
+
+/**
+ * Sync every queued document of one content type right away. Used before a
+ * shared index is emptied: documents deleted from Strapi during an outage are
+ * not found by the batch delete, so their queued retry is applied first.
+ * Errors propagate so the caller fails instead of losing the queue.
+ *
+ * @param {object} options
+ * @param {object} options.strapi - Strapi instance.
+ * @param {string} options.contentType - Content type uid.
+ *
+ * @returns {Promise<void>}
+ */
+export const syncQueuedDocumentsOfContentType = async ({
+  strapi,
+  contentType,
+}) => {
+  const plugin = strapi.plugin('meilisearch')
+  const store = plugin.service('store')
+  const queue = await store.getFailedSyncQueue()
+
+  for (const item of queue) {
+    if (item.contentType !== contentType) continue
+    await syncQueuedDocument({
+      strapi,
+      store,
+      meilisearch: plugin.service('meilisearch'),
+      contentTypeService: plugin.service('contentType'),
+      contentType,
+      documentId: item.documentId,
+    })
+  }
 }
 
 /**
