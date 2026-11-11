@@ -212,6 +212,7 @@ Settings:
 - [🏗 Add Meilisearch settings](#-add-meilisearch-settings)
 - [🔎 Entries query](#-entries-query)
 - [🔐 Selectively index private fields](#-selectively-index-private-fields)
+- [🔁 Retry failed syncs](#-retry-failed-syncs)
 
 ### 🏷 Custom index name
 
@@ -491,7 +492,9 @@ module.exports = {
 
 ### 🔁 Retry failed syncs
 
-When Meilisearch is unreachable, changes made in Strapi are saved but cannot be sent to the index. By default they are only logged. With `retryFailedSync`, the plugin remembers the affected documents and retries them on a cron rule once Meilisearch is reachable again.
+When Meilisearch is unreachable, changes made in Strapi are saved but cannot be sent to the index. By default they are only logged. With `syncOptions.retry`, the plugin remembers the affected documents and retries them on a cron rule once Meilisearch is reachable again.
+
+`syncOptions` is a reserved top-level key for sync settings; it is not treated as a collection name.
 
 ```js
 // config/plugins.js
@@ -499,9 +502,11 @@ When Meilisearch is unreachable, changes made in Strapi are saved but cannot be 
 module.exports = {
   meilisearch: {
     config: {
-      retryFailedSync: {
-        rule: '*/5 * * * *', // cron rule of the retry job
-        maxQueueSize: 10000, // optional, default 10000
+      syncOptions: {
+        retry: {
+          rule: '*/5 * * * *', // cron rule of the retry job
+          maxQueueSize: 10000, // optional, default 10000
+        },
       },
       restaurant: {},
     },
@@ -509,12 +514,24 @@ module.exports = {
 }
 ```
 
-On each run, every queued document is refetched from Strapi with the collection's `entriesQuery`: if it is still indexable, its current state is indexed; otherwise it is removed from the index. Documents of collections that are no longer selected are dropped from the queue. If the queue is full, further failures are logged as errors; re-index the collection from the plugin page in that case.
+The retry job is a Strapi cron job, so cron must be enabled in `config/server.js`. Otherwise the job is not registered and a warning is logged on startup:
+
+```js
+// config/server.js
+
+module.exports = ({ env }) => ({
+  // ...
+  cron: { enabled: true },
+})
+```
+
+On each run, every queued document is refetched from Strapi with the collection's `entriesQuery`: if it is still indexable, its current state is indexed; otherwise it is removed from the index. Documents of collections that are no longer indexed are dropped from the queue. If the queue is full, further failures are logged as errors; re-index the collection from the plugin page in that case.
 
 Notes:
 
-- The queue is stored in the plugin store and survives restarts. The retry job runs in every Strapi process that loads the plugin; runs do not overlap within one process.
-- The job is controlled by `retryFailedSync` only. Strapi's `server.cron.enabled` setting does not disable it.
+- The queue is stored in the plugin store and survives restarts.
+- Removing a collection from Meilisearch or re-indexing it from the plugin page clears its queued documents: a re-index sends the current state anyway, and a removed index is not re-created by a later retry.
+- A run is skipped while the previous one is still in progress. The job runs in every Strapi process that loads the plugin; there is no lock across processes.
 
 ### 🕵️‍♀️ Start Searching <!-- omit in toc -->
 

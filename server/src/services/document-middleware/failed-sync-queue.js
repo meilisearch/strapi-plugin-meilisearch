@@ -1,14 +1,15 @@
 export const DEFAULT_MAX_QUEUE_SIZE = 10000
+export const RETRY_FAILED_SYNC_JOB = 'meilisearch-retry-failed-sync'
 
 /**
- * Read the `retryFailedSync` plugin option.
+ * Read the `syncOptions.retry` plugin option.
  *
  * @param {object} strapi - Strapi instance.
  *
  * @returns {{rule: string, maxQueueSize: number} | null} Null when the feature is off.
  */
 export const getRetryFailedSyncConfig = strapi => {
-  const option = strapi.config?.get?.('plugin::meilisearch')?.retryFailedSync
+  const option = strapi.config?.get?.('plugin::meilisearch')?.syncOptions?.retry
   if (!option) return null
   return {
     rule: option.rule,
@@ -18,7 +19,7 @@ export const getRetryFailedSyncConfig = strapi => {
 
 /**
  * Remember documents whose Meilisearch sync failed so the retry job can
- * process them later. Does nothing when `retryFailedSync` is not configured.
+ * process them later. Does nothing when `syncOptions.retry` is not configured.
  * Never throws: queueing must not break the Strapi write.
  *
  * @param {object} options

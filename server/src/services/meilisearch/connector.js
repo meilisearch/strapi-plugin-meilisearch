@@ -484,6 +484,11 @@ export default ({ strapi, adapter, config }) => {
         }),
       )
 
+      // Meilisearch answered, so the full re-index below sends the current
+      // state of every document: queued sync retries are obsolete. Cleared
+      // before batching so failures during the re-index stay queued.
+      await store.clearFailedSyncs({ contentType })
+
       // Callback function for batching action
       const addDocuments = async ({ entries, contentType }) => {
         // Sanitize entries
@@ -606,6 +611,8 @@ export default ({ strapi, adapter, config }) => {
       }
 
       await store.removeIndexedContentType({ contentType })
+      // The index was removed on purpose: a later retry must not re-create it.
+      await store.clearFailedSyncs({ contentType })
     },
 
     /**

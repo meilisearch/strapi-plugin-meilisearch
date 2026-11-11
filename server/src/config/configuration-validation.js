@@ -306,44 +306,63 @@ function CollectionConfig({ collectionName, configuration }) {
 
 function PluginConfig({ configuration }) {
   const log = strapi.log // has to be inside a scope
-  const { apiKey, host, retryFailedSync, ...collections } = configuration
+  // syncOptions is a reserved top-level key, not a collection name.
+  const { apiKey, host, syncOptions, ...collections } = configuration
   const options = {}
 
-  return {
-    validateRetryFailedSync() {
-      // retryFailedSync is either undefined or { rule: string, maxQueueSize?: positive integer }
-      if (retryFailedSync === undefined) return this
+  /**
+   * Validate `syncOptions.retry`.
+   *
+   * @param {any} retry - Raw option value.
+   *
+   * @returns {{rule: string, maxQueueSize?: number} | undefined} Undefined disables the retry.
+   */
+  const validateRetry = retry => {
+    const { rule, maxQueueSize, ...unknownFields } = isObject(retry)
+      ? retry
+      : {}
+    if (!isObject(retry) || typeof rule !== 'string' || rule.trim() === '') {
+      log.error(
+        'The "syncOptions.retry" option should be an object with a non-empty "rule" string (cron rule). Sync retry is disabled.',
+      )
+      return undefined
+    }
+    if (
+      maxQueueSize !== undefined &&
+      (!Number.isInteger(maxQueueSize) || maxQueueSize <= 0)
+    ) {
+      log.error(
+        'The "syncOptions.retry.maxQueueSize" option should be a positive integer. Sync retry is disabled.',
+      )
+      return undefined
+    }
+    Object.keys(unknownFields).forEach(key => {
+      log.warn(
+        `The "${key}" option of "syncOptions.retry" is not a known option`,
+      )
+    })
+    return maxQueueSize === undefined ? { rule } : { rule, maxQueueSize }
+  }
 
-      const { rule, maxQueueSize, ...unknownFields } = isObject(retryFailedSync)
-        ? retryFailedSync
-        : {}
-      if (
-        !isObject(retryFailedSync) ||
-        typeof rule !== 'string' ||
-        rule.trim() === ''
-      ) {
-        log.error(
-          'The "retryFailedSync" option should be an object with a non-empty "rule" string (cron rule). Sync retry is disabled.',
-        )
-        options.retryFailedSync = undefined
+  return {
+    validateSyncOptions() {
+      // syncOptions is either undefined or an object of known sync settings
+      if (syncOptions === undefined) return this
+      if (!isObject(syncOptions)) {
+        log.error('The "syncOptions" option should be an object')
+        options.syncOptions = undefined
         return this
       }
-      if (
-        maxQueueSize !== undefined &&
-        (!Number.isInteger(maxQueueSize) || maxQueueSize <= 0)
-      ) {
-        log.error(
-          'The "retryFailedSync.maxQueueSize" option should be a positive integer. Sync retry is disabled.',
-        )
-        options.retryFailedSync = undefined
-        return this
-      }
+
+      const { retry, ...unknownFields } = syncOptions
       Object.keys(unknownFields).forEach(key => {
-        log.warn(
-          `The "${key}" option of "retryFailedSync" is not a known option`,
-        )
+        log.warn(`The "${key}" option of "syncOptions" is not a known option`)
       })
-      options.retryFailedSync = { rule, maxQueueSize }
+      options.syncOptions =
+        retry === undefined ? {} : { retry: validateRetry(retry) }
+      if (options.syncOptions.retry === undefined) {
+        delete options.syncOptions.retry
+      }
       return this
     },
 
@@ -421,14 +440,15 @@ function validatePluginConfig(configuration) {
   const options = PluginConfig({ configuration })
     .validateApiKey()
     .validateHost()
-    .validateRetryFailedSync()
+    .validateSyncOptions()
     .validateCollections()
     .get()
 
   Object.assign(configuration, options)
-  // An invalid retryFailedSync option turns the feature off.
-  if (configuration.retryFailedSync === undefined) {
-    delete configuration.retryFailedSync
+  // An invalid syncOptions value is dropped; an invalid retry was already
+  // removed from it, so the sync retry is off in both cases.
+  if (configuration.syncOptions === undefined) {
+    delete configuration.syncOptions
   }
 
   return configuration

@@ -45,8 +45,15 @@ export async function retryFailedSyncs({ strapi }) {
     for (const item of queue) {
       const { contentType, documentId } = item
 
-      // Not listened anymore: the user deliberately stopped syncing it.
-      if (!listenedContentTypes.includes(contentType)) {
+      // Re-read per item: an un-index during a long run must stop the retry
+      // from re-creating documents in the removed index.
+      const indexedContentTypes = await store.getIndexedContentTypes()
+
+      // Not indexed or listened anymore: the user deliberately stopped syncing it.
+      if (
+        !indexedContentTypes.includes(contentType) ||
+        !listenedContentTypes.includes(contentType)
+      ) {
         processed.push(item)
         continue
       }

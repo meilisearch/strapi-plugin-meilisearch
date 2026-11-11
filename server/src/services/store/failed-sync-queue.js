@@ -84,5 +84,25 @@ export default ({ store }) => {
         return queue.length
       })
     },
+
+    /**
+     * Remove every queued document of a content type, e.g. when its index is
+     * removed or fully rebuilt and a retry would be obsolete or unwanted.
+     *
+     * @param {object} options
+     * @param {string} options.contentType - Content type uid.
+     *
+     * @returns {Promise<number>} Number of documents removed from the queue.
+     */
+    clearFailedSyncs: function ({ contentType }) {
+      return serialize(async () => {
+        const queue = await this.getFailedSyncQueue()
+        const kept = queue.filter(item => item.contentType !== contentType)
+        if (kept.length !== queue.length) {
+          await store.setStoreKey({ key: QUEUE_KEY, value: kept })
+        }
+        return queue.length - kept.length
+      })
+    },
   }
 }

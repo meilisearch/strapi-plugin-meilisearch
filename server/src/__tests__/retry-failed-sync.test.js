@@ -4,6 +4,7 @@ import { retryFailedSyncs } from '../services/document-middleware/retry-failed-s
 import registerDocumentMiddleware from '../services/document-middleware/index.js'
 import { validatePluginConfig } from '../config/configuration-validation'
 import bootstrap from '../bootstrap'
+import destroy from '../destroy'
 import { mockLogger } from '../__mocks__/strapi'
 
 const RESTAURANT = 'api::restaurant.restaurant'
@@ -27,12 +28,17 @@ function createMemoryStoreConnector() {
  *
  * @param {object} [options]
  * @param {string[]} [options.listened] - Listened content types.
+ * @param {string[]} [options.indexed] - Indexed content types.
  */
-function createStoreService({ listened = [RESTAURANT] } = {}) {
+function createStoreService({
+  listened = [RESTAURANT],
+  indexed = [RESTAURANT],
+} = {}) {
   const connector = createMemoryStoreConnector()
   return {
     connector,
     getListenedContentTypes: jest.fn(async () => listened),
+    getIndexedContentTypes: jest.fn(async () => indexed),
     ...failedSyncQueue({ store: connector }),
   }
 }
@@ -77,7 +83,7 @@ function createStrapi({
   }
 }
 
-const enabled = { retryFailedSync: { rule: '*/5 * * * *' } }
+const enabled = { syncOptions: { retry: { rule: '*/5 * * * *' } } }
 
 beforeEach(() => {
   jest.clearAllMocks()
@@ -153,10 +159,29 @@ describe('Failed sync queue (store)', () => {
       { contentType: RESTAURANT, documentId: 'b' },
     ])
   })
+
+  test('clears only the documents of the given content type', async () => {
+    const store = createStoreService()
+    await store.addFailedSyncs({
+      contentType: RESTAURANT,
+      documentIds: ['a', 'b'],
+      maxSize: 10,
+    })
+    await store.addFailedSyncs({
+      contentType: 'api::about.about',
+      documentIds: ['c'],
+      maxSize: 10,
+    })
+
+    expect(await store.clearFailedSyncs({ contentType: RESTAURANT })).toBe(2)
+    expect(await store.getFailedSyncQueue()).toEqual([
+      { contentType: 'api::about.about', documentId: 'c' },
+    ])
+  })
 })
 
 describe('Queueing failed syncs', () => {
-  test('does nothing when retryFailedSync is not configured', async () => {
+  test('does nothing when syncOptions.retry is not configured', async () => {
     const store = createStoreService()
     const { strapi } = createStrapi({ store })
 
@@ -169,7 +194,7 @@ describe('Queueing failed syncs', () => {
     expect(await store.getFailedSyncQueue()).toEqual([])
   })
 
-  test('queues the documents when retryFailedSync is configured', async () => {
+  test('queues the documents when syncOptions.retry is configured', async () => {
     const store = createStoreService()
     const { strapi } = createStrapi({ store, pluginConfig: enabled })
 
@@ -188,7 +213,9 @@ describe('Queueing failed syncs', () => {
     const store = createStoreService()
     const { strapi } = createStrapi({
       store,
-      pluginConfig: { retryFailedSync: { rule: '* * * * *', maxQueueSize: 1 } },
+      pluginConfig: {
+        syncOptions: { retry: { rule: '* * * * *', maxQueueSize: 1 } },
+      },
     })
 
     await queueFailedSync({
@@ -358,6 +385,19 @@ describe('Retrying failed syncs', () => {
     expect(await store.getFailedSyncQueue()).toEqual([])
   })
 
+  test('drops documents of content types that are no longer indexed', async () => {
+    const store = await queuedStore(['a'], { indexed: [] })
+    const { strapi, services } = createStrapi({ store })
+
+    await retryFailedSyncs({ strapi })
+
+    expect(services.contentType.getEntry).not.toHaveBeenCalled()
+    expect(
+      services.meilisearch.updateEntriesInMeilisearch,
+    ).not.toHaveBeenCalled()
+    expect(await store.getFailedSyncQueue()).toEqual([])
+  })
+
   test('stops at the first failure and keeps the remaining documents', async () => {
     const store = await queuedStore(['a', 'b', 'c'])
     const updateEntriesInMeilisearch = jest
@@ -405,22 +445,22 @@ describe('Retrying failed syncs', () => {
   })
 })
 
-describe('retryFailedSync configuration', () => {
+describe('syncOptions configuration', () => {
   beforeEach(() => {
     // @ts-ignore
     global.strapi = { log: mockLogger }
   })
 
-  test('accepts a rule and an optional maxQueueSize without treating them as a collection', () => {
+  test('accepts syncOptions.retry without treating syncOptions as a collection', () => {
     const configuration = {
-      retryFailedSync: { rule: '*/5 * * * *', maxQueueSize: 500 },
+      syncOptions: { retry: { rule: '*/5 * * * *', maxQueueSize: 500 } },
+      restaurant: {},
     }
 
     validatePluginConfig(configuration)
 
-    expect(configuration.retryFailedSync).toEqual({
-      rule: '*/5 * * * *',
-      maxQueueSize: 500,
+    expect(configuration.syncOptions).toEqual({
+      retry: { rule: '*/5 * * * *', maxQueueSize: 500 },
     })
     expect(mockLogger.error).not.toHaveBeenCalled()
     expect(mockLogger.warn).not.toHaveBeenCalled()
@@ -431,14 +471,36 @@ describe('retryFailedSync configuration', () => {
     ['missing rule', {}],
     ['empty rule', { rule: ' ' }],
     ['invalid maxQueueSize', { rule: '* * * * *', maxQueueSize: 0 }],
-  ])('disables the feature for an invalid option (%s)', (_, option) => {
-    const configuration = { retryFailedSync: option }
+  ])('disables the retry for an invalid option (%s)', (_, retry) => {
+    const configuration = { syncOptions: { retry } }
 
     validatePluginConfig(configuration)
 
-    expect(configuration).not.toHaveProperty('retryFailedSync')
+    expect(configuration.syncOptions).toEqual({})
     expect(mockLogger.error).toHaveBeenCalledWith(
-      expect.stringContaining('retryFailedSync'),
+      expect.stringContaining('syncOptions.retry'),
+    )
+  })
+
+  test('drops a syncOptions value that is not an object', () => {
+    const configuration = { syncOptions: 'yes' }
+
+    validatePluginConfig(configuration)
+
+    expect(configuration).not.toHaveProperty('syncOptions')
+    expect(mockLogger.error).toHaveBeenCalledWith(
+      expect.stringContaining('"syncOptions"'),
+    )
+  })
+
+  test('warns about unknown syncOptions keys', () => {
+    const configuration = { syncOptions: { retyr: {} } }
+
+    validatePluginConfig(configuration)
+
+    expect(configuration.syncOptions).toEqual({})
+    expect(mockLogger.warn).toHaveBeenCalledWith(
+      expect.stringContaining('"retyr"'),
     )
   })
 })
@@ -448,8 +510,10 @@ describe('Bootstrap registers the retry job', () => {
    * Strapi double for the bootstrap with a reachable Meilisearch.
    *
    * @param {object} pluginConfig - `plugin::meilisearch` configuration.
+   * @param {object} [options]
+   * @param {boolean} [options.cronEnabled] - Value of `server.cron.enabled`; unset keeps Strapi's default.
    */
-  function createBootstrapStrapi(pluginConfig) {
+  function createBootstrapStrapi(pluginConfig, { cronEnabled } = {}) {
     const services = {
       store: {
         syncCredentials: jest.fn(),
@@ -466,8 +530,15 @@ describe('Bootstrap registers the retry job', () => {
     }
     const strapi = {
       log: mockLogger,
-      config: { get: jest.fn(() => pluginConfig) },
-      cron: { add: jest.fn() },
+      config: {
+        get: jest.fn((key, defaultValue) => {
+          if (key === 'server.cron.enabled') {
+            return cronEnabled === undefined ? defaultValue : cronEnabled
+          }
+          return pluginConfig
+        }),
+      },
+      cron: { add: jest.fn(), remove: jest.fn() },
       plugin: jest.fn(() => ({ service: name => services[name] })),
       admin: {
         services: {
@@ -481,7 +552,7 @@ describe('Bootstrap registers the retry job', () => {
   }
 
   test('adds a named cron job with the configured rule', async () => {
-    const strapi = createBootstrapStrapi(enabled)
+    const strapi = createBootstrapStrapi(enabled, { cronEnabled: true })
 
     await bootstrap({ strapi })
 
@@ -493,11 +564,38 @@ describe('Bootstrap registers the retry job', () => {
     })
   })
 
+  test.each([
+    ['disabled', false],
+    ['unset (Strapi default)', undefined],
+  ])(
+    'adds no job and warns when server.cron.enabled is %s',
+    async (_, cronEnabled) => {
+      const strapi = createBootstrapStrapi(enabled, { cronEnabled })
+
+      await bootstrap({ strapi })
+
+      expect(strapi.cron.add).not.toHaveBeenCalled()
+      expect(mockLogger.warn).toHaveBeenCalledWith(
+        expect.stringContaining('server.cron.enabled'),
+      )
+    },
+  )
+
   test('adds no job when the feature is off', async () => {
-    const strapi = createBootstrapStrapi({})
+    const strapi = createBootstrapStrapi({}, { cronEnabled: true })
 
     await bootstrap({ strapi })
 
     expect(strapi.cron.add).not.toHaveBeenCalled()
+  })
+
+  test('destroy removes the retry job', () => {
+    const strapi = createBootstrapStrapi(enabled, { cronEnabled: true })
+
+    destroy({ strapi })
+
+    expect(strapi.cron.remove).toHaveBeenCalledWith(
+      'meilisearch-retry-failed-sync',
+    )
   })
 })

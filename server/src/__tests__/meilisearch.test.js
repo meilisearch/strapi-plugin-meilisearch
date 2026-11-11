@@ -57,6 +57,7 @@ describe('Meilisearch service behavior', () => {
           },
           getCollectionName: ({ contentType }) => contentType,
           addIndexedContentType: jest.fn(),
+          clearFailedSyncs: jest.fn(),
           subscribeContentType: jest.fn(),
           getCredentials: () => ({}),
         }
@@ -192,6 +193,7 @@ describe('Meilisearch service behavior', () => {
           },
           getCollectionName: ({ contentType }) => contentType,
           addIndexedContentType: jest.fn(),
+          clearFailedSyncs: jest.fn(),
           subscribeContentType: jest.fn(),
           getCredentials: () => ({}),
         }
@@ -541,6 +543,7 @@ describe('Meilisearch service behavior', () => {
           getCredentials: () => ({}),
           actionInBatches: jest.fn(),
           addIndexedContentType: jest.fn(),
+          clearFailedSyncs: jest.fn(),
           subscribeContentType: jest.fn(),
         }
       }),
@@ -678,6 +681,7 @@ describe('Meilisearch service behavior', () => {
           },
           getCollectionName: ({ contentType }) => contentType,
           addIndexedContentType: jest.fn(),
+          clearFailedSyncs: jest.fn(),
           subscribeContentType: jest.fn(),
           getCredentials: () => ({}),
         }
@@ -821,6 +825,7 @@ describe('Meilisearch service behavior', () => {
           },
           getCollectionName: ({ contentType }) => contentType,
           addIndexedContentType: jest.fn(),
+          clearFailedSyncs: jest.fn(),
           subscribeContentType: jest.fn(),
           getCredentials: () => ({}),
         }
@@ -942,6 +947,38 @@ describe('Meilisearch service behavior', () => {
     expect(customStrapi.log.info).toHaveBeenCalledWith(
       'A task to update the settings to the Meilisearch index "restaurant" has been enqueued (Task uid: undefined).',
     )
+  })
+
+  test('a full re-index clears the queued sync retries of the collection', async () => {
+    const customStrapi = createStrapiMock({})
+    const meilisearchService = createMeilisearchService({
+      strapi: customStrapi,
+    })
+
+    await meilisearchService.addContentTypeInMeiliSearch({
+      contentType: 'restaurant',
+    })
+
+    expect(
+      customStrapi.plugin().service().clearFailedSyncs,
+    ).toHaveBeenCalledWith({ contentType: 'restaurant' })
+  })
+
+  test('removing a collection index clears its queued sync retries', async () => {
+    const customStrapi = createStrapiMock({})
+    // @ts-ignore
+    Meilisearch.mockImplementationOnce(() => ({
+      index: jest.fn(() => ({ delete: jest.fn(async () => ({ taskUid: 1 })) })),
+    }))
+    const meilisearchService = createMeilisearchService({
+      strapi: customStrapi,
+    })
+
+    await meilisearchService.emptyOrDeleteIndex({ contentType: 'restaurant' })
+
+    expect(
+      customStrapi.plugin().service().clearFailedSyncs,
+    ).toHaveBeenCalledWith({ contentType: 'restaurant' })
   })
 
   test('Test to update the content of a collection in Meilisearch with a custom index name', async () => {
@@ -1106,6 +1143,7 @@ describe('Meilisearch service behavior', () => {
           },
           getCollectionName: ({ contentType }) => contentType,
           addIndexedContentType: jest.fn(),
+          clearFailedSyncs: jest.fn(),
           subscribeContentType: jest.fn(),
           getCredentials: () => ({}),
         }
