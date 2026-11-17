@@ -21,11 +21,7 @@ jobs:
         run: yarn install --frozen-lockfile
       - name: Build
         run: yarn build
-      # Trusted publishing requires Node >= 22.14.0 and npm >= 11.5.1.
-      # The plugin's engines field is Node 20, and yarn refuses to install
-      # outside that range, so the build stays on .nvmrc. Node 22 still ships
-      # npm 10, which sends setup-node's placeholder NODE_AUTH_TOKEN and never
-      # exchanges the GitHub OIDC identity. The registry then answers 404.
+      # Trusted publishing needs Node >= 22.14 and npm >= 11.5.1. The build above stays on Node 20.
       - uses: actions/setup-node@v6
         with:
           node-version: '22'
