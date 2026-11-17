@@ -21,6 +21,13 @@ jobs:
         run: yarn install --frozen-lockfile
       - name: Build
         run: yarn build
+      # Trusted publishing needs Node >= 22.14 and npm >= 11.5.1. The build above stays on Node 20.
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          registry-url: https://registry.npmjs.org/
+      - name: Install npm with trusted publishing support
+        run: npm install -g npm@11
       - name: Publish with latest tag
         if: "!github.event.release.prerelease && !contains(github.ref, 'beta')"
         run: npm publish . --access public --provenance
