@@ -21,6 +21,12 @@ jobs:
         run: yarn install --frozen-lockfile
       - name: Build
         run: yarn build
+      # Node 20 ships npm 10. actions/setup-node writes a placeholder
+      # NODE_AUTH_TOKEN, and npm 10 sends that token instead of exchanging
+      # the GitHub OIDC identity. The registry then answers 404. npm 11
+      # replaces the placeholder with a trusted-publisher token.
+      - name: Install npm with trusted publishing support
+        run: npm install -g npm@11
       - name: Publish with latest tag
         if: "!github.event.release.prerelease && !contains(github.ref, 'beta')"
         run: npm publish . --access public --provenance
