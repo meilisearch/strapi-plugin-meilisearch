@@ -21,10 +21,15 @@ jobs:
         run: yarn install --frozen-lockfile
       - name: Build
         run: yarn build
-      # Node 20 ships npm 10. actions/setup-node writes a placeholder
-      # NODE_AUTH_TOKEN, and npm 10 sends that token instead of exchanging
-      # the GitHub OIDC identity. The registry then answers 404. npm 11
-      # replaces the placeholder with a trusted-publisher token.
+      # Trusted publishing requires Node >= 22.14.0 and npm >= 11.5.1.
+      # The plugin's engines field is Node 20, and yarn refuses to install
+      # outside that range, so the build stays on .nvmrc. Node 22 still ships
+      # npm 10, which sends setup-node's placeholder NODE_AUTH_TOKEN and never
+      # exchanges the GitHub OIDC identity. The registry then answers 404.
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          registry-url: https://registry.npmjs.org/
       - name: Install npm with trusted publishing support
         run: npm install -g npm@11
       - name: Publish with latest tag
