@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     name: unit-tests
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Setup Node + deps
         uses: ./.github/actions/setup-node-and-deps
         with:
@@ -35,7 +35,7 @@ jobs:
         ports:
           - "7700:7700"
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Setup Node + deps (root + playground)
         uses: ./.github/actions/setup-node-and-deps
         with:
@@ -86,7 +86,7 @@ jobs:
     runs-on: ubuntu-latest
     name: playground-build
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Setup Node + deps (root + playground)
         uses: ./.github/actions/setup-node-and-deps
         with:
@@ -97,7 +97,7 @@ jobs:
     runs-on: ubuntu-latest
     name: style-check
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Setup Node + deps
         uses: ./.github/actions/setup-node-and-deps
         with:
