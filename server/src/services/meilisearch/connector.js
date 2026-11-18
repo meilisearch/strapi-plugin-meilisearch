@@ -1,5 +1,6 @@
 import Meilisearch from './client'
 import { isWildcardLocale } from './config'
+import { deleteQueuedDocumentsOfContentType } from '../document-middleware/retry-failed-sync'
 
 /**
  * Add one entry from a contentType to its index in Meilisearch.
@@ -472,6 +473,13 @@ export default ({ strapi, adapter, config }) => {
       const client = Meilisearch({ apiKey, host })
       const indexUids = config.getIndexNamesOfContentType({ contentType })
 
+      // The full re-index below sends the current state of every document, so
+      // the sync retries queued before it are obsolete once it succeeded. Only
+      // this snapshot is removed: failures queued during the re-index stay.
+      const queuedBeforeReindex = (await store.getFailedSyncQueue()).filter(
+        item => item.contentType === contentType,
+      )
+
       // Get Meilisearch Index settings from model
       const settings = config.getSettings({ contentType })
       await Promise.all(
@@ -518,6 +526,9 @@ export default ({ strapi, adapter, config }) => {
         entriesQuery: config.entriesQuery({ contentType }),
       })
 
+      if (queuedBeforeReindex.length > 0) {
+        await store.removeFailedSyncs({ items: queuedBeforeReindex })
+      }
       await store.addIndexedContentType({ contentType })
       await lifecycle.subscribeContentType({ contentType })
 
@@ -577,6 +588,11 @@ export default ({ strapi, adapter, config }) => {
           contentType,
         })
       if (indexedContentTypesWithSameIndex.length > 1) {
+        // The batch below only finds documents that still exist in Strapi.
+        // Delete queued documents by id first, so documents deleted during an
+        // outage do not stay in the shared index once the queue is cleared.
+        await deleteQueuedDocumentsOfContentType({ strapi, contentType })
+
         const deleteEntries = async ({ entries, contentType }) => {
           await this.deleteEntriesFromMeiliSearch({
             contentType,
@@ -606,6 +622,8 @@ export default ({ strapi, adapter, config }) => {
       }
 
       await store.removeIndexedContentType({ contentType })
+      // The index was removed on purpose: a later retry must not re-create it.
+      await store.clearFailedSyncs({ contentType })
     },
 
     /**

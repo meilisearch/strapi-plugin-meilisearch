@@ -3,6 +3,7 @@ import { MeiliSearch as Meilisearch } from 'meilisearch'
 import { createLocaleMeilisearchContext } from './utils/meilisearch-locale-helpers.js'
 
 import { createStrapiMock, mockLogger } from '../__mocks__/strapi'
+import failedSyncQueue from '../services/store/failed-sync-queue'
 
 jest.mock('meilisearch')
 
@@ -57,6 +58,9 @@ describe('Meilisearch service behavior', () => {
           },
           getCollectionName: ({ contentType }) => contentType,
           addIndexedContentType: jest.fn(),
+          clearFailedSyncs: jest.fn(),
+          getFailedSyncQueue: jest.fn(async () => []),
+          removeFailedSyncs: jest.fn(async () => 0),
           subscribeContentType: jest.fn(),
           getCredentials: () => ({}),
         }
@@ -192,6 +196,9 @@ describe('Meilisearch service behavior', () => {
           },
           getCollectionName: ({ contentType }) => contentType,
           addIndexedContentType: jest.fn(),
+          clearFailedSyncs: jest.fn(),
+          getFailedSyncQueue: jest.fn(async () => []),
+          removeFailedSyncs: jest.fn(async () => 0),
           subscribeContentType: jest.fn(),
           getCredentials: () => ({}),
         }
@@ -541,6 +548,9 @@ describe('Meilisearch service behavior', () => {
           getCredentials: () => ({}),
           actionInBatches: jest.fn(),
           addIndexedContentType: jest.fn(),
+          clearFailedSyncs: jest.fn(),
+          getFailedSyncQueue: jest.fn(async () => []),
+          removeFailedSyncs: jest.fn(async () => 0),
           subscribeContentType: jest.fn(),
         }
       }),
@@ -678,6 +688,9 @@ describe('Meilisearch service behavior', () => {
           },
           getCollectionName: ({ contentType }) => contentType,
           addIndexedContentType: jest.fn(),
+          clearFailedSyncs: jest.fn(),
+          getFailedSyncQueue: jest.fn(async () => []),
+          removeFailedSyncs: jest.fn(async () => 0),
           subscribeContentType: jest.fn(),
           getCredentials: () => ({}),
         }
@@ -821,6 +834,9 @@ describe('Meilisearch service behavior', () => {
           },
           getCollectionName: ({ contentType }) => contentType,
           addIndexedContentType: jest.fn(),
+          clearFailedSyncs: jest.fn(),
+          getFailedSyncQueue: jest.fn(async () => []),
+          removeFailedSyncs: jest.fn(async () => 0),
           subscribeContentType: jest.fn(),
           getCredentials: () => ({}),
         }
@@ -1106,6 +1122,9 @@ describe('Meilisearch service behavior', () => {
           },
           getCollectionName: ({ contentType }) => contentType,
           addIndexedContentType: jest.fn(),
+          clearFailedSyncs: jest.fn(),
+          getFailedSyncQueue: jest.fn(async () => []),
+          removeFailedSyncs: jest.fn(async () => 0),
           subscribeContentType: jest.fn(),
           getCredentials: () => ({}),
         }
@@ -1352,5 +1371,267 @@ describe('Meilisearch service behavior', () => {
         contentType: 'api::restaurant.restaurant',
       })
     })
+  })
+})
+
+describe('Index actions and the sync retry queue', () => {
+  const RESTAURANT = 'restaurant'
+  const KEPT = {
+    id: 1,
+    documentId: 'kept',
+    publishedAt: '2026-01-01T00:00:00.000Z',
+  }
+
+  /**
+   * Meilisearch service on a Strapi double whose store uses the real queue.
+   *
+   * @param {object} [options]
+   * @param {Function} [options.actionInBatches] - Batch double; calls the callback with one entry by default.
+   * @param {string[]} [options.indexed] - Indexed content types.
+   * @param {object} [options.restaurantConfig] - Plugin config of the restaurant collection.
+   * @param {string[]} [options.locales] - Locale codes configured in Strapi.
+   */
+  function setup({
+    actionInBatches,
+    indexed = [RESTAURANT],
+    restaurantConfig = {},
+    locales = [],
+  } = {}) {
+    const data = {}
+    const connector = {
+      getStoreKey: async ({ key }) =>
+        data[key] === undefined
+          ? undefined
+          : JSON.parse(JSON.stringify(data[key])),
+      setStoreKey: async ({ key, value }) => {
+        data[key] = JSON.parse(JSON.stringify(value))
+      },
+    }
+    const store = {
+      ...failedSyncQueue({ store: connector }),
+      getCredentials: async () => ({ host: 'http://localhost:7700' }),
+      getIndexedContentTypes: async () => indexed,
+      addIndexedContentType: jest.fn(),
+      removeIndexedContentType: jest.fn(),
+    }
+    const contentType = {
+      getCollectionName: ({ contentType }) => contentType,
+      getContentTypeUid: ({ contentType }) => contentType,
+      getEntry: jest.fn(async () => null),
+      getEntries: jest.fn(async () => []),
+      actionInBatches: jest.fn(
+        actionInBatches ||
+          (async ({ callback, contentType }) =>
+            callback({
+              entries: [KEPT],
+              contentType,
+            })),
+      ),
+    }
+    const services = {
+      store,
+      contentType,
+      lifecycle: { subscribeContentType: jest.fn() },
+      locales: { find: async () => locales.map(code => ({ code })) },
+    }
+    const customStrapi = createStrapiMock({ restaurantConfig })
+    customStrapi.plugin = jest.fn(() => ({ service: name => services[name] }))
+    customStrapi.contentTypes = { [RESTAURANT]: { attributes: {} } }
+    // @ts-ignore
+    global.strapi = customStrapi
+    const indexApi = {
+      updateSettings: jest.fn(async () => ({ taskUid: 1 })),
+      addDocuments: jest.fn(async () => ({ taskUid: 2 })),
+      deleteDocuments: jest.fn(async () => ({ taskUid: 3 })),
+      delete: jest.fn(async () => ({ taskUid: 4 })),
+    }
+    // @ts-ignore
+    Meilisearch.mockImplementation(() => ({ index: jest.fn(() => indexApi) }))
+    const meilisearch = createMeilisearchService({ strapi: customStrapi })
+    services.meilisearch = meilisearch
+    return { store, meilisearch, indexApi }
+  }
+
+  /**
+   * Queue documents of the restaurant collection.
+   *
+   * @param {object} store - Store service.
+   * @param {string[]} documentIds - Document ids.
+   */
+  const queue = (store, documentIds) =>
+    store.addFailedSyncs({ contentType: RESTAURANT, documentIds, maxSize: 100 })
+
+  /**
+   * Document ids in the sync retry queue.
+   *
+   * @param {object} store - Store service.
+   *
+   * @returns {Promise<string[]>}
+   */
+  const queuedIds = async store =>
+    (await store.getFailedSyncQueue()).map(item => item.documentId)
+
+  afterEach(() => {
+    // @ts-ignore
+    Meilisearch.mockReset()
+    // @ts-ignore
+    global.strapi = strapiMock
+  })
+
+  test('a successful re-index removes the retries queued before it and keeps those queued during it', async () => {
+    let store
+    const services = setup({
+      actionInBatches: async ({ callback, contentType }) => {
+        // A write fails in the document middleware while the re-index runs.
+        await queue(store, ['during'])
+        return callback({ entries: [KEPT], contentType })
+      },
+    })
+    store = services.store
+    const { meilisearch } = services
+    await queue(store, ['before'])
+
+    await meilisearch.addContentTypeInMeiliSearch({ contentType: RESTAURANT })
+
+    expect(
+      services.indexApi.addDocuments.mock.calls.flatMap(([docs]) =>
+        docs.map(doc => doc._meilisearch_id),
+      ),
+    ).toEqual(['restaurant-kept'])
+    expect(await queuedIds(store)).toEqual(['during'])
+  })
+
+  test('a re-index keeps retries queued while its settings were updated', async () => {
+    const { store, meilisearch, indexApi } = setup()
+    indexApi.updateSettings.mockImplementation(async () => {
+      await queue(store, ['during-settings'])
+      return { taskUid: 1 }
+    })
+
+    await meilisearch.addContentTypeInMeiliSearch({ contentType: RESTAURANT })
+
+    expect(await queuedIds(store)).toEqual(['during-settings'])
+  })
+
+  test('a failed re-index keeps the queued retries', async () => {
+    const { store, meilisearch } = setup({
+      actionInBatches: async () => {
+        throw new Error('Request to http://localhost:7700 has failed')
+      },
+    })
+    await queue(store, ['before'])
+
+    await expect(
+      meilisearch.addContentTypeInMeiliSearch({ contentType: RESTAURANT }),
+    ).rejects.toThrow('has failed')
+    expect(await queuedIds(store)).toEqual(['before'])
+  })
+
+  test('updating an indexed collection with its own index leaves no queued retries', async () => {
+    const { store, meilisearch, indexApi } = setup()
+    jest
+      .spyOn(meilisearch, 'getContentTypesWithSameIndex')
+      .mockResolvedValue([RESTAURANT])
+    await queue(store, ['before'])
+
+    await meilisearch.updateContentTypeInMeiliSearch({
+      contentType: RESTAURANT,
+    })
+
+    expect(indexApi.delete).toHaveBeenCalled()
+    expect(await queuedIds(store)).toEqual([])
+  })
+
+  test('removing a collection with its own index clears its queued retries', async () => {
+    const { store, meilisearch, indexApi } = setup()
+    jest
+      .spyOn(meilisearch, 'getContentTypesWithSameIndex')
+      .mockResolvedValue([RESTAURANT])
+    await queue(store, ['before'])
+    await store.addFailedSyncs({
+      contentType: 'about',
+      documentIds: ['other'],
+      maxSize: 100,
+    })
+
+    await meilisearch.emptyOrDeleteIndex({ contentType: RESTAURANT })
+
+    expect(indexApi.delete).toHaveBeenCalled()
+    expect(await store.getFailedSyncQueue()).toMatchObject([
+      { contentType: 'about', documentId: 'other' },
+    ])
+  })
+
+  test('emptying a shared index first removes documents that were deleted during an outage', async () => {
+    const { store, meilisearch, indexApi } = setup()
+    jest
+      .spyOn(meilisearch, 'getContentTypesWithSameIndex')
+      .mockResolvedValue([RESTAURANT, 'about'])
+    // Deleted from Strapi while Meilisearch was down: the batch cannot find it.
+    await queue(store, ['gone'])
+
+    await meilisearch.emptyOrDeleteIndex({ contentType: RESTAURANT })
+
+    const deletedIds = indexApi.deleteDocuments.mock.calls.flatMap(
+      ([ids]) => ids,
+    )
+    expect(deletedIds).toEqual(
+      expect.arrayContaining(['restaurant-gone', 'restaurant-kept']),
+    )
+    expect(indexApi.delete).not.toHaveBeenCalled()
+    expect(await queuedIds(store)).toEqual([])
+  })
+
+  test('emptying a shared index only deletes queued documents, so one that fails to index cannot block it', async () => {
+    const { store, meilisearch, indexApi } = setup()
+    jest
+      .spyOn(meilisearch, 'getContentTypesWithSameIndex')
+      .mockResolvedValue([RESTAURANT, 'about'])
+    const reject = jest.fn(async () => {
+      throw new Error('Payload Too Large')
+    })
+    indexApi.addDocuments = reject
+    indexApi.updateDocuments = reject
+    // Still in Strapi and indexable: the un-index must delete it, not send it.
+    strapi
+      .plugin('meilisearch')
+      .service('contentType')
+      .getEntry.mockResolvedValue({
+        id: 2,
+        documentId: 'filtered',
+        publishedAt: '2026-01-01T00:00:00.000Z',
+      })
+    await queue(store, ['filtered'])
+
+    await meilisearch.emptyOrDeleteIndex({ contentType: RESTAURANT })
+
+    expect(reject).not.toHaveBeenCalled()
+    expect(
+      indexApi.deleteDocuments.mock.calls.flatMap(([ids]) => ids),
+    ).toContain('restaurant-filtered')
+    expect(await queuedIds(store)).toEqual([])
+  })
+
+  test('emptying a shared all-locale index deletes every configured locale variant of queued documents', async () => {
+    const { store, meilisearch, indexApi } = setup({
+      restaurantConfig: { entriesQuery: { locale: '*' } },
+      locales: ['en', 'fr'],
+    })
+    jest
+      .spyOn(meilisearch, 'getContentTypesWithSameIndex')
+      .mockResolvedValue([RESTAURANT, 'about'])
+    await queue(store, ['gone'])
+
+    await meilisearch.emptyOrDeleteIndex({ contentType: RESTAURANT })
+
+    expect(indexApi.deleteDocuments.mock.calls.flatMap(([ids]) => ids)).toEqual(
+      expect.arrayContaining([
+        'restaurant-gone',
+        'restaurant-gone-en',
+        'restaurant-gone-fr',
+      ]),
+    )
+    expect(indexApi.addDocuments).not.toHaveBeenCalled()
+    expect(await queuedIds(store)).toEqual([])
   })
 })

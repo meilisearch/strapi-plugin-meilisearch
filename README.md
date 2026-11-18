@@ -212,6 +212,7 @@ Settings:
 - [🏗 Add Meilisearch settings](#-add-meilisearch-settings)
 - [🔎 Entries query](#-entries-query)
 - [🔐 Selectively index private fields](#-selectively-index-private-fields)
+- [🔁 Retry failed syncs](#-retry-failed-syncs)
 
 ### 🏷 Custom index name
 
@@ -488,6 +489,53 @@ module.exports = {
   },
 }
 ```
+
+### 🔁 Retry failed syncs
+
+When Meilisearch is unreachable, changes made in Strapi are saved but cannot be sent to the index. By default they are only logged. With `syncOptions.retry`, the plugin remembers the affected documents and retries them on a cron rule once Meilisearch is reachable again.
+
+`syncOptions` is a reserved top-level key for sync settings; it is not treated as a collection name.
+
+```js
+// config/plugins.js
+
+module.exports = {
+  meilisearch: {
+    config: {
+      syncOptions: {
+        retry: {
+          rule: '*/5 * * * *', // cron rule of the retry job
+          maxQueueSize: 10000, // optional, default 10000
+        },
+      },
+      restaurant: {},
+    },
+  },
+}
+```
+
+The retry job is a Strapi cron job, so cron must be enabled in `config/server.js`. Otherwise the job is not registered, failed syncs are not queued, and a warning is logged on startup:
+
+```js
+// config/server.js
+
+module.exports = ({ env }) => ({
+  // ...
+  cron: { enabled: true },
+})
+```
+
+On each run, every queued document is refetched from Strapi with the collection's `entriesQuery`: if it is still indexable, its current state is indexed; otherwise it is removed from the index. For all-locale indexes (`locale: '*'`), locale variants that are no longer indexable are removed for every locale configured in Strapi. Documents of collections that are no longer listened to are dropped from the queue. If the queue is full, further failures are logged as errors; re-index the collection from the plugin page in that case.
+
+Notes:
+
+- The queue is stored in the plugin store and survives restarts.
+- A document counts as retried once Meilisearch accepted the request; the resulting task is not checked. A document whose request fails while Meilisearch is reachable stays queued without blocking the others; a run stops as soon as Meilisearch is unreachable.
+- Removing a collection from Meilisearch clears its queued documents, so a later retry does not re-create them. For an index shared with other collections, the queued documents are deleted by id first, so documents deleted during an outage do not stay in the shared index.
+- Adding a collection removes the documents queued before it once all its documents were sent; if it fails, they stay queued. Updating a collection from the plugin page removes it first, which clears its queue; if the following add fails, the collection is no longer indexed and adding it again sends all documents.
+- A run is skipped while the previous one is still in progress. Queue updates are serialized within one Strapi process only: with several processes sharing one database, the job runs in each of them and a concurrent queue update can be lost.
+- `rule` is checked for its shape only (5 or 6 fields): a rule with invalid values such as `99 * * * *` is accepted but never runs.
+- Retries are not ordered with regular syncs or manual index actions: a retry that already read a document can still send it after a newer sync or an un-index of the collection.
 
 ### 🕵️‍♀️ Start Searching <!-- omit in toc -->
 

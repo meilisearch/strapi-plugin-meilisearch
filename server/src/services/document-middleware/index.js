@@ -18,6 +18,7 @@ import {
   fetchSingleEntryAfterTransaction,
   fetchWildcardLocaleEntriesForIndexing,
 } from './entry-refetch.js'
+import { queueFailedSync } from './failed-sync-queue.js'
 
 /**
  * Build the pre-action snapshot for one document id.
@@ -142,7 +143,7 @@ const normalizeLocaleCodes = localeCodes => {
  *
  * @returns {Promise<object[]>} Refetched Strapi entries.
  */
-const refetchEntriesAfterAction = async ({
+export const refetchEntriesAfterAction = async ({
   contentTypeService,
   contentType,
   documentId,
@@ -182,7 +183,7 @@ const refetchEntriesAfterAction = async ({
  *
  * @returns {Promise<void>}
  */
-const dispatchDeleteTargets = async ({
+export const dispatchDeleteTargets = async ({
   meilisearch,
   contentType,
   indexingQuery,
@@ -335,6 +336,7 @@ export default async function registerDocumentMiddleware({ strapi }) {
     }
 
     const result = await next()
+    let documentIds = []
 
     try {
       const {
@@ -351,7 +353,7 @@ export default async function registerDocumentMiddleware({ strapi }) {
         isDraftIndex,
       } = sync
 
-      const documentIds = resolveDocumentIds({
+      documentIds = resolveDocumentIds({
         actionParams: ctx?.params,
         result,
         preActionSnapshots,
@@ -543,6 +545,11 @@ export default async function registerDocumentMiddleware({ strapi }) {
       strapi.log.error(
         `Meilisearch document middleware error: ${error.message}`,
       )
+      await queueFailedSync({
+        strapi,
+        contentType: sync.contentType,
+        documentIds,
+      })
     }
 
     return result
