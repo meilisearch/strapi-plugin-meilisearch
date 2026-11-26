@@ -117,9 +117,13 @@ First, you need to configure credentials via the Strapi config, or on the plugin
 The credentials are composed of:
 
 - The `host`: The url to your running Meilisearch instance.
-- The `api_key`: The `master` or `private` key as the plugin requires administration permission on Meilisearch.[More about permissions here](https://www.meilisearch.com/docs/reference/features/authentication.html).
+- Give the plugin an API key scoped to the indexes it manages. When you [create the key](https://www.meilisearch.com/docs/reference/api/keys/create-api-key#body-actions), grant these actions:
+  - `stats.get` to list indexed content types and their document counts.
+  - `indexes.create` and `indexes.delete` to create indexes during indexing and remove them when a content type is removed.
+  - `documents.add` and `documents.delete` to synchronize new, updated, and deleted entries.
+  - `settings.update` to apply the index settings configured in Strapi.
 
-⚠️ The `master` or `private` key should never be used to `search` on your front end. For searching, use the `public` key available on [the `key` route](https://www.meilisearch.com/docs/reference/api/keys.html#get-keys).
+Keep the plugin key on the Strapi server. For front-end searches, use a separate key with only the `search` action, scoped to the indexes your users can search.
 
 #### Using the plugin page
 
@@ -146,8 +150,8 @@ module.exports = () => ({
     config: {
       // Your meili host
       host: 'http://localhost:7700',
-      // Your master key or private key
-      apiKey: 'masterKey',
+      // The plugin's API key
+      apiKey: process.env.MEILISEARCH_API_KEY,
     },
   },
 })
