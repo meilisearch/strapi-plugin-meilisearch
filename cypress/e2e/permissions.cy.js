@@ -116,9 +116,12 @@ describe('Permissions', () => {
       cy.root().should('not.contain', 'button[role="checkbox"]')
     })
 
-    it('cannot change settings', () => {
+    it('cannot view or change credentials in settings', () => {
       visitPluginPage()
-      cy.root().should('not.contain', 'button:contains("Save")')
+      cy.contains('button', 'Settings').click()
+      cy.get('input[name="host"]').should('not.exist')
+      cy.get('input[name="apiKey"]').should('not.exist')
+      cy.contains('button', 'Save').should('not.exist')
     })
   })
 

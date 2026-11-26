@@ -16,10 +16,6 @@ export const PERMISSIONS = {
     { action: 'plugin::meilisearch.collections.update', subject: null },
     { action: 'plugin::meilisearch.collections.delete', subject: null },
   ],
-  settings: [
-    { action: 'plugin::meilisearch.read', subject: null },
-    { action: 'plugin::meilisearch.settings.edit', subject: null },
-  ],
   read: [{ action: 'plugin::meilisearch.read', subject: null }],
   create: [{ action: 'plugin::meilisearch.collections.create', subject: null }],
   update: [{ action: 'plugin::meilisearch.collections.update', subject: null }],
