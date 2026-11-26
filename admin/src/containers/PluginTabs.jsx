@@ -13,14 +13,11 @@ const PluginTabs = () => {
   const { allowedActions: allowedActionsCollection } = useRBAC(
     PERMISSIONS.collections,
   )
-  const { allowedActions: allowedActionsSettings } = useRBAC(
-    PERMISSIONS.settings,
-  )
+  const {
+    allowedActions: { canEdit: canSeeSettings },
+  } = useRBAC(PERMISSIONS.settingsEdit)
 
   const canSeeCollections = Object.values(allowedActionsCollection).some(
-    value => !!value,
-  )
-  const canSeeSettings = Object.values(allowedActionsSettings).some(
     value => !!value,
   )
 

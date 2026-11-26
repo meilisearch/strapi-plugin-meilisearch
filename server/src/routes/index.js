@@ -6,7 +6,13 @@ export default [
     path: '/credential',
     handler: 'credentialController.getCredentials',
     config: {
-      policies: ['admin::isAuthenticatedAdmin'],
+      policies: [
+        'admin::isAuthenticatedAdmin',
+        {
+          name: 'admin::hasPermissions',
+          config: { actions: [ACTIONS.settings] },
+        },
+      ],
     },
   },
   {
