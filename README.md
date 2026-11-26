@@ -139,6 +139,8 @@ Once completed, click on the `add` button.
 
 #### Using a config file
 
+Set `MEILISEARCH_API_KEY` to the plugin's API key in your Strapi environment before starting Strapi.
+
 To use the Strapi config add the following to `config/plugins.js`:
 
 ```js
